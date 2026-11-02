@@ -27,6 +27,7 @@ Documents that cite the missing sources (Geometry Editing Specification, Agent S
 | Experimental implementation (branch `spike/rust-godot`) | `crates/`, `godot-client/` | Experimental, not approved for `master` |
 | Spike README, results, findings | `docs/spike/rust-godot/README.md` | Present |
 | Interactive client check (Godot window, timings, screenshots) | `docs/spike/rust-godot/interactive-client-report.md` | Present; desktop only |
+| Mobile validation (Android emulator; iOS blocked) | `docs/spike/rust-godot/mobile-validation-report.md` | Present; no real-device results |
 | Build and platform targets | `docs/spike/rust-godot/build-and-targets.md` | Present; Android and iOS unverified |
 | Rust Core to client adapter boundary | `docs/spike/rust-godot/core-adapter-boundary.md` | Present |
 

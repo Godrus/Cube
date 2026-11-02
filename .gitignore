@@ -1,3 +1,5 @@
 /target/
 /godot-client/.godot/
 *.tmp
+/godot-client/bin/
+/godot-client/build/

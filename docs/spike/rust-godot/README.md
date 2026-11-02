@@ -43,7 +43,7 @@ Godot check (4.7.2, Windows, GNU-built debug DLL): the extension loads and `godo
 1. **Undo semantics gap in the revision proposal.** `revision-and-snapshot-semantics.md` §6 says undo expects the `PostTokens` of its entry. Because undo is a forward commit (new, larger revisions), a chain of undos fails on the older entries (found by tests). The spike refreshes the expectations of other history entries for the bricks touched by each undo/redo. The proposal needs this rule stated; it is an input for OD-R5, not a decision.
 2. **Windows toolchain is GNU, not MSVC.** A GNU-built DLL loads fine in the official Godot 4.7.2 build (verified headless).
 3. **API level mismatch is tolerated:** godot-rust reports API v4.6 against runtime v4.7.2 and works; `compatibility_minimum` is 4.2 in `cube.gdextension`. Behaviour on other Godot versions is untested.
-4. **Android and iOS not built** (no NDK, no macOS).
+4. **Android:** release ARM64 and x86_64 libraries and APKs built; scenario passes on an emulator, no physical device (`mobile-validation-report.md`). **iOS not built** (no macOS).
 5. **Debug adapter DLL is 158 MB** (gdext debug symbols); `target/` reached 2.7 GB on a disk with about 9.5 GB free.
 6. **DirtyRegion granularity** is coarse (one bounding box per commit); acceptable here, would over-invalidate for scattered edits.
 7. **No face culling:** every occupied voxel becomes a cube; display limits keep calls bounded.

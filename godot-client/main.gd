@@ -17,6 +17,7 @@ var step := 0
 func _ready() -> void:
 	if not ClassDB.class_exists("CubeRuntime"):
 		push_error("CubeRuntime not found: build the Rust extension first (cargo build -p cube-godot-adapter).")
+		print("UITEST FAIL CubeRuntime class missing (GDExtension not loaded)")
 		if _has_arg("--smoke") or _has_arg("--ui-test"):
 			get_tree().quit(1)
 		return
@@ -24,7 +25,7 @@ func _ready() -> void:
 	_build_scene()
 	if _has_arg("--smoke"):
 		get_tree().quit(0 if _smoke() else 1)
-	elif _has_arg("--ui-test"):
+	elif _has_arg("--ui-test") or OS.has_feature("autotest"):
 		_ui_test()
 
 func _has_arg(a: String) -> bool:
@@ -235,12 +236,16 @@ func _ui_test() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--shot="):
 			shot_dir = a.substr(7)
+	print("UITEST STARTUP engine_ticks_ms=%d" % Time.get_ticks_msec())
 	await _frames(10)
 	print("UITEST ENV godot=%s renderer=%s adapter=%s" % [Engine.get_version_info().string, RenderingServer.get_video_adapter_name(), ProjectSettings.get_setting("rendering/renderer/rendering_method")])
 	_check("camera is current", get_viewport().get_camera_3d() == camera)
 	_check("scene has MultiMeshInstance3D", get_children().any(func(n): return n is MultiMeshInstance3D))
 	_check("six buttons visible", buttons.size() == 6 and buttons.values().all(func(b): return b.is_visible_in_tree() and b.size.x > 0))
 	_check("starts empty", multi.instance_count == 0)
+	print("UITEST WINDOW size=%s" % get_window().size)
+	for n in buttons:
+		print("UITEST BTN %s center=%s" % [n, buttons[n].get_global_rect().get_center()])
 
 	# ---- minimal volume: the real Fill button
 	await _click("Fill")
@@ -305,4 +310,9 @@ func _ui_test() -> void:
 
 	_check("no runtime error left", runtime.last_error() == "", runtime.last_error())
 	print("UITEST SUMMARY failures=%d fps_min=%.0f fps_big=%.0f" % [_failures, fps_min, fps_big])
+	# Export builds with the custom feature "autotest" (mobile validation) keep running so memory and
+	# touch input can be inspected from outside; command-line runs exit with the result code.
+	if OS.has_feature("autotest") and not _has_arg("--ui-test"):
+		print("UITEST DONE staying alive")
+		return
 	get_tree().quit(0 if _failures == 0 else 1)

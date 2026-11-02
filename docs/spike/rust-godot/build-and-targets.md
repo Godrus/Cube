@@ -7,9 +7,9 @@ Measured on the development machine described below. Everything not listed under
 | Item | Value |
 |---|---|
 | OS | Windows 11 Pro 10.0.26200 |
-| Rust | 1.97.1, host `x86_64-pc-windows-gnu` (MinGW-w64 from WinLibs); only this target installed |
+| Rust | 1.97.1, host `x86_64-pc-windows-gnu` (MinGW-w64 from WinLibs); Android targets `aarch64-linux-android` and `x86_64-linux-android` added for the mobile validation |
 | Godot | 4.7.2 stable, `D:\Program Files\Godot_v4.7.2-stable_win64.exe\` (the owner supplied the path after the first report) |
-| Android SDK/NDK | not installed (`ANDROID_NDK_HOME`/`ANDROID_HOME` unset) |
+| Android SDK/NDK | SDK in `%LOCALAPPDATA%\Android\Sdk`, NDK 28.1.13356709 (found installed; `ANDROID_NDK_HOME` not set globally) |
 | macOS / Xcode | not available |
 | Free disk on `D:` | about 9.5 GB at start |
 
@@ -45,10 +45,10 @@ godot --headless --path godot-client -- --smoke        # headless smoke run: fil
 |---|---|---|
 | Windows x86_64 (GNU) | `x86_64-pc-windows-gnu` | **Built and tested.** Library exports `gdext_rust_init` (checked with `objdump -p`). **Loads in Godot 4.7.2 and passes the headless smoke run** (see below) |
 | Windows x86_64 (MSVC) | `x86_64-pc-windows-msvc` | Not built. Official Godot Windows builds are MSVC-built; a GNU-built GDExtension DLL normally loads but this is unverified |
-| Android ARM64 | `aarch64-linux-android` | **Not built, not verified.** Needs: Android NDK, `rustup target add aarch64-linux-android`, a linker configured through `.cargo/config.toml` or `cargo-ndk`, then copy `libcube_godot_adapter.so` into the Godot Android export. The `.gdextension` file already lists the expected path |
-| iOS ARM64 | `aarch64-apple-ios` | **Not built, not verified.** Needs macOS with Xcode, `rustup target add aarch64-apple-ios`, and a decision on how the library is packaged for iOS export (dynamic library vs xcframework). The `.gdextension` file lists a placeholder path only |
+| Android ARM64 | `aarch64-linux-android` | **Built** (release `.so` 3.4 MB, APK 29.9 MB) and **run on an x86_64 emulator with ARM translation only**; no real device. See `mobile-validation-report.md` |
+| iOS ARM64 | `aarch64-apple-ios` | **Not built**: no macOS/Xcode. Commands in `mobile-validation-report.md` |
 
-Not done on purpose: no `.cargo/config.toml` with NDK paths, no `rustup target add`, no downloads of toolchains. Those need the owner's environment or permission.
+Android: `scripts/build-android.sh` sets the NDK linker per target via environment variables; no `.cargo/config.toml` is committed. Those need the owner's environment or permission.
 
 ## Verified in Godot (Windows, 4.7.2)
 
