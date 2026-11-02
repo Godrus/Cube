@@ -1,0 +1,15 @@
+[package]
+name = "cube-server"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+
+[[bin]]
+name = "cube-server"
+path = "src/main.rs"
+
+[dependencies]
+cube-core = { path = "../cube-core" }
+cube-processing = { path = "../cube-processing" }
+cube-editing = { path = "../cube-editing" }
+cube-persistence = { path = "../cube-persistence" }

@@ -1,0 +1,9 @@
+[package]
+name = "cube-editing"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+
+[dependencies]
+cube-core = { path = "../cube-core" }
+cube-processing = { path = "../cube-processing" }
