@@ -22,6 +22,7 @@ dependencies = [
  "cube-editing",
  "cube-persistence",
  "cube-processing",
+ "cube-worldgen",
  "godot",
 ]
 
@@ -47,6 +48,13 @@ dependencies = [
  "cube-editing",
  "cube-persistence",
  "cube-processing",
+]
+
+[[package]]
+name = "cube-worldgen"
+version = "0.0.1"
+dependencies = [
+ "cube-core",
 ]
 
 [[package]]

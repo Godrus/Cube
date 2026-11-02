@@ -1,0 +1,9 @@
+[package]
+name = "cube-worldgen"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+
+# Experimental world generation. Depends on cube-core only; no Godot.
+[dependencies]
+cube-core = { path = "../cube-core" }

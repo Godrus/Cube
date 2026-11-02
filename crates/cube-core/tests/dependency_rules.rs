@@ -17,6 +17,7 @@ const ALLOWED: &[(&str, &[&str])] = &[
     ("cube-processing", &["cube-core"]),
     ("cube-editing", &["cube-core", "cube-processing"]),
     ("cube-persistence", &["cube-core"]),
+    ("cube-worldgen", &["cube-core"]),
     (
         "cube-server",
         &[
@@ -33,6 +34,7 @@ const ALLOWED: &[(&str, &[&str])] = &[
             "cube-processing",
             "cube-editing",
             "cube-persistence",
+            "cube-worldgen",
             "godot",
         ],
     ),
@@ -177,6 +179,7 @@ fn core_sources_mention_no_engine_types() {
         "cube-processing",
         "cube-editing",
         "cube-persistence",
+        "cube-worldgen",
         "cube-server",
     ] {
         scan(&crates_dir().join(c).join("src"), &mut hits);

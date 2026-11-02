@@ -5,6 +5,7 @@ members = [
     "crates/cube-processing",
     "crates/cube-editing",
     "crates/cube-persistence",
+    "crates/cube-worldgen",
     "crates/cube-server",
     "crates/cube-godot-adapter",
 ]
