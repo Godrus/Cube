@@ -33,6 +33,10 @@ WorldSeed -> cube-worldgen (TerrainGenerator, WorldStreamer) -> GeometryAsset (c
   4. A chunk is a pure function of `(seed, coord)`; edits are stored separately and re-applied after generation.
 - **Chunk borders:** adjacent chunks sample the same height function at the border columns, so there is no seam by construction. Tests also bound the step across a border to <= 3 (the terrain's own slope).
 
+### Stable chunk hash
+
+`Chunk::stable_hash(seed)` hashes seed, chunk coordinate, `GENERATOR_VERSION` and every voxel (FNV-1a 64, fixed byte order). Tests in `crates/cube-worldgen/tests/determinism.rs` compare hashes (not counts) across repeats, load orders, seeds and alone-vs-in-area generation. An intentional terrain change must bump `GENERATOR_VERSION` and the pinned values. The WorldGen/Core write-path options are analysed in `worldgen-core-boundary.md`.
+
 ## Streaming
 
 `WorldStreamer` keeps the chunks around a centre in a `GeometryAsset`. Synchronous: generation happens in `pump(budget)`; there is no scheduler or thread (the async/job contracts are Draft).
@@ -66,7 +70,7 @@ WorldSeed -> cube-worldgen (TerrainGenerator, WorldStreamer) -> GeometryAsset (c
 
 - `CubeWorld` (GDExtension class, thin): `create(seed, radius)`, `set_player(x, y, z)`, `pump(budget)`, `take_added()`, `take_removed()`, `take_modified()`, `active_chunks()`, `chunk_voxels(cx, cz)`, `chunk_instance_buffer(cx, cz)`, `edit_around(...)`, `save(path)`, `load(path)`, counts, `last_error()`. Everything behind it is the pure-Rust `WorldBridge`, tested without Godot.
 - `godot-client/world.tscn` + `world.gd`: one `MultiMeshInstance3D` per chunk (buffer built in Rust, assigned in one call), a yellow player marker, camera behind the player, HUD (seed, active chunks, nodes, voxels, queue, position, fps), keys WASD/arrows or on-screen buttons, Edit / Save / Load / Jump 64.
-- Every occupied voxel is drawn as a cube. No face culling, no meshing, no LOD (out of scope).
+- Two renderers: **cubes** (control: every occupied voxel is a cube instance) and **faces** (experimental: only faces whose neighbour voxel is air, one mesh per chunk, no greedy merge, no LOD). Select with `--renderer=faces`, the custom feature `faces`, or the in-app button. Comparison: `report.md` sections 10-12.
 
 ## Run
 
@@ -78,13 +82,13 @@ godot --headless --path godot-client world.tscn -- --world-smoke         # scrip
 godot --path godot-client world.tscn -- --world-smoke --shot=<dir>       # with a renderer, writes screenshots
 ```
 
-Android (emulator verified, see report): `scripts/build-android.sh arm64 x86_64`, then export the presets "Android ARM64 World Validation" / "Android x86_64 World Validation" (they set the custom feature `worldtest`, which starts `world.tscn` and runs the scripted check).
+Android (emulator verified, see report): `scripts/build-android.sh arm64 x86_64`, then export the presets "Android ARM64 World Validation" / "Android x86_64 World Validation" (cubes), or the same names with " (faces)" (face-culled renderer, extra feature `faces`) (they set the custom feature `worldtest`, which starts `world.tscn` and runs the scripted check).
 
 ## Limitations of this spike
 
 - Synchronous generation, no threads, no priority beyond nearest-first, bounded queue only.
 - One biome, height-map terrain only: no caves, rivers, structures, NPCs, biome blending, vertical streaming (a chunk is always 32 high).
-- Cube-per-voxel rendering; interior voxels are drawn.
+- The control renderer draws interior voxels; the faces renderer has no greedy merge and rebuilds neighbours on every change.
 - World edits bypass `cube-editing` (no history, no undo) and use the Core commit primitive directly because the Editing API contracts are Draft.
 - Each chunk load or unload is a Core commit, so the asset revision grows by one per streamed chunk.
 - `world-state-v0` has no migration, no compatibility, no dedup.
