@@ -12,6 +12,8 @@
 
 Rules (AU-1.0 §3): dependencies are strictly one-directional by layer; lower layers never depend on upper layers; no cycles; modules interact only through approved API Contracts; QA is a test-time dependency only. The matrix describes **compile-time** dependencies. It does not authorize access to internals.
 
+**Superseded matrix:** the v1.0 dependency matrix (which contained a History ↔ Persistence cycle and an Orchestration ↔ History cycle, and gave QA a Required dependency on every module) is **Deprecated/historical**. It is no longer part of this document and survives only in git history (commit `dfba948`). Sections 1.1–1.5 are the only valid dependency definition.
+
 ## 1.1 Layers
 
 | Layer | Module | Owner |
@@ -153,22 +155,22 @@ Order follows AU-1.0 §26. The dependency grid (Section 1.2) allows overlap: the
 
 | Stage | Module(s) | Validation | Exit condition | May start in parallel once |
 |---|---|---|---|---|
-| 0 | Decisions & P0 contracts | language/engine decision recorded (AU-1.0 §24 #1–2); contracts C-01…C-19, PR-01…PR-05, E-02…E-06 approved; dependency-direction check in CI | Integration Owner approval | — |
-| 1 | Geometry Core | asset/layer model, Bounds, Region, Transform, Brick addressing (negative coords), BrickStorage with COW and missing-state distinction, channels, material mapping, revision primitives and commit primitive, brick export/import views (**not** a file format) | Core tests pass | stage 0 done |
-| 2 | Processing foundations | snapshot capture, task state machine, scheduler, cancellation, dependency graph, revision validation, stale rejection, bounds/BVH slots | Concurrency and async tests pass | stage 1 contracts frozen |
-| 3 | Editing API & Contracts | public types, error model, ports (`IEditingService`, `IGeometryBackend`, `ITransactionObserver`, `IDeltaStore`, `ISnapshotStore`), threading/revision/async docs | Contract tests pass | stages 1–2 contract drafts |
+| 0 | Decisions & tier approval | language decision recorded (AU-1.0 §24 #1; the engine decision is needed only for stage 12); **P0 approved** (C-01…C-19, gates stage 1); P1 under review; rule DEP-01 recorded (its test is required before stage 1 acceptance); tiers defined in `docs/api-contracts/README.md` §3 | Integration Owner approval of P0 | — |
+| 1 | Geometry Core | asset/layer model, Bounds, Region, Transform, Brick addressing (negative coords), BrickStorage with COW and missing-state distinction, channels, material mapping, revision primitives and commit primitive, brick export/import views (**not** a file format) | Core tests pass | stage 0 done (P0 approved) |
+| 2 | Processing foundations | snapshot capture, task state machine, scheduler, cancellation, dependency graph, revision validation, stale rejection, bounds/BVH slots | Concurrency and async tests pass | **P1 approved** and stage 1 contracts frozen |
+| 3 | Editing API & Contracts | public types, error model, ports (`IEditingService`, `IGeometryBackend`, `ITransactionObserver`; the storage ports `IDeltaStore`/`ISnapshotStore` are P2), threading/revision/async docs; finalises P1 | Contract tests pass | stages 1–2 contract drafts; P1 approved |
 | 4 | Editing Orchestration | transaction lifecycle, backend registry/dispatch, rollback, dirty propagation, revision validation, conflicts | Orchestration integration tests pass | stage 3 frozen |
 | 5 | Backends (Voxel, SDF, Mesh) | conformance suite for `IGeometryBackend`, backend-specific correctness | all required backend tests pass | stage 3 frozen (use orchestration test harness before stage 4 completes) |
 | 6 | Tools: Sculpting, Boolean | transaction integration, explicit conversion, async revision safety | Tool integration tests pass | stage 4 + 5 usable |
-| 7 | History | commands/deltas/snapshots/undo/redo, memory limits, local vs server history | History restoration tests pass | stage 4 |
+| 7 | History | commands/deltas/snapshots/undo/redo, memory limits, local vs server history | History restoration tests pass | stage 4 and the **P2 subset** (E-10, `IDeltaStore`, `ISnapshotStore`) approved |
 | 8 | Composite Geometry | hierarchy, assembly graph, attach/detach, constraints, transform propagation | Composite integration tests pass | stage 4 |
 | 9 | Resampling & Refinement | resolution change, refinement regions, transitions, undo | Mixed-resolution tests pass | stage 5 |
-| 10 | Persistence Integration | manifest, bricks, deltas, snapshots, atomic save, recovery, migration | Persistence and recovery tests pass | stages 1–3 (does not need 4–9; full gate needs 7–8) |
+| 10 | Persistence Integration | manifest, bricks, deltas, snapshots, atomic save, recovery, migration | Persistence and recovery tests pass | stages 1–3 and the **P2 subset** (P-01…P-07, storage ports) approved (does not need 4–9; full gate needs 7–8) |
 | 11 | Networking Adapter | server authority, reconciliation, reconnect, journal | Multiplayer tests pass | stages 4, 7, 10; **owner unassigned** |
 | 12 | Engine Integration Adapters | port implementations only | Adapter conformance tests pass | any time after stage 2; **owner unassigned**, engine not chosen |
 | 13 | Full Integration & QA | complete dependency graph, all contracts, full suite, stress, baselines, regression | Integration Owner approval | all |
 
-QA infrastructure (Agent I) begins at stage 0 and must exist before stage 1 acceptance.
+Tier gates: P0 → stage 1; P1 → stages 2–5; P2 → the module it affects (stages 6–10); P3 → stages 11–12 and tool modules. QA infrastructure (Agent I) begins at stage 0 and must exist before stage 1 acceptance.
 
 # 6. CI Pipeline
 

@@ -140,15 +140,15 @@ Each contract file lists its own Open items.
 | Ownership | Ready except 5 unassigned modules | O-1…O-5 |
 | Dependency structure | **Ready** (acyclic by construction, with CI check proposed) | pending ACR-001…003 |
 | Contract inventory | **Ready** | 45 contracts + 3 interface boundaries + 2 storage ports; 5 tool-level contracts missing |
-| Contract specification | **Draft** | nothing approved; P0 set can be approved after review |
+| Contract specification | **Draft** | nothing approved; P0 (19) can be reviewed first, P1 (17) in parallel with Stage 1 |
 | Revision / Snapshot semantics | **Proposed** | needs review and OD-R1…R8 |
 | Language / engine | **Not ready** | blocks signatures, CI, test tooling |
-| Core and Processing implementation start | **Conditional** | start after: language decision (O-0a), P0 contracts approved, ACR-001 decided |
+| Core and Processing implementation start | **Conditional** | Core starts after: language decision (O-0a), P0 approved, ACR-001 decided; Processing additionally needs P1 approved |
 | Remaining modules | Blocked by Core/Processing/L2 | as designed |
 | Source documents | **Incomplete** | O-6 |
-| Repository | empty of code; docs staged only, no commits | housekeeping |
+| Repository | no code; documentation committed on `master` (commits `init` and the rev 1.1 documentation commit) | housekeeping |
 
-**Conclusion:** the architecture is internally consistent and ready for contract approval. Implementation can start only for Core and Processing, and only after the language decision and approval of the P0 contracts. Starting the other modules before then would reproduce the problems the audit removed.
+**Conclusion:** the architecture is internally consistent and ready for contract approval. Implementation can start only for Core and Processing, and only after the language decision and approval of the P0 contracts (Core) and P1 contracts (Processing). Starting the other modules before then would reproduce the problems the audit removed.
 
 ---
 
@@ -156,7 +156,7 @@ Each contract file lists its own Open items.
 
 1. Owner decisions: O-0a (language), ACR-001/002/003, owners for O-1…O-5 (or explicit deferral).
 2. Add the missing source documents to the repository (O-6); I will then update Voxel Architecture and GDD/TDD sections (not possible today).
-3. Review and approve P0 contracts: C-01…C-19, PR-01…PR-05, E-02…E-06 and L2 ports. Record approvals in `docs/decisions/`.
+3. Review and approve P0 contracts (C-01…C-19), then P1 (PR-01…PR-08, E-02…E-07, E-09, E-11, E-12). Record approvals in `docs/decisions/`.
 4. Resolve OD-R1, OD-R2 (width, commit algorithm) at least at proposal level — they constrain Core.
 5. Set up CI skeleton including the dependency-direction check; start Agent I infrastructure.
 6. Start Core Agent, then Processing Agent against approved contracts.
@@ -185,16 +185,20 @@ Each contract file lists its own Open items.
 
 # L. P0 / P1 Readiness
 
-P0 = contracts needed before Core and Processing can start. P1 = contracts needed before Orchestration/backends can start.
+Tier definitions are the single set in `docs/api-contracts/README.md` §3 (also used by the QA Pack stage gates and the Task Pack): **P0** gates Stage 1 (Core); **P1** gates Stages 2–5 (Processing, Editing API, Orchestration, Backends); **P2** gates the affected module in Stages 6–10; **P3** covers interface boundaries and unwritten tool contracts.
 
-| Set | Contracts | Specified | Approved | Ready to implement against? |
+| Tier | Contracts | Specified | Approved | Ready to implement against? |
 |---|---|---|---|---|
-| P0 | C-01…C-19 (incl. RevisionToken, OperationId, DirtyRegion, Result/Error), PR-01, PR-03, PR-05 | Yes, Draft | **No** | **No** |
-| P1 | E-02…E-07, E-11, PR-02, PR-04, PR-06, PR-07, L2 ports | Yes, Draft | **No** | **No** |
-| P2 | E-08…E-10, E-12, P-01…P-07 | Yes, Draft | No | No (not needed yet) |
-| Tool-level | BooleanPolicy, Sculpt/Brush, Resample/Refine, Composite ops, History interface | **No** | No | No |
+| P0 | C-01…C-19 (19) | Yes, Draft | **No** | **No** |
+| P1 | PR-01…PR-08, E-02…E-07, E-09, E-11, E-12 (17) | Yes, Draft | **No** | **No** |
+| P2 | E-08, E-10, `IDeltaStore`, `ISnapshotStore`, P-01…P-07 (9 + 2 ports) | Yes, Draft | No | No (not needed yet) |
+| P3 | PR-09, E-13, P-09 (boundaries); BooleanPolicy, Sculpt/Brush, Resample/Refine, Composite ops, History interface | boundaries described; tool-level **not written** | No | No |
 
-**Why P0 is not ready:** (1) none is approved; (2) language is undecided, so ownership/lifetime/thread-safety rules (ownership of pins, COW handles, value-type guarantees) cannot be frozen; (3) ACR-001 changes where four P0 types live; (4) RevisionToken width/commit algorithm (OD-R1/R2) constrain `BrickStorage` and the commit primitive; (5) integer/float widths for `BrickKey`, `GeometryTransform` and `GeometryBounds` are open; (6) the missing source documents may constrain C-07…C-12 (Voxel Architecture) and PR-xx (Geometry Processing Specification) in ways that cannot be checked.
+**Why P0 is not ready:** (1) none is approved; (2) language is undecided, so ownership/lifetime/thread-safety rules (ownership of pins, COW handles, value-type guarantees) cannot be frozen; (3) ACR-001 changes where four P0 types live (C-16…C-19); (4) RevisionToken width and commit algorithm (OD-R1/R2) constrain `BrickStorage` and the commit primitive; (5) integer/float widths for `BrickKey`, `GeometryTransform` and `GeometryBounds` are open; (6) the missing source documents may constrain C-07…C-12 (Voxel Architecture) in ways that cannot be checked.
+
+**Why P1 is not ready:** (1) none is approved; (2) it depends on P0 for every shared type (tokens, regions, dirty regions, errors); (3) PR-07 and PR-08 depend on the unassigned provider owner (O-1); (4) E-04, E-07 and E-11 carry open decisions (nested/async transactions, capability vocabulary, signatures); (5) the Geometry Processing Specification is missing (B-1) and may constrain PR-01…PR-08.
+
+**Readiness consequence:** Stage 1 may start only after P0 approval, the language decision and the ACR-001 decision; Stage 2 additionally needs P1 approved.
 
 # M. Next Tasks (ordered)
 

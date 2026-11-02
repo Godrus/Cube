@@ -27,70 +27,85 @@
 
 ## 3. API Contract Matrix
 
+### 3.1 Approval Tiers (single definition used by all documents)
+
+Tiers are **approval gates** tied to the build stages in the Integration & QA Pack section 5. A tier must be Approved before the stage it gates may start.
+
+| Tier | Contracts | Count | Gates |
+|---|---|---|---|
+| P0 | C-01…C-19 (all Geometry Core contracts incl. RevisionToken, OperationId, DirtyRegion, Result/Error) | 19 | Stage 1 (Geometry Core) |
+| P1 | PR-01…PR-08 (Processing); E-02…E-07, E-09, E-11, E-12 (Editing API, backend port, observer port, delta) | 17 | Stage 2 (Processing), Stages 3-5 (Editing API, Orchestration, Backends). P1 may be reviewed in parallel with Stage 1 |
+| P2 | E-08, E-10, `IDeltaStore`, `ISnapshotStore`, P-01…P-07 | 9 numbered + 2 ports | Stages 6-10 for the affected module (Tools/modifiers, History, Persistence) |
+| P3 | PR-09, E-13, P-09 (interface boundaries); tool-level contracts not yet written | 3 + 5 | Stages 11-12 and each tool module's own start |
+
+19 + 17 + 9 + 3 = 48 matrix rows (45 contracts + 3 boundaries). Rationale: Core cannot start without its own data contracts; Processing consumes Core and defines its own; Orchestration and backends cannot start without the transaction, operation, result, conflict, backend, delta and observer contracts; History and Persistence need checkpoints and storage ports only later.
+
+### 3.2 Contract list
+
 **Counting note (official wording):** the set is **45 contracts + 3 interface boundaries** (PR-09, E-13, P-09; boundary-only, no version yet), plus 2 unnumbered L2 storage ports (`IDeltaStore`, `ISnapshotStore`). The phrase "48 contracts" is not used: it counted the boundaries as contracts. Section ids E-01 (pointer to C-17) and P-08 (composite persistence note) are not contracts and carry no row. Plus two storage ports (`IDeltaStore`, `ISnapshotStore`) listed unnumbered. **Owner column = the single contract owner**; the agent that implements an operation or algorithm over the data is named in the consumers column.
 
 Version scheme: `major.minor.patch[-draft]`. All contracts are `0.1.0-draft`; `1.0.0` is assigned on approval. Per-contract ownership, lifetime, access, thread-safety, revision semantics, errors and contract tests are in the file named in the *Spec file* column.
 
 Legend: **Draft** = specified in this pass, awaiting approval. **Draft+OD** = specified, with named Open Decisions that block freezing. **Boundary** = only the interface boundary is specified.
 
-| ID | Contract | Provider (owner) | Primary consumers | Spec file | State | Version | Blocking open decisions |
-|---|---|---|---|---|---|---|---|
-| C-01 | GeometryAsset | Core | all | core | Draft | 0.1.0-draft | metadata schema |
-| C-02 | GeometryLayer | Core | all | core | Draft+OD | 0.1.0-draft | collision profile schema |
-| C-03 | GeometryLayerType | Core | API, backends, tools | core | Draft+OD | 0.1.0-draft | extension registration |
-| C-04 | GeometryTransform | Core | all | core | Draft+OD | 0.1.0-draft | f32/f64, epsilon |
-| C-05 | GeometryBounds | Core | Processing (derived bounds, PR-08), backends | core | Draft+OD | 0.1.0-draft | bounds exactness |
-| C-06 | GeometryRegion | Core | all | core | Draft+OD | 0.1.0-draft | non-AABB shapes |
-| C-07 | BrickKey | Core | Voxel, Persistence, all | core | Draft+OD | 0.1.0-draft | int width, refinement addressing |
-| C-08 | BrickStorage | Core | Processing, backends, Persistence | core | Draft+OD | 0.1.0-draft | layout, index order, compression |
-| C-09 | GeometryChannel | Core | backends, tools | core | Draft+OD | 0.1.0-draft | attribute registry, widths |
-| C-10 | MaterialMapping | Core | backends, Boolean, Sculpt | core | Draft+OD | 0.1.0-draft | global library interface |
-| C-11 | ResolutionProfile | Core | backends, Resolution | core | Draft | 0.1.0-draft | value sets |
-| C-12 | RefinementRegion | Core | backends, Resolution Agent (operations) | core | Draft+OD | 0.1.0-draft | transition algorithm |
-| C-13 | Junction | Core | Boolean, Processing | core | Draft | 0.1.0-draft | blend params |
-| C-14 | CompositePart | Core | Composite Agent (operations), Persistence | core | Draft+OD | 0.1.0-draft | ACR-003 |
-| C-15 | AssemblyGraph | Core | Composite Agent (operations), Persistence | core | Draft+OD | 0.1.0-draft | ACR-003, constraint scope |
-| C-16 | RevisionToken | Core | all | core + semantics | Draft+OD | 0.1.0-draft | OD-R1…R8 |
-| C-17 | OperationId | Core | all | core | Draft+OD | 0.1.0-draft | OD-R8 |
-| C-18 | DirtyRegion | Core | Processing, Orchestration, backends | core | Draft+OD | 0.1.0-draft | sub-brick granularity |
-| C-19 | Result/Error envelope | Core | all | core | Draft | 0.1.0-draft | code scheme |
-| PR-01 | Processing Snapshot | Processing | Orchestration, backends, Boolean, Persistence | processing | Draft+OD | 0.1.0-draft | pin vs copy, caps |
-| PR-02 | Dependency Revision | Processing | Processing, Orchestration | processing | Draft+OD | 0.1.0-draft | granularity |
-| PR-03 | Processing Task / AsyncJobHandle | Processing | Orchestration, Tools, Persistence | processing | Draft+OD | 0.1.0-draft | task kind extension |
-| PR-04 | Processing Result | Processing | Orchestration | processing | Draft+OD | 0.1.0-draft | payload typing |
-| PR-05 | CancellationToken | Processing | all async | processing | Draft | 0.1.0-draft | deadlines |
-| PR-06 | Job Priority | Processing | submitters | processing | Draft+OD | 0.1.0-draft | weights |
-| PR-07 | Dependency Graph registration | Processing | derived-data owners | processing | Draft+OD | 0.1.0-draft | provider ownership (O-1) |
-| PR-08 | Spatial Hierarchy / Bounds / BVH update | Processing | queries, collision | processing | Draft+OD | 0.1.0-draft | query API home |
-| PR-09 | Engine ports | Processing | Engine adapters | processing | Boundary | — | exact set |
-| E-02 | AuthorizationContext | Editing API (input from session layer) | Orchestration, Networking | editing | Draft+OD | 0.1.0-draft | permission model |
-| E-03 | EditingOperation | Editing API | Orchestration, Tools, History | editing | Draft+OD | 0.1.0-draft | Kind registry |
-| E-04 | EditingTransaction | Editing API | Orchestration (implements), Tools, backends, History | editing | Draft+OD | 0.1.0-draft | nested/group, async |
-| E-05 | EditingResult | Editing API | all | editing | Draft | 0.1.0-draft | — |
-| E-06 | ConflictResult | Editing API | Orchestration, Networking | editing | Draft+OD | 0.1.0-draft | merge policy |
-| E-07 | IGeometryBackend / Capabilities | Editing API | Orchestration, backends, Tools | editing | Draft+OD | 0.1.0-draft | capability vocabulary |
-| E-08 | ModifierStack | Editing API | Tools, evaluation | editing | Draft+OD | 0.1.0-draft | evaluation owner (O-2) |
-| E-09 | GeometryDelta | Editing API | History, Persistence | editing | Draft+OD | 0.1.0-draft | delta encoding |
-| E-10 | Checkpoint | Editing API | History, Persistence | editing | Draft+OD | 0.1.0-draft | frequency policy |
-| E-11 | IEditingService | Editing API | Tools, Composite, History, Networking | editing | Draft+OD | 0.1.0-draft | signatures |
-| E-12 | ITransactionObserver | Editing API | Orchestration (publish), History (sink) | editing | Draft+OD | 0.1.0-draft | durability ordering |
-| E-13 | Networking boundary | Editing API | Networking Adapter | editing | Boundary | — | owner, protocol (O-3) |
-| — | IDeltaStore / ISnapshotStore | Editing API | History, Persistence | editing §0 | Draft | 0.1.0-draft | — |
-| P-01 | AssetManifest | Persistence | Persistence, tools | persistence | Draft+OD | 0.1.0-draft | container, format |
-| P-02 | BrickSerialization | Persistence | Persistence | persistence | Draft+OD | 0.1.0-draft | compression |
-| P-03 | DeltaSerialization | Persistence | History (via port) | persistence | Draft+OD | 0.1.0-draft | flush policy |
-| P-04 | SnapshotSerialization | Persistence | History (via port) | persistence | Draft+OD | 0.1.0-draft | incremental |
-| P-05 | StorageTransaction | Persistence | Persistence | persistence | Draft+OD | 0.1.0-draft | platform atomic publish |
-| P-06 | IntegrityReport | Persistence | Core validation, QA | persistence | Draft | 0.1.0-draft | repair automation |
-| P-07 | MigrationDescriptor | Persistence | Persistence | persistence | Draft | 0.1.0-draft | execution mode |
-| P-09 | Import/Export adapters | unassigned | — | persistence | Boundary | — | owner (O-4) |
-| — | BooleanPolicy | Agent F | Orchestration, backends | *not yet written* | **Missing** | — | next pass |
-| — | BrushParameters / Sculpt tool interface | Agent E | Orchestration, backends | *not yet written* | **Missing** | — | next pass |
-| — | Resampling/Refinement operation contract | Resolution Agent | backends | *not yet written* | **Missing** | — | next pass |
-| — | Composite operation contract | Composite Agent | Orchestration | *not yet written* | **Missing** | — | next pass |
-| — | History interface (undo/redo/limits) | Agent G | UI, Networking | *not yet written* | **Missing** | — | next pass |
+| ID | Contract | Provider (owner) | Primary consumers | Spec file | State | Version | Tier | Blocking open decisions |
+|---|---|---|---|---|---|---|---|---|
+| C-01 | GeometryAsset | Core | all | core | Draft | 0.1.0-draft | P0 | metadata schema |
+| C-02 | GeometryLayer | Core | all | core | Draft+OD | 0.1.0-draft | P0 | collision profile schema |
+| C-03 | GeometryLayerType | Core | API, backends, tools | core | Draft+OD | 0.1.0-draft | P0 | extension registration |
+| C-04 | GeometryTransform | Core | all | core | Draft+OD | 0.1.0-draft | P0 | f32/f64, epsilon |
+| C-05 | GeometryBounds | Core | Processing (derived bounds, PR-08), backends | core | Draft+OD | 0.1.0-draft | P0 | bounds exactness |
+| C-06 | GeometryRegion | Core | all | core | Draft+OD | 0.1.0-draft | P0 | non-AABB shapes |
+| C-07 | BrickKey | Core | Voxel, Persistence, all | core | Draft+OD | 0.1.0-draft | P0 | int width, refinement addressing |
+| C-08 | BrickStorage | Core | Processing, backends, Persistence | core | Draft+OD | 0.1.0-draft | P0 | layout, index order, compression |
+| C-09 | GeometryChannel | Core | backends, tools | core | Draft+OD | 0.1.0-draft | P0 | attribute registry, widths |
+| C-10 | MaterialMapping | Core | backends, Boolean, Sculpt | core | Draft+OD | 0.1.0-draft | P0 | global library interface |
+| C-11 | ResolutionProfile | Core | backends, Resolution | core | Draft | 0.1.0-draft | P0 | value sets |
+| C-12 | RefinementRegion | Core | backends, Resolution Agent (operations) | core | Draft+OD | 0.1.0-draft | P0 | transition algorithm |
+| C-13 | Junction | Core | Boolean, Processing | core | Draft | 0.1.0-draft | P0 | blend params |
+| C-14 | CompositePart | Core | Composite Agent (operations), Persistence | core | Draft+OD | 0.1.0-draft | P0 | ACR-003 |
+| C-15 | AssemblyGraph | Core | Composite Agent (operations), Persistence | core | Draft+OD | 0.1.0-draft | P0 | ACR-003, constraint scope |
+| C-16 | RevisionToken | Core | all | core + semantics | Draft+OD | 0.1.0-draft | P0 | OD-R1…R8 |
+| C-17 | OperationId | Core | all | core | Draft+OD | 0.1.0-draft | P0 | OD-R8 |
+| C-18 | DirtyRegion | Core | Processing, Orchestration, backends | core | Draft+OD | 0.1.0-draft | P0 | sub-brick granularity |
+| C-19 | Result/Error envelope | Core | all | core | Draft | 0.1.0-draft | P0 | code scheme |
+| PR-01 | Processing Snapshot | Processing | Orchestration, backends, Boolean, Persistence | processing | Draft+OD | 0.1.0-draft | P1 | pin vs copy, caps |
+| PR-02 | Dependency Revision | Processing | Processing, Orchestration | processing | Draft+OD | 0.1.0-draft | P1 | granularity |
+| PR-03 | Processing Task / AsyncJobHandle | Processing | Orchestration, Tools, Persistence | processing | Draft+OD | 0.1.0-draft | P1 | task kind extension |
+| PR-04 | Processing Result | Processing | Orchestration | processing | Draft+OD | 0.1.0-draft | P1 | payload typing |
+| PR-05 | CancellationToken | Processing | all async | processing | Draft | 0.1.0-draft | P1 | deadlines |
+| PR-06 | Job Priority | Processing | submitters | processing | Draft+OD | 0.1.0-draft | P1 | weights |
+| PR-07 | Dependency Graph registration | Processing | derived-data owners | processing | Draft+OD | 0.1.0-draft | P1 | provider ownership (O-1) |
+| PR-08 | Spatial Hierarchy / Bounds / BVH update | Processing | queries, collision | processing | Draft+OD | 0.1.0-draft | P1 | query API home |
+| PR-09 | Engine ports | Processing | Engine adapters | processing | Boundary | — | P3 | exact set |
+| E-02 | AuthorizationContext | Editing API (input from session layer) | Orchestration, Networking | editing | Draft+OD | 0.1.0-draft | P1 | permission model |
+| E-03 | EditingOperation | Editing API | Orchestration, Tools, History | editing | Draft+OD | 0.1.0-draft | P1 | Kind registry |
+| E-04 | EditingTransaction | Editing API | Orchestration (implements), Tools, backends, History | editing | Draft+OD | 0.1.0-draft | P1 | nested/group, async |
+| E-05 | EditingResult | Editing API | all | editing | Draft | 0.1.0-draft | P1 | — |
+| E-06 | ConflictResult | Editing API | Orchestration, Networking | editing | Draft+OD | 0.1.0-draft | P1 | merge policy |
+| E-07 | IGeometryBackend / Capabilities | Editing API | Orchestration, backends, Tools | editing | Draft+OD | 0.1.0-draft | P1 | capability vocabulary |
+| E-08 | ModifierStack | Editing API | Tools, evaluation | editing | Draft+OD | 0.1.0-draft | P2 | evaluation owner (O-2) |
+| E-09 | GeometryDelta | Editing API | History, Persistence | editing | Draft+OD | 0.1.0-draft | P1 | delta encoding |
+| E-10 | Checkpoint | Editing API | History, Persistence | editing | Draft+OD | 0.1.0-draft | P2 | frequency policy |
+| E-11 | IEditingService | Editing API | Tools, Composite, History, Networking | editing | Draft+OD | 0.1.0-draft | P1 | signatures |
+| E-12 | ITransactionObserver | Editing API | Orchestration (publish), History (sink) | editing | Draft+OD | 0.1.0-draft | P1 | durability ordering |
+| E-13 | Networking boundary | Editing API | Networking Adapter | editing | Boundary | — | P3 | owner, protocol (O-3) |
+| — | IDeltaStore / ISnapshotStore | Editing API | History, Persistence | editing §0 | Draft | 0.1.0-draft | P2 | — |
+| P-01 | AssetManifest | Persistence | Persistence, tools | persistence | Draft+OD | 0.1.0-draft | P2 | container, format |
+| P-02 | BrickSerialization | Persistence | Persistence | persistence | Draft+OD | 0.1.0-draft | P2 | compression |
+| P-03 | DeltaSerialization | Persistence | History (via port) | persistence | Draft+OD | 0.1.0-draft | P2 | flush policy |
+| P-04 | SnapshotSerialization | Persistence | History (via port) | persistence | Draft+OD | 0.1.0-draft | P2 | incremental |
+| P-05 | StorageTransaction | Persistence | Persistence | persistence | Draft+OD | 0.1.0-draft | P2 | platform atomic publish |
+| P-06 | IntegrityReport | Persistence | Core validation, QA | persistence | Draft | 0.1.0-draft | P2 | repair automation |
+| P-07 | MigrationDescriptor | Persistence | Persistence | persistence | Draft | 0.1.0-draft | P2 | execution mode |
+| P-09 | Import/Export adapters | unassigned | — | persistence | Boundary | — | P3 | owner (O-4) |
+| — | BooleanPolicy | Agent F | Orchestration, backends | *not yet written* | **Missing** | — | P3 | next pass |
+| — | BrushParameters / Sculpt tool interface | Agent E | Orchestration, backends | *not yet written* | **Missing** | — | P3 | next pass |
+| — | Resampling/Refinement operation contract | Resolution Agent | backends | *not yet written* | **Missing** | — | P3 | next pass |
+| — | Composite operation contract | Composite Agent | Orchestration | *not yet written* | **Missing** | — | P3 | next pass |
+| — | History interface (undo/redo/limits) | Agent G | UI, Networking | *not yet written* | **Missing** | — | P3 | next pass |
 
-Tool-level contracts (last five rows) were outside the minimum list requested for this pass and belong to their module owners after the P0–P2 contracts above are approved.
+Tool-level contracts (last five rows) were outside the minimum list requested for this pass and belong to their module owners after the tier that gates their stage is approved (see section 3).
 
 ## 4. Mapping of former QA Pack §2 names
 

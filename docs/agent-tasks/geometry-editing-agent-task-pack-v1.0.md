@@ -707,7 +707,7 @@ All agents:
 
 ## Phase 1 — Shared Contracts
 
-Integration Owner approves the P0 set (`docs/api-contracts/README.md`): C-01…C-19, PR-01…PR-05, E-02…E-06 and the L2 ports. Agent I starts test infrastructure.
+Integration Owner approves contracts by tier (`docs/api-contracts/README.md` §3): **P0** (C-01…C-19) before Core starts; **P1** (PR-01…PR-08, E-02…E-07, E-09, E-11, E-12) before Processing, Orchestration and backends start; **P2** before History, Persistence and modifier work start. Agent I starts test infrastructure.
 
 ## Phase 2 — Foundations (sequential gate)
 
