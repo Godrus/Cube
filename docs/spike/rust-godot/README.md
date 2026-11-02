@@ -28,7 +28,7 @@ godot-client                       Godot 4 project: UI and renderer (GDScript)
 | FillRegion, Delta, Undo/Redo | editing | E-03, E-04, E-05, E-09 | one op, bounded history |
 | Save/Load with checksums, atomic rename, new epoch on load | persistence | P-01, P-02, P-05, P-06 (minimal) | spike file format, no deltas/migrations |
 | Headless server | server | E-13 (boundary) | loopback, no auth |
-| Godot adapter + client | adapter, godot-client | — | extension not loaded in Godot (see findings) |
+| Godot adapter + client | adapter, godot-client | — | extension loads in Godot 4.7.2; headless smoke passes; interactive scene/rendering not checked |
 
 Not implemented: SDF/Mesh, Sculpting, Boolean, Composite, Resampling, networking protocol, authorization, async jobs, any renderer beyond a MultiMesh of cubes.
 
@@ -36,13 +36,13 @@ Not implemented: SDF/Mesh, Sculpting, Boolean, Composite, Resampling, networking
 
 49 Rust tests, all passing: core 20 + dependency rules 3, processing 6, editing 9, persistence 6, server 2 + TCP integration 1, adapter bridge integration 2. `cargo clippy --workspace --all-targets` reports no warnings. See `build-and-targets.md` for commands and timings.
 
-Not run: anything inside Godot (no Godot binary available). `godot-client/main.gd` has a `--smoke` mode for the owner to run.
+Godot check (4.7.2, Windows, GNU-built debug DLL): the extension loads and `godot --headless --path godot-client -- --smoke` exits 0 (fill, undo, redo, save, load through the real `CubeRuntime`). Not checked: the interactive scene, rendering, UI buttons, export.
 
 ## Findings
 
 1. **Undo semantics gap in the revision proposal.** `revision-and-snapshot-semantics.md` §6 says undo expects the `PostTokens` of its entry. Because undo is a forward commit (new, larger revisions), a chain of undos fails on the older entries (found by tests). The spike refreshes the expectations of other history entries for the bricks touched by each undo/redo. The proposal needs this rule stated; it is an input for OD-R5, not a decision.
-2. **Windows toolchain is GNU, not MSVC.** Loading a GNU-built DLL in an MSVC-built Godot is unverified.
-3. **Godot was not available**, so extension loading and the client scene are untested. Only the exported symbol `gdext_rust_init` was checked.
+2. **Windows toolchain is GNU, not MSVC.** A GNU-built DLL loads fine in the official Godot 4.7.2 build (verified headless).
+3. **API level mismatch is tolerated:** godot-rust reports API v4.6 against runtime v4.7.2 and works; `compatibility_minimum` is 4.2 in `cube.gdextension`. Behaviour on other Godot versions is untested.
 4. **Android and iOS not built** (no NDK, no macOS).
 5. **Debug adapter DLL is 158 MB** (gdext debug symbols); `target/` reached 2.7 GB on a disk with about 9.5 GB free.
 6. **DirtyRegion granularity** is coarse (one bounding box per commit); acceptable here, would over-invalidate for scattered edits.

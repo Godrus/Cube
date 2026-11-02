@@ -8,7 +8,7 @@ Measured on the development machine described below. Everything not listed under
 |---|---|
 | OS | Windows 11 Pro 10.0.26200 |
 | Rust | 1.97.1, host `x86_64-pc-windows-gnu` (MinGW-w64 from WinLibs); only this target installed |
-| Godot | **not installed** on the machine; no Godot binary was run |
+| Godot | 4.7.2 stable, `D:\Program Files\Godot_v4.7.2-stable_win64.exe\` (the owner supplied the path after the first report) |
 | Android SDK/NDK | not installed (`ANDROID_NDK_HOME`/`ANDROID_HOME` unset) |
 | macOS / Xcode | not available |
 | Free disk on `D:` | about 9.5 GB at start |
@@ -43,12 +43,21 @@ godot --headless --path godot-client -- --smoke        # headless smoke run: fil
 
 | Target | Rust triple | State |
 |---|---|---|
-| Windows x86_64 (GNU) | `x86_64-pc-windows-gnu` | **Built and tested.** Library exports `gdext_rust_init` (checked with `objdump -p`). Loading in Godot: **not verified** |
+| Windows x86_64 (GNU) | `x86_64-pc-windows-gnu` | **Built and tested.** Library exports `gdext_rust_init` (checked with `objdump -p`). **Loads in Godot 4.7.2 and passes the headless smoke run** (see below) |
 | Windows x86_64 (MSVC) | `x86_64-pc-windows-msvc` | Not built. Official Godot Windows builds are MSVC-built; a GNU-built GDExtension DLL normally loads but this is unverified |
 | Android ARM64 | `aarch64-linux-android` | **Not built, not verified.** Needs: Android NDK, `rustup target add aarch64-linux-android`, a linker configured through `.cargo/config.toml` or `cargo-ndk`, then copy `libcube_godot_adapter.so` into the Godot Android export. The `.gdextension` file already lists the expected path |
 | iOS ARM64 | `aarch64-apple-ios` | **Not built, not verified.** Needs macOS with Xcode, `rustup target add aarch64-apple-ios`, and a decision on how the library is packaged for iOS export (dynamic library vs xcframework). The `.gdextension` file lists a placeholder path only |
 
-Not done on purpose: no `.cargo/config.toml` with NDK paths, no `rustup target add`, no downloads of toolchains or Godot. Those need the owner's environment or permission.
+Not done on purpose: no `.cargo/config.toml` with NDK paths, no `rustup target add`, no downloads of toolchains. Those need the owner's environment or permission.
+
+## Verified in Godot (Windows, 4.7.2)
+
+```bash
+godot --headless --path godot-client --import          # extension recognised: "Initialize godot-rust (API v4.6, runtime v4.7.2)"
+godot --headless --path godot-client -- --smoke        # exit code 0
+```
+
+The smoke run goes through the real GDExtension: fill (32 voxels), undo (0), redo (32), save, clear, load (new epoch 1, 32 voxels). Not checked: the interactive scene, rendering output, buttons, the editor UI, Windows release build inside Godot, export.
 
 ## Measured (Windows GNU host)
 
