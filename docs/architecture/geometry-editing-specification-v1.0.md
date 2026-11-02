@@ -2,6 +2,7 @@
 
 **Document type:** Technical Architecture Specification\
 **Status:** Architecture approved; implementation specification\
+**Revision:** 1.1 — aligned with Architecture Update v1.0 (AU-1.0). Where this document and AU-1.0 differ, AU-1.0 prevails; changes are listed in Appendix A.\
 **Project:** Cube — Voxel Open World RPG / MMORPG\
 **Related documents:**
 
@@ -9,6 +10,9 @@
 - Voxel Architecture v1.0
 - Geometry Processing Specification (согласованные решения)
 - Cube Agent Development Specification v1.0
+- Architecture Update v1.0 (AU-1.0)
+- API Contracts: `docs/api-contracts/README.md`
+- Geometry Editing Integration & QA Pack v1.0 (rev 1.1)
 
 ---
 
@@ -110,6 +114,11 @@ Geometry Core owns the fundamental geometry data structures. Editing modules mus
 | Composite     | Hierarchy and assembly             |
 | Processing    | Dependencies and async jobs        |
 | Persistence   | Save/load integration              |
+| Resolution    | Resampling and Refinement Regions (AU-1.0 §2) |
+| Networking Adapter | Server-authoritative sync boundary (owner unassigned) |
+| Engine Adapters | Port implementations only (owner unassigned) |
+
+Owners (AU-1.0 §2): Geometry Core — Core Agent; Processing — Processing Agent; Editing API & Contracts — Main Agent / Integration Owner; Orchestration — Agent A; Voxel/SDF/Mesh — Agents B/C/D; Sculpting — E; Boolean — F; History — G; Persistence — H; QA — I; Composite — Composite Agent; Resampling & Refinement — Resolution Agent.
 
 # 3. Geometry Editing Data Model
 
@@ -160,6 +169,8 @@ GeometryType:
 - PolygonMesh
 
 A Layer has one authoritative source representation. A derived mesh or collision structure is not automatically authoritative.
+
+Coordinates, Transform (TRS + derived matrix), Bounds (Local AABB primary), units (1 unit = 1 m), right-handed convention and Resolution Profile (voxel size in meters, separate from Transform) are defined by AU-1.0 §4–§6 and the contracts C-04…C-06, C-11.
 
 ## 3.3 Geometry Layers
 
@@ -225,7 +236,7 @@ Index = x + B * (y + B * z)
 B = 16
 ```
 
-This indexing order is provisional and must be benchmarked.
+This indexing order is provisional and must be benchmarked. It is an internal Core detail: contracts expose addressing helpers only (C-07), so the order can change without breaking consumers.
 
 ## 4.2 Storage Modes
 
@@ -615,11 +626,8 @@ Local history is separate from server history.
 
 Independent regions may be edited concurrently.
 
-Revision levels:
-
-- Asset.
-- Layer.
-- Region.
+Revision levels (AU-1.0 §7): Asset, Layer, Brick, Region (derived), Dependency, with Operation ID as an identifier that is not a revision.
+Formal semantics (increment rules, currency validation, commit, conflicts, interaction with History, Persistence and Networking): `docs/api-contracts/revision-and-snapshot-semantics.md` (proposed, pending approval).
 
 ## 13.2 Server Authority
 
@@ -714,13 +722,14 @@ Possible nodes:
 
 Async jobs consume immutable geometry snapshots.
 
-Snapshot includes:
+Snapshot is immutable and uses copy-on-write Brick pins; for the MVP, copying small affected regions is permitted (AU-1.0 §9). It includes:
 
 - Asset ID.
 - Layer ID.
 - Source revision.
 - Brick snapshots.
 - Dependency revisions.
+- Operation context when needed.
 
 ## 15.3 Revision Validation
 
@@ -742,23 +751,24 @@ Starvation prevention is mandatory.
 
 # 16. Module Architecture
 
-Layered Modular Architecture.
+Layered Modular Architecture with strictly one-directional dependencies (AU-1.0 §3). The authoritative dependency grid is in the Integration & QA Pack §1.
 
-Modules:
+| Layer | Module |
+|---|---|
+| L0 | Geometry Core |
+| L1 | Processing |
+| L2 | Editing API & Contracts (contracts, facade, ports) |
+| L3 | Editing Orchestration |
+| L4 | Editing Backends (Voxel, SDF, Mesh) |
+| L5 | Editing Tools (Sculpting, Boolean, Resampling & Refinement) |
+| L6 | History System |
+| L7 | Composite Geometry |
+| L8 | Persistence Integration |
+| L9 | Networking Adapter |
+| L10 | Engine Integration Adapters |
+| — | QA & Benchmarks (test-time only) |
 
-1. Geometry Editing API.
-2. Editing Orchestration.
-3. Editing Backends.
-4. Editing Tools.
-5. History System.
-6. Composite Geometry.
-7. Processing Integration.
-8. Persistence Integration.
-9. Geometry Core.
-
-Each module exposes a strict public API.
-
-No undocumented internal dependencies.
+Each module exposes a strict public API. No undocumented internal dependencies. History and Persistence communicate only through ports defined in L2.
 
 # 17. API Contract Requirements
 
@@ -853,62 +863,67 @@ Compilation alone is not acceptance.
 
 # 22. Final Integration Pipeline
 
-Layered Build Pipeline:
+Layered Build Pipeline (AU-1.0 §26; detailed stages, exit conditions and allowed parallelism in the Integration & QA Pack §5):
 
 1. Geometry Core.
-2. Editing API and Contracts.
-3. Editing Orchestration.
-4. Voxel / SDF / Mesh Backends.
-5. Sculpting / Boolean / Resampling.
-6. History System.
-7. Composite Geometry.
-8. Processing Integration.
-9. Persistence Integration.
-10. Full Geometry Editing Integration.
+2. Processing Foundations.
+3. Editing API & Contracts.
+4. Editing Orchestration.
+5. Voxel / SDF / Mesh Backends.
+6. Sculpting / Boolean Tools.
+7. History System.
+8. Composite Geometry.
+9. Resampling & Resolution Refinement.
+10. Persistence Integration.
+11. Networking Adapter.
+12. Engine Integration Adapters.
+13. Full Geometry Editing Integration.
 
-Each stage must pass automated validation before the next stage.
-
-No cyclic dependencies.
-
-No bypassing architecture layers.
+Each stage must pass automated validation before it is accepted. No cyclic dependencies. No bypassing architecture layers. Modules not depending on each other (see grid) may be developed in parallel once the contracts they use are Approved.
 
 # 23. Agent Development Breakdown
 
-Initial agent assignments:
+Agent assignments (AU-1.0 §2):
 
-| Agent | Responsibility          |
+| Agent | Responsibility |
 | ----- | ----------------------- |
-| A     | Editing Orchestration   |
-| B     | Voxel Backend           |
-| C     | SDF Backend             |
-| D     | Mesh Backend            |
-| E     | Sculpting               |
-| F     | Boolean                 |
-| G     | History                 |
-| H     | Persistence Integration |
-| I     | Tests and Benchmarks    |
+| Core Agent | Geometry Core |
+| Processing Agent | Processing |
+| Main Agent / Integration Owner | Editing API & Contracts |
+| A | Editing Orchestration |
+| B | Voxel Backend |
+| C | SDF Backend |
+| D | Mesh Backend |
+| E | Sculpting |
+| F | Boolean |
+| G | History |
+| H | Persistence Integration |
+| I | Tests and Benchmarks |
+| Composite Agent | Composite Geometry |
+| Resolution Agent | Resampling & Resolution Refinement |
 
-This is a proposed work breakdown, not permission to independently modify shared contracts.
-
-Detailed tasks are defined in Geometry Editing Agent Task Pack v1.0.
+This is a work breakdown, not permission to independently modify shared contracts. Detailed tasks: Geometry Editing Agent Task Pack (rev 1.1).
 
 # 24. Open Technical Decisions
 
-The following require implementation evidence:
+Authoritative consolidated list: `docs/decisions/audit-resolution-report.md` §H. From AU-1.0 §24 and this specification:
 
 - Programming language and engine.
+- Exact integer and floating-point types.
+- Formal RevisionToken semantics and atomic commit algorithm (proposal exists, not approved).
 - Exact public API signatures.
-- Exact numeric performance budgets.
-- Brick compression combinations.
-- Optimal storage layout and indexing order.
+- Snapshot / copy-on-write implementation; conflict-resolution algorithm.
+- Network protocol and transport.
+- Serialization format; compressor and parameters.
+- Exact numeric performance budgets; CI infrastructure and benchmark hardware.
+- Storage layout and indexing order.
 - SDF numeric format and precision.
 - Mesh topology and validation implementation.
 - Boolean algorithms for each backend.
 - Refinement transition algorithms.
 - Snapshot and delta encoding.
-- CI infrastructure and benchmark hardware.
 
-These decisions must be documented and approved before becoming normative implementation requirements.
+These must be documented and approved before becoming normative implementation requirements.
 
 # 25. Definition of Done
 
@@ -926,5 +941,22 @@ Geometry Editing v1.0 implementation is complete when:
 - Test suite passes.
 - Performance budgets are established and met.
 - Full integration is approved.
+
+---
+
+# Appendix A — Changes in revision 1.1 (AU-1.0 alignment)
+
+| Section | Change |
+|---|---|
+| Header, related documents | AU-1.0, API Contracts and QA Pack revision referenced |
+| §2.2 | Added Resolution, Networking and Engine adapter rows and owner list |
+| §3.2 | Coordinate, Transform, Bounds, Resolution decisions referenced |
+| §4.1 | Index order declared internal to Core |
+| §13.1 | Revision levels updated (Brick, Dependency, Operation ID) with formal semantics reference |
+| §15.2 | Snapshot defined as immutable COW; MVP copy allowance |
+| §16 | Module list extended (Core, Processing, Resolution, Composite, Networking, Engine) with one-directional layers |
+| §22 | Pipeline reordered: Processing precedes Editing API and Orchestration; Persistence after History |
+| §23 | Assignments extended with Core, Processing, Composite, Resolution |
+| §24 | Open decisions consolidated |
 
 **End of Specification.**

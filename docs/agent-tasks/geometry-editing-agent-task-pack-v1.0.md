@@ -3,7 +3,8 @@
 **Document type:** Agent Work Assignment Package\
 **Scope:** Geometry Editing v1.0\
 **Coordination:** Central Integration\
-**Contract authority:** Integration Owner
+**Contract authority:** Integration Owner\
+**Revision:** 1.1 — aligned with Architecture Update v1.0 (AU-1.0). Adds Core, Processing, Composite and Resolution agents; replaces the dependency diagram and execution order.
 
 ---
 
@@ -14,7 +15,9 @@ All agents must read:
 - GDD/TDD v0.3.
 - Voxel Architecture v1.0.
 - Geometry Processing decisions.
-- Geometry Editing Specification v1.0.
+- Architecture Update v1.0 (AU-1.0).
+- Geometry Editing Specification v1.0 (rev 1.1).
+- API Contracts index: `docs/api-contracts/README.md` and the file for each contract you consume.
 - Cube Agent Development Specification v1.0.
 - Their individual task below.
 
@@ -33,48 +36,107 @@ Do not independently redefine:
 These belong to shared contracts.
 
 If a required interface is missing, submit an API Contract Change Request.
+Each agent works only against contracts in state **Approved**. Draft contracts may be used for planning and test design, not for shared implementation.
+No agent implements a hidden replacement for a module that has no implementation yet (AU-1.0 §2.1 rule 8).
 
 # 2. Task Dependency Overview
 
+Dependencies follow the Integration & QA Pack dependency grid (Section 1.2). `A` means abstraction only: consume the port from Editing API & Contracts, never the implementation.
+
 ```
-Geometry Core
-      |
-      v
-Shared API Contracts
-      |
-      v
-Editing Orchestration
-      |
-      +-----------------------------+
-      |              |              |
-      v              v              v
-Voxel Backend    SDF Backend    Mesh Backend
-      |              |              |
-      +--------------+--------------+
-                     |
-                     v
-              Sculpting Tools
-                     |
-                     v
-              Boolean Operations
-                     |
-                     v
-               History System
-                     |
-          +----------+----------+
-          |                     |
-          v                     v
-  Composite Geometry    Persistence Integration
-          |                     |
-          +----------+----------+
-                     |
-                     v
-              Integration & QA
+Core Agent (L0)
+   |
+Processing Agent (L1)
+   |
+Editing API & Contracts (L2, Integration Owner)
+   |
+   +-- Agent A: Orchestration (L3) ----+
+   +-- Agents B, C, D: Backends (L4)   |  consume L2 ports only
+   +-- Agent H: Persistence (L8) ------+  (needs Core, Processing, L2; not History/Orchestration)
+   |
+   +-- after Orchestration + >=1 backend usable:
+   |     Agent E Sculpting, Agent F Boolean, Resolution Agent (L5)
+   |     Agent G History (L6)   Composite Agent (L7)
+   |
+   +-- Networking Adapter (L9, owner unassigned)
+   +-- Engine Adapters (L10, owner unassigned)
+
+Agent I (QA): test-time dependency on everything; starts at stage 0
 ```
 
-This diagram shows logical dependencies, not permission to skip the layered build pipeline. Actual task execution may overlap after contracts and required dependencies are stable.
+| Agent | Provides | Depends on (D = direct, A = abstraction) |
+|---|---|---|
+| Core Agent | Core contracts C-01…C-19 | none |
+| Processing Agent | PR-01…PR-09 | Core (D) |
+| Integration Owner | Editing contracts E-xx, ports | Core (D), Processing (D) |
+| A Orchestration | `IEditingService` implementation | Core, Processing, Editing API (D); Backends (A); History (A) |
+| B, C, D Backends | `IGeometryBackend` implementations | Core, Processing, Editing API (D) |
+| E Sculpting | sculpt operation Kinds | Core, Processing, Editing API (D); Orchestration (A); Backends (A, capabilities) |
+| F Boolean | boolean operation Kinds, BooleanPolicy | same as E |
+| Resolution Agent | resample/refinement Kinds | same as E |
+| G History | `ITransactionObserver` implementation | Core, Processing, Editing API (D); Orchestration (A, undo via `IEditingService`); Persistence (A, `IDeltaStore`/`ISnapshotStore`) |
+| Composite Agent | composite operation Kinds | Core, Processing, Editing API (D); Orchestration (A) |
+| H Persistence | implementations of `IDeltaStore`, `ISnapshotStore`, manifest/brick format | Core, Processing, Editing API (D) |
+| I QA | test infrastructure, benchmarks | all (test-time only) |
+
+This is the logical dependency picture. Actual execution may overlap once the contracts each agent needs are Approved.
+
+# 2.5 Foundation Agents (new in rev 1.1)
+
+## Core Agent — Geometry Core
+
+**Primary responsibility:** Geometry Core (L0). **Contracts owned:** C-01…C-19.
+
+**Objective:** implement the engine-independent data foundation that every other module builds on. This module did not exist in the repository when Task Pack v1.0 was written.
+
+**Scope:** Asset/Layer model; layer types and registry; Transform; Bounds (Local AABB, derived types, Empty); Region; BrickKey and addressing (signed coordinates); BrickStorage (sparse, hash-map access, octree organisation, copy-on-write, pins, missing-data states); channels (adaptive storage, categorical vs continuous); material mapping; ResolutionProfile; Refinement/Junction/Composite **data models**; RevisionToken, OperationId, DirtyRegion, Result/Error envelope; the commit primitive; brick export/import views.
+
+**Must not:** depend on engine, UI, network, Processing or Persistence; define a file format; implement editing algorithms.
+
+**Tests:** addressing at boundaries and negative coordinates; COW isolation; missing-state distinction; revision hierarchy invariant; transform properties.
+
+**Acceptance:** Core contracts implemented as approved; zero outbound dependencies except the language runtime.
+
+## Processing Agent — Processing
+
+**Primary responsibility:** Processing foundations (L1). **Contracts owned:** PR-01…PR-09.
+
+**Scope:** snapshot capture and lifetime; task state machine; priority scheduler with starvation prevention; cancellation; dependency graph and invalidation by ChangeType; revision validation and stale rejection; Dirty Region expansion; bounds/BVH/LOD slots; engine ports definition.
+
+**Must not:** contain editing or gameplay logic; mutate authoritative geometry; implement mesh/collision algorithms unless an owner is assigned (Open O-1).
+
+**Tests:** stale results never published; cancellation releases pins; no starvation; invalidation matrix.
+
+**Acceptance:** concurrency and async suites pass; revision semantics tests pass.
+
+## Composite Agent — Composite Geometry
+
+**Primary responsibility:** hierarchy, assembly graph and part operations (L7).
+
+**Scope:** Attach, Detach, Reparent, Transform, Apply Constraints, Destroy Part — all as operations through `IEditingService`; transform propagation; attachment points; constraint evaluation.
+
+**Must not:** merge part geometry automatically; own the part/graph data model if ACR-003 places it in Core.
+
+**Tests:** hierarchy and graph integrity, cycle rejection, propagation, destroy cascade, reference restoration (with Persistence).
+
+**Acceptance:** composite integration tests pass; references survive reload.
+
+## Resolution Agent — Resampling & Resolution Refinement
+
+**Primary responsibility:** resolution changes (L5, Editing Tools).
+
+**Scope:** Resample Layer under explicit policy (shape, materials, attributes); create/remove Refinement Regions; transition handling without cracks; invalidation; undo-compatible results; heavy-operation locks (with Orchestration).
+
+**Must not:** own brick storage; convert geometry types implicitly; choose a transition algorithm before it is approved (Open).
+
+**Tests:** equal-resolution and mixed-level boundaries, repeated refine/unrefine, resampling fidelity, material mapping stability.
+
+**Acceptance:** mixed-resolution scenarios of QA Pack §8.2 pass.
 
 # 3. Agent A — Editing Orchestration
+
+**Depends on:** Core, Processing, Editing API (D); Backends (A via `IGeometryBackend`); History (A via `ITransactionObserver`).
+**Provides:** `IEditingService` implementation (E-11), E-04 lifecycle, backend registry.
 
 **Primary responsibility:** Transactional Editing API and coordination.
 
@@ -142,6 +204,9 @@ Exact signatures must be approved before implementation.
 
 # 4. Agent B — Voxel Backend
 
+**Depends on:** Core, Processing, Editing API (D). Does not depend on Orchestration or Tools.
+**Provides:** `IGeometryBackend` for CubicVoxel.
+
 **Primary responsibility:** Cubic Voxel Editing Backend.
 
 ## Objective
@@ -202,6 +267,9 @@ Implement native geometry editing for cubic voxel layers.
 
 # 5. Agent C — SDF Backend
 
+**Depends on:** Core, Processing, Editing API (D). Does not depend on Orchestration or Tools.
+**Provides:** `IGeometryBackend` for SDF.
+
 **Primary responsibility:** SDF Geometry Editing Backend.
 
 ## Objective
@@ -254,6 +322,9 @@ Implement native editing of signed distance fields.
 
 # 6. Agent D — Mesh Backend
 
+**Depends on:** Core, Processing, Editing API (D). Does not depend on Orchestration or Tools.
+**Provides:** `IGeometryBackend` for PolygonMesh.
+
 **Primary responsibility:** Polygon Mesh Editing Backend.
 
 ## Objective
@@ -301,6 +372,8 @@ Implement native editing of Polygon Mesh Layers.
 - Performance reports.
 
 # 7. Agent E — Sculpting Tools
+
+**Depends on:** Core, Processing, Editing API (D); Orchestration (A via `IEditingService`); Backends (A via capabilities). **Does not depend on History.**
 
 **Primary responsibility:** Unified Sculpting Tool Layer.
 
@@ -375,6 +448,9 @@ The common API must not pretend these algorithms are identical.
 
 # 8. Agent F — Boolean Operations
 
+**Depends on:** Core, Processing, Editing API (D); Orchestration (A); Backends (A via capabilities). **Does not depend on History.**
+**Provides:** `BooleanPolicy` (not yet written, next contract pass).
+
 **Primary responsibility:** Unified Boolean Editing System.
 
 ## Objective
@@ -437,11 +513,14 @@ Do not combine these semantics.
 
 # 9. Agent G — History System
 
+**Depends on:** Core, Processing, Editing API (D); Orchestration (A via `IEditingService` for undo); Persistence (A via `IDeltaStore`/`ISnapshotStore`).
+**Rule:** History owns no Brick Storage and never imports Persistence internals.
+
 **Primary responsibility:** Undo / Redo and Edit History.
 
 ## Objective
 
-Implement the hybrid Commands + Deltas + Snapshots architecture.
+Implement the hybrid Commands + Deltas + Snapshots architecture on top of Core copy-on-write versions and the `IDeltaStore`/`ISnapshotStore` ports; implement no Brick Storage of your own.
 
 ## Scope
 
@@ -491,11 +570,14 @@ Heavy operations must not depend exclusively on replaying expensive algorithms.
 
 # 10. Agent H — Persistence Integration
 
+**Depends on:** Core, Processing, Editing API (D). Does not depend on History, Orchestration or Backends; does not control editing.
+**Provides:** `IDeltaStore`, `ISnapshotStore`, P-01…P-07.
+
 **Primary responsibility:** Geometry Editing persistence integration.
 
 ## Objective
 
-Connect editing operations with the existing Geometry Core storage and serialization systems.
+Implement the serialized format, durable stores and recovery for Geometry Editing, using the Geometry Core runtime storage through its export/import views.
 
 ## Scope
 
@@ -513,8 +595,9 @@ Connect editing operations with the existing Geometry Core storage and serializa
 
 ## Constraints
 
-- Do not invent a second authoritative storage system.
-- Reuse approved Geometry Core serialization interfaces.
+- Do not invent a second authoritative runtime storage system; Core owns runtime storage.
+- Persistence owns the serialized format; Core provides only export/import views (C-08).
+- Do not import History or Orchestration internals.
 - Manifest must not reference unavailable Brick data.
 - Preserve unknown optional channels where possible.
 - No blocking main-thread save operations.
@@ -541,6 +624,8 @@ Connect editing operations with the existing Geometry Core storage and serializa
 - Async save behavior verified.
 
 # 11. Agent I — Tests and Benchmarks
+
+**Depends on:** all modules, test-time only. Never a runtime dependency.
 
 **Primary responsibility:** QA infrastructure and cross-module validation.
 
@@ -614,46 +699,40 @@ All agents:
 
 # 13. Initial Execution Order
 
-## Phase 0 — Repository Inspection
+## Phase 0 — Repository & Decision Readiness
 
-All agents inspect repository structure, existing conventions and available Core interfaces.
-
-No overlapping implementation before ownership and contracts are agreed.
+- Integration Owner records language/engine decisions (AU-1.0 §24 #1–2) and sets up repository layout, CI skeleton and the dependency-direction check.
+- Missing source documents are added to the repository (GDD/TDD, Voxel Architecture, Geometry Processing).
+- Owners for Networking Adapter and Engine Adapters are assigned (or explicitly deferred).
 
 ## Phase 1 — Shared Contracts
 
-Integration Owner defines and approves:
+Integration Owner approves the P0 set (`docs/api-contracts/README.md`): C-01…C-19, PR-01…PR-05, E-02…E-06 and the L2 ports. Agent I starts test infrastructure.
 
-- Asset and Layer handles.
-- Revision model.
-- Dirty Region model.
-- Transaction contract.
-- Backend dispatch.
-- Async job contract.
-- Typed errors.
-- History integration.
-- Persistence integration.
+## Phase 2 — Foundations (sequential gate)
 
-## Phase 2 — Core Dependencies
+1. Core Agent implements Geometry Core.
+2. Processing Agent implements Processing foundations (contracts may be developed against the approved Core API while Core is being implemented, merge after Core exit).
+3. Integration Owner finalises Editing API & Contracts.
 
-- Agent A: Orchestration skeleton.
-- Agents B, C, D: backend foundations.
-- Agent I: test infrastructure.
+Agent H may start once Core, Processing and Editing contracts are approved (no dependency on Orchestration or History).
 
-## Phase 3 — Editing Features
+## Phase 3 — Dispatch & Backends
 
-- Agent E: Sculpting.
-- Agent F: Boolean.
-- Agent G: History.
-- Agent H: Persistence Integration.
+- Agent A: Orchestration.
+- Agents B, C, D: backends against the conformance suite.
 
-## Phase 4 — Full Integration
+## Phase 4 — Editing Features
 
-All modules pass layered integration and cross-module tests.
+- Agent E Sculpting, Agent F Boolean, Resolution Agent, Agent G History, Composite Agent — parallel, each starting when Orchestration and at least one usable backend are available.
 
-## Phase 5 — Acceptance
+## Phase 5 — Boundaries
 
-Integration Owner evaluates the full acceptance checklist.
+- Networking Adapter and Engine Integration Adapters (owners pending).
+
+## Phase 6 — Full Integration & Acceptance
+
+All modules pass layered integration and cross-module tests; Integration Owner evaluates the acceptance checklist.
 
 # 14. Agent Delivery Package
 

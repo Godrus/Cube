@@ -2,7 +2,8 @@
 
 **Document type:** Engineering and AI Agent Development Standard\
 **Applies to:** All Cube development agents\
-**Status:** Proposed project-wide development standard
+**Status:** Proposed project-wide development standard\
+**Revision:** 1.1 — aligned with Architecture Update v1.0 (AU-1.0)
 
 ---
 
@@ -34,10 +35,11 @@ Documents have the following authority:
 2. GDD/TDD.
 3. Voxel Architecture Specification.
 4. Geometry Processing Specification.
-5. Geometry Editing Specification.
-6. Agent Development Specification.
-7. Individual Agent Task Specification.
-8. Approved API Contracts.
+5. Architecture Update v1.0 (AU-1.0) and later approved architecture decisions.
+6. Geometry Editing Specification.
+7. Agent Development Specification.
+8. Individual Agent Task Specification.
+9. Approved API Contracts (`docs/api-contracts/`; contracts in Draft state are not authoritative).
 
 A task prompt cannot silently override an approved architecture document.
 
@@ -66,6 +68,8 @@ Responsible for:
 
 Only the Integration Owner may approve changes to shared public contracts.
 
+The Integration Owner also owns the **composition root** (wiring of modules and ports) and the dependency matrix. Module owners are listed in AU-1.0 §2 (Core Agent, Processing Agent, Agents A–I, Composite Agent, Resolution Agent). Every module has exactly one owner; a module without an implementation may not be silently replaced by another agent.
+
 ## 3.2 Module Agents
 
 Responsible for:
@@ -89,6 +93,8 @@ Responsible for:
 - Performance reports.
 - Stress tests.
 - Integration validation.
+
+QA is a test-time dependency only and never a runtime dependency.
 
 # 4. Development Principles
 
@@ -126,6 +132,15 @@ Cube/
       layers/
       storage/
       channels/
+      revision/
+      bounds/
+      transform/
+
+    geometry-processing/
+      snapshots/
+      scheduler/
+      dependency-graph/
+      derived/
 
     geometry-editing/
       api/
@@ -140,8 +155,10 @@ Cube/
         resampling/
       history/
       composite/
-      processing/
       persistence/
+      networking-adapter/
+
+    engine-adapters/
 
   tests/
     unit/
@@ -165,7 +182,7 @@ Cube/
   build/
 ```
 
-Agents must inspect the actual repository before creating directories.
+The dependency direction between these directories is fixed by the dependency grid in the Integration & QA Pack §1 and is enforced by CI. Agents must inspect the actual repository before creating directories.
 
 Do not duplicate existing modules or introduce a second architecture tree.
 
@@ -193,20 +210,25 @@ Every public API must specify:
 Contract
   Name
   Version
+  Status (Draft | Proposed | Approved | Implemented | Frozen)
   Owner
   Purpose
+  Public Data Model
   Input Types
   Output Types
   Error Types
   Ownership Rules
   Lifetime Rules
+  Access Rules
   Threading Rules
   Revision Rules
   Dirty Tracking
   Async Behavior
   Cancellation
+  Serialization
   Compatibility
   Tests
+  Open Decisions
 ```
 
 Rules:
@@ -218,6 +240,8 @@ Rules:
 - No direct mutation outside approved editing interfaces.
 - No hidden cache invalidation.
 - No silent API breaking changes.
+- No agent implements against a contract that is not Approved, except in clearly marked prototypes.
+- Dependencies between modules must follow the dependency grid; cross-module shared abstractions live in Editing API & Contracts.
 
 # 8. Coding Rules
 
@@ -261,7 +285,7 @@ Rules:
 
 # 9. Error Handling
 
-Errors must be explicit and typed.
+Errors must be explicit and typed. Expected failures use `Result`/`Error` (stable code, context, module, operation id, recovery policy, severity); exceptions are reserved for unexpected critical failures (AU-1.0 §14).
 
 Do not:
 
@@ -329,7 +353,7 @@ Benchmarks must include:
 Suggested format:
 
 ```
-main
+master
 integration
 feature/geometry-voxel-backend
 feature/geometry-sculpting
@@ -337,7 +361,7 @@ fix/geometry-revision-conflict
 test/geometry-persistence
 ```
 
-Branch names may be adapted to repository conventions.
+Branch names may be adapted to repository conventions. The actual default branch of this repository is `master` (remote `origin/master`); "protected main branches" below means `master`.
 
 ## 12.2 Pull Requests
 
