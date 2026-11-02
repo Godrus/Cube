@@ -15,6 +15,10 @@ pub const BRICKS_PER_CHUNK: usize = 2;
 /// Chunk coordinates beyond this limit are refused (keeps world coordinates inside `i32`).
 pub const MAX_CHUNK_ABS: i32 = 1 << 20;
 
+/// Version of the terrain algorithm and chunk layout. Part of the stable chunk hash, so any
+/// intentional change to the generator must bump it (and then the pinned hashes in the tests).
+pub const GENERATOR_VERSION: u32 = 1;
+
 pub const MAT_AIR: u16 = 0;
 pub const MAT_GRASS: u16 = 1;
 pub const MAT_DIRT: u16 = 2;
@@ -139,6 +143,27 @@ impl Chunk {
         }
     }
 
+    /// Stable hash of the full chunk content, see [`stable_hash_cells`]. Covers the seed, the chunk
+    /// coordinate, the generator version and every voxel material. Equal inputs give equal hashes on
+    /// every platform (integer-only, fixed byte order).
+    pub fn stable_hash(&self, seed: WorldSeed) -> u64 {
+        let mut cells = Vec::new();
+        for (bi, b) in self.bricks.iter().enumerate() {
+            if let Some(b) = b {
+                let base_y = bi as i32 * CHUNK_SIZE;
+                for (l, m) in b.occupied() {
+                    cells.push((
+                        self.coord.origin_x() + l.x as i32,
+                        base_y + l.y as i32,
+                        self.coord.origin_z() + l.z as i32,
+                        m,
+                    ));
+                }
+            }
+        }
+        stable_hash_cells(seed, GENERATOR_VERSION, self.coord, &mut cells)
+    }
+
     /// FNV-1a over all occupied voxels in a fixed order; equal content gives an equal hash.
     pub fn content_hash(&self) -> u64 {
         let mut h = 0xCBF2_9CE4_8422_2325u64;
@@ -179,6 +204,38 @@ impl PartialEq for Chunk {
                     (Some(a), None) | (None, Some(a)) => a.is_empty(),
                 })
     }
+}
+
+/// Stable chunk hash: FNV-1a 64 over a fixed byte stream: `b"CUBECHK1"`, generator version (u32 LE),
+/// seed (u64 LE), chunk x and z (i32 LE), then every non-air voxel sorted by (z, y, x) as world
+/// `x, y, z` (i32 LE each) and material (u16 LE). The cells are given in world coordinates so the same
+/// function hashes both freshly generated chunks and chunks read back from Geometry Core.
+pub fn stable_hash_cells(
+    seed: WorldSeed,
+    version: u32,
+    coord: ChunkCoord,
+    cells: &mut [(i32, i32, i32, u16)],
+) -> u64 {
+    let mut h = 0xCBF2_9CE4_8422_2325u64;
+    let mut feed = |bytes: &[u8]| {
+        for &b in bytes {
+            h ^= b as u64;
+            h = h.wrapping_mul(0x0000_0100_0000_01B3);
+        }
+    };
+    feed(b"CUBECHK1");
+    feed(&version.to_le_bytes());
+    feed(&seed.0.to_le_bytes());
+    feed(&coord.x.to_le_bytes());
+    feed(&coord.z.to_le_bytes());
+    cells.sort_by_key(|&(x, y, z, _)| (z, y, x));
+    for &(x, y, z, m) in cells.iter() {
+        feed(&x.to_le_bytes());
+        feed(&y.to_le_bytes());
+        feed(&z.to_le_bytes());
+        feed(&m.to_le_bytes());
+    }
+    h
 }
 
 pub trait ChunkGenerator {

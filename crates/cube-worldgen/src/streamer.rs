@@ -493,6 +493,22 @@ impl WorldStreamer {
         Some(out)
     }
 
+    /// Stable hash (see `generator::stable_hash_cells`) of what Geometry Core currently holds for a
+    /// Ready chunk. Equals `Chunk::stable_hash` of the generated chunk while the chunk has no edits.
+    pub fn chunk_stable_hash(&self, c: ChunkCoord) -> Option<u64> {
+        let mut cells: Vec<_> = self
+            .chunk_cells(c)?
+            .into_iter()
+            .map(|(p, m)| (p.x, p.y, p.z, m))
+            .collect();
+        Some(crate::generator::stable_hash_cells(
+            self.seed,
+            crate::generator::GENERATOR_VERSION,
+            c,
+            &mut cells,
+        ))
+    }
+
     /// Material at a world voxel of a Ready chunk.
     pub fn voxel(&self, p: VoxelPos) -> Option<u16> {
         let c = ChunkCoord::from_world(p.x, p.z);

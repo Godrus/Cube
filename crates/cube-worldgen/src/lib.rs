@@ -9,9 +9,9 @@ pub mod state_v0;
 pub mod streamer;
 
 pub use generator::{
-    BiomeId, Chunk, ChunkCoord, ChunkGenerator, ChunkState, GenError, TerrainGenerator, WorldSeed,
-    BRICKS_PER_CHUNK, CHUNK_HEIGHT, CHUNK_SIZE, MAT_AIR, MAT_DIRT, MAT_GRASS, MAT_PLACED,
-    MAT_STONE, MAX_CHUNK_ABS,
+    stable_hash_cells, BiomeId, Chunk, ChunkCoord, ChunkGenerator, ChunkState, GenError,
+    TerrainGenerator, WorldSeed, BRICKS_PER_CHUNK, CHUNK_HEIGHT, CHUNK_SIZE, GENERATOR_VERSION,
+    MAT_AIR, MAT_DIRT, MAT_GRASS, MAT_PLACED, MAT_STONE, MAX_CHUNK_ABS,
 };
 pub use state_v0::{LoadReport, StateError};
 pub use streamer::{
