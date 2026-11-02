@@ -170,7 +170,7 @@ Each contract file lists its own Open items.
 | ID | Blocker | State | Closes when |
 |---|---|---|---|
 | B-1 | GDD/TDD v0.3, Voxel Architecture v1.0, Geometry Processing Specification absent from repository | **Open** | files added; Voxel Architecture and GDD/TDD sections then updated and cross-checked |
-| B-2 | Programming language not chosen (O-0a) | **Open** | decision recorded in `docs/decisions/` |
+| B-2 | Programming language not chosen (O-0a) | **Decided: Rust** (owner decision, `docs/decisions/owner-decision-rust-godot.md`; engine: Godot 4.x as first client only) | decision recorded; spike on branch `spike/rust-godot` |
 | B-3 | ACR-001/002/003 undecided | **Open** | owner approves or rejects each |
 | B-4 | P0 contracts unapproved | **Open** | Integration Owner approval after B-2, B-3 |
 | B-5 | No owner for Networking, Engine Adapters, Import/Export, derived-data providers, modifier evaluation (O-1…O-5) | **Open** (not blocking Core/Processing) | owners assigned or deferred explicitly |

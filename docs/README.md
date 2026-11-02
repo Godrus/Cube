@@ -18,3 +18,14 @@ Authority order follows Agent Development Specification §2. Content of absent d
 | Audit Resolution Report | — | `docs/decisions/audit-resolution-report.md` | Present |
 
 Documents that cite the missing sources (Geometry Editing Specification, Agent Spec §2, Task Pack §1) do so by name only. Anything those sources decide that is not repeated in AU-1.0 or the present documents is **unknown to the repository** and must not be assumed.
+
+## Technology Decision and Spike
+
+| Item | Location | State |
+|---|---|---|
+| Owner decision: Rust runtime + Godot 4.x first client | `docs/decisions/owner-decision-rust-godot.md` | Recorded; contracts remain Draft |
+| Experimental implementation (branch `spike/rust-godot`) | `crates/`, `godot-client/` | Experimental, not approved for `master` |
+| Spike README, results, findings | `docs/spike/rust-godot/README.md` | Present |
+| Build and platform targets | `docs/spike/rust-godot/build-and-targets.md` | Present; Android and iOS unverified |
+| Rust Core to client adapter boundary | `docs/spike/rust-godot/core-adapter-boundary.md` | Present |
+
