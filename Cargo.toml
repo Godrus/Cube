@@ -1,0 +1,22 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/cube-core",
+    "crates/cube-processing",
+    "crates/cube-editing",
+    "crates/cube-persistence",
+    "crates/cube-server",
+    "crates/cube-godot-adapter",
+]
+
+[workspace.package]
+edition = "2021"
+version = "0.0.1"
+publish = false
+license = "UNLICENSED"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+panic = "abort"
+opt-level = 3
