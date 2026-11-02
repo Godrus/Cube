@@ -28,7 +28,7 @@ godot-client                       Godot 4 project: UI and renderer (GDScript)
 | FillRegion, Delta, Undo/Redo | editing | E-03, E-04, E-05, E-09 | one op, bounded history |
 | Save/Load with checksums, atomic rename, new epoch on load | persistence | P-01, P-02, P-05, P-06 (minimal) | spike file format, no deltas/migrations |
 | Headless server | server | E-13 (boundary) | loopback, no auth |
-| Godot adapter + client | adapter, godot-client | — | extension loads in Godot 4.7.2; headless smoke passes; interactive scene/rendering not checked |
+| Godot adapter + client | adapter, godot-client | — | extension loads in Godot 4.7.2; headless smoke and windowed UI test pass (Windows desktop only) |
 
 Not implemented: SDF/Mesh, Sculpting, Boolean, Composite, Resampling, networking protocol, authorization, async jobs, any renderer beyond a MultiMesh of cubes.
 
@@ -36,7 +36,7 @@ Not implemented: SDF/Mesh, Sculpting, Boolean, Composite, Resampling, networking
 
 49 Rust tests, all passing: core 20 + dependency rules 3, processing 6, editing 9, persistence 6, server 2 + TCP integration 1, adapter bridge integration 2. `cargo clippy --workspace --all-targets` reports no warnings. See `build-and-targets.md` for commands and timings.
 
-Godot check (4.7.2, Windows, GNU-built debug DLL): the extension loads and `godot --headless --path godot-client -- --smoke` exits 0 (fill, undo, redo, save, load through the real `CubeRuntime`). Not checked: the interactive scene, rendering, UI buttons, export.
+Godot check (4.7.2, Windows, GNU-built debug DLL): the extension loads and `godot --headless --path godot-client -- --smoke` exits 0 (fill, undo, redo, save, load through the real `CubeRuntime`). Interactive windowed check (Godot 4.7.2, Windows): 19/19 UI checks pass, see `interactive-client-report.md`. Not checked: export, mobile.
 
 ## Findings
 

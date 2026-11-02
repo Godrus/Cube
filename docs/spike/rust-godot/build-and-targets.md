@@ -57,7 +57,7 @@ godot --headless --path godot-client --import          # extension recognised: "
 godot --headless --path godot-client -- --smoke        # exit code 0
 ```
 
-The smoke run goes through the real GDExtension: fill (32 voxels), undo (0), redo (32), save, clear, load (new epoch 1, 32 voxels). Not checked: the interactive scene, rendering output, buttons, the editor UI, Windows release build inside Godot, export.
+The smoke run goes through the real GDExtension: fill (32 voxels), undo (0), redo (32), save, clear, load (new epoch 1, 32 voxels). Windowed interactive check (buttons, rendering, timings, screenshots): `interactive-client-report.md`. Not checked: the editor UI, Windows release build inside Godot, export, mobile.
 
 ## Measured (Windows GNU host)
 

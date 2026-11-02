@@ -26,6 +26,7 @@ Documents that cite the missing sources (Geometry Editing Specification, Agent S
 | Owner decision: Rust runtime + Godot 4.x first client | `docs/decisions/owner-decision-rust-godot.md` | Recorded; contracts remain Draft |
 | Experimental implementation (branch `spike/rust-godot`) | `crates/`, `godot-client/` | Experimental, not approved for `master` |
 | Spike README, results, findings | `docs/spike/rust-godot/README.md` | Present |
+| Interactive client check (Godot window, timings, screenshots) | `docs/spike/rust-godot/interactive-client-report.md` | Present; desktop only |
 | Build and platform targets | `docs/spike/rust-godot/build-and-targets.md` | Present; Android and iOS unverified |
 | Rust Core to client adapter boundary | `docs/spike/rust-godot/core-adapter-boundary.md` | Present |
 
