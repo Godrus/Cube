@@ -13,4 +13,5 @@ cube-core = { path = "../cube-core" }
 cube-processing = { path = "../cube-processing" }
 cube-editing = { path = "../cube-editing" }
 cube-persistence = { path = "../cube-persistence" }
+cube-worldgen = { path = "../cube-worldgen" }
 godot = "0.5"
