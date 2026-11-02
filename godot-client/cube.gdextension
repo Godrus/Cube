@@ -1,0 +1,14 @@
+[configuration]
+entry_symbol = "gdext_rust_init"
+compatibility_minimum = 4.2
+reloadable = true
+
+; Paths point at the Cargo target directory next to this project (outside res://, works in the editor;
+; for exports the libraries must be copied into the project, see docs/spike/rust-godot/build-and-targets.md).
+[libraries]
+windows.debug.x86_64 = "res://../target/debug/cube_godot_adapter.dll"
+windows.release.x86_64 = "res://../target/release/cube_godot_adapter.dll"
+android.debug.arm64 = "res://../target/aarch64-linux-android/debug/libcube_godot_adapter.so"
+android.release.arm64 = "res://../target/aarch64-linux-android/release/libcube_godot_adapter.so"
+ios.debug.arm64 = "res://../target/aarch64-apple-ios/debug/libcube_godot_adapter.dylib"
+ios.release.arm64 = "res://../target/aarch64-apple-ios/release/libcube_godot_adapter.dylib"

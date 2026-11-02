@@ -1,0 +1,16 @@
+[package]
+name = "cube-godot-adapter"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+# Thin adapter. The only crate allowed to depend on Godot.
+[dependencies]
+cube-core = { path = "../cube-core" }
+cube-processing = { path = "../cube-processing" }
+cube-editing = { path = "../cube-editing" }
+cube-persistence = { path = "../cube-persistence" }
+godot = "0.5"
