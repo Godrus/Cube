@@ -17,6 +17,7 @@ var hud := Label.new()
 var camera := Camera3D.new()
 var marker := MeshInstance3D.new()
 var hold := {"fwd": false, "back": false, "left": false, "right": false}
+var smoke_running := false             # true only while the scripted smoke test drives the world
 var update_us := []                    # microseconds spent building chunk MultiMeshes
 
 func _ready() -> void:
@@ -30,12 +31,14 @@ func _ready() -> void:
 	world.create(SEED, 1)
 	_place_player(player.x, player.z)
 	if _smoke_mode():
+		smoke_running = true
 		await _smoke()
+		smoke_running = false
 	else:
 		_stream()
 
 func _smoke_mode() -> bool:
-	return "--world-smoke" in OS.get_cmdline_user_args()
+	return "--world-smoke" in OS.get_cmdline_user_args() or OS.has_feature("worldtest")
 
 func _build_scene() -> void:
 	var mat := StandardMaterial3D.new()
@@ -88,7 +91,7 @@ func _place_player(x: float, z: float) -> void:
 	camera.look_at_from_position(player + Vector3(0, 16, 20), player)
 
 func _process(delta: float) -> void:
-	if world == null or _smoke_mode():
+	if world == null or smoke_running:
 		return
 	var d := Vector2.ZERO
 	if Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP) or hold["fwd"]: d.y -= 1
@@ -262,6 +265,10 @@ func _smoke() -> void:
 	print("WORLDTEST FPS 5x5 fps=%.0f (headless/dummy renderer fps is not a rendering result)" % fps)
 	await _shot(shot_dir + "/world-3-5x5.png", Vector3(0, 70, 80))
 	print("WORLDTEST SUMMARY failures=%d" % _failures)
+	# Mobile validation exports (custom feature "worldtest") stay alive so memory can be read from outside.
+	if OS.has_feature("worldtest") and not ("--world-smoke" in OS.get_cmdline_user_args()):
+		print("WORLDTEST DONE staying alive")
+		return
 	get_tree().quit(0 if _failures == 0 else 1)
 
 ## Saves a screenshot when a real renderer is present (skipped headless); camera is posed behind the player.

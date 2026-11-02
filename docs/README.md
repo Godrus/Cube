@@ -30,4 +30,4 @@ Documents that cite the missing sources (Geometry Editing Specification, Agent S
 | Mobile validation (Android emulator; iOS blocked) | `docs/spike/rust-godot/mobile-validation-report.md` | Present; no real-device results |
 | Build and platform targets | `docs/spike/rust-godot/build-and-targets.md` | Present; Android and iOS unverified |
 | Rust Core to client adapter boundary | `docs/spike/rust-godot/core-adapter-boundary.md` | Present |
-
+| World generation spike (branch `spike/rust-world-generation`) | `docs/spike/rust-world-generation/README.md`, `report.md` | Experimental; not for `master` without owner decision |

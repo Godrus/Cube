@@ -15,6 +15,10 @@ var timings := {}                     # name -> {"total_us": int, "rust_us": int
 var step := 0
 
 func _ready() -> void:
+	if OS.has_feature("worldtest"):
+		# Mobile validation build of the world-generation spike: go straight to the world scene.
+		get_tree().change_scene_to_file.call_deferred("res://world.tscn")
+		return
 	if not ClassDB.class_exists("CubeRuntime"):
 		push_error("CubeRuntime not found: build the Rust extension first (cargo build -p cube-godot-adapter).")
 		print("UITEST FAIL CubeRuntime class missing (GDExtension not loaded)")
