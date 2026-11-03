@@ -263,3 +263,111 @@ The hash code uses only `u32`, `u64`, `i32`, `u16` converted with `to_le_bytes` 
 ## 16. What this stage does not show
 
 Android numbers come from an emulator (ARM64 through translation); there is no physical-device or iOS result. The time per edit is still dominated by re-meshing the whole chunk (2-5 ms on the emulator); incremental meshing of the changed region, greedy merging and off-thread meshing are open and were deliberately not started.
+
+
+---
+
+# Stage 4: incremental mesh sections
+
+**Status:** experimental, `spike/rust-world-generation`, base `150ca51`. `master` unchanged, nothing merged. Not changed: Geometry Core API, RevisionToken, the approved undo semantics, `world-state-v0`, TCP protocol, persistence format, P0/P1 status, the terrain algorithm. Not added: greedy meshing, background meshing, biomes, multiplayer, SDF/Mesh backend. Nothing here is mobile-ready.
+
+## 17. Mesh sections
+
+A **mesh section** is one 16^3 brick of a chunk: `SectionCoord { chunk, brick }`, brick 0 = y 0..15, brick 1 = y 16..31. A chunk (16x32x16) therefore has two independent sections, indexed by the brick coordinate `(cx, brick, cz)` (the same brick coordinates Geometry Core uses).
+
+* **Faces are stored per section.** `WorldBridge::section_mesh(cx, brick, cz)` builds only the faces of the section's own voxels, reading neighbours from the other brick of the chunk, the neighbouring chunks, and the world limits (below y = 0 counts as solid, above y = 31 as air, an unloaded neighbour chunk as air). `chunk_mesh` (the previous whole-chunk builder, kept as the independent reference) equals section 0 appended with section 1: same faces, same order.
+* **Godot:** each chunk is a `Node3D` container with up to two `MeshInstance3D` children (one per non-empty section). A rebuild replaces only that section's node. Draw calls go up (48 instead of 40 in the 5x5 scene, because 50 sections instead of 25 chunk meshes).
+* **Rebuild policies (client):** `partial` (default) rebuilds only the dirty sections reported by Rust; `chunk` rebuilds all sections of the edited chunks plus neighbours across an edited border (the previous stage); `all` rebuilds all sections of the edited chunks and of their four neighbours (full rebuild, the original fallback). Select with `--rebuild=<policy>` (Android: `setprop debug.cube.rebuild <policy>`). Added or removed chunks still rebuild all sections of their four neighbours in every policy.
+
+### Dirty-region rule
+
+After an edit at voxel `p`, the dirty region is `p` expanded by one voxel in every direction (the 3x3x3 box). A face of voxel `q` depends only on the six face neighbours of `q`, so only the sections that contain `p` or one of its six face neighbours can change; the 20 diagonal cells of the box cannot change any face and are not used for section selection (otherwise a corner edit would needlessly rebuild the diagonal chunk). Only sections of Ready chunks and inside y 0..31 are reported. `WorldStreamer::take_dirty_sections()` returns them, deduplicated, in order of first occurrence.
+
+Sections rebuilt per type of edit (single voxel; verified by Rust tests and by the Godot smoke test on all three platforms):
+
+| Edit | Sections rebuilt (`partial`) | `chunk` | `all` |
+|---|---|---|---|
+| inside a section (8,10,8) | 1: own | 2 (1 chunk) | 10 (5 chunks) |
+| on a brick boundary (8,15,8) or (8,16,8) | 2: both bricks of the chunk | 2 | 10 |
+| on a chunk border (15,10,8) | 2: own + neighbour chunk, same brick | 4 | 10 |
+| on a horizontal corner (15,10,15) | 3: own + the two neighbours, never the diagonal chunk | 6 | 10 |
+| corner on a brick boundary (15,15,15) | 4: own two bricks + the two neighbours' brick 0 | 6 | 10 |
+| chunk border + brick boundary above (0,16,0) | 4: own brick 1 and 0, west neighbour brick 1, north neighbour brick 1 | n/a | n/a |
+| y = 0 or y = 31 | 1: nothing outside the world | | |
+| 3x3x3 block inside a chunk | 2 (measured) | 2 | 10 |
+| no change (same material, air above the world, unloaded chunk) | 0 | 0 | 0 |
+
+Undo/redo: the adapter has a **spike-local inverse-edit journal** (`WorldBridge::undo/redo`, used only by the smoke test and the Undo/Redo buttons). It is not the Editing API undo, does not touch RevisionToken or the undo semantics, is cleared on load and is lost with the process. Three edits undone then redone rebuild 5 sections (`partial`), 8 (`chunk`), 30 (`all`) in each direction.
+
+## 18. Tests
+
+**Rust: 108 workspace tests pass (was 97), `clippy` clean.** New in `crates/cube-godot-adapter/tests/sections.rs` (11): one section for an edit inside a section (both bricks); two sections on a brick boundary; section of the neighbour chunk on every chunk border incl. negative coordinates; corner edits (3 and 4 sections, diagonal never); world limits; unloaded neighbours skipped; empty operation dirties nothing and creates no undo step; far sections never change; `chunk_mesh` equals its two sections appended (faces, order, hash); **incremental equals full rebuild** after 80 random edits (client-style cache refreshed only from dirty sections compared with a full rebuild of all sections after every edit, plus face lists and `content_hash` per chunk); undo/redo restore every mesh exactly and report the same sections.
+
+**Godot smoke** (`--world-smoke --renderer=faces`; all checks pass, `failures=0`, desktop headless, desktop windowed, Android x86_64, Android ARM64): edit inside a section, on a brick boundary, on a chunk border, on a corner, corner on a brick boundary; each checks the number of sections rebuilt and that no drawn mesh is stale (per section, the drawn face count equals a freshly computed one). Then three edits are undone and redone: no stale mesh, face count back to the state before the edits after undo and equal to the edited state after redo, equal voxel counts. Finally the picture is compared across policies. The cubes renderer smoke still passes.
+
+## 19. Pixel comparison
+
+Scene after the same sequence (5 scenarios x 11 toggles, a 3x3x3 block, three edits undone and redone) under `all`, `chunk` and `partial`, captured with the same camera and compared inside the script (3D area only: the HUD strip shows a live fps number, which made the first comparison report 237 differing pixels that are all digits of the fps counter, bounding box x 837-864, y 10-22).
+
+| Platform | `all` vs `partial` | `chunk` vs `partial` |
+|---|---|---|
+| Windows desktop, RTX 3070 Ti (596 736 px) | 0 differing | 0 differing |
+| Android x86_64 emulator (1 977 600 px) | 0 differing | 0 differing |
+| Android ARM64 emulator, translated (1 977 600 px) | 0 differing | 0 differing |
+
+The pictures are pixel-identical. Edits are visible in the pictures (the picture after the edits differs from the one before them, checked on desktop). Desktop images: `screenshots/world-faces-edit-all.png`, `-chunk.png`, `-partial.png`.
+
+## 20. Measurements: incremental (`partial`) vs full rebuild (`all`) vs whole chunks (`chunk`)
+
+Same 5x5 world (25 chunks, 12 146-12 212 faces; the face count is identical under all policies after the same edits). Time per edit includes the Rust edit, mesh building (`rust`) and node replacement (`node`) in Godot; 11 toggles per scenario averaged. "Rebuilt" counts sections.
+
+**Windows desktop** (Rust library built in release, 2 headless runs in separate processes, ms; windowed runs agree within 10%):
+
+| Metric | `all` | `chunk` | `partial` |
+|---|---|---|---|
+| Edit inside a section (sections rebuilt) | 1.34-1.40 (10) | 0.28-0.38 (2) | **0.21-0.24 (1)** |
+| Edit on a brick boundary | 1.24-1.43 (10) | 0.29-0.31 (2) | 0.30-0.32 (2) |
+| Edit on a chunk border | 1.34-1.36 (10) | 0.52-0.58 (4) | **0.42-0.43 (2)** |
+| Edit on a corner | 1.36-1.39 (10) | 0.78-0.82 (6) | **0.63-0.64 (3)** |
+| Corner on a brick boundary | 1.30-1.31 (10) | 0.79-0.83 (6) | **0.67-0.70 (4)** |
+| 3x3x3 block | 1.66-1.69 (10) | 0.43-0.58 (2) | 0.50-0.51 (2) |
+| Undo avg / redo avg (3 edits) | 1.30-1.34 / 1.46-1.49 | 0.32-0.37 / 0.41-0.46 | **0.23-0.24 / 0.35-0.37** |
+| of which Godot node update (inside a section) | 0.07-0.08 | 0.03 | 0.01-0.02 |
+| Godot static memory (end of the run, separate processes) | 27.2 MB | 27.2 MB | 27.2 MB |
+| faces | 12 146-12 212 | same | same |
+
+Rust micro-benchmark (`cargo run --release -p cube-godot-adapter --example render_bench`, 5x5): whole chunk 0.145 ms, **section 0 (y 0-15) 0.121 ms, section 1 (y 16-31) 0.026 ms**. Almost all terrain lies in brick 0 (heights 6-19), so splitting a chunk into two bricks barely helps an edit in brick 0: `partial` vs `chunk` is 0.21-0.24 vs 0.28-0.38 ms inside a section, and equal (0.30 vs 0.29 ms) on a brick boundary. The large gain came from not rebuilding neighbours (`all` -> `chunk` -> `partial`); sections add a modest further gain on borders and corners, and a big one only for edits in the nearly empty upper brick (0.026 ms vs 0.145 ms for the whole chunk).
+
+**Android x86_64 emulator** (native on the emulator, release APK, 2 runs per policy in separate processes, ms):
+
+| Metric | `all` | `chunk` | `partial` |
+|---|---|---|---|
+| Edit inside a section | 4.3-4.8 | 1.2-1.3 | **0.8-0.9** |
+| Edit on a brick boundary | 3.8-4.3 | 1.0 | 1.1-1.2 |
+| Edit on a chunk border | 3.9-4.4 | 1.6-1.9 | **1.3-1.4** |
+| Edit on a corner | 3.9-4.8 | 2.6-2.7 | **1.8-2.1** |
+| Undo avg / redo avg | 3.4-3.9 / 3.9-4.0 | 1.0-1.1 / 1.0-1.1 | **0.72-0.74 / 0.74-0.88** |
+| Peak RSS (`VmHWM`) / PSS | 286 MB / 131 MB | 287 MB / 133 MB | 287 MB / 134-137 MB |
+
+**Android ARM64 emulator, translated** (release APK; ranges over all completed runs, 2-4 per policy; absolute values are dominated by the translator, not representative of a phone):
+
+| Metric | `all` | `chunk` | `partial` |
+|---|---|---|---|
+| Edit inside a section | 10.7-28 | 2.1-11.6 | 1.4-3.5 |
+| Edit on a brick boundary | 9.3-18 | 1.9-4.2 | 1.9-2.0 |
+| Edit on a chunk border | 10.4-20 | 3.1-9.8 | 2.2-4.4 |
+| Undo avg / redo avg | 7.2-26 / 7.5-16.6 | 2.3-4.0 / 2.2-4.6 | 1.3-1.4 / 1.8-3.2 |
+| Peak RSS (`VmHWM`) / PSS | 701-754 MB / 523-529 MB | 702-722 MB / 522-524 MB | 701 MB / 527 MB |
+
+Reading the numbers: (1) the ordering `all` > `chunk` >= `partial` holds on every platform; (2) process memory does not depend on the policy (the policies only differ in how many meshes are replaced per edit, and the number of faces is equal); (3) emulator timings vary 2-5x between identical runs (host load, first run after install), so only the ordering and rough ratios (about 3x to 6x fewer ms for `partial` than `all`) can be trusted, not absolute milliseconds; (4) real touch input was already verified in the previous stage and was not repeated here.
+
+## 21. Limitations, problems found, readiness
+
+* **Sections help little in this terrain.** 85% of the meshing time is in brick 0. `section_mesh` still scans the whole 16^3 brick for one edited voxel; a finer local patch (only the faces around the edited voxel) is the next lever, not more sections.
+* **Neighbour handling is coarse for added/removed chunks:** both bricks of the four neighbours are rebuilt even though only the border column changed.
+* **A section costs a node per brick** (48 draw calls instead of 40 in 5x5): acceptable here, to be revisited with a draw-call budget.
+* **Undo/redo is a spike-local journal**, not the Editing API undo; world edits still bypass the Editing API (see `worldgen-core-boundary.md`).
+* **Emulator only.** ARM64 runs are translated, timings are noisy, no physical ARM64 phone and no iOS. Memory and timing say nothing about real devices, thermals or long sessions.
+* **Problems found during the stage:** (1) the first full-frame picture comparison reported 237 differing pixels, all in the HUD fps text; comparison now excludes the HUD. (2) Several ARM64 runs (first run after install, runs with three policies in one process) did not finish within the initial 4-minute wait, so the first ARM64 table was incomplete; the wait was extended and the missing runs repeated, one policy combination (`partial`, last run) was stopped by hand, so its ARM64 range comes from the earlier completed runs. (3) A shell helper for killing processes (`pkill`) does not exist in the Git Bash used here, so earlier clean-up attempts of the emulator and wait loops silently did nothing and the emulator stayed running after the runs. Clean-up is now done with `adb emu kill` and `taskkill` and was checked (no emulator, qemu or adb process left). (4) A first version of the smoke test contained a check that could not fail (`... or true`); it was replaced by a real comparison and the run was repeated.
+
+**Readiness for greedy meshing:** yes, with conditions. The section is a sound unit (independent faces, an exact dirty rule, proven incremental == full rebuild, identical pictures). Greedy merging inside a section keeps that contract: an edit still rebuilds the dirty sections, only the section builder changes, and the existing equivalence tests (face-area coverage and picture comparison instead of face lists) can validate it. Conditions: measure the section build cost first (greedy adds work per rebuild, while reducing triangles and memory), decide how colours and the shared border faces are merged, and keep the cubes renderer and `--rebuild=all` as references. A physical ARM64 device run is still required before any statement about mobile performance.
