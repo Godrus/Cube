@@ -29,6 +29,27 @@ use crate::generator::{
     CHUNK_HEIGHT, CHUNK_SIZE,
 };
 
+/// A mesh section: one 16^3 brick of a chunk (`brick` 0 = y 0..15, 1 = y 16..31). The unit of
+/// incremental face-mesh rebuilding in the experimental renderer.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct SectionCoord {
+    pub chunk: ChunkCoord,
+    pub brick: u8,
+}
+
+impl SectionCoord {
+    /// Section containing a world voxel (`None` if `y` is outside the world).
+    pub fn of_voxel(p: VoxelPos) -> Option<SectionCoord> {
+        if !(0..CHUNK_HEIGHT).contains(&p.y) {
+            return None;
+        }
+        Some(SectionCoord {
+            chunk: ChunkCoord::from_world(p.x, p.z),
+            brick: (p.y / CHUNK_SIZE) as u8,
+        })
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct StreamConfig {
     /// Chunks within this Chebyshev distance of the centre are wanted.
@@ -126,6 +147,8 @@ pub struct WorldStreamer {
     modified: Vec<ChunkCoord>,
     /// Ready neighbours whose border faces depend on an edited border voxel (see `take_border_touched`).
     border_touched: Vec<ChunkCoord>,
+    /// Mesh sections whose faces may have changed (see `take_dirty_sections`).
+    dirty_sections: Vec<SectionCoord>,
     trace: Option<Vec<(ChunkCoord, ChunkState)>>,
 }
 
@@ -147,6 +170,7 @@ impl WorldStreamer {
             removed: Vec::new(),
             modified: Vec::new(),
             border_touched: Vec::new(),
+            dirty_sections: Vec::new(),
             trace: None,
         }
     }
@@ -397,6 +421,16 @@ impl WorldStreamer {
         std::mem::take(&mut self.border_touched)
     }
 
+    /// Mesh sections (chunk, brick) whose face mesh may have changed because of voxel edits since the
+    /// last call. Rule: the dirty region of an edited voxel is the voxel expanded by one in every
+    /// direction; a face of voxel `q` depends only on the six face neighbours of `q`, so exactly the
+    /// sections containing the edited voxel or one of its six face neighbours are reported (the
+    /// diagonal corners of the expanded box cannot change any face and are left out). Only sections of
+    /// Ready chunks and inside the world height are reported. Order of first occurrence, no duplicates.
+    pub fn take_dirty_sections(&mut self) -> Vec<SectionCoord> {
+        std::mem::take(&mut self.dirty_sections)
+    }
+
     pub fn take_modified(&mut self) -> Vec<ChunkCoord> {
         std::mem::take(&mut self.modified)
     }
@@ -484,24 +518,36 @@ impl WorldStreamer {
 
     /// Non-air voxels of a Ready chunk in world coordinates, with materials (deterministic order).
     pub fn chunk_cells(&self, c: ChunkCoord) -> Option<Vec<(VoxelPos, u16)>> {
-        if self.state(c) != ChunkState::Ready {
+        let mut out = Vec::new();
+        for bi in 0..BRICKS_PER_CHUNK {
+            out.extend(self.section_cells(SectionCoord {
+                chunk: c,
+                brick: bi as u8,
+            })?);
+        }
+        Some(out)
+    }
+
+    /// Non-air voxels of one mesh section (brick) of a Ready chunk, world coordinates, sorted by
+    /// (y, z, x). `None` if the chunk is not Ready or the brick index is out of range.
+    pub fn section_cells(&self, s: SectionCoord) -> Option<Vec<(VoxelPos, u16)>> {
+        if self.state(s.chunk) != ChunkState::Ready || s.brick as usize >= BRICKS_PER_CHUNK {
             return None;
         }
         let layer = self.asset.layer(self.layer).ok()?;
-        let mut out = Vec::new();
-        for bi in 0..BRICKS_PER_CHUNK {
-            let coord = Self::brick_coord(c, bi);
-            if let Some(b) = layer.storage().get(coord) {
-                let mut cells: Vec<_> = b
-                    .occupied()
+        let coord = Self::brick_coord(s.chunk, s.brick as usize);
+        let mut cells: Vec<_> = layer
+            .storage()
+            .get(coord)
+            .map(|b| {
+                b.occupied()
                     .into_iter()
                     .map(|(l, m)| (coord.join(l), m))
-                    .collect();
-                cells.sort_by_key(|(p, _)| (p.y, p.z, p.x));
-                out.extend(cells);
-            }
-        }
-        Some(out)
+                    .collect()
+            })
+            .unwrap_or_default();
+        cells.sort_by_key(|(p, _)| (p.y, p.z, p.x));
+        Some(cells)
     }
 
     /// Stable hash (see `generator::stable_hash_cells`) of what Geometry Core currently holds for a
@@ -580,6 +626,23 @@ impl WorldStreamer {
         list.push(VoxelEdit { pos: p, material });
         if !self.modified.contains(&c) {
             self.modified.push(c);
+        }
+        for (dx, dy, dz) in [
+            (0, 0, 0),
+            (1, 0, 0),
+            (-1, 0, 0),
+            (0, 1, 0),
+            (0, -1, 0),
+            (0, 0, 1),
+            (0, 0, -1),
+        ] {
+            let q = VoxelPos::new(p.x + dx, p.y + dy, p.z + dz);
+            if let Some(sec) = SectionCoord::of_voxel(q) {
+                if self.state(sec.chunk) == ChunkState::Ready && !self.dirty_sections.contains(&sec)
+                {
+                    self.dirty_sections.push(sec);
+                }
+            }
         }
         let (lx, lz) = (p.x - c.origin_x(), p.z - c.origin_z());
         let last = CHUNK_SIZE - 1;

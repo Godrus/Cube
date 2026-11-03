@@ -10,8 +10,8 @@ use cube_core::VoxelPos;
 use cube_worldgen::generator::TerrainGenerator;
 use cube_worldgen::state_v0;
 use cube_worldgen::{
-    ChunkCoord, ChunkState, PumpSummary, StateCounts, StreamConfig, UpdateSummary, WorldSeed,
-    WorldStreamer, CHUNK_HEIGHT, MAT_PLACED,
+    ChunkCoord, ChunkState, PumpSummary, SectionCoord, StateCounts, StreamConfig, UpdateSummary,
+    WorldSeed, WorldStreamer, BRICKS_PER_CHUNK, CHUNK_HEIGHT, MAT_PLACED,
 };
 
 pub const MAX_RADIUS: i32 = 8;
@@ -45,6 +45,40 @@ impl ChunkMesh {
     }
 }
 
+impl ChunkMesh {
+    /// Appends another mesh (indices rebased). Chunk mesh == section 0 appended with section 1.
+    pub fn append(&mut self, o: &ChunkMesh) {
+        let base = self.vertex_count() as u32;
+        self.positions.extend_from_slice(&o.positions);
+        self.normals.extend_from_slice(&o.normals);
+        self.colors.extend_from_slice(&o.colors);
+        self.indices.extend(o.indices.iter().map(|i| i + base));
+        self.faces += o.faces;
+    }
+
+    /// Hash of the face list (FNV-1a 64 over integer vertex positions, normals, indices and 8-bit
+    /// colours). For tests and comparisons only; not a persisted format.
+    pub fn content_hash(&self) -> u64 {
+        let mut h = 0xCBF2_9CE4_8422_2325u64;
+        let mut feed = |v: u32| {
+            for b in v.to_le_bytes() {
+                h ^= b as u64;
+                h = h.wrapping_mul(0x0000_0100_0000_01B3);
+            }
+        };
+        for v in self.positions.iter().chain(self.normals.iter()) {
+            feed(*v as i32 as u32);
+        }
+        for c in &self.colors {
+            feed((c * 255.0).round() as u32);
+        }
+        for i in &self.indices {
+            feed(*i);
+        }
+        h
+    }
+}
+
 const PAD_X: usize = 18;
 const PAD_Z: usize = 18;
 /// Padded grid height: `y = -1 ..= CHUNK_HEIGHT` (one cell of padding on both ends).
@@ -68,11 +102,40 @@ fn pad_index(x: i32, y: i32, z: i32) -> usize {
     ((y + 1) as usize * PAD_Z + (z + 1) as usize) * PAD_X + (x + 1) as usize
 }
 
+/// Appends the visible faces of voxel `p` (material `m`); `hidden(normal)` says whether the neighbour
+/// in that direction is occupied.
+fn emit_faces(mesh: &mut ChunkMesh, p: VoxelPos, m: u16, hidden: impl Fn([i32; 3]) -> bool) {
+    let col = material_color(m);
+    for (n, u, v, o) in FACES {
+        if hidden(n) {
+            continue;
+        }
+        let base = (mesh.positions.len() / 3) as u32;
+        let p0 = [p.x + o[0], p.y + o[1], p.z + o[2]];
+        for (a, b) in [(0, 0), (0, 1), (1, 1), (1, 0)] {
+            for k in 0..3 {
+                mesh.positions.push((p0[k] + a * u[k] + b * v[k]) as f32);
+                mesh.normals.push(n[k] as f32);
+            }
+            mesh.colors.extend_from_slice(&col);
+        }
+        mesh.indices
+            .extend_from_slice(&[base, base + 1, base + 2, base, base + 2, base + 3]);
+        mesh.faces += 1;
+    }
+}
+
 pub struct WorldBridge {
     w: WorldStreamer,
     added: Vec<ChunkCoord>,
     removed: Vec<ChunkCoord>,
+    /// Spike-local inverse-edit journal (NOT the Editing API undo): per edit batch the voxels it changed.
+    undo: Vec<EditBatch>,
+    redo: Vec<EditBatch>,
 }
+
+/// One user edit: `(position, material before, material after)` of every voxel that changed.
+type EditBatch = Vec<(VoxelPos, u16, u16)>;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct LoadSummary {
@@ -110,6 +173,8 @@ impl WorldBridge {
             w: WorldStreamer::new(WorldSeed(seed), Box::new(TerrainGenerator), cfg),
             added: Vec::new(),
             removed: Vec::new(),
+            undo: Vec::new(),
+            redo: Vec::new(),
         }
     }
 
@@ -175,9 +240,85 @@ impl WorldBridge {
             .collect()
     }
 
-    /// Sets one voxel (Ready chunks only); `true` if it changed.
+    /// Mesh sections `[chunk x, brick, chunk z]` whose faces may have changed because of edits (see
+    /// `WorldStreamer::take_dirty_sections` for the dirty-region rule).
+    pub fn take_dirty_sections(&mut self) -> Vec<[i32; 3]> {
+        self.w
+            .take_dirty_sections()
+            .into_iter()
+            .map(|s| [s.chunk.x, s.brick as i32, s.chunk.z])
+            .collect()
+    }
+
+    /// Sets one voxel to `material` and records the change in `batch`; `true` if it changed.
+    fn set_recorded(&mut self, p: VoxelPos, material: u16, batch: &mut EditBatch) -> bool {
+        let before = self.w.voxel(p);
+        if let (Some(old), Ok(true)) = (before, self.w.set_voxel(p, material)) {
+            batch.push((p, old, material));
+            true
+        } else {
+            false
+        }
+    }
+
+    fn finish_batch(&mut self, batch: EditBatch) {
+        if !batch.is_empty() {
+            self.undo.push(batch);
+            self.redo.clear();
+        }
+    }
+
+    /// Sets one voxel (Ready chunks only); `true` if it changed. One undo step.
     pub fn edit_voxel(&mut self, x: i32, y: i32, z: i32, material: u16) -> bool {
-        matches!(self.w.set_voxel(VoxelPos::new(x, y, z), material), Ok(true))
+        let mut batch = Vec::new();
+        let changed = self.set_recorded(VoxelPos::new(x, y, z), material, &mut batch);
+        self.finish_batch(batch);
+        changed
+    }
+
+    /// Reverts the last edit batch; returns how many voxels were restored (0 if nothing to undo).
+    /// Voxels whose chunk was unloaded meanwhile are skipped. Spike-local helper, not the approved
+    /// Editing API undo.
+    pub fn undo(&mut self) -> usize {
+        let Some(batch) = self.undo.pop() else {
+            return 0;
+        };
+        let n = self.apply_batch(&batch, true);
+        self.redo.push(batch);
+        n
+    }
+
+    pub fn redo(&mut self) -> usize {
+        let Some(batch) = self.redo.pop() else {
+            return 0;
+        };
+        let n = self.apply_batch(&batch, false);
+        self.undo.push(batch);
+        n
+    }
+
+    fn apply_batch(&mut self, batch: &EditBatch, revert: bool) -> usize {
+        let mut n = 0;
+        let order: Vec<_> = if revert {
+            batch.iter().rev().collect()
+        } else {
+            batch.iter().collect()
+        };
+        for &(p, old, new) in order {
+            let target = if revert { old } else { new };
+            if matches!(self.w.set_voxel(p, target), Ok(true)) {
+                n += 1;
+            }
+        }
+        n
+    }
+
+    pub fn undo_depth(&self) -> usize {
+        self.undo.len()
+    }
+
+    pub fn redo_depth(&self) -> usize {
+        self.redo.len()
     }
 
     pub fn active_chunks(&self) -> Vec<[i32; 2]> {
@@ -281,30 +422,69 @@ impl WorldBridge {
         let mut mesh = ChunkMesh::default();
         for &(p, m) in &cells {
             let (lx, ly, lz) = (p.x - ox, p.y, p.z - oz);
-            let col = material_color(m);
-            for (n, u, v, o) in FACES {
-                if grid[pad_index(lx + n[0], ly + n[1], lz + n[2])] != 0 {
-                    continue;
-                }
-                let base = (mesh.positions.len() / 3) as u32;
-                let p0 = [p.x + o[0], p.y + o[1], p.z + o[2]];
-                for (a, b) in [(0, 0), (0, 1), (1, 1), (1, 0)] {
-                    for k in 0..3 {
-                        mesh.positions.push((p0[k] + a * u[k] + b * v[k]) as f32);
-                        mesh.normals.push(n[k] as f32);
-                    }
-                    mesh.colors.extend_from_slice(&col);
-                }
-                mesh.indices.extend_from_slice(&[
-                    base,
-                    base + 1,
-                    base + 2,
-                    base,
-                    base + 2,
-                    base + 3,
-                ]);
-                mesh.faces += 1;
+            emit_faces(&mut mesh, p, m, |n| {
+                grid[pad_index(lx + n[0], ly + n[1], lz + n[2])] != 0
+            });
+        }
+        Some(mesh)
+    }
+
+    /// Face mesh of one mesh section (brick `bi` of chunk `(cx, cz)`): only the faces of the section's
+    /// own voxels. `chunk_mesh(c)` equals section 0 appended with section 1 (same faces, same order).
+    /// Neighbouring voxels are read from the other brick of the chunk and the neighbouring chunks.
+    pub fn section_mesh(&self, cx: i32, bi: i32, cz: i32) -> Option<ChunkMesh> {
+        if !(0..BRICKS_PER_CHUNK as i32).contains(&bi) {
+            return None;
+        }
+        let coord = ChunkCoord::new(cx, cz);
+        let cells = self.w.section_cells(SectionCoord {
+            chunk: coord,
+            brick: bi as u8,
+        })?;
+        let (ox, oy, oz) = (coord.origin_x(), bi * 16, coord.origin_z());
+        const N: usize = 18;
+        let idx = |x: i32, y: i32, z: i32| {
+            ((y + 1) as usize * N + (z + 1) as usize) * N + (x + 1) as usize
+        };
+        let mut grid = vec![0u16; N * N * N];
+        for &(p, m) in &cells {
+            grid[idx(p.x - ox, p.y - oy, p.z - oz)] = m;
+        }
+        // Padding planes above and below inside the chunk (other brick) or the world limit.
+        for z in 0..16 {
+            for x in 0..16 {
+                grid[idx(x, -1, z)] = if oy == 0 {
+                    SOLID_BELOW_WORLD
+                } else {
+                    self.w
+                        .voxel(VoxelPos::new(ox + x, oy - 1, oz + z))
+                        .unwrap_or(0)
+                };
+                grid[idx(x, 16, z)] = if oy + 16 >= CHUNK_HEIGHT {
+                    0
+                } else {
+                    self.w
+                        .voxel(VoxelPos::new(ox + x, oy + 16, oz + z))
+                        .unwrap_or(0)
+                };
             }
+        }
+        for y in 0..16 {
+            for i in 0..16 {
+                for (lx, lz) in [(-1, i), (16, i), (i, -1), (i, 16)] {
+                    grid[idx(lx, y, lz)] = self
+                        .w
+                        .voxel(VoxelPos::new(ox + lx, oy + y, oz + lz))
+                        .unwrap_or(0);
+                }
+            }
+        }
+        let mut mesh = ChunkMesh::default();
+        for &(p, m) in &cells {
+            let (lx, ly, lz) = (p.x - ox, p.y - oy, p.z - oz);
+            emit_faces(&mut mesh, p, m, |n| {
+                grid[idx(lx + n[0], ly + n[1], lz + n[2])] != 0
+            });
         }
         Some(mesh)
     }
@@ -316,20 +496,17 @@ impl WorldBridge {
     /// Places a 3x3x3 block of `MAT_PLACED` centred on `(x, y, z)`; returns how many voxels changed.
     /// Voxels in chunks that are not Ready are skipped.
     pub fn edit_around(&mut self, x: i32, y: i32, z: i32) -> usize {
-        let mut changed = 0;
+        let mut batch = Vec::new();
         for dy in -1..=1 {
             for dz in -1..=1 {
                 for dx in -1..=1 {
                     let yy = (y + dy).clamp(0, CHUNK_HEIGHT - 1);
-                    if let Ok(true) = self
-                        .w
-                        .set_voxel(VoxelPos::new(x + dx, yy, z + dz), MAT_PLACED)
-                    {
-                        changed += 1;
-                    }
+                    self.set_recorded(VoxelPos::new(x + dx, yy, z + dz), MAT_PLACED, &mut batch);
                 }
             }
         }
+        let changed = batch.len();
+        self.finish_batch(batch);
         changed
     }
 
@@ -346,6 +523,8 @@ impl WorldBridge {
         let (w, rep) =
             state_v0::load(path, Box::new(TerrainGenerator)).map_err(|e| e.to_string())?;
         self.w = w;
+        self.undo.clear();
+        self.redo.clear();
         // The client clears everything on load and then takes all active chunks as newly added.
         self.added = self.w.active_chunks();
         self.removed.clear();

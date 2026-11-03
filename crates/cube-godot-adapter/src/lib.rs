@@ -14,6 +14,41 @@ use godot::prelude::*;
 use bridge::{BridgeError, ChangeBatch, RuntimeBridge};
 use world_bridge::WorldBridge;
 
+/// Builds a one-surface `ArrayMesh` (vertices, normals, colours, 32-bit indices); `None` without faces.
+fn mesh_to_godot(m: world_bridge::ChunkMesh) -> Option<Gd<godot::classes::ArrayMesh>> {
+    use godot::classes::mesh::{ArrayType, PrimitiveType};
+    use godot::classes::ArrayMesh;
+    if m.faces == 0 {
+        return None;
+    }
+    let vec3 = |f: &[f32]| -> PackedVector3Array {
+        f.chunks_exact(3)
+            .map(|c| Vector3::new(c[0], c[1], c[2]))
+            .collect()
+    };
+    let colors: PackedColorArray = m
+        .colors
+        .chunks_exact(4)
+        .map(|c| Color::from_rgba(c[0], c[1], c[2], c[3]))
+        .collect();
+    let indices: PackedInt32Array = m.indices.iter().map(|&i| i as i32).collect();
+    let mut arrays = VarArray::new();
+    arrays.resize(ArrayType::MAX.ord() as usize, &Variant::nil());
+    arrays.set(
+        ArrayType::VERTEX.ord() as usize,
+        &vec3(&m.positions).to_variant(),
+    );
+    arrays.set(
+        ArrayType::NORMAL.ord() as usize,
+        &vec3(&m.normals).to_variant(),
+    );
+    arrays.set(ArrayType::COLOR.ord() as usize, &colors.to_variant());
+    arrays.set(ArrayType::INDEX.ord() as usize, &indices.to_variant());
+    let mut mesh = ArrayMesh::new_gd();
+    mesh.add_surface_from_arrays(PrimitiveType::TRIANGLES, &arrays);
+    Some(mesh)
+}
+
 struct CubeExtension;
 
 #[gdextension]
@@ -288,38 +323,42 @@ impl CubeWorld {
     /// surface, vertex colours). `null` if the chunk is not ready or has no visible face.
     #[func]
     fn chunk_mesh(&self, cx: i32, cz: i32) -> Option<Gd<godot::classes::ArrayMesh>> {
-        use godot::classes::mesh::{ArrayType, PrimitiveType};
-        use godot::classes::ArrayMesh;
-        let m = self.bridge.chunk_mesh(cx, cz)?;
-        if m.faces == 0 {
-            return None;
-        }
-        let vec3 = |f: &[f32]| -> PackedVector3Array {
-            f.chunks_exact(3)
-                .map(|c| Vector3::new(c[0], c[1], c[2]))
-                .collect()
-        };
-        let colors: PackedColorArray = m
-            .colors
-            .chunks_exact(4)
-            .map(|c| Color::from_rgba(c[0], c[1], c[2], c[3]))
-            .collect();
-        let indices: PackedInt32Array = m.indices.iter().map(|&i| i as i32).collect();
-        let mut arrays = VarArray::new();
-        arrays.resize(ArrayType::MAX.ord() as usize, &Variant::nil());
-        arrays.set(
-            ArrayType::VERTEX.ord() as usize,
-            &vec3(&m.positions).to_variant(),
-        );
-        arrays.set(
-            ArrayType::NORMAL.ord() as usize,
-            &vec3(&m.normals).to_variant(),
-        );
-        arrays.set(ArrayType::COLOR.ord() as usize, &colors.to_variant());
-        arrays.set(ArrayType::INDEX.ord() as usize, &indices.to_variant());
-        let mut mesh = ArrayMesh::new_gd();
-        mesh.add_surface_from_arrays(PrimitiveType::TRIANGLES, &arrays);
-        Some(mesh)
+        mesh_to_godot(self.bridge.chunk_mesh(cx, cz)?)
+    }
+
+    /// Mesh section (brick `bi` = 0 or 1 of chunk `cx, cz`): the faces of that 16^3 brick only.
+    #[func]
+    fn section_mesh(&self, cx: i32, bi: i32, cz: i32) -> Option<Gd<godot::classes::ArrayMesh>> {
+        mesh_to_godot(self.bridge.section_mesh(cx, bi, cz)?)
+    }
+
+    /// Visible faces of a section (-1 if the chunk is not ready).
+    #[func]
+    fn section_face_count(&self, cx: i32, bi: i32, cz: i32) -> i32 {
+        self.bridge
+            .section_mesh(cx, bi, cz)
+            .map_or(-1, |m| m.faces as i32)
+    }
+
+    /// Sections `[cx, brick, cz]` (flat triples) to rebuild after edits.
+    #[func]
+    fn take_dirty_sections(&mut self) -> PackedInt32Array {
+        self.bridge
+            .take_dirty_sections()
+            .into_iter()
+            .flatten()
+            .collect()
+    }
+
+    /// Reverts the last edit (spike-local journal, not the Editing API undo); returns voxels restored.
+    #[func]
+    fn undo(&mut self) -> i32 {
+        self.bridge.undo() as i32
+    }
+
+    #[func]
+    fn redo(&mut self) -> i32 {
+        self.bridge.redo() as i32
     }
 
     /// Number of visible faces of a ready chunk (-1 if not ready). Cheap check for the HUD and tests.

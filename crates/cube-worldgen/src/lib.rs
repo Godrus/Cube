@@ -15,6 +15,6 @@ pub use generator::{
 };
 pub use state_v0::{LoadReport, StateError};
 pub use streamer::{
-    PumpSummary, StateCounts, StreamConfig, StreamDelta, UpdateSummary, VoxelEdit, WorldError,
-    WorldStreamer,
+    PumpSummary, SectionCoord, StateCounts, StreamConfig, StreamDelta, UpdateSummary, VoxelEdit,
+    WorldError, WorldStreamer,
 };

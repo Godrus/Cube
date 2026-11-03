@@ -76,6 +76,32 @@ fn main() {
                 "larger"
             },
         );
+        // Mesh sections: one section (16^3 brick) vs the whole chunk (two sections).
+        let (mut t_chunk, mut t_s0, mut t_s1) = (Vec::new(), Vec::new(), Vec::new());
+        for _ in 0..15 {
+            let (mut c, mut s0, mut s1) = (0.0, 0.0, 0.0);
+            for ch in &chunks {
+                let t = Instant::now();
+                std::hint::black_box(b.chunk_mesh(ch[0], ch[1]));
+                c += t.elapsed().as_secs_f64();
+                let t = Instant::now();
+                std::hint::black_box(b.section_mesh(ch[0], 0, ch[1]));
+                s0 += t.elapsed().as_secs_f64();
+                let t = Instant::now();
+                std::hint::black_box(b.section_mesh(ch[0], 1, ch[1]));
+                s1 += t.elapsed().as_secs_f64();
+            }
+            let n = chunks.len() as f64 / 1000.0;
+            t_chunk.push(c / n);
+            t_s0.push(s0 / n);
+            t_s1.push(s1 / n);
+        }
+        println!(
+            "  sections: whole chunk {:.3} ms, section 0 (y 0-15) {:.3} ms, section 1 (y 16-31) {:.3} ms",
+            median(&mut t_chunk),
+            median(&mut t_s0),
+            median(&mut t_s1)
+        );
         let _ = FLOATS_PER_INSTANCE;
     }
 }
