@@ -255,3 +255,119 @@ fn border_columns_do_not_depend_on_the_generating_chunk() {
         }
     }
 }
+
+// ---------------------------------------------------------------- hash serialisation audit
+
+/// Independent reference of the documented byte stream, serialised by explicit shifts (no `to_*_bytes`,
+/// no host byte order): FNV-1a 64 over `CUBECHK1`, version u32, seed u64, x i32, z i32, then
+/// (x i32, y i32, z i32, material u16) per voxel, all little-endian.
+fn reference_hash(
+    seed: u64,
+    version: u32,
+    coord: (i32, i32),
+    cells: &[(i32, i32, i32, u16)],
+) -> u64 {
+    fn le(mut v: u64, width: usize, out: &mut Vec<u8>) {
+        for _ in 0..width {
+            out.push((v & 0xFF) as u8);
+            v >>= 8;
+        }
+    }
+    let mut bytes = b"CUBECHK1".to_vec();
+    le(version as u64, 4, &mut bytes);
+    le(seed, 8, &mut bytes);
+    le(coord.0 as u32 as u64, 4, &mut bytes);
+    le(coord.1 as u32 as u64, 4, &mut bytes);
+    let mut sorted = cells.to_vec();
+    sorted.sort_by_key(|&(x, y, z, _)| (z, y, x));
+    for (x, y, z, m) in sorted {
+        le(x as u32 as u64, 4, &mut bytes);
+        le(y as u32 as u64, 4, &mut bytes);
+        le(z as u32 as u64, 4, &mut bytes);
+        le(m as u64, 2, &mut bytes);
+    }
+    let mut h = 0xCBF2_9CE4_8422_2325u64;
+    for b in bytes {
+        h ^= b as u64;
+        h = h.wrapping_mul(0x0000_0100_0000_01B3);
+    }
+    h
+}
+
+#[test]
+fn hash_matches_an_explicit_little_endian_reference_implementation() {
+    for (seed, c) in [
+        (WorldSeed(12345), ChunkCoord::new(0, 0)),
+        (WorldSeed(u64::MAX), ChunkCoord::new(-7, 1_000_000)),
+        (WorldSeed(0), ChunkCoord::new(-1_048_576, -3)),
+    ] {
+        let chunk = TerrainGenerator.generate(seed, c).unwrap();
+        let mut cells = Vec::new();
+        for y in 0..32u8 {
+            for z in 0..16u8 {
+                for x in 0..16u8 {
+                    let m = chunk.material_at(x, y, z);
+                    if m != 0 {
+                        cells.push((
+                            c.origin_x() + x as i32,
+                            y as i32,
+                            c.origin_z() + z as i32,
+                            m,
+                        ));
+                    }
+                }
+            }
+        }
+        assert_eq!(
+            chunk.stable_hash(seed),
+            reference_hash(seed.0, GENERATOR_VERSION, (c.x, c.z), &cells)
+        );
+    }
+}
+
+/// The hash function's source must not use host-dependent types or serialisations. A crude but
+/// effective guard: it scans the text of `stable_hash_cells` and `Chunk::stable_hash`.
+#[test]
+fn hash_source_uses_only_fixed_width_little_endian_integers() {
+    let src = include_str!("../src/generator.rs");
+    let start = src
+        .find("pub fn stable_hash(&self")
+        .expect("Chunk::stable_hash");
+    let end = src
+        .find("/// FNV-1a over all occupied voxels")
+        .expect("end of stable_hash");
+    let mut text = src[start..end].to_string();
+    let s2 = src
+        .find("pub fn stable_hash_cells(")
+        .expect("stable_hash_cells");
+    let e2 = src
+        .find("pub trait ChunkGenerator")
+        .expect("end of stable_hash_cells");
+    text.push_str(&src[s2..e2]);
+    // Drop comments so documentation words do not trigger the scan.
+    let code: String = text
+        .lines()
+        .map(|l| l.split("//").next().unwrap_or(""))
+        .collect::<Vec<_>>()
+        .join("\n");
+    for banned in [
+        "f32",
+        "f64",
+        "usize",
+        "isize",
+        "to_ne_bytes",
+        "from_ne_bytes",
+        "to_be_bytes",
+        "to_bits",
+        "HashMap",
+        "HashSet",
+        "DefaultHasher",
+        "Hash::hash",
+    ] {
+        assert!(
+            !code.contains(banned),
+            "hash code must not mention `{banned}`"
+        );
+    }
+    assert!(code.contains("to_le_bytes"));
+}

@@ -335,6 +335,22 @@ impl CubeWorld {
         self.bridge.ground_height(x, z)
     }
 
+    /// Chunks next to an edited border that need a face-mesh rebuild (see `take_modified` for the edited ones).
+    #[func]
+    fn take_border_touched(&mut self) -> PackedInt32Array {
+        self.bridge
+            .take_border_touched()
+            .into_iter()
+            .flatten()
+            .collect()
+    }
+
+    /// Sets one voxel to a material (4 = placed block); true if it changed.
+    #[func]
+    fn edit_voxel(&mut self, x: i32, y: i32, z: i32, material: i32) -> bool {
+        self.bridge.edit_voxel(x, y, z, material as u16)
+    }
+
     /// Places a 3x3x3 block around the position; returns changed voxels.
     #[func]
     fn edit_around(&mut self, x: i32, y: i32, z: i32) -> i32 {

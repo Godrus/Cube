@@ -166,6 +166,20 @@ impl WorldBridge {
             .collect()
     }
 
+    /// Neighbouring chunks whose border faces changed because of an edit on a shared border.
+    pub fn take_border_touched(&mut self) -> Vec<[i32; 2]> {
+        self.w
+            .take_border_touched()
+            .into_iter()
+            .map(|c| [c.x, c.z])
+            .collect()
+    }
+
+    /// Sets one voxel (Ready chunks only); `true` if it changed.
+    pub fn edit_voxel(&mut self, x: i32, y: i32, z: i32, material: u16) -> bool {
+        matches!(self.w.set_voxel(VoxelPos::new(x, y, z), material), Ok(true))
+    }
+
     pub fn active_chunks(&self) -> Vec<[i32; 2]> {
         self.w
             .active_chunks()

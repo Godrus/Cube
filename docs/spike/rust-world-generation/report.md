@@ -199,3 +199,67 @@ The ARM64 runs execute through instruction translation on an x86_64 emulator, an
 * **Known costs to fix next:** CPU mesh time per chunk and per Edit is higher (Edit rebuilds neighbours). Next: incremental, dirty-region meshing; building meshes off the main thread once a job contract exists; greedy merging (the 4-vertex-per-face layout could drop to about a quarter of the vertices); byte-sized vertex colours.
 * **Not decided here:** the world-generation API, `world-state-v0`, and the WorldGen/Core write path (see `worldgen-core-boundary.md`).
 * A run on a physical ARM64 device is still required before any statement about mobile performance.
+
+
+---
+
+# Stage 3: partial rebuild after Edit (faces renderer)
+
+## 13. Accepted decisions (owner, recorded here)
+
+* **`faces` is the main experimental renderer.**
+* **`cubes` is the control / reference renderer only** (kept for comparison and for the pixel-equivalence check; no further work on it).
+* **No transfer to `master`.** Nothing from this branch has been merged, and the changes of this stage stay on `spike/rust-world-generation`.
+* Greedy meshing is **not** implemented yet; the effect of partial rebuild is measured first.
+* Real Android phone and iOS remain unverified platforms. Nothing here is mobile-ready.
+
+## 14. What was implemented
+
+* `WorldStreamer::take_border_touched()` (and `WorldBridge`/`CubeWorld` wrappers, plus `edit_voxel`): every voxel edit is already recorded per chunk (`take_modified`); now an edit on a chunk border column (local x or z equal to 0 or 15) also records the **Ready** neighbour across that border. A corner voxel records two neighbours, never the diagonal chunk (faces only look at the six face neighbours). Unloaded neighbours are not recorded: they are built from scratch when they load.
+* Rebuild set for the faces renderer after an edit = edited chunks + `take_border_touched()`. Chunks that are added or removed still rebuild their neighbours (their whole border changes).
+* Client switch `--rebuild=all` keeps the old policy (edited chunks + all four neighbours) as the "before" in the same build; `--rebuild=partial` (default) is the new one. The smoke test runs both on a fresh 5x5 world and checks that no drawn mesh is stale (`drawn[k]` equals a freshly computed face count for every chunk).
+
+## 15. Results
+
+### 15.1 Rust tests (97 workspace tests pass, was 88; clippy clean)
+
+New in `crates/cube-godot-adapter/tests/chunk_mesh.rs` (7): `edit_inside_a_chunk_rebuilds_only_that_chunk`; `edit_on_a_border_rebuilds_the_neighbour_and_the_neighbour_really_changes` (removing a border voxel adds exactly one face to the neighbour, proving the neighbour rebuild is needed); `edits_on_every_side_including_negative_coordinates`; `corner_voxel_rebuilds_two_neighbours_but_not_the_diagonal`; `far_chunks_are_never_rebuilt_and_unloaded_neighbours_are_skipped` (1 of 25 chunks rebuilt); `an_edit_that_changes_nothing_reports_nothing`; `partial_rebuild_is_always_sufficient` (120 pseudo-random placements and removals, half on border columns: every chunk outside the rebuild set has an identical mesh before and after, and no edit rebuilds more than 3 chunks).
+
+### 15.2 Edit cost, 5x5 world (25 chunks, 12 152 faces), single-voxel toggles (11 per scenario) and one 3x3x3 block
+
+| Scenario | chunks rebuilt, before -> after | desktop headless, ms (2 runs) before -> after | desktop windowed, ms before -> after |
+|---|---|---|---|
+| inside a chunk | 5 -> 1 | 2.4-2.6 -> 0.48-0.55 | 1.94 -> 0.41 |
+| on a border | 5 -> 2 | 2.4-2.6 -> 0.9-1.2 | 2.08 -> 0.76 |
+| on a corner | 5 -> 3 | 2.4-3.0 -> 1.4 | 2.03 -> 1.23 |
+| 3x3x3 block (Edit button) | 5 -> 1 | 2.6 -> 0.6-0.75 | 2.63 -> 0.60 |
+
+"Before" is the previous behaviour (all four neighbours rebuilt on every edit); the previous measurement (section 10.2) of 2.4-3.0 ms per Edit matches it. Time includes the Rust edit, mesh building and node replacement in Godot.
+
+Android emulator, `faces` release APKs, 2 runs each, same table (ms, before -> after; the emulator is noisy, so ranges):
+
+| Scenario | x86_64 native | ARM64 translated |
+|---|---|---|
+| inside a chunk | 10-25 -> 2.2-2.4 | 17-24 -> 3.5-4.7 |
+| on a border | 8.5-16 -> 4.8-5.5 | 20-49 -> 6.6-6.9 |
+| on a corner | 9-22 -> 5.7-7.4 | 19-46 -> 10.2-10.3 |
+| 3x3x3 block | 8.5-11 -> 2.1-4.8 | 15-41 -> 3.4-6.3 |
+
+Faces drawn, correctness and memory:
+
+* Number of faces after each edit sequence is identical under both policies (12 152 after toggles, 12 206 after the block); no stale meshes in any run (`stale=0`, desktop and both Android ABIs).
+* Image: screenshots of the final scene after the same edits under both policies (`screenshots/world-faces-edit-all.png`, `world-faces-edit-partial.png`) are **pixel-identical** (0 of 596 736 pixels differ outside the HUD).
+* Memory, desktop (Godot static memory at the end of the run, each policy in its own process): 33.8 MB (all) vs 29.5 MB (partial) headless; 37.3 vs 36.8 MB in the combined windowed run (partial measured second). The difference is allocator churn from 5x more mesh replacements, not retained geometry (face counts are equal); I did not isolate the cause further. Android process memory is unchanged by the policy (peak RSS 280-283 MB x86_64, 716-718 MB ARM64, same as section 10.3), as expected because the policies differ only in how many meshes are replaced per edit.
+* Godot update time per edit is the dominant cost: it is proportional to the number of rebuilt chunks, hence the 5x / 2.5x / 1.7x drop for inside / border / corner edits.
+
+### 15.3 Real touch on the emulator
+
+x86_64 `faces` APK: `adb input tap` on Edit and Jump 64 worked (log "edit changed 26 voxels": one of the 27 cells already held a placed block from the scripted toggles; Jump streamed new chunks), no errors (`screenshots/world-android-faces-edit-touch.png`).
+
+### 15.4 Audit of `Chunk::stable_hash` serialisation
+
+The hash code uses only `u32`, `u64`, `i32`, `u16` converted with `to_le_bytes` (explicit little-endian) and FNV-1a over the bytes; no `usize`, no floats, no `to_ne_bytes`/`to_be_bytes`, no hash-map iteration, no `Hasher`. Cells are sorted by (z, y, x) before hashing, so brick storage order does not matter. Two new tests enforce this: `hash_matches_an_explicit_little_endian_reference_implementation` compares the function with an independent implementation that serialises with plain shifts (3 seeds incl. `u64::MAX` and coordinates near +-2^20), and `hash_source_uses_only_fixed_width_little_endian_integers` scans the hash functions' source for banned types and calls. Limitation: the tests run on a little-endian host; the guarantee for big-endian hosts rests on the explicit `to_le_bytes` and the shift-based reference, not on a run on such a machine. Cross-device hash comparison is still not done.
+
+## 16. What this stage does not show
+
+Android numbers come from an emulator (ARM64 through translation); there is no physical-device or iOS result. The time per edit is still dominated by re-meshing the whole chunk (2-5 ms on the emulator); incremental meshing of the changed region, greedy merging and off-thread meshing are open and were deliberately not started.

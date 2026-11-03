@@ -25,6 +25,8 @@ var renderer := "cubes"
 var drawn := {}                        # Vector2i -> drawn elements of the chunk (cubes or visible faces)
 var face_mat := StandardMaterial3D.new()
 var mode_button := Button.new()
+var rebuild_policy := "partial"        # faces renderer after an edit: "partial" (edited chunks + touched borders) or "all" (old: edited chunks + all 4 neighbours)
+var last_rebuilt := 0                  # chunk nodes rebuilt by the last _apply_delta
 
 func _ready() -> void:
 	if not ClassDB.class_exists("CubeWorld"):
@@ -35,6 +37,8 @@ func _ready() -> void:
 	world = ClassDB.instantiate("CubeWorld")
 	if OS.has_feature("faces") or "--renderer=faces" in OS.get_cmdline_user_args():
 		renderer = "faces"
+	if "--rebuild=all" in OS.get_cmdline_user_args():
+		rebuild_policy = "all"
 	_build_scene()
 	world.create(SEED, 1)
 	_place_player(player.x, player.z)
@@ -138,7 +142,16 @@ func _apply_delta() -> void:
 	for i in range(0, modified.size(), 2):
 		var k := Vector2i(modified[i], modified[i + 1])
 		dirty[k] = true
-		_mark_neighbours(dirty, k)
+		if rebuild_policy == "all":
+			_mark_neighbours(dirty, k)
+	# Partial policy: only neighbours that share an edited border column (computed in Rust).
+	var touched: PackedInt32Array = world.take_border_touched()
+	if renderer == "faces" and rebuild_policy == "partial":
+		for i in range(0, touched.size(), 2):
+			var k := Vector2i(touched[i], touched[i + 1])
+			if chunks.has(k):
+				dirty[k] = true
+	last_rebuilt = dirty.size()
 	for k in dirty:
 		_build_chunk(k)
 
@@ -341,6 +354,8 @@ func _smoke() -> void:
 	print("WORLDTEST FPS 5x5 mode=%s fps=%.0f (headless/dummy renderer fps is not a rendering result)" % [renderer, fps])
 	print("WORLDTEST MEM mode=%s static_mb=%.1f video_mb=%.1f draw_calls=%d primitives=%d" % [renderer, OS.get_static_memory_usage() / 1048576.0, RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_VIDEO_MEM_USED) / 1048576.0, RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME), RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME)])
 	await _shot(shot_dir + "/world-%s-3-5x5.png" % renderer, Vector3(0, 70, 80))
+	if renderer == "faces":
+		await _edit_bench(shot_dir)
 	print("WORLDTEST SUMMARY failures=%d" % _failures)
 	# Mobile validation exports (custom feature "worldtest") stay alive so memory can be read from outside.
 	if OS.has_feature("worldtest") and not ("--world-smoke" in OS.get_cmdline_user_args()):
@@ -365,3 +380,63 @@ func _avg(a: Array) -> float:
 	for v in a:
 		s += v
 	return s / a.size()
+
+## Edit cost of the faces renderer under both rebuild policies, on a fresh 5x5 world each time.
+## Single-voxel toggles (placed block / air) inside a chunk, on a border and on a corner, plus one 3x3x3 block.
+func _stale_chunks() -> int:
+	var n := 0
+	for k in chunks:
+		if drawn.get(k, -1) != world.chunk_face_count(k.x, k.y):
+			n += 1
+	return n
+
+func _edit_bench(shot_dir: String) -> void:
+	var faces_after := {}
+	var policies := ["all", "partial"]
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--rebuild="):
+			policies = [a.substr(10)]       # one policy per process, so process memory can be compared
+	for policy in policies:
+		rebuild_policy = policy
+		world.create(SEED, 2)
+		_clear_chunks()
+		update_us.clear()
+		_place_player(8.5, 8.5)
+		_stream()
+		await _frames(2)
+		var scenarios := {
+			"interior": [8, world.ground_height(8, 8) + 3, 8],
+			"border": [15, mini(world.ground_height(15, 8), world.ground_height(16, 8)), 8],
+			"corner": [15, mini(world.ground_height(15, 15), mini(world.ground_height(16, 15), world.ground_height(15, 16))), 15],
+		}
+		var expected := {"interior": 1, "border": 2, "corner": 3}
+		for name in scenarios:
+			var v: Array = scenarios[name]
+			var total_us := 0
+			var rebuilt := 0
+			var reps := 11
+			for i in reps:
+				var t := Time.get_ticks_usec()
+				var changed: bool = world.edit_voxel(v[0], v[1], v[2], 4 if i % 2 == 0 else 0)
+				_apply_delta()
+				total_us += Time.get_ticks_usec() - t
+				rebuilt += last_rebuilt
+				if not changed:
+					_check("edit %s toggle %d changed" % [name, i], false)
+			var stale := _stale_chunks()
+			print("WORLDTEST EDIT policy=%s scenario=%s avg_ms=%.2f rebuilt_per_edit=%.1f faces=%d stale=%d" % [policy, name, total_us / 1000.0 / reps, float(rebuilt) / reps, _drawn_elements(), stale])
+			_check("no stale mesh after %s edits (%s)" % [name, policy], stale == 0)
+			if policy == "partial":
+				_check("%s edit rebuilds exactly %d chunk(s)" % [name, expected[name]], rebuilt == expected[name] * reps, "rebuilt=%d" % rebuilt)
+			else:
+				_check("full policy rebuilds 5 chunks for %s" % name, rebuilt == 5 * reps, "rebuilt=%d" % rebuilt)
+		var tb := Time.get_ticks_usec()
+		var n: int = world.edit_around(24, world.ground_height(24, 24) + 3, 24)
+		_apply_delta()
+		print("WORLDTEST EDIT policy=%s scenario=block3x3x3 avg_ms=%.2f rebuilt_per_edit=%d faces=%d stale=%d voxels=%d" % [policy, (Time.get_ticks_usec() - tb) / 1000.0, last_rebuilt, _drawn_elements(), _stale_chunks(), n])
+		_check("3x3x3 block leaves no stale mesh (%s)" % policy, _stale_chunks() == 0 and n == 27)
+		faces_after[policy] = _drawn_elements()
+		print("WORLDTEST MEM edit policy=%s static_mb=%.1f" % [policy, OS.get_static_memory_usage() / 1048576.0])
+		await _shot(shot_dir + "/world-faces-edit-%s.png" % policy, Vector3(0, 40, 48))
+	if faces_after.size() == 2:
+		_check("both policies end with the same number of faces", faces_after["all"] == faces_after["partial"], "%s" % [faces_after])

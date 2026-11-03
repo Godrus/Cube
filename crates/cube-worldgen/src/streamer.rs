@@ -124,6 +124,8 @@ pub struct WorldStreamer {
     added: Vec<ChunkCoord>,
     removed: Vec<ChunkCoord>,
     modified: Vec<ChunkCoord>,
+    /// Ready neighbours whose border faces depend on an edited border voxel (see `take_border_touched`).
+    border_touched: Vec<ChunkCoord>,
     trace: Option<Vec<(ChunkCoord, ChunkState)>>,
 }
 
@@ -144,6 +146,7 @@ impl WorldStreamer {
             added: Vec::new(),
             removed: Vec::new(),
             modified: Vec::new(),
+            border_touched: Vec::new(),
             trace: None,
         }
     }
@@ -386,6 +389,14 @@ impl WorldStreamer {
     }
 
     /// Chunks whose voxels changed through `set_voxel` since the last call.
+    /// Ready neighbouring chunks that share a border column with a voxel edited since the last call.
+    /// An edit at local x == 0 / 15 or z == 0 / 15 touches the chunk on that side (two chunks for a
+    /// corner voxel, never the diagonal one: faces only look at the six face neighbours). A renderer
+    /// that culls faces must rebuild exactly `take_modified()` plus these.
+    pub fn take_border_touched(&mut self) -> Vec<ChunkCoord> {
+        std::mem::take(&mut self.border_touched)
+    }
+
     pub fn take_modified(&mut self) -> Vec<ChunkCoord> {
         std::mem::take(&mut self.modified)
     }
@@ -569,6 +580,26 @@ impl WorldStreamer {
         list.push(VoxelEdit { pos: p, material });
         if !self.modified.contains(&c) {
             self.modified.push(c);
+        }
+        let (lx, lz) = (p.x - c.origin_x(), p.z - c.origin_z());
+        let last = CHUNK_SIZE - 1;
+        let mut sides = Vec::new();
+        if lx == 0 {
+            sides.push(ChunkCoord::new(c.x - 1, c.z));
+        }
+        if lx == last {
+            sides.push(ChunkCoord::new(c.x + 1, c.z));
+        }
+        if lz == 0 {
+            sides.push(ChunkCoord::new(c.x, c.z - 1));
+        }
+        if lz == last {
+            sides.push(ChunkCoord::new(c.x, c.z + 1));
+        }
+        for n in sides {
+            if self.state(n) == ChunkState::Ready && !self.border_touched.contains(&n) {
+                self.border_touched.push(n);
+            }
         }
         Ok(true)
     }
