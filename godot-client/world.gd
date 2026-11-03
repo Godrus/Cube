@@ -67,11 +67,14 @@ func _ready() -> void:
 		_stream()
 
 ## Renderer requested from outside: --renderer=<m>, or on Android the system property debug.cube.renderer.
+## The property is read with OS.execute("getprop"), which forks a child process. On the ARM64 emulator (instruction
+## translation) forking while the render thread runs crashed the app (report section 26), so the validation presets
+## marked "noexec" never fork and choose the renderer by custom feature ("faces" / "greedy") instead.
 func _renderer_arg() -> String:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--renderer="):
 			return a.substr(11)
-	if OS.get_name() == "Android":
+	if OS.get_name() == "Android" and not OS.has_feature("noexec"):   # OS.execute forks: see report, ARM64 translation
 		var out := []
 		OS.execute("getprop", ["debug.cube.renderer"], out)
 		if out.size() > 0:
@@ -86,7 +89,7 @@ func _rebuild_arg() -> String:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--rebuild="):
 			return a.substr(10)
-	if OS.get_name() == "Android":
+	if OS.get_name() == "Android" and not OS.has_feature("noexec"):
 		var out := []
 		OS.execute("getprop", ["debug.cube.rebuild"], out)
 		if out.size() > 0:
@@ -640,6 +643,28 @@ func _renderer_matrix(shot_dir: String) -> void:
 		_check("faces and greedy pictures equivalent after the same session", _images_equivalent(d2))
 		img_f.save_png(shot_dir + "/world-session-faces.png")
 		img_g.save_png(shot_dir + "/world-session-greedy.png")
+	# Several camera views of the same final state: count the pixels where faces and greedy differ.
+	var views := [Vector3(0, 40, 48), Vector3(30, 25, 30), Vector3(-40, 60, 10), Vector3(0, 90, 5), Vector3(-25, 12, -30)]
+	_set_renderer("faces")
+	var fimgs := []
+	for v in views:
+		fimgs.append(await _capture(v))
+	_set_renderer("greedy")
+	var tot_px := 0
+	var tot_diff := 0
+	var tot_big := 0
+	for i in views.size():
+		var gi: Image = await _capture(views[i])
+		if gi == null or fimgs[i] == null:
+			continue
+		var dd := _diff_images(fimgs[i], gi)
+		tot_px += dd.x
+		tot_diff += dd.y
+		tot_big += dd.z
+		print("WORLDTEST VIEW %d of %d px: %d differ, %d by more than 16" % [i, dd.x, dd.y, dd.z])
+	if tot_px > 0:
+		print("WORLDTEST VIEWS total of %d px: %d differ, %d visible (pinholes)" % [tot_px, tot_diff, tot_big])
+		_check("faces and greedy differ in at most 0.01 percent of pixels over all views", tot_diff * 10000 <= tot_px, "%d of %d" % [tot_diff, tot_px])
 	_set_renderer("cubes")                                                   # cycle back through all modes
 	_check("cubes mode after switching has one node per chunk", chunks.size() == world.active_count() and _drawn_elements() == world.active_voxels())
 	_set_renderer("faces")

@@ -134,6 +134,23 @@ fn main() {
             median(&mut t_faces),
             median(&mut t_greedy)
         );
+        // Estimate of a T-junction-free greedy mesh: every lattice vertex on a quad's boundary is emitted and the
+        // quad is fan-triangulated (2 * (w + h) boundary vertices, 2 * (w + h) - 2 triangles). Not implemented.
+        let (mut tj_tris, mut tj_verts) = (0usize, 0usize);
+        for ch in &chunks {
+            for bi in 0..2 {
+                for q in b.section_quads(ch[0], bi, ch[1]).unwrap() {
+                    let nb = (2 * (q.size[0] + q.size[1])) as usize;
+                    tj_verts += nb;
+                    tj_tris += nb - 2;
+                }
+            }
+        }
+        println!(
+            "  greedy without T-junctions (estimate): {tj_verts} vertices, {tj_tris} triangles (current greedy {} triangles, faces {})",
+            gq * 2,
+            faces * 2
+        );
         let _ = FLOATS_PER_INSTANCE;
     }
 }
