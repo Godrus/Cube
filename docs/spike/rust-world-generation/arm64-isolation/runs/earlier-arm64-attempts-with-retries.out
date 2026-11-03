@@ -1,0 +1,40 @@
+* daemon not running; starting now at tcp:5037
+* daemon started successfully
+booted=1
+Success
+[arm64 cubes attempt1] TotalTime: 3781
+  CRASH/ANR detected (emulator translator)
+[arm64 cubes attempt2] TotalTime: 2826
+  CRASH/ANR detected (emulator translator)
+[arm64 cubes attempt3] TotalTime: 2754
+  CRASH/ANR detected (emulator translator)
+  arm64 cubes: FAILED in all attempts
+[arm64 faces attempt1] TotalTime: 2827
+  CRASH/ANR detected (emulator translator)
+[arm64 faces attempt2] TotalTime: 2695
+  CRASH/ANR detected (emulator translator)
+[arm64 faces attempt3] TotalTime: 2564
+  CRASH/ANR detected (emulator translator)
+  arm64 faces: FAILED in all attempts
+[arm64 greedy attempt1] TotalTime: 2626
+  CRASH/ANR detected (emulator translator)
+[arm64 greedy attempt2] TotalTime: 2611
+  CRASH/ANR detected (emulator translator)
+[arm64 greedy attempt3] TotalTime: 2818
+  CRASH/ANR detected (emulator translator)
+  arm64 greedy: FAILED in all attempts
+[arm64 faces attempt1] TotalTime: 3072
+  CRASH/ANR detected (emulator translator)
+[arm64 faces attempt2] TotalTime: 2623
+  CRASH/ANR detected (emulator translator)
+[arm64 faces attempt3] TotalTime: 2649
+  CRASH/ANR detected (emulator translator)
+  arm64 faces: FAILED in all attempts
+[arm64 greedy attempt1] TotalTime: 2626
+  CRASH/ANR detected (emulator translator)
+[arm64 greedy attempt2] TotalTime: 3977
+  CRASH/ANR detected (emulator translator)
+[arm64 greedy attempt3] TotalTime: 4867
+  CRASH/ANR detected (emulator translator)
+  arm64 greedy: FAILED in all attempts
+cleanup done

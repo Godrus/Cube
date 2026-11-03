@@ -1,0 +1,6 @@
+abi=x86_64 mode=cubes verdict=OK VmHWM_kB=338292 PSS_kB=160601
+abi=x86_64 mode=faces verdict=OK VmHWM_kB=385076 PSS_kB=142076
+abi=x86_64 mode=greedy verdict=OK VmHWM_kB=383312 PSS_kB=138100
+abi=arm64 mode=cubes verdict=OK VmHWM_kB=771264 PSS_kB=552684
+abi=arm64 mode=faces verdict=OK VmHWM_kB=823200 PSS_kB=531295
+abi=arm64 mode=greedy verdict=OK VmHWM_kB=822232 PSS_kB=531866

@@ -1,0 +1,98 @@
+* daemon not running; starting now at tcp:5037
+* daemon started successfully
+booted=1
+Success
+[x86_64 cubes] TotalTime: 2622
+  TIME edit mode=cubes total_ms=1.67
+  TIME load mode=cubes total_ms=6.82
+  TIME first_5x5 mode=cubes total_ms=24.58 build_ms_per_chunk=0.92 voxels=87098 drawn=87098 triangles=1045176
+  GEOM mode=cubes elements=87098 triangles=1045176 mesh_bytes=5574272 voxels=87098 nodes=25
+  MEM mode=cubes static_mb=0.0 video_mb=29.3 draw_calls=44 primitives=810170
+  SUMMARY failures=0
+VmHWM:	  334072 kB PSS 159158
+[x86_64 faces] TotalTime: 751
+  TIME edit mode=faces total_ms=2.05
+  TIME load mode=faces total_ms=5.92
+  TIME first_5x5 mode=faces total_ms=18.91 build_ms_per_chunk=0.34 voxels=87098 drawn=12146 triangles=24292
+  GEOM mode=faces elements=12146 triangles=24292 mesh_bytes=2234864 voxels=87098 nodes=33
+  MEM mode=faces static_mb=0.0 video_mb=25.2 draw_calls=48 primitives=18562
+  EDIT mode=faces policy=all scenario=inside_section avg_ms=4.08 rust_ms=3.84 node_ms=0.20 sections=10.0 chunks=5.0 faces=12146 stale=0
+  EDIT mode=faces policy=all scenario=chunk_border avg_ms=3.84 rust_ms=3.66 node_ms=0.15 sections=10.0 chunks=5.0 faces=12152 stale=0
+  FILL mode=faces policy=all fill_ms=9.54 voxels=243 sections=24 chunks=12 rust_ms=8.69 node_ms=0.56
+  UNDO mode=faces policy=all undo_avg_ms=3.29 redo_avg_ms=3.66 undo_sections=30 redo_sections=30 rust_ms=9.41 node_ms=0.36 faces_before=12212 edited=12272 undone=12212
+  FILL mode=faces policy=chunk fill_ms=4.03 voxels=243 sections=8 chunks=4 rust_ms=3.53 node_ms=0.18
+  UNDO mode=faces policy=chunk undo_avg_ms=0.90 redo_avg_ms=0.98 undo_sections=8 redo_sections=8 rust_ms=2.55 node_ms=0.11 faces_before=12212 edited=12272 undone=12212
+  EDIT mode=faces policy=partial scenario=inside_section avg_ms=0.80 rust_ms=0.75 node_ms=0.03 sections=1.0 chunks=1.0 faces=12146 stale=0
+  EDIT mode=faces policy=partial scenario=chunk_border avg_ms=1.04 rust_ms=0.99 node_ms=0.04 sections=2.0 chunks=2.0 faces=12152 stale=0
+  FILL mode=faces policy=partial fill_ms=1.74 voxels=243 sections=4 chunks=4 rust_ms=1.40 node_ms=0.07
+  UNDO mode=faces policy=partial undo_avg_ms=0.65 redo_avg_ms=0.66 undo_sections=5 redo_sections=5 rust_ms=1.81 node_ms=0.09 faces_before=12212 edited=12272 undone=12212
+  SESSION mode=faces total_ms=77.4 area=12428 elements=12428
+  SESSION mode=greedy total_ms=81.7 area=12428 elements=1738
+  IMAGE faces vs greedy(after switch): of 1977600 px 21 differ, 7 by more than 16; faces vs greedy(session): 21 differ, 7 by more than 16
+  SUMMARY failures=0
+VmHWM:	  330036 kB PSS 136581
+[x86_64 greedy] TotalTime: 883
+  TIME edit mode=greedy total_ms=2.50
+  TIME load mode=greedy total_ms=5.28
+  TIME first_5x5 mode=greedy total_ms=16.86 build_ms_per_chunk=0.30 voxels=87098 drawn=1710 triangles=3420
+  GEOM mode=greedy elements=1710 triangles=3420 mesh_bytes=314640 voxels=87098 nodes=33
+  MEM mode=greedy static_mb=0.0 video_mb=24.1 draw_calls=48 primitives=3798
+  EDIT mode=greedy policy=all scenario=inside_section avg_ms=3.87 rust_ms=3.65 node_ms=0.18 sections=10.0 chunks=5.0 faces=1710 stale=0
+  EDIT mode=greedy policy=all scenario=chunk_border avg_ms=3.75 rust_ms=3.54 node_ms=0.17 sections=10.0 chunks=5.0 faces=1716 stale=0
+  FILL mode=greedy policy=all fill_ms=9.70 voxels=243 sections=24 chunks=12 rust_ms=8.65 node_ms=0.77
+  UNDO mode=greedy policy=all undo_avg_ms=3.51 redo_avg_ms=3.43 undo_sections=30 redo_sections=30 rust_ms=9.92 node_ms=0.49 faces_before=1732 edited=1746 undone=1732
+  FILL mode=greedy policy=chunk fill_ms=3.76 voxels=243 sections=8 chunks=4 rust_ms=3.33 node_ms=0.19
+  UNDO mode=greedy policy=chunk undo_avg_ms=0.87 redo_avg_ms=1.14 undo_sections=8 redo_sections=8 rust_ms=2.48 node_ms=0.10 faces_before=1732 edited=1746 undone=1732
+  EDIT mode=greedy policy=partial scenario=inside_section avg_ms=0.70 rust_ms=0.65 node_ms=0.03 sections=1.0 chunks=1.0 faces=1710 stale=0
+  EDIT mode=greedy policy=partial scenario=chunk_border avg_ms=1.06 rust_ms=1.00 node_ms=0.05 sections=2.0 chunks=2.0 faces=1716 stale=0
+  FILL mode=greedy policy=partial fill_ms=1.91 voxels=243 sections=4 chunks=4 rust_ms=1.57 node_ms=0.10
+  UNDO mode=greedy policy=partial undo_avg_ms=0.70 redo_avg_ms=0.77 undo_sections=5 redo_sections=5 rust_ms=1.97 node_ms=0.09 faces_before=1732 edited=1746 undone=1732
+  SESSION mode=faces total_ms=75.9 area=12428 elements=12428
+  SESSION mode=greedy total_ms=85.8 area=12428 elements=1738
+  IMAGE faces vs greedy(after switch): of 1977600 px 21 differ, 7 by more than 16; faces vs greedy(session): 21 differ, 7 by more than 16
+  SUMMARY failures=0
+VmHWM:	  329164 kB PSS 136489
+[x86_64 faces] TotalTime: 693
+  TIME edit mode=faces total_ms=2.20
+  TIME load mode=faces total_ms=5.82
+  TIME first_5x5 mode=faces total_ms=18.84 build_ms_per_chunk=0.34 voxels=87098 drawn=12146 triangles=24292
+  GEOM mode=faces elements=12146 triangles=24292 mesh_bytes=2234864 voxels=87098 nodes=33
+  MEM mode=faces static_mb=0.0 video_mb=25.2 draw_calls=48 primitives=18562
+  EDIT mode=faces policy=all scenario=inside_section avg_ms=4.20 rust_ms=3.93 node_ms=0.23 sections=10.0 chunks=5.0 faces=12146 stale=0
+  EDIT mode=faces policy=all scenario=chunk_border avg_ms=4.30 rust_ms=4.04 node_ms=0.23 sections=10.0 chunks=5.0 faces=12152 stale=0
+  FILL mode=faces policy=all fill_ms=9.03 voxels=243 sections=24 chunks=12 rust_ms=8.31 node_ms=0.44
+  UNDO mode=faces policy=all undo_avg_ms=3.34 redo_avg_ms=3.36 undo_sections=30 redo_sections=30 rust_ms=9.50 node_ms=0.41 faces_before=12212 edited=12272 undone=12212
+  FILL mode=faces policy=chunk fill_ms=3.67 voxels=243 sections=8 chunks=4 rust_ms=3.23 node_ms=0.18
+  UNDO mode=faces policy=chunk undo_avg_ms=0.88 redo_avg_ms=0.93 undo_sections=8 redo_sections=8 rust_ms=2.47 node_ms=0.12 faces_before=12212 edited=12272 undone=12212
+  EDIT mode=faces policy=partial scenario=inside_section avg_ms=0.78 rust_ms=0.73 node_ms=0.04 sections=1.0 chunks=1.0 faces=12146 stale=0
+  EDIT mode=faces policy=partial scenario=chunk_border avg_ms=1.12 rust_ms=1.05 node_ms=0.06 sections=2.0 chunks=2.0 faces=12152 stale=0
+  FILL mode=faces policy=partial fill_ms=1.64 voxels=243 sections=4 chunks=4 rust_ms=1.33 node_ms=0.07
+  UNDO mode=faces policy=partial undo_avg_ms=0.65 redo_avg_ms=0.61 undo_sections=5 redo_sections=5 rust_ms=1.81 node_ms=0.10 faces_before=12212 edited=12272 undone=12212
+  SESSION mode=faces total_ms=75.7 area=12428 elements=12428
+  SESSION mode=greedy total_ms=81.9 area=12428 elements=1738
+  IMAGE faces vs greedy(after switch): of 1977600 px 21 differ, 7 by more than 16; faces vs greedy(session): 21 differ, 7 by more than 16
+  SUMMARY failures=0
+VmHWM:	  330500 kB PSS 141728
+[x86_64 greedy] TotalTime: 751
+  TIME edit mode=greedy total_ms=1.80
+  TIME load mode=greedy total_ms=4.90
+  TIME first_5x5 mode=greedy total_ms=17.27 build_ms_per_chunk=0.31 voxels=87098 drawn=1710 triangles=3420
+  GEOM mode=greedy elements=1710 triangles=3420 mesh_bytes=314640 voxels=87098 nodes=33
+  MEM mode=greedy static_mb=0.0 video_mb=24.1 draw_calls=48 primitives=3798
+  EDIT mode=greedy policy=all scenario=inside_section avg_ms=3.89 rust_ms=3.64 node_ms=0.21 sections=10.0 chunks=5.0 faces=1710 stale=0
+  EDIT mode=greedy policy=all scenario=chunk_border avg_ms=3.83 rust_ms=3.56 node_ms=0.22 sections=10.0 chunks=5.0 faces=1716 stale=0
+  FILL mode=greedy policy=all fill_ms=9.78 voxels=243 sections=24 chunks=12 rust_ms=8.79 node_ms=0.60
+  UNDO mode=greedy policy=all undo_avg_ms=3.80 redo_avg_ms=3.73 undo_sections=30 redo_sections=30 rust_ms=10.59 node_ms=0.67 faces_before=1732 edited=1746 undone=1732
+  FILL mode=greedy policy=chunk fill_ms=3.28 voxels=243 sections=8 chunks=4 rust_ms=2.87 node_ms=0.17
+  UNDO mode=greedy policy=chunk undo_avg_ms=0.92 redo_avg_ms=0.89 undo_sections=8 redo_sections=8 rust_ms=2.58 node_ms=0.13 faces_before=1732 edited=1746 undone=1732
+  EDIT mode=greedy policy=partial scenario=inside_section avg_ms=0.68 rust_ms=0.63 node_ms=0.03 sections=1.0 chunks=1.0 faces=1710 stale=0
+  EDIT mode=greedy policy=partial scenario=chunk_border avg_ms=1.09 rust_ms=1.02 node_ms=0.06 sections=2.0 chunks=2.0 faces=1716 stale=0
+  FILL mode=greedy policy=partial fill_ms=1.85 voxels=243 sections=4 chunks=4 rust_ms=1.49 node_ms=0.12
+  UNDO mode=greedy policy=partial undo_avg_ms=0.57 redo_avg_ms=0.89 undo_sections=5 redo_sections=5 rust_ms=1.61 node_ms=0.06 faces_before=1732 edited=1746 undone=1732
+  SESSION mode=faces total_ms=76.6 area=12428 elements=12428
+  SESSION mode=greedy total_ms=82.8 area=12428 elements=1738
+  IMAGE faces vs greedy(after switch): of 1977600 px 21 differ, 7 by more than 16; faces vs greedy(session): 21 differ, 7 by more than 16
+  SUMMARY failures=0
+VmHWM:	  326992 kB PSS 135386
+Success
+[arm64 cubes] TotalTime: 1987

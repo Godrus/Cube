@@ -1,0 +1,4 @@
+label=arm64_noexec_cubes run=1 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=27 am_start=[Status: ok TotalTime: 6665 ]
+label=arm64_noexec_cubes run=2 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=16 am_start=[Status: ok TotalTime: 4024 ]
+label=arm64_noexec_cubes run=3 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=16 am_start=[Status: ok TotalTime: 3725 ]
+SUMMARY label=arm64_noexec_cubes runs=3 ok=3 failed=0

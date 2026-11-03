@@ -1,0 +1,5 @@
+label=arm64_minimal_scene3d run=1 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=12 am_start=[Status: ok TotalTime: 4433 ]
+label=arm64_minimal_scene3d run=2 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=9 am_start=[Status: ok TotalTime: 4596 ]
+label=arm64_minimal_scene3d run=3 verdict=SIGSEGV sigsegv=yes anr=no process_alive_at_end=no secs=10 am_start=[Status: ok TotalTime: 4666 ]
+label=arm64_minimal_scene3d run=4 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=9 am_start=[Status: ok TotalTime: 4590 ]
+SUMMARY label=arm64_minimal_scene3d runs=4 ok=3 failed=1

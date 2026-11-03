@@ -1,0 +1,3 @@
+label=x86_64_noexec_faces run=1 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=21 am_start=[Status: ok TotalTime: 1864 ]
+label=x86_64_noexec_faces run=2 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=21 am_start=[Status: ok TotalTime: 2177 ]
+SUMMARY label=x86_64_noexec_faces runs=2 ok=2 failed=0

@@ -1,0 +1,11 @@
+label=arm64_minimal_noexec run=1 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=12 am_start=[Status: ok TotalTime: 4426 ]
+label=arm64_minimal_noexec run=2 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=12 am_start=[Status: ok TotalTime: 4418 ]
+label=arm64_minimal_noexec run=3 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=12 am_start=[Status: ok TotalTime: 4617 ]
+label=arm64_minimal_noexec run=4 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=11 am_start=[Status: ok TotalTime: 4551 ]
+label=arm64_minimal_noexec run=5 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=11 am_start=[Status: ok TotalTime: 4441 ]
+label=arm64_minimal_noexec run=6 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=13 am_start=[Status: ok TotalTime: 6239 ]
+label=arm64_minimal_noexec run=7 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=12 am_start=[Status: ok TotalTime: 4603 ]
+label=arm64_minimal_noexec run=8 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=12 am_start=[Status: ok TotalTime: 4520 ]
+label=arm64_minimal_noexec run=9 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=12 am_start=[Status: ok TotalTime: 4630 ]
+label=arm64_minimal_noexec run=10 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=11 am_start=[Status: ok TotalTime: 4374 ]
+SUMMARY label=arm64_minimal_noexec runs=10 ok=10 failed=0

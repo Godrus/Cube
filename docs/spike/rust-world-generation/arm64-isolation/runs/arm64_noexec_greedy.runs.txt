@@ -1,0 +1,4 @@
+label=arm64_noexec_greedy run=1 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=39 am_start=[Status: ok TotalTime: 4918 ]
+label=arm64_noexec_greedy run=2 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=40 am_start=[Status: ok TotalTime: 5212 ]
+label=arm64_noexec_greedy run=3 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=40 am_start=[Status: ok TotalTime: 4872 ]
+SUMMARY label=arm64_noexec_greedy runs=3 ok=3 failed=0

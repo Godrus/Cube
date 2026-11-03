@@ -1,0 +1,11 @@
+label=arm64_minimal_exec4 run=1 verdict=SIGSEGV sigsegv=yes anr=no process_alive_at_end=yes secs=10 am_start=[Status: ok TotalTime: 4417 ]
+label=arm64_minimal_exec4 run=2 verdict=SIGSEGV sigsegv=yes anr=no process_alive_at_end=yes secs=10 am_start=[Status: ok TotalTime: 4390 ]
+label=arm64_minimal_exec4 run=3 verdict=SIGSEGV sigsegv=yes anr=no process_alive_at_end=yes secs=10 am_start=[Status: ok TotalTime: 4430 ]
+label=arm64_minimal_exec4 run=4 verdict=SIGSEGV sigsegv=yes anr=no process_alive_at_end=yes secs=10 am_start=[Status: ok TotalTime: 4582 ]
+label=arm64_minimal_exec4 run=5 verdict=SIGSEGV sigsegv=yes anr=no process_alive_at_end=yes secs=11 am_start=[Status: ok TotalTime: 4504 ]
+label=arm64_minimal_exec4 run=6 verdict=SIGSEGV sigsegv=yes anr=no process_alive_at_end=yes secs=10 am_start=[Status: ok TotalTime: 3519 ]
+label=arm64_minimal_exec4 run=7 verdict=SIGSEGV sigsegv=yes anr=no process_alive_at_end=yes secs=11 am_start=[Status: ok TotalTime: 4531 ]
+label=arm64_minimal_exec4 run=8 verdict=SIGSEGV sigsegv=yes anr=no process_alive_at_end=yes secs=11 am_start=[Status: ok TotalTime: 4637 ]
+label=arm64_minimal_exec4 run=9 verdict=SIGSEGV sigsegv=yes anr=no process_alive_at_end=yes secs=11 am_start=[Status: ok TotalTime: 4610 ]
+NOTE: run 10 of arm64_minimal_exec4 was running while a second harness started on the same emulator; discarded (exec4 counted as 9 runs)
+SUMMARY label=arm64_minimal_exec4 runs=9 ok=0 failed=9 (run 10 discarded: overlapped with another harness)

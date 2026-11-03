@@ -1,0 +1,115 @@
+11-03 20:04:25.173   542   542 I adbd    : adbd service requested 'shell,v2,TERM=xterm-256color,raw:am start -W -n org.cube.spike.world/com.godot.game.GodotAppLauncher'
+11-03 20:04:25.204   685  1556 V ActivityTaskManager: TaskLaunchParamsModifier: phase=2 task=Task{f300d17 #108 type=standard A=10255:org.cube.spike.world} activity=ActivityRecord{235924886 u0 org.cube.spike.world/com.godot.game.GodotAppLauncher t-1} display-fr
+11-03 20:04:25.204   685  1556 I ActivityTaskManager: START u0 {flg=0x10000000 xflg=0x5 cmp=org.cube.spike.world/com.godot.game.GodotAppLauncher} with LAUNCH_SINGLE_INSTANCE_PER_TASK from uid 2000 (com.android.shell) (BAL_ALLOW_ALLOWLISTED_UID) result code=0
+11-03 20:04:25.206   960  1009 V WindowManagerShell: Transition requested (#57): android.os.BinderProxy@713a629 TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=108 effectiveUid=10255 seqId=0 displayId=0 isRunning=true baseIntent=Int
+11-03 20:04:25.217   685   716 I ActivityManager: Start proc 7295:org.cube.spike.world/u0a255 for next-top-activity {org.cube.spike.world/com.godot.game.GodotAppLauncher}
+11-03 20:04:25.293   685   706 V WindowManager: Sent Transition (#57) createdAt=11-03 20:04:25.199 via request=TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=108 effectiveUid=10255 seqId=0 displayId=0 isRunning=true baseIntent=Inte
+11-03 20:04:25.583  7295  7295 D GodotActivity: Launch intent Intent { flg=0x10000000 xflg=0x5 cmp=org.cube.spike.world/com.godot.game.GodotAppLauncher } with parameters []
+11-03 20:04:25.987  7295  7295 D nativeloader: Load /data/app/~~xErhWYNilh2MrrdeW-Rvmg==/org.cube.spike.world-lCN4QtpX3zgk_jOkDsxP6A==/lib/arm64/libgodot_android.so using class loader ns clns-9 (caller=/data/app/~~xErhWYNilh2MrrdeW-Rvmg==/org.cube.spike.world-
+11-03 20:04:26.756   685  1207 D CoreBackPreview: Window{aefebfd u0 org.cube.spike.world/com.godot.game.GodotAppLauncher}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@e7ccdc0, mPriority=0, mIsAnima
+11-03 20:04:26.756   685  1207 D CoreBackPreview: Window{aefebfd u0 org.cube.spike.world/com.godot.game.GodotAppLauncher}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@4544af9, mPriority=0, mIsAnima
+11-03 20:04:26.765   685  1791 D WindowManager: setClientSurface Surface(name=VRI-org.cube.spike.world/com.godot.game.GodotAppLauncher#638)/@0xc51fa3e for aefebfd org.cube.spike.world/com.godot.game.GodotAppLauncher
+11-03 20:04:26.803  7295  7295 I Surface : Creating surface for consumer b0ad8b2 SurfaceView[org.cube.spike.world/com.godot.game.GodotAppLauncher]#1(BLAST Consumer)1 with slotExpansion=1 for 64 slots
+11-03 20:04:26.902  7295  7319 I godot   : Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+11-03 20:04:28.413  7295  7319 I godot   : OpenGL API OpenGL ES 3.1 (4.5.0 NVIDIA 610.88) - Compatibility - Using Device: Google (NVIDIA Corporation) - Android Emulator OpenGL ES Translator (NVIDIA GeForce RTX 3070 Ti/PCIe/SSE2)
+11-03 20:04:28.461  7295  7319 I godot   : 
+11-03 20:04:29.809  7295  7326 E SurfaceSyncGroup: Failed to receive transaction ready in 3000ms. Marking SurfaceSyncGroup(SurfaceView[org.cube.spike.world/com.godot.game.GodotAppLauncher]#0) as ready
+11-03 20:04:29.810   685   706 I ActivityTaskManager: Displayed org.cube.spike.world/com.godot.game.GodotAppLauncher for user 0: +4s612ms
+11-03 20:04:31.919  7295  7319 F libc    : Fatal signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x75844bde4440 in tid 7319 (GLThread 47), pid 7295 (ube.spike.world)
+11-03 20:04:32.260  7344  7344 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+11-03 20:04:32.260  7344  7344 F DEBUG   : Build fingerprint: 'google/sdk_gphone16k_x86_64/emu64xa16k:17/CP31.260623.009/15923651:user/dev-keys'
+11-03 20:04:32.260  7344  7344 F DEBUG   : Kernel Release: '6.12.69-android16-6-g214d1615c480-ab15053784'
+11-03 20:04:32.260  7344  7344 F DEBUG   : Revision: '0'
+11-03 20:04:32.260  7344  7344 F DEBUG   : ABI: 'x86_64'
+11-03 20:04:32.260  7344  7344 F DEBUG   : Guest architecture: 'arm64'
+11-03 20:04:32.260  7344  7344 F DEBUG   : Timestamp: 2026-11-03 20:04:32.070136402+0000
+11-03 20:04:32.260  7344  7344 F DEBUG   : Process uptime: 8s
+11-03 20:04:32.260  7344  7344 F DEBUG   : Page size: 16384 bytes
+11-03 20:04:32.260  7344  7344 F DEBUG   : Executable: /system/bin/app_process64
+11-03 20:04:32.260  7344  7344 F DEBUG   : Cmdline: org.cube.spike.world
+11-03 20:04:32.260  7344  7344 F DEBUG   : pid: 7295, ppid: 461, tid: 7319, name: GLThread 47  >>> org.cube.spike.world <<<
+11-03 20:04:32.260  7344  7344 F DEBUG   : uid: 10255
+11-03 20:04:32.260  7344  7344 F DEBUG   : signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x000075844bde4440 (write)
+11-03 20:04:32.260  7344  7344 F DEBUG   : 
+11-03 20:04:32.260  7344  7344 F DEBUG   :     rax 000075844bde4440  rbx 0000000000000073  rcx 00000000498c8000  rdx 0000000000000073
+11-03 20:04:32.260  7344  7344 F DEBUG   :     r8  00000000498c84b3  r9  0000000049cc8000  r10 0000000000000000  r11 000075854e8d0368
+11-03 20:04:32.260  7344  7344 F DEBUG   :     r12 00007584548b5860  r13 00000000498c84b3  r14 00007588486cc048  r15 00000000498c8440
+11-03 20:04:32.260  7344  7344 F DEBUG   :     rdi 000075844bde4440  rsi 000075844bcd8010
+11-03 20:04:32.260  7344  7344 F DEBUG   :     rbp 00007584548b5820  rsp 00007584548b57b0  rip 00007588448f489e  err 0000000000000006
+11-03 20:04:32.260  7344  7344 F DEBUG   : 
+11-03 20:04:32.260  7344  7344 F DEBUG   : 8 total frames
+11-03 20:04:32.260  7344  7344 F DEBUG   : backtrace:
+11-03 20:04:32.260  7344  7344 F DEBUG   :       #00 pc 00000000000e089e  /apex/com.android.runtime/lib64/bionic/libc.so (memmove_avx2+1134) (BuildId: d1b828abad37e2f4848b723dcce5ed11)
+11-03 20:04:32.260  7344  7344 F DEBUG   :       #01 pc 00000000003ccfe7  /system/lib64/libndk_translation.so (berberis::CodePool<berberis::ExecRegionAnonymousFactory>::Add(berberis::MachineCode*)+231) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:04:32.260  7344  7344 F DEBUG   :       #02 pc 00000000003cc8c9  /system/lib64/libndk_translation.so (berberis::HeavyOptimizeRegion(unsigned long)+457) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:04:32.260  7344  7344 F DEBUG   :       #03 pc 00000000003ccd62  /system/lib64/libndk_translation.so (berberis_HandleLiteCounterThresholdReached+386) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:04:32.260  7344  7344 F DEBUG   :       #04 pc 00000000003cb85c  /system/lib64/libndk_translation.so (berberis::ExecuteGuest(berberis::ThreadState*)+236) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:04:32.260  7344  7344 F DEBUG   :       #05 pc 00000000003cba2c  /system/lib64/libndk_translation.so (berberis::ExecuteGuestCall(berberis::ThreadState*)+140) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:04:32.260  7344  7344 F DEBUG   :       #06 pc 00000000003cc123  /system/lib64/libndk_translation.so (berberis::RunGuestCall(unsigned long, berberis::GuestArgumentBuffer*)+195) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:04:32.260  7344  7344 F DEBUG   :       #07 pc 0000000000000d4e  /memfd:exec (deleted)
+11-03 20:04:32.260  7344  7344 F DEBUG   : 
+11-03 20:04:32.260  7344  7344 F DEBUG   : Note: To display stack pointer information, use the pbtombstone tool:
+11-03 20:04:32.260  7344  7344 F DEBUG   :         pbtombstone --display-sp tombstone_XX.pb
+11-03 20:04:32.267  7344  7344 F DEBUG   : --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+11-03 20:04:32.267  7344  7344 F DEBUG   : Guest thread information for tid: 7319
+11-03 20:04:32.267  7344  7344 F DEBUG   :     x0  0000000000000000  x1  0000000000000000  x2  0000000000000000  x3  0000000000000000
+11-03 20:04:32.267  7344  7344 F DEBUG   :     x4  0000000000000000  x5  0000000000000000  x6  0000000000000000  x7  0000000000000000
+11-03 20:04:32.267  7344  7344 F DEBUG   :     x8  0000000000000000  x9  0000000000000000  x10 0000000000000000  x11 0000000000000000
+11-03 20:04:32.267  7344  7344 F DEBUG   :     x12 0000000000000000  x13 0000000000000000  x14 0000000000000000  x15 0000000000000000
+11-03 20:04:32.267  7344  7344 F DEBUG   :     x16 0000000000000000  x17 0000000000000000  x18 0000758448000000  x19 0000000000000000
+11-03 20:04:32.267  7344  7344 F DEBUG   :     x20 0000000000000000  x21 0000000000000000  x22 0000000000000000  x23 0000000000000000
+11-03 20:04:32.267  7344  7344 F DEBUG   :     x24 0000000000000000  x25 0000000000000000  x26 0000000000000000  x27 0000000000000000
+11-03 20:04:32.267  7344  7344 F DEBUG   :     x28 0000000000000000  x29 0000000000000000
+11-03 20:04:32.267  7344  7344 F DEBUG   :     lr  0000000000000000  sp  00007584491ffff0  pc  0000000000000000  pst 0000000000000000
+11-03 20:04:32.267  7344  7344 F DEBUG   :     esr 0000000000000000  vg  0000000000000000
+11-03 20:04:32.267  7344  7344 F DEBUG   : 
+11-03 20:04:32.267  7344  7344 F DEBUG   : 1 total frames
+11-03 20:04:32.267  7344  7344 F DEBUG   : backtrace:
+11-03 20:04:32.267  7344  7344 F DEBUG   :       #00 pc 0000000000000000  <unknown>
+11-03 20:04:32.267  7344  7344 F DEBUG   : 
+11-03 20:04:32.267  7344  7344 F DEBUG   : 
+11-03 20:04:32.267  7344  7344 F DEBUG   : memory near x18:
+11-03 20:04:32.267  7344  7344 F DEBUG   :     0000758448000000 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     0000758448000010 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     0000758448000020 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     0000758448000030 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     0000758448000040 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     0000758448000050 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     0000758448000060 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     0000758448000070 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     0000758448000080 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     0000758448000090 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     00007584480000a0 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     00007584480000b0 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     00007584480000c0 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     00007584480000d0 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     00007584480000e0 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     00007584480000f0 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   : 
+11-03 20:04:32.267  7344  7344 F DEBUG   : memory near sp:
+11-03 20:04:32.267  7344  7344 F DEBUG   :     00007584491fffd0 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     00007584491fffe0 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     00007584491ffff0 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     0000758449200000 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     0000758449200010 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     0000758449200020 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     0000758449200030 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     0000758449200040 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     0000758449200050 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     0000758449200060 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     0000758449200070 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     0000758449200080 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     0000758449200090 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     00007584492000a0 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     00007584492000b0 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.267  7344  7344 F DEBUG   :     00007584492000c0 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:04:32.277   685  7350 W ActivityTaskManager:   Force finishing activity org.cube.spike.world/com.godot.game.GodotAppLauncher
+11-03 20:04:32.278   960  1009 V WindowManagerShell: Transition requested (#59): android.os.BinderProxy@6217a0c TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=108 effectiveUid=10255 seqId=0 displayId=0 isRunning=true baseIntent=In
+11-03 20:04:32.327   685   803 W InputDispatcher: channel 'aefebfd org.cube.spike.world/com.godot.game.GodotAppLauncher' ~ Consumer closed input channel or an error occurred.  events=0x9
+11-03 20:04:32.327   685   803 E InputDispatcher: channel 'aefebfd org.cube.spike.world/com.godot.game.GodotAppLauncher' ~ Channel is unrecoverably broken and will be disposed!
+11-03 20:04:32.327   685   803 I WindowManager: WINDOW DIED Window{aefebfd u0 org.cube.spike.world/com.godot.game.GodotAppLauncher}
+11-03 20:04:32.328   685  1782 I WindowManager: WIN DEATH: Window{aefebfd u0 org.cube.spike.world/com.godot.game.GodotAppLauncher EXITING}
+11-03 20:04:32.352   685   710 V SharedSurfaceAnimation: Checking SharedSurface matching for: ComponentInfo{org.cube.spike.world/com.godot.game.GodotApp}, user= 0
+11-03 20:04:32.416   685   706 V WindowManager: Sent Transition (#59) createdAt=11-03 20:04:32.277 via request=TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=108 effectiveUid=10255 seqId=0 displayId=0 isRunning=true baseIntent=Int
+11-03 20:04:32.781   685   709 W ActivityTaskManager: Activity top resumed state loss timeout for ActivityRecord{235924886 u0 org.cube.spike.world/com.godot.game.GodotAppLauncher t108 f isRemovalRequested}
+11-03 20:04:33.487   685   937 W WindowManager: Exception thrown during dispatchAppVisibility Window{aefebfd u0 org.cube.spike.world/com.godot.game.GodotAppLauncher EXITING}

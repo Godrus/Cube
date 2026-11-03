@@ -1,0 +1,8 @@
+11-03 20:04:57.814  7520  7520 F DEBUG   : pid: 7517, ppid: 7474, tid: 7517, name: GLThread 47  >>> org.cube.spike.world <<<
+11-03 20:04:57.814  7520  7520 F DEBUG   : signal 11 (SIGSEGV), code 2 (SEGV_ACCERR), fault addr 0x0000000000000004 (read)
+11-03 20:04:57.814  7520  7520 F DEBUG   :       #00 pc 0000000000059498  /apex/com.android.runtime/lib64/bionic/libc.so (syscall+24) (BuildId: d1b828abad37e2f4848b723dcce5ed11)
+11-03 20:04:57.814  7520  7520 F DEBUG   :       #01 pc 00000000007e92a5  /system/lib64/libndk_translation.so (berberis_HandleNoExec+229) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:04:57.814  7520  7520 F DEBUG   :       #02 pc 00000000003cb85c  /system/lib64/libndk_translation.so (berberis::ExecuteGuest(berberis::ThreadState*)+236) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:04:57.814  7520  7520 F DEBUG   :       #03 pc 00000000003c93a9  /system/lib64/libndk_translation.so (berberis::(anonymous namespace)::RunClonedGuestThread(void*)+73) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:04:57.814  7520  7520 F DEBUG   :       #04 pc 000000000005ec1d  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+45) (BuildId: d1b828abad37e2f4848b723dcce5ed11)
+11-03 20:04:57.821  7520  7520 F DEBUG   :       #00 pc 0000000000000000  <unknown>

@@ -1,0 +1,150 @@
+11-03 20:02:06.070   685  1618 W ActivityTaskManager: Force removing ActivityRecord{181370096 u0 org.cube.spike.minimal/com.godot.game.GodotAppLauncher t97 f}: app died, no saved state
+11-03 20:02:06.071   960  1009 V WindowManagerShell: Transition requested (#20): android.os.BinderProxy@3c13128 TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=97 effectiveUid=10231 seqId=0 displayId=0 isRunning=false baseIntent=In
+11-03 20:02:06.120   685  1782 I WindowManager: WIN DEATH: Window{9cbb3bf u0 org.cube.spike.minimal/com.godot.game.GodotAppLauncher}
+11-03 20:02:08.183   542   542 I adbd    : adbd service requested 'shell,v2,TERM=xterm-256color,raw:am start -W -n org.cube.spike.minimal/com.godot.game.GodotAppLauncher'
+11-03 20:02:08.216   685  1915 V ActivityTaskManager: TaskLaunchParamsModifier: phase=2 task=Task{d30cb91 #98 type=standard A=10231:org.cube.spike.minimal} activity=ActivityRecord{90116536 u0 org.cube.spike.minimal/com.godot.game.GodotAppLauncher t-1} display-
+11-03 20:02:08.216   685  1915 I ActivityTaskManager: START u0 {flg=0x10000000 xflg=0x5 cmp=org.cube.spike.minimal/com.godot.game.GodotAppLauncher} with LAUNCH_SINGLE_INSTANCE_PER_TASK from uid 2000 (com.android.shell) (BAL_ALLOW_ALLOWLISTED_UID) result code=0
+11-03 20:02:08.227   685   716 I ActivityManager: Start proc 6144:org.cube.spike.minimal/u0a231 for next-top-activity {org.cube.spike.minimal/com.godot.game.GodotAppLauncher}
+11-03 20:02:08.716   685   709 W ActivityTaskManager: Activity top resumed state loss timeout for ActivityRecord{131666335 u0 org.cube.spike.world/com.godot.game.GodotAppLauncher t91}
+11-03 20:02:08.716   685   709 W ActivityTaskManager: Activity pause timeout for ActivityRecord{131666335 u0 org.cube.spike.world/com.godot.game.GodotAppLauncher t91}
+11-03 20:02:08.722   685   709 V SharedSurfaceAnimation: Checking SharedSurface matching for: ComponentInfo{org.cube.spike.minimal/com.godot.game.GodotApp}, user= 0
+11-03 20:02:08.772   685   706 V WindowManager: Sent Transition (#20) createdAt=11-03 20:02:06.070 via request=TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=97 effectiveUid=10231 seqId=0 displayId=0 isRunning=false baseIntent=Int
+11-03 20:02:08.792  6144  6144 D GodotActivity: Launch intent Intent { flg=0x10000000 xflg=0x5 cmp=org.cube.spike.minimal/com.godot.game.GodotAppLauncher } with parameters []
+11-03 20:02:08.886   685   709 W ActivityTaskManager: Activity stop timeout for ActivityRecord{131666335 u0 org.cube.spike.world/com.godot.game.GodotAppLauncher t91}
+11-03 20:02:08.887   685   709 I ActivityTaskManager: Activity reported stop, but no longer stopping: ActivityRecord{131666335 u0 org.cube.spike.world/com.godot.game.GodotAppLauncher t91} PAUSED
+11-03 20:02:09.156  6144  6144 D nativeloader: Load /data/app/~~sK6hqvAFPy5bnKGfsL70DA==/org.cube.spike.minimal-SmSxkcqiniHg9i_kpH4YFA==/lib/arm64/libgodot_android.so using class loader ns clns-9 (caller=/data/app/~~sK6hqvAFPy5bnKGfsL70DA==/org.cube.spike.mini
+11-03 20:02:09.263   685  1782 W WindowManager: Exception thrown during dispatchAppVisibility Window{9cbb3bf u0 org.cube.spike.minimal/com.godot.game.GodotAppLauncher EXITING}
+11-03 20:02:09.831   685  1618 D CoreBackPreview: Window{bc242bf u0 org.cube.spike.minimal/com.godot.game.GodotAppLauncher}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@7a49cea, mPriority=0, mIsAni
+11-03 20:02:09.836   685  1618 D WindowManager: setClientSurface Surface(name=VRI-org.cube.spike.minimal/com.godot.game.GodotAppLauncher#258)/@0xfe24bdb for bc242bf org.cube.spike.minimal/com.godot.game.GodotAppLauncher
+11-03 20:02:09.861  6144  6144 I Surface : Creating surface for consumer d50b003 SurfaceView[org.cube.spike.minimal/com.godot.game.GodotAppLauncher]#1(BLAST Consumer)1 with slotExpansion=1 for 64 slots
+11-03 20:02:10.189  6144  6168 I godot   : Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+11-03 20:02:10.771  6144  6168 E godot   : WARNING: Failed to load cached shader, recompiling.
+11-03 20:02:10.772  6144  6168 E godot   :    at: _load_from_cache (drivers/gles3/shader_gles3.cpp:615)
+11-03 20:02:11.596  6144  6168 I godot   : OpenGL API OpenGL ES 3.1 (4.5.0 NVIDIA 610.88) - Compatibility - Using Device: Google (NVIDIA Corporation) - Android Emulator OpenGL ES Translator (NVIDIA GeForce RTX 3070 Ti/PCIe/SSE2)
+11-03 20:02:11.613  6144  6168 I godot   : 
+11-03 20:02:12.871  6144  6175 E SurfaceSyncGroup: Failed to receive transaction ready in 3000ms. Marking SurfaceSyncGroup(SurfaceView[org.cube.spike.minimal/com.godot.game.GodotAppLauncher]#0) as ready
+11-03 20:02:12.874   685   706 I ActivityTaskManager: Displayed org.cube.spike.minimal/com.godot.game.GodotAppLauncher for user 0: +4s666ms
+11-03 20:02:13.111  6144  6168 E BLASTBufferQueue: [d50b003 SurfaceView[org.cube.spike.minimal/com.godot.game.GodotAppLauncher]#1](f:0,a:0) rejecting buffer:active_size=2400x954, requested_size=2400x954 buffer{size=2400x1080 transform=0}
+11-03 20:02:13.736  6144  6168 I godot   : MINIMAL start mode=scene3d godot=4.7.2-stable (official)
+11-03 20:02:13.814  6144  6168 F e.spike.minimal: runtime.cc:769]   native: #10 pc 007e180b  /system/lib64/libndk_translation.so (berberis::ExecRegion::Write+91) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:02:13.814  6144  6168 F e.spike.minimal: runtime.cc:769]   native: #11 pc 003ccfe7  /system/lib64/libndk_translation.so (berberis::CodePool<berberis::ExecRegionAnonymousFactory>::Add+231) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:02:13.814  6144  6168 F e.spike.minimal: runtime.cc:769]   native: #12 pc 003cc3f2  /system/lib64/libndk_translation.so (berberis::TryLiteTranslateAndInstallRegion+306) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:02:13.814  6144  6168 F e.spike.minimal: runtime.cc:769]   native: #13 pc 003ccb58  /system/lib64/libndk_translation.so (void berberis::TranslateRegion<0> +456) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:02:13.814  6144  6168 F e.spike.minimal: runtime.cc:769]   native: #14 pc 003cb85c  /system/lib64/libndk_translation.so (berberis::ExecuteGuest+236) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:02:13.814  6144  6168 F e.spike.minimal: runtime.cc:769]   native: #15 pc 003cba2c  /system/lib64/libndk_translation.so (berberis::ExecuteGuestCall+140) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:02:13.814  6144  6168 F e.spike.minimal: runtime.cc:769]   native: #16 pc 003cc123  /system/lib64/libndk_translation.so (berberis::RunGuestCall+195) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:02:13.814  6144  6168 F e.spike.minimal: runtime.cc:769]   at org.godotengine.godot.GodotLib.step(Native method)
+11-03 20:02:13.814  6144  6168 F e.spike.minimal: runtime.cc:769]   at org.godotengine.godot.gl.GodotRenderer.onDrawFrame(GodotRenderer.java:61)
+11-03 20:02:13.814  6144  6168 F e.spike.minimal: runtime.cc:769]   at org.godotengine.godot.gl.GLSurfaceView$GLThread.guardedRun(GLSurfaceView.java:1604)
+11-03 20:02:13.814  6144  6168 F e.spike.minimal: runtime.cc:769]   at org.godotengine.godot.gl.GLSurfaceView$GLThread.run(GLSurfaceView.java:1306)
+11-03 20:02:13.814  6144  6168 F e.spike.minimal: runtime.cc:769]   native: #08 pc 007e180b  /system/lib64/libndk_translation.so (berberis::ExecRegion::Write+91) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:02:13.814  6144  6168 F e.spike.minimal: runtime.cc:769]   native: #09 pc 003ccfe7  /system/lib64/libndk_translation.so (berberis::CodePool<berberis::ExecRegionAnonymousFactory>::Add+231) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:02:13.814  6144  6168 F e.spike.minimal: runtime.cc:769]   native: #10 pc 003cc3f2  /system/lib64/libndk_translation.so (berberis::TryLiteTranslateAndInstallRegion+306) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:02:13.814  6144  6168 F e.spike.minimal: runtime.cc:769]   native: #11 pc 003ccb58  /system/lib64/libndk_translation.so (void berberis::TranslateRegion<0> +456) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:02:13.814  6144  6168 F e.spike.minimal: runtime.cc:769]   native: #12 pc 003cb85c  /system/lib64/libndk_translation.so (berberis::ExecuteGuest+236) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:02:13.814  6144  6168 F e.spike.minimal: runtime.cc:769]   native: #13 pc 003cba2c  /system/lib64/libndk_translation.so (berberis::ExecuteGuestCall+140) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:02:13.814  6144  6168 F e.spike.minimal: runtime.cc:769]   native: #14 pc 003cc123  /system/lib64/libndk_translation.so (berberis::RunGuestCall+195) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:02:13.814  6144  6168 F e.spike.minimal: runtime.cc:769]   at org.godotengine.godot.GodotLib.step(Native method)
+11-03 20:02:13.814  6144  6168 F e.spike.minimal: runtime.cc:769]   at org.godotengine.godot.gl.GodotRenderer.onDrawFrame(GodotRenderer.java:61)
+11-03 20:02:13.814  6144  6168 F e.spike.minimal: runtime.cc:769]   at org.godotengine.godot.gl.GLSurfaceView$GLThread.guardedRun(GLSurfaceView.java:1604)
+11-03 20:02:13.814  6144  6168 F e.spike.minimal: runtime.cc:769]   at org.godotengine.godot.gl.GLSurfaceView$GLThread.run(GLSurfaceView.java:1306)
+11-03 20:02:13.814  6144  6168 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 6168 (GLThread 47), pid 6144 (e.spike.minimal)
+11-03 20:02:14.111  6190  6190 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+11-03 20:02:14.112  6190  6190 F DEBUG   : Build fingerprint: 'google/sdk_gphone16k_x86_64/emu64xa16k:17/CP31.260623.009/15923651:user/dev-keys'
+11-03 20:02:14.112  6190  6190 F DEBUG   : Kernel Release: '6.12.69-android16-6-g214d1615c480-ab15053784'
+11-03 20:02:14.112  6190  6190 F DEBUG   : Revision: '0'
+11-03 20:02:14.112  6190  6190 F DEBUG   : ABI: 'x86_64'
+11-03 20:02:14.112  6190  6190 F DEBUG   : Guest architecture: 'arm64'
+11-03 20:02:14.112  6190  6190 F DEBUG   : Timestamp: 2026-11-03 20:02:13.928372376+0000
+11-03 20:02:14.112  6190  6190 F DEBUG   : Process uptime: 7s
+11-03 20:02:14.112  6190  6190 F DEBUG   : Page size: 16384 bytes
+11-03 20:02:14.112  6190  6190 F DEBUG   : Executable: /system/bin/app_process64
+11-03 20:02:14.112  6190  6190 F DEBUG   : Cmdline: org.cube.spike.minimal
+11-03 20:02:14.112  6190  6190 F DEBUG   : pid: 6144, ppid: 461, tid: 6168, name: GLThread 47  >>> org.cube.spike.minimal <<<
+11-03 20:02:14.112  6190  6190 F DEBUG   : uid: 10231
+11-03 20:02:14.112  6190  6190 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+11-03 20:02:14.112  6190  6190 F DEBUG   : Abort message: 'frameworks/libs/binary_translation/base/exec_region.cc:28: CHECK failed: 0x48bd0000 <= 0x48405800'
+11-03 20:02:14.112  6190  6190 F DEBUG   : 
+11-03 20:02:14.112  6190  6190 F DEBUG   :     rax 0000000000000000  rbx 0000000000001800  rcx 000075884486ebbd  rdx 0000000000000006
+11-03 20:02:14.112  6190  6190 F DEBUG   :     r8  001a000000000029  r9  001a000000000029  r10 000075845bdf5120  r11 0000000000000207
+11-03 20:02:14.112  6190  6190 F DEBUG   :     r12 0000000000000000  r13 000000004840619c  r14 0000000000001818  r15 000075845bdf5120
+11-03 20:02:14.112  6190  6190 F DEBUG   :     rdi 0000000000001800  rsi 0000000000001818
+11-03 20:02:14.112  6190  6190 F DEBUG   :     rbp 000075845bdf51d0  rsp 000075845bdf5120  rip 000075884486ebbd  err 0000000000000000
+11-03 20:02:14.112  6190  6190 F DEBUG   : 
+11-03 20:02:14.112  6190  6190 F DEBUG   : 12 total frames
+11-03 20:02:14.112  6190  6190 F DEBUG   : backtrace:
+11-03 20:02:14.112  6190  6190 F DEBUG   :       #00 pc 000000000005abbd  /apex/com.android.runtime/lib64/bionic/libc.so (abort+189) (BuildId: d1b828abad37e2f4848b723dcce5ed11)
+11-03 20:02:14.112  6190  6190 F DEBUG   :       #01 pc 0000000000a045dd  /apex/com.android.art/lib64/libart.so (art::Runtime::Abort(char const*)+1517) (BuildId: 14d04bdd38616689d10173d998e13bd0)
+11-03 20:02:14.112  6190  6190 F DEBUG   :       #02 pc 000000000001659e  /apex/com.android.art/lib64/libbase.so (android::base::SetAborter(std::__1::function<void (char const*)>&&)::$_0::__invoke(char const*)+62) (BuildId: 088c2ecb5ce70fb052c4951eac35c347)
+11-03 20:02:14.112  6190  6190 F DEBUG   :       #03 pc 000000000000c33b  /system/lib64/liblog.so (__android_log_assert+315) (BuildId: a6b24221283e3cd0aa02b70ad0b95e8d)
+11-03 20:02:14.112  6190  6190 F DEBUG   :       #04 pc 00000000007e180b  /system/lib64/libndk_translation.so (berberis::ExecRegion::Write(unsigned char const*, void const*, unsigned long)+91) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:02:14.112  6190  6190 F DEBUG   :       #05 pc 00000000003ccfe7  /system/lib64/libndk_translation.so (berberis::CodePool<berberis::ExecRegionAnonymousFactory>::Add(berberis::MachineCode*)+231) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:02:14.112  6190  6190 F DEBUG   :       #06 pc 00000000003cc3f2  /system/lib64/libndk_translation.so (berberis::TryLiteTranslateAndInstallRegion(unsigned long, berberis::LiteTranslatorParams)+306) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:02:14.112  6190  6190 F DEBUG   :       #07 pc 00000000003ccb58  /system/lib64/libndk_translation.so (void berberis::TranslateRegion<(berberis::(anonymous namespace)::TranslationGear)0>(unsigned long) (.llvm.489602607311479994)+456) (BuildId: 062a896d
+11-03 20:02:14.112  6190  6190 F DEBUG   :       #08 pc 00000000003cb85c  /system/lib64/libndk_translation.so (berberis::ExecuteGuest(berberis::ThreadState*)+236) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:02:14.112  6190  6190 F DEBUG   :       #09 pc 00000000003cba2c  /system/lib64/libndk_translation.so (berberis::ExecuteGuestCall(berberis::ThreadState*)+140) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:02:14.112  6190  6190 F DEBUG   :       #10 pc 00000000003cc123  /system/lib64/libndk_translation.so (berberis::RunGuestCall(unsigned long, berberis::GuestArgumentBuffer*)+195) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:02:14.112  6190  6190 F DEBUG   :       #11 pc 0000000000000bce  /memfd:exec (deleted)
+11-03 20:02:14.112  6190  6190 F DEBUG   : 
+11-03 20:02:14.112  6190  6190 F DEBUG   : Note: To display stack pointer information, use the pbtombstone tool:
+11-03 20:02:14.112  6190  6190 F DEBUG   :         pbtombstone --display-sp tombstone_XX.pb
+11-03 20:02:14.120  6190  6190 F DEBUG   : --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+11-03 20:02:14.120  6190  6190 F DEBUG   : Guest thread information for tid: 6168
+11-03 20:02:14.120  6190  6190 F DEBUG   :     x0  0000000000000000  x1  0000000000000000  x2  0000000000000000  x3  0000000000000000
+11-03 20:02:14.120  6190  6190 F DEBUG   :     x4  0000000000000000  x5  0000000000000000  x6  0000000000000000  x7  0000000000000000
+11-03 20:02:14.120  6190  6190 F DEBUG   :     x8  0000000000000000  x9  0000000000000000  x10 0000000000000000  x11 0000000000000000
+11-03 20:02:14.120  6190  6190 F DEBUG   :     x12 0000000000000000  x13 0000000000000000  x14 0000000000000000  x15 0000000000000000
+11-03 20:02:14.120  6190  6190 F DEBUG   :     x16 0000000000000000  x17 0000000000000000  x18 0000758453600000  x19 0000000000000000
+11-03 20:02:14.120  6190  6190 F DEBUG   :     x20 0000000000000000  x21 0000000000000000  x22 0000000000000000  x23 0000000000000000
+11-03 20:02:14.120  6190  6190 F DEBUG   :     x24 0000000000000000  x25 0000000000000000  x26 0000000000000000  x27 0000000000000000
+11-03 20:02:14.120  6190  6190 F DEBUG   :     x28 0000000000000000  x29 0000000000000000
+11-03 20:02:14.120  6190  6190 F DEBUG   :     lr  0000000000000000  sp  0000758454827ff0  pc  0000000000000000  pst 0000000000000000
+11-03 20:02:14.120  6190  6190 F DEBUG   :     esr 0000000000000000  vg  0000000000000000
+11-03 20:02:14.120  6190  6190 F DEBUG   : 
+11-03 20:02:14.120  6190  6190 F DEBUG   : 1 total frames
+11-03 20:02:14.120  6190  6190 F DEBUG   : backtrace:
+11-03 20:02:14.120  6190  6190 F DEBUG   :       #00 pc 0000000000000000  <unknown>
+11-03 20:02:14.120  6190  6190 F DEBUG   : 
+11-03 20:02:14.120  6190  6190 F DEBUG   : 
+11-03 20:02:14.120  6190  6190 F DEBUG   : memory near x18:
+11-03 20:02:14.120  6190  6190 F DEBUG   :     00007584535fffe0 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     00007584535ffff0 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     0000758453600000 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     0000758453600010 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     0000758453600020 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     0000758453600030 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     0000758453600040 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     0000758453600050 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     0000758453600060 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     0000758453600070 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     0000758453600080 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     0000758453600090 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     00007584536000a0 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     00007584536000b0 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     00007584536000c0 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     00007584536000d0 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   : 
+11-03 20:02:14.120  6190  6190 F DEBUG   : memory near sp:
+11-03 20:02:14.120  6190  6190 F DEBUG   :     0000758454827fd0 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     0000758454827fe0 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     0000758454827ff0 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     0000758454828000 0000000000020000 0000758454848000  ...........T.u..  [ XXX, anonyous_000075845471c000 ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     0000758454828010 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     0000758454828020 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     0000758454828030 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     0000758454828040 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     0000758454828050 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     0000758454828060 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     0000758454828070 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     0000758454828080 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     0000758454828090 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     00007584548280a0 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     00007584548280b0 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.120  6190  6190 F DEBUG   :     00007584548280c0 0000000000000000 0000000000000000  ................  [ XXX, XXX ]
+11-03 20:02:14.128   685  6194 W ActivityTaskManager:   Force finishing activity org.cube.spike.minimal/com.godot.game.GodotAppLauncher
+11-03 20:02:14.129   960  1009 V WindowManagerShell: Transition requested (#21): android.os.BinderProxy@9d86ca3 TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=98 effectiveUid=10231 seqId=0 displayId=0 isRunning=true baseIntent=Int
+11-03 20:02:14.175   685   803 W InputDispatcher: channel 'bc242bf org.cube.spike.minimal/com.godot.game.GodotAppLauncher' ~ Consumer closed input channel or an error occurred.  events=0x9
+11-03 20:02:14.175   685   803 E InputDispatcher: channel 'bc242bf org.cube.spike.minimal/com.godot.game.GodotAppLauncher' ~ Channel is unrecoverably broken and will be disposed!
+11-03 20:02:14.175   685   803 I WindowManager: WINDOW DIED Window{bc242bf u0 org.cube.spike.minimal/com.godot.game.GodotAppLauncher}
+11-03 20:02:14.177   685  1945 I WindowManager: WIN DEATH: Window{bc242bf u0 org.cube.spike.minimal/com.godot.game.GodotAppLauncher EXITING}
+11-03 20:02:14.647   685   709 W ActivityTaskManager: Activity top resumed state loss timeout for ActivityRecord{90116536 u0 org.cube.spike.minimal/com.godot.game.GodotAppLauncher t98 f isRemovalRequested}

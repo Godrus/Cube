@@ -1,0 +1,5 @@
+label=arm64_app_faces run=1 verdict=SIGSEGV sigsegv=yes anr=no process_alive_at_end=yes secs=11 am_start=[Status: ok TotalTime: 4763 ]
+label=arm64_app_faces run=2 verdict=SIGSEGV sigsegv=yes anr=no process_alive_at_end=no secs=11 am_start=[Status: ok TotalTime: 5092 ]
+label=arm64_app_faces run=3 verdict=SIGSEGV sigsegv=yes anr=no process_alive_at_end=yes secs=10 am_start=[Status: ok TotalTime: 4688 ]
+label=arm64_app_faces run=4 verdict=SIGSEGV sigsegv=yes anr=no process_alive_at_end=yes secs=10 am_start=[Status: ok TotalTime: 4612 ]
+SUMMARY label=arm64_app_faces runs=4 ok=0 failed=4

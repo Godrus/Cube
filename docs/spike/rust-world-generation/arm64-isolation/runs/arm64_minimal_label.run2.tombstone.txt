@@ -1,0 +1,11 @@
+11-03 20:01:08.584  5606  5606 F DEBUG   : pid: 5558, ppid: 461, tid: 5582, name: GLThread 47  >>> org.cube.spike.minimal <<<
+11-03 20:01:08.584  5606  5606 F DEBUG   : signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x0000758458cb3400 (write)
+11-03 20:01:08.584  5606  5606 F DEBUG   :       #00 pc 00000000000e0611  /apex/com.android.runtime/lib64/bionic/libc.so (memmove_avx2+481) (BuildId: d1b828abad37e2f4848b723dcce5ed11)
+11-03 20:01:08.584  5606  5606 F DEBUG   :       #01 pc 00000000003ccfe7  /system/lib64/libndk_translation.so (berberis::CodePool<berberis::ExecRegionAnonymousFactory>::Add(berberis::MachineCode*)+231) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:01:08.584  5606  5606 F DEBUG   :       #02 pc 00000000003cc8c9  /system/lib64/libndk_translation.so (berberis::HeavyOptimizeRegion(unsigned long)+457) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:01:08.584  5606  5606 F DEBUG   :       #03 pc 00000000003ccd62  /system/lib64/libndk_translation.so (berberis_HandleLiteCounterThresholdReached+386) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:01:08.584  5606  5606 F DEBUG   :       #04 pc 00000000003cb85c  /system/lib64/libndk_translation.so (berberis::ExecuteGuest(berberis::ThreadState*)+236) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:01:08.584  5606  5606 F DEBUG   :       #05 pc 00000000003cba2c  /system/lib64/libndk_translation.so (berberis::ExecuteGuestCall(berberis::ThreadState*)+140) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:01:08.584  5606  5606 F DEBUG   :       #06 pc 00000000003cc123  /system/lib64/libndk_translation.so (berberis::RunGuestCall(unsigned long, berberis::GuestArgumentBuffer*)+195) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:01:08.584  5606  5606 F DEBUG   :       #07 pc 0000000000000bce  /memfd:exec (deleted)
+11-03 20:01:08.592  5606  5606 F DEBUG   :       #00 pc 0000000000000000  <unknown>

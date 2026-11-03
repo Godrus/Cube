@@ -371,3 +371,167 @@ Reading the numbers: (1) the ordering `all` > `chunk` >= `partial` holds on ever
 * **Problems found during the stage:** (1) the first full-frame picture comparison reported 237 differing pixels, all in the HUD fps text; comparison now excludes the HUD. (2) Several ARM64 runs (first run after install, runs with three policies in one process) did not finish within the initial 4-minute wait, so the first ARM64 table was incomplete; the wait was extended and the missing runs repeated, one policy combination (`partial`, last run) was stopped by hand, so its ARM64 range comes from the earlier completed runs. (3) A shell helper for killing processes (`pkill`) does not exist in the Git Bash used here, so earlier clean-up attempts of the emulator and wait loops silently did nothing and the emulator stayed running after the runs. Clean-up is now done with `adb emu kill` and `taskkill` and was checked (no emulator, qemu or adb process left). (4) A first version of the smoke test contained a check that could not fail (`... or true`); it was replaced by a real comparison and the run was repeated.
 
 **Readiness for greedy meshing:** yes, with conditions. The section is a sound unit (independent faces, an exact dirty rule, proven incremental == full rebuild, identical pictures). Greedy merging inside a section keeps that contract: an edit still rebuilds the dirty sections, only the section builder changes, and the existing equivalence tests (face-area coverage and picture comparison instead of face lists) can validate it. Conditions: measure the section build cost first (greedy adds work per rebuild, while reducing triangles and memory), decide how colours and the shared border faces are merged, and keep the cubes renderer and `--rebuild=all` as references. A physical ARM64 device run is still required before any statement about mobile performance.
+
+
+---
+
+# Stage 5: greedy meshing and ARM64 crash isolation
+
+**Status:** experimental, `spike/rust-world-generation`, base `5665b62`. `master` unchanged, nothing merged. Not changed: Geometry Core API, RevisionToken, undo semantics, `world-state-v0`, persistence format, TCP protocol, P0/P1 status, the terrain algorithm. No threads, no new biomes, no SDF/Mesh backend. **ARM64 validation status: `inconclusive`** (section 26). **`greedy` is not fully visually equivalent to `faces`** (section 25).
+
+## 22. Greedy meshing
+
+**Modes:** `cubes` (base control, unchanged), `faces` (reference renderer for correctness: one quad per visible unit face), `greedy` (new). The rebuild policy is unchanged (`partial` by default; `chunk` and `all` remain). `faces` and `greedy` use the same dirty-section rule, the same section nodes and the same neighbour data; only the section builder differs. The Renderer button cycles `cubes -> faces -> greedy` in the running app.
+
+**Algorithm (per section, `WorldBridge::section_quads`):**
+
+1. The section's own voxels and a one-voxel padding (other brick, neighbouring chunks, world limits) are loaded into an 18^3 grid, exactly as for `faces`.
+2. For each of the six face directions and each of the 16 slices along the normal, a 16x16 mask is filled: the cell holds the material of the voxel if the voxel is solid and its neighbour in the normal direction is empty, otherwise 0. Only the section's own voxels enter the mask.
+3. The mask is covered with rectangles: scan `v` outer, `u` inner; at the first unmerged cell, extend along `u` while the cells have the same material, then extend along `v` while the whole row of that width has the same material; clear the rectangle and emit one quad `{normal, voxel (smallest corner), size [w, h], material}`.
+4. A quad becomes 4 vertices (same layout and winding as a `faces` face) and 6 indices.
+
+**Material rule:** quads merge only cells of the same material. Different materials are never merged, even when coplanar and adjacent (colour is a function of material; the test slab below checks it).
+
+**Boundary rule:** the mask is the section's own 16x16 slice, so a quad can never leave its section: not across a brick boundary inside a chunk and not across a chunk border. This is by construction, not by a proof of merge correctness across sections, and it is checked by test. Cost: faces on the boundary between two sections are not merged across it (more quads). Neighbouring voxels across the border are read for visibility only (a face towards an occupied neighbour is hidden; towards an unloaded chunk it is drawn). Empty sections produce no quads and no node. Negative coordinates work because everything is expressed in world integer coordinates (floor division).
+
+**Geometric tests (11 new, Rust; 119 workspace tests pass, clippy clean):** `crates/cube-godot-adapter/tests/greedy.rs`. The reference is the list of visible unit faces `(voxel, normal, material)` computed directly from the voxels (`section_unit_faces`) and the `faces` mesh; the greedy quads are expanded to unit faces and compared as sorted lists (position, normal, size, material), so gaps, overlaps (duplicates) and wrong materials fail.
+
+| Requirement | Test |
+|---|---|
+| greedy and faces give the same visible surface | `greedy_and_faces_represent_the_same_visible_surface_in_every_section` (3 seeds, negative coordinates) |
+| same material per quad | `every_quad_has_one_material_and_covers_only_voxels_of_that_material` |
+| different materials not merged | `different_materials_are_not_merged` (3x3 slab -> one quad 3x3; centre replaced by dirt -> no quad mixes, dirt 1x1, area 9) |
+| chunk borders lose no faces, no cross-section quads | `quads_do_not_cross_section_boundaries_and_chunks_keep_their_border_faces` |
+| removing a voxel removes its face | `removing_a_voxel_removes_its_face_and_exposes_the_neighbours` |
+| a neighbour chunk change updates the shared border | `a_change_in_the_neighbouring_chunk_updates_the_shared_border` |
+| empty sections | `empty_sections_produce_no_quads` |
+| deterministic, independent of generation order | `greedy_output_is_deterministic_and_independent_of_generation_order` (different paths and queue budgets) |
+| full rebuild == partial rebuild | `partial_rebuild_equals_full_rebuild_of_the_greedy_mesh` (60 random edits, client-style cache vs full rebuild after each edit) |
+| undo/redo restore the same mesh | `undo_and_redo_restore_the_same_greedy_mesh` (single edit, 3x3x3, 7x3x7 fill) |
+| fewer quads, same covered area | `greedy_reduces_quads_and_keeps_the_covered_area` |
+
+A mutation check confirmed the tests have teeth: merging cells of different materials makes 8 of the 11 fail.
+
+**Godot smoke (all modes pass, `failures=0`):** Fill (`fill_box` across two chunk borders), Edit inside a section, on a brick boundary, on a chunk border, on a corner, 3x3x3 Edit, Undo, Redo, Jump, Save, Load and switching the renderer in the running app (`faces -> greedy -> cubes -> faces`), each with a stale-mesh check (per section, drawn elements equal freshly computed ones) and a check that faces and greedy cover the same number of unit faces (12 428 after the session). Run on desktop (headless and windowed), Android x86_64 and Android ARM64 emulators.
+
+## 23. faces vs greedy
+
+5x5 area (25 chunks, 50 sections, 87 098 voxels, 12 146 visible faces); identical on every platform.
+
+| | cubes | faces | greedy |
+|---|---|---|---|
+| drawable elements | 87 098 cubes | 12 146 faces | **1 710 quads** (7.1x fewer than faces) |
+| triangles | 1 045 176 | 24 292 | **3 420** (7.1x fewer) |
+| 3x3 / 7x7 elements | 32 141 / 165 570 | 5 534 / 21 040 | 825 / 3 032 |
+| mesh data (Rust arrays, Godot formula 40 B/vertex + 4 B/index) | 5 443 KB | 2 182 KB | **307 KB** (7.1x smaller) |
+| draw calls (windowed, 25 chunks) | 40 | 48 | 48 (one node per non-empty section) |
+| primitives in frame (windowed) | 810 014 | 18 562 | 3 798 |
+| video memory (windowed desktop) | 19.5 MB | 13.4 MB | 12.3 MB |
+
+**Desktop** (Windows, release Rust library, 2 headless runs each; windowed runs agree within 10%):
+
+| Metric | faces | greedy |
+|---|---|---|
+| full build of 5x5, Godot (total / per chunk) | 10.9-11.1 ms / 0.17-0.18 ms | **8.2-8.5 ms / 0.12 ms** |
+| Rust-only build of one chunk (2 sections, `render_bench`) | 0.148 ms | 0.173 ms (+17%) |
+| Edit inside a section (`partial`) | 0.21-0.22 ms | 0.16-0.17 ms |
+| Edit on a chunk border (`partial`) | 0.43-0.44 ms | 0.35-0.40 ms |
+| Fill 9x3x9 across 4 chunks (`partial` / `all`) | 0.76-1.06 / 3.96-4.09 ms | 0.75 / 3.40-3.53 ms |
+| Undo avg / redo avg (3 edits, `partial`) | 0.24-0.29 / 0.32 ms | 0.22 / 0.33-0.37 ms |
+| Load (rebuild 9 chunks) | 18.3-19.5 ms | 17.7-18.0 ms |
+| Godot static memory (end of run) | 27.2 MB | 26.2 MB |
+
+Greedy costs about 17% more Rust time per chunk but hands Godot 7x fewer vertices, so the total Godot-side build is about 30% faster and edits are 5-25% faster on the desktop. The effect is small in absolute terms (sub-millisecond).
+
+**Full vs partial rebuild cost (greedy, desktop):** `all` 1.20-1.26 ms (10 sections) vs `chunk` 0.25 ms (2) vs `partial` 0.16-0.17 ms (1) for an Edit inside a section; the same ordering as for `faces` (section 20).
+
+**Android emulators**, noexec release APKs (section 26), run 1 / run 2, ms:
+
+| Metric | x86_64 faces | x86_64 greedy | ARM64 (translated) faces | ARM64 (translated) greedy |
+|---|---|---|---|---|
+| full build of 5x5 (total) | 41.3 / 50.8 | 50.9 / 49.8 | 135.0 / 57.1 | 96.1 / 96.3 |
+| Edit inside a section (`partial`) | 1.51 / 1.53 | 1.62 / 1.48 | 3.14 / 1.70 | 2.33 / 2.59 |
+| Edit on a chunk border (`partial`) | 3.06 / 3.35 | 2.62 / 4.41 | 7.40 / 3.07 | 4.87 / 4.38 |
+| Fill (`partial`) | 5.27 / 5.92 | 4.63 / 7.73 | 12.8 / 5.2 | 7.8 / 12.6 |
+| Undo avg / redo avg | 1.79 / 1.74, 2.40 / 2.76 | 1.56 / 1.58, 1.70 / 2.07 | 3.3 / 3.6, 1.7 / 1.8 | 2.4 / 2.8, 3.2 / 3.1 |
+| Load | 13.9 / 14.5 | 16.9 / 14.7 | 60.0 / 28.4 | 41.6 / 52.4 |
+| Godot video memory | 27.2 / 25.2 MB | 26.1 / 24.1 MB | 25.2 / 25.2 MB | 24.1 / 24.1 MB |
+
+On the emulators there is **no consistent CPU-time difference** between faces and greedy: run-to-run variation (2x) is larger than the difference. The consistent effects are geometric: 7x fewer triangles and quads, 3 798 vs 18 562 primitives in a frame.
+
+**Process memory** (`memrun`, 1 run per cell, end of the scripted run; the cubes build does not run the edit/renderer-matrix phases, so the peak is **not** comparable between cubes and the mesh modes; faces and greedy ran the same phases):
+
+| ABI | mode | peak RSS (`VmHWM`) | PSS |
+|---|---|---|---|
+| x86_64 native | cubes / faces / greedy | 338 / 385 / 383 MB | 161 / 142 / 138 MB |
+| ARM64 translated | cubes / faces / greedy | 771 / 823 / 822 MB | 553 / 531 / 532 MB |
+
+Peak RSS is dominated by the engine and by the test's transient allocations (screenshots, both renderers in one process), not by mesh size; faces and greedy differ by less than 1% (the mesh arrays are only 2.2 MB vs 0.3 MB). PSS at the end is 14-17% lower for the mesh modes than for cubes on x86_64.
+
+## 24. Pixel and geometry results
+
+* **Geometry:** exact (section 22 tests): the sorted unit-face lists of faces and greedy are equal in every section, in 3 seeds, after 60 random edits, after undo/redo and independent of generation order.
+* **Pictures, same scene and session, faces vs greedy** (3D area below the HUD, per-view): desktop windowed 596 736 px per view; Android 1 977 600 px per view, the 5-view counts below are from run 1 of each ABI and are identical on x86_64 and on ARM64 (translated); the default-view counts are identical in all 10 faces/greedy smoke runs (6 on ARM64, 4 on x86_64).
+
+| View | Desktop: differ / visible (> 16 levels) | Android (both ABIs): differ / visible |
+|---|---|---|
+| 0 (default camera) | 15 / 2 | 21 / 7 |
+| 1 | 55 / 20 | 26 / 6 |
+| 2 | 26 / 11 | 22 / 17 |
+| 3 | 10 / 4 | 9 / 4 |
+| 4 | 38 / 13 | 67 / 43 |
+| **total** | **144 of 2 983 680 px (0.0048%), 50 visible (0.0017%)** | **145 of 9 888 000 px (0.0015%), 77 visible (0.0008%)** |
+
+Pictures after the same edit sequence under the three rebuild policies of the same renderer are bit-identical (0 differing pixels, desktop and both ABIs), i.e. incremental rebuild does not change the picture. `faces` vs `cubes` differed in at most 38 of 596 736 pixels in section 10 (the same kind of edge effect was not analysed there).
+
+## 25. Rendering defect: background visible through greedy meshes
+
+The "visible" pixels in section 24 (differ by more than 16 levels) are **pinholes where the background shows through the surface**. They are a **separate visual error of the greedy renderer, not an acceptable difference**: the geometry is equal, the rasterisation is not. Cause (identified from the pixel locations, not proven by a rasteriser trace): a merged quad has T-junctions, i.e. vertices of its neighbours lie in the middle of its edges, and the GPU does not guarantee that two triangles meeting at a T-junction cover exactly the same pixels along the shared line. `faces` has every vertex on the unit lattice and is watertight; the remaining 1-level colour differences are shading rounding.
+
+Fix not implemented. The standard fix (emit every lattice vertex on a quad's boundary and fan-triangulate, so no T-junction remains) was estimated in `render_bench` for the 5x5 area: 17 374 vertices and **13 954 triangles** instead of 3 420 (faces: 24 292), i.e. it would give up about 75% of the triangle saving (greedy would be 1.7x smaller than faces instead of 7.1x). Other options (crack-hiding skirts, slight quad overlap, shared-vertex indexing along long edges) were not tried. **Greedy must therefore not be called fully visually equivalent to faces.** `faces` remains the visual reference.
+
+Smoke thresholds (so the test documents rather than hides the defect): over all views at most 0.01% of the pixels may differ; for the default view also at most 0.001% may differ visibly (view 4 on Android has 43 visible pixels of 1 977 600, i.e. above 0.001%, and is only reported). The actual counts are printed on every run.
+
+## 26. ARM64 emulator crash: isolation (status: inconclusive)
+
+**What happened:** after the greedy commit, every launch of the ARM64 APK on the translated emulator ended in `SIGSEGV` in the render thread (`GLThread`, in `libndk_translation.so`, `berberis_HandleNoExec`), after which the process hung and Android showed "not responding" (ANR). These crashes were first treated as an emulator artefact; the isolation below shows that was premature in the sense that **our test code triggers it**, although the failing component is the emulator's translator. Raw files: `docs/spike/rust-world-generation/arm64-isolation/` (`runs/*.runs.txt` verdict per run, `runs/*.tombstone.txt` crash stack, `logs/` selected logcat, `scripts/iso_run.sh` harness, `minimal-godot/` project, `runs/native-rust-tests.txt`).
+
+**Method:** each launch is one counted run (force-stop, clear logcat, set properties, start, wait for the ready marker, a fatal signal, an ANR, or 10 minutes). No run was retried or hidden; the table gives every launch. "Exit code": an Android app has none, so the table records whether the process was alive at the end, plus signal and ANR flags; native test binaries have real exit codes.
+
+| # | Isolation step | Runs | OK | Failed | Signals |
+|---|---|---|---|---|---|
+| 1 | Godot headless without a graphics context on ARM64 | not possible | | | The release export ignores command-line intent extras (`--esa command_line_params` shows `parameters []`); no headless Godot on Android here. Replaced by step 2 |
+| 2 | **Our Rust code only, no Godot, no graphics**: all test binaries natively under the ARM64 translation (and on x86_64), 3 repetitions | ARM64: 3 x 10 binaries (92 tests per round); x86_64: same | **30 of 30 binaries on each ABI (92 tests per round)** | 0 (the `dependency_rules` binary fails identically on both ABIs, 6 of 6, because it reads the repository sources that do not exist on the device) | none |
+| 3a | Minimal Godot scene (a Label), no GDExtension, ARM64, one `OS.execute("getprop")` | 4 | 3 | 1 | SIGSEGV 1 |
+| 3b | Minimal 3D scene (meshes, MultiMesh, light), no GDExtension, ARM64, one `OS.execute` | 4 + 10 = 14 | 11 | 3 | SIGSEGV 1, SIGABRT 2 |
+| 3c | Minimal 3D scene, **no `OS.execute`**, ARM64 | 10 | **10** | **0** | none |
+| 3d | Minimal 3D scene, **four `OS.execute` calls**, ARM64 | 9 (run 10 discarded: another harness overlapped) | 0 | **9** | SIGSEGV 9 (all in `berberis_HandleNoExec`) |
+| 4 | Our app, `cubes`, ARM64, `OS.execute` (2 calls) | 4 | 0 | 4 | SIGSEGV 4 (3 in `berberis_HandleNoExec`) |
+| 4 | Our app, `faces`, same | 4 | 0 | 4 | SIGSEGV 4 (3) |
+| 4 | Our app, `greedy`, same | 4 | 0 | 4 | SIGSEGV 4 (3) |
+| 4b | Earlier launches of the same APKs (greedy commit, with retry logic) | 15 | 0 | 15 | SIGSEGV/ANR detected |
+| 5 | Our app, **no `OS.execute`** ("noexec" presets), ARM64: `cubes` / `faces` / `greedy` | 3 / 3 / 3 | **9** | **0** | none; every run finished the full smoke, `failures=0` |
+| 6 | Same noexec APKs on **x86_64** (no translation): `cubes` / `faces` / `greedy` | 2 / 2 / 2 | **6** | 0 | none; `failures=0` |
+| 6b | Earlier x86_64 launches of the `OS.execute` APK (greedy stage) | 5 | 5 | 0 | none |
+
+**Reading:** the crash rate follows the number of `OS.execute` calls (child processes forked by Godot) in the translated process, in a project that contains no Rust and no GDExtension at all: 0 of 10 with none, 4 of 18 with one, 9 of 9 with four; our client made two (renderer and rebuild-policy properties) and failed 27 of 27 times; with the calls removed the same code passes 9 of 9. The same `OS.execute` APK never crashed on x86_64 without translation. So: (a) the cause is **not our Rust code and not our scene**, and the crash is **not caused by greedy** (cubes crashes identically); (b) the trigger is **our test harness code** (`OS.execute("getprop")` to select the renderer and the rebuild policy through system properties), which forks a child while the render thread runs; (c) the component that fails is the emulator's ARM-to-x86 translator, whose handling of fork in a multi-threaded process is the plausible cause (not proven: no root cause inside `libndk_translation` was established, and the crash types vary, SIGSEGV and SIGABRT). Consequence for earlier stages: some of the ARM64 runs that "did not finish" in sections 20-21 were most likely such crashes, which makes the single-run ARM64 numbers there less reliable than stated.
+
+**What was changed:** the renderer and the policy can now also be chosen by custom feature ("faces", "greedy") and the "noexec" validation presets never call `OS.execute`; the property mechanism remains for the x86_64 emulator and is documented in `world.gd`. The six "noexec" presets were added to `export_presets.cfg`.
+
+**What this does not show:** this is still only an emulator. The noexec ARM64 runs (9 of 9) are the first complete ARM64 smoke results with several repetitions since this stage began, but they run under instruction translation on an x86_64 host, rendering through a host GPU translator; they say nothing about a real ARM64 phone. **ARM64 validation status: `inconclusive`.** A physical ARM64 device is required.
+
+## 27. Limitations, remaining problems, readiness
+
+* **Visual defect** (section 25): pinholes through greedy meshes at T-junctions; not fixed.
+* **Greedy does not merge across sections:** more quads than a chunk-wide merge (1 710 quads for 12 146 faces); quads on the brick boundary stay separate.
+* **Greedy build cost in Rust is +17%;** on the emulators its CPU-time effect is within noise.
+* **Peak memory** comparison across modes is confounded by the test phases (section 23).
+* **Single-voxel local patching** of a section is still not done: every Edit rebuilds a whole section (0.1 ms desktop, a few ms on the emulators).
+* **Test harness** forked processes on Android; fixed for the validation presets, but the property mechanism still exists.
+* **Emulator only;** no physical ARM64 phone and no iOS; nothing here is mobile-ready.
+
+**Readiness of greedy as the renderer for the next stage:** geometrically yes (exact, deterministic, incremental-safe, 7x fewer triangles and 7x less mesh data), **visually no** until the T-junction pinholes are fixed or accepted by the owner: the choice is between about 7x fewer triangles with a few visible pixels per frame and a T-junction-free mesh with about 1.7x fewer triangles. Recommendation: keep `faces` as the reference and the safe default, keep `greedy` experimental, decide the T-junction trade-off explicitly (owner decision) and repeat the check on a physical ARM64 phone before any mobile claim.
+
+## 28. Not for `master` without a separate owner decision
+
+Everything in this branch remains experimental. In particular from this stage: the greedy mesher and its `Quad` format; the spike-local inverse-edit journal (`undo`/`redo`) and `fill_box` in the adapter (writes through the Core commit primitive outside the Editing API); `world-state-v0` and the terrain/chunk layout (unchanged but still unapproved); the world-generation API, `CubeWorld`/`WorldBridge`; the Android validation presets (debug-key signing) and the harness scripts; the `OS.execute`-based property mechanism. Nothing touching RevisionToken, undo semantics, persistence format, TCP protocol, ACR-001/002/003 or P0/P1 status was changed.

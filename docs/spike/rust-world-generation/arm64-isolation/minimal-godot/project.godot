@@ -1,0 +1,16 @@
+; Minimal isolation project: no GDExtension, no Rust. Same rendering settings as the Cube client.
+config_version=5
+
+[application]
+
+config/name="Cube Minimal Isolation"
+run/main_scene="res://main.tscn"
+config/icon="res://icon.svg"
+config/features=PackedStringArray("4.3", "GL Compatibility")
+
+[rendering]
+
+textures/vram_compression/import_etc2_astc=true
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"

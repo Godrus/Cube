@@ -1,0 +1,5 @@
+label=arm64_app_greedy run=1 verdict=SIGSEGV sigsegv=yes anr=no process_alive_at_end=no secs=10 am_start=[Status: ok TotalTime: 4612 ]
+label=arm64_app_greedy run=2 verdict=SIGSEGV sigsegv=yes anr=no process_alive_at_end=yes secs=10 am_start=[Status: ok TotalTime: 4708 ]
+label=arm64_app_greedy run=3 verdict=SIGSEGV sigsegv=yes anr=no process_alive_at_end=yes secs=10 am_start=[Status: ok TotalTime: 4591 ]
+label=arm64_app_greedy run=4 verdict=SIGSEGV sigsegv=yes anr=no process_alive_at_end=yes secs=10 am_start=[Status: ok TotalTime: 4640 ]
+SUMMARY label=arm64_app_greedy runs=4 ok=0 failed=4

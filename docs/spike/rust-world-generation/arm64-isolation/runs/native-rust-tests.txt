@@ -1,0 +1,66 @@
+rep=1 abi=aarch64 test=cube_core EXIT=0 | test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s 
+rep=1 abi=aarch64 test=cube_worldgen EXIT=0 | test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s 
+rep=1 abi=aarch64 test=world EXIT=0 | test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.79s 
+rep=1 abi=aarch64 test=determinism EXIT=0 | test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.89s 
+rep=1 abi=aarch64 test=sections EXIT=0 | test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.43s 
+rep=1 abi=aarch64 test=chunk_mesh EXIT=0 | test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.13s 
+rep=1 abi=aarch64 test=greedy EXIT=0 | test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.72s 
+rep=1 abi=aarch64 test=world_bridge_flow EXIT=0 | test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.27s 
+rep=1 abi=aarch64 test=bridge_flow EXIT=0 | test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s 
+rep=1 abi=aarch64 test=cube_godot_adapter EXIT=0 | test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s 
+rep=1 abi=aarch64 test=dependency_rules EXIT=101 | test result: FAILED. 1 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s thread 'core_sources_mention_no_engine_types' (4483) panicked at crates\cube-core\tests\dependency_rules.rs:152:36:
+rep=1 abi=x86_64 test=cube_core EXIT=0 | test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s 
+rep=1 abi=x86_64 test=cube_worldgen EXIT=0 | test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s 
+rep=1 abi=x86_64 test=world EXIT=0 | test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s 
+rep=1 abi=x86_64 test=determinism EXIT=0 | test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.25s 
+rep=1 abi=x86_64 test=sections EXIT=0 | test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.65s 
+rep=1 abi=x86_64 test=chunk_mesh EXIT=0 | test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.39s 
+rep=1 abi=x86_64 test=greedy EXIT=0 | test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.76s 
+rep=1 abi=x86_64 test=world_bridge_flow EXIT=0 | test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s 
+rep=1 abi=x86_64 test=bridge_flow EXIT=0 | test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s 
+rep=1 abi=x86_64 test=cube_godot_adapter EXIT=0 | test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s 
+rep=1 abi=x86_64 test=dependency_rules EXIT=101 | test result: FAILED. 1 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s thread 'manifests_follow_allowed_edges' (4628) panicked at crates\cube-core\tests\dependency_rules.rs:85:65:
+rep=2 abi=aarch64 test=cube_core EXIT=0 | test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s 
+rep=2 abi=aarch64 test=cube_worldgen EXIT=0 | test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s 
+rep=2 abi=aarch64 test=world EXIT=0 | test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.61s 
+rep=2 abi=aarch64 test=determinism EXIT=0 | test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.89s 
+rep=2 abi=aarch64 test=sections EXIT=0 | test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.55s 
+rep=2 abi=aarch64 test=chunk_mesh EXIT=0 | test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.02s 
+rep=2 abi=aarch64 test=greedy EXIT=0 | test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.68s 
+rep=2 abi=aarch64 test=world_bridge_flow EXIT=0 | test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.28s 
+rep=2 abi=aarch64 test=bridge_flow EXIT=0 | test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s 
+rep=2 abi=aarch64 test=cube_godot_adapter EXIT=0 | test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s 
+rep=2 abi=aarch64 test=dependency_rules EXIT=101 | test result: FAILED. 1 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s thread 'core_sources_mention_no_engine_types' (4770) panicked at crates\cube-core\tests\dependency_rules.rs:152:36:
+rep=2 abi=x86_64 test=cube_core EXIT=0 | test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s 
+rep=2 abi=x86_64 test=cube_worldgen EXIT=0 | test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s 
+rep=2 abi=x86_64 test=world EXIT=0 | test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s 
+rep=2 abi=x86_64 test=determinism EXIT=0 | test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s 
+rep=2 abi=x86_64 test=sections EXIT=0 | test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.53s 
+rep=2 abi=x86_64 test=chunk_mesh EXIT=0 | test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.65s 
+rep=2 abi=x86_64 test=greedy EXIT=0 | test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.75s 
+rep=2 abi=x86_64 test=world_bridge_flow EXIT=0 | test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s 
+rep=2 abi=x86_64 test=bridge_flow EXIT=0 | test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s 
+rep=2 abi=x86_64 test=cube_godot_adapter EXIT=0 | test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s 
+rep=2 abi=x86_64 test=dependency_rules EXIT=101 | test result: FAILED. 1 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s thread 'core_sources_mention_no_engine_types' (4903) panicked at crates\cube-core\tests\dependency_rules.rs:152:36:
+rep=3 abi=aarch64 test=cube_core EXIT=0 | test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s 
+rep=3 abi=aarch64 test=cube_worldgen EXIT=0 | test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s 
+rep=3 abi=aarch64 test=world EXIT=0 | test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.50s 
+rep=3 abi=aarch64 test=determinism EXIT=0 | test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.88s 
+rep=3 abi=aarch64 test=sections EXIT=0 | test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.26s 
+rep=3 abi=aarch64 test=chunk_mesh EXIT=0 | test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.14s 
+rep=3 abi=aarch64 test=greedy EXIT=0 | test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.84s 
+rep=3 abi=aarch64 test=world_bridge_flow EXIT=0 | test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.25s 
+rep=3 abi=aarch64 test=bridge_flow EXIT=0 | test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s 
+rep=3 abi=aarch64 test=cube_godot_adapter EXIT=0 | test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s 
+rep=3 abi=aarch64 test=dependency_rules EXIT=101 | test result: FAILED. 1 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s thread 'manifests_follow_allowed_edges' (5084) panicked at crates\cube-core\tests\dependency_rules.rs:85:65:
+rep=3 abi=x86_64 test=cube_core EXIT=0 | test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s 
+rep=3 abi=x86_64 test=cube_worldgen EXIT=0 | test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s 
+rep=3 abi=x86_64 test=world EXIT=0 | test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s 
+rep=3 abi=x86_64 test=determinism EXIT=0 | test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s 
+rep=3 abi=x86_64 test=sections EXIT=0 | test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.66s 
+rep=3 abi=x86_64 test=chunk_mesh EXIT=0 | test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.44s 
+rep=3 abi=x86_64 test=greedy EXIT=0 | test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.76s 
+rep=3 abi=x86_64 test=world_bridge_flow EXIT=0 | test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s 
+rep=3 abi=x86_64 test=bridge_flow EXIT=0 | test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s 
+rep=3 abi=x86_64 test=cube_godot_adapter EXIT=0 | test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s 
+rep=3 abi=x86_64 test=dependency_rules EXIT=101 | test result: FAILED. 1 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s thread 'manifests_follow_allowed_edges' (5217) panicked at crates\cube-core\tests\dependency_rules.rs:85:65:

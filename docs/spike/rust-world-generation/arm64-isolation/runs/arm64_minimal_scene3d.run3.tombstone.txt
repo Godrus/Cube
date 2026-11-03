@@ -1,0 +1,15 @@
+11-03 20:02:14.112  6190  6190 F DEBUG   : pid: 6144, ppid: 461, tid: 6168, name: GLThread 47  >>> org.cube.spike.minimal <<<
+11-03 20:02:14.112  6190  6190 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+11-03 20:02:14.112  6190  6190 F DEBUG   :       #00 pc 000000000005abbd  /apex/com.android.runtime/lib64/bionic/libc.so (abort+189) (BuildId: d1b828abad37e2f4848b723dcce5ed11)
+11-03 20:02:14.112  6190  6190 F DEBUG   :       #01 pc 0000000000a045dd  /apex/com.android.art/lib64/libart.so (art::Runtime::Abort(char const*)+1517) (BuildId: 14d04bdd38616689d10173d998e13bd0)
+11-03 20:02:14.112  6190  6190 F DEBUG   :       #02 pc 000000000001659e  /apex/com.android.art/lib64/libbase.so (android::base::SetAborter(std::__1::function<void (char const*)>&&)::$_0::__invoke(char const*)+62) (BuildId: 088c2ecb5ce70fb052c4951eac35c347)
+11-03 20:02:14.112  6190  6190 F DEBUG   :       #03 pc 000000000000c33b  /system/lib64/liblog.so (__android_log_assert+315) (BuildId: a6b24221283e3cd0aa02b70ad0b95e8d)
+11-03 20:02:14.112  6190  6190 F DEBUG   :       #04 pc 00000000007e180b  /system/lib64/libndk_translation.so (berberis::ExecRegion::Write(unsigned char const*, void const*, unsigned long)+91) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:02:14.112  6190  6190 F DEBUG   :       #05 pc 00000000003ccfe7  /system/lib64/libndk_translation.so (berberis::CodePool<berberis::ExecRegionAnonymousFactory>::Add(berberis::MachineCode*)+231) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:02:14.112  6190  6190 F DEBUG   :       #06 pc 00000000003cc3f2  /system/lib64/libndk_translation.so (berberis::TryLiteTranslateAndInstallRegion(unsigned long, berberis::LiteTranslatorParams)+306) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:02:14.112  6190  6190 F DEBUG   :       #07 pc 00000000003ccb58  /system/lib64/libndk_translation.so (void berberis::TranslateRegion<(berberis::(anonymous namespace)::TranslationGear)0>(unsigned long) (.llvm.489602607311479994)+456) (BuildId: 062a896d
+11-03 20:02:14.112  6190  6190 F DEBUG   :       #08 pc 00000000003cb85c  /system/lib64/libndk_translation.so (berberis::ExecuteGuest(berberis::ThreadState*)+236) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:02:14.112  6190  6190 F DEBUG   :       #09 pc 00000000003cba2c  /system/lib64/libndk_translation.so (berberis::ExecuteGuestCall(berberis::ThreadState*)+140) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:02:14.112  6190  6190 F DEBUG   :       #10 pc 00000000003cc123  /system/lib64/libndk_translation.so (berberis::RunGuestCall(unsigned long, berberis::GuestArgumentBuffer*)+195) (BuildId: 062a896d948cc468a865033a6bc04fa7)
+11-03 20:02:14.112  6190  6190 F DEBUG   :       #11 pc 0000000000000bce  /memfd:exec (deleted)
+11-03 20:02:14.120  6190  6190 F DEBUG   :       #00 pc 0000000000000000  <unknown>
