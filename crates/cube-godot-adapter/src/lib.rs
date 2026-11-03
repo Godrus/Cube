@@ -332,6 +332,36 @@ impl CubeWorld {
         mesh_to_godot(self.bridge.section_mesh(cx, bi, cz)?)
     }
 
+    /// Greedy mesh of a section (merged quads, same material only); see `WorldBridge::section_quads`.
+    #[func]
+    fn section_mesh_greedy(
+        &self,
+        cx: i32,
+        bi: i32,
+        cz: i32,
+    ) -> Option<Gd<godot::classes::ArrayMesh>> {
+        mesh_to_godot(self.bridge.section_mesh_greedy(cx, bi, cz)?)
+    }
+
+    /// `[quads, covered unit faces]` of the greedy mesh of a section (`[-1, -1]` if the chunk is not ready).
+    #[func]
+    fn section_greedy_stats(&self, cx: i32, bi: i32, cz: i32) -> PackedInt32Array {
+        match self.bridge.section_mesh_greedy(cx, bi, cz) {
+            Some(m) => [m.faces as i32, m.area as i32].into_iter().collect(),
+            None => [-1, -1].into_iter().collect(),
+        }
+    }
+
+    /// Fills the box (inclusive corners) with a material; one undo step; returns changed voxels.
+    #[func]
+    fn fill_box(&mut self, from: Vector3i, to: Vector3i, material: i32) -> i32 {
+        self.bridge.fill_box(
+            [from.x, from.y, from.z],
+            [to.x, to.y, to.z],
+            material as u16,
+        ) as i32
+    }
+
     /// Visible faces of a section (-1 if the chunk is not ready).
     #[func]
     fn section_face_count(&self, cx: i32, bi: i32, cz: i32) -> i32 {

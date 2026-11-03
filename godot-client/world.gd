@@ -5,7 +5,9 @@ extends Node3D
 ##   godot --headless --path godot-client world.tscn -- --world-smoke   scripted check, exits 0/1
 ##   godot --path godot-client world.tscn -- --world-smoke              same check with a real renderer (timings, screenshot)
 ## Renderer: "cubes" (control: one MultiMesh cube per voxel) or "faces" (experimental: one mesh of the visible faces
-## per section). Choose with --renderer=faces or the custom feature "faces"; the Renderer button switches at run time.
+## per section) or "greedy" (experimental: the visible faces of a section merged into maximal same-material
+## rectangles). Choose with --renderer=<mode>, the custom feature "faces"/"greedy" or, on Android,
+## `setprop debug.cube.renderer <mode>`; the Renderer button cycles cubes -> faces -> greedy at run time.
 ## A chunk (16x32x16) has two mesh sections, one per 16^3 brick. After an edit the faces renderer rebuilds, by
 ## --rebuild=<policy> (Android: `setprop debug.cube.rebuild <policy>`):
 ##   partial (default)  only the dirty sections reported by Rust (edited voxel + its six face neighbours)
@@ -44,7 +46,12 @@ func _ready() -> void:
 			get_tree().quit(1)
 		return
 	world = ClassDB.instantiate("CubeWorld")
-	if OS.has_feature("faces") or "--renderer=faces" in OS.get_cmdline_user_args():
+	var rmode := _renderer_arg()
+	if rmode in ["cubes", "faces", "greedy"]:
+		renderer = rmode
+	elif OS.has_feature("greedy"):
+		renderer = "greedy"
+	elif OS.has_feature("faces"):
 		renderer = "faces"
 	var arg := _rebuild_arg()
 	if arg in ["partial", "chunk", "all"]:
@@ -58,6 +65,21 @@ func _ready() -> void:
 		smoke_running = false
 	else:
 		_stream()
+
+## Renderer requested from outside: --renderer=<m>, or on Android the system property debug.cube.renderer.
+func _renderer_arg() -> String:
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--renderer="):
+			return a.substr(11)
+	if OS.get_name() == "Android":
+		var out := []
+		OS.execute("getprop", ["debug.cube.renderer"], out)
+		if out.size() > 0:
+			return String(out[0]).strip_edges()
+	return ""
+
+func _is_mesh() -> bool:
+	return renderer != "cubes"
 
 ## Rebuild policy requested from outside: --rebuild=<p>, or on Android the system property debug.cube.rebuild.
 func _rebuild_arg() -> String:
@@ -158,19 +180,19 @@ func _apply_delta() -> void:
 	var added: PackedInt32Array = world.take_added()
 	for i in range(0, added.size(), 2):
 		var k := Vector2i(added[i], added[i + 1])
-		if renderer == "faces":
+		if _is_mesh():
 			_ensure_container(k)
 		_mark_chunk(dirty, k)
 		_mark_neighbours(dirty, k)
 	var modified: PackedInt32Array = world.take_modified()
 	var touched: PackedInt32Array = world.take_border_touched()
 	var secs: PackedInt32Array = world.take_dirty_sections()
-	if renderer == "faces" and rebuild_policy == "partial":
+	if _is_mesh() and rebuild_policy == "partial":
 		# Rust reports exactly the sections whose faces can change (voxel + six face neighbours).
 		for i in range(0, secs.size(), 3):
 			if chunks.has(Vector2i(secs[i], secs[i + 2])):
 				dirty[Vector3i(secs[i], secs[i + 1], secs[i + 2])] = true
-	elif renderer == "faces" and rebuild_policy == "chunk":
+	elif _is_mesh() and rebuild_policy == "chunk":
 		for i in range(0, modified.size(), 2):
 			_mark_chunk(dirty, Vector2i(modified[i], modified[i + 1]))
 		for i in range(0, touched.size(), 2):
@@ -181,7 +203,7 @@ func _apply_delta() -> void:
 		for i in range(0, modified.size(), 2):
 			var k := Vector2i(modified[i], modified[i + 1])
 			_mark_chunk(dirty, k)
-			if renderer == "faces":              # rebuild policy "all"
+			if _is_mesh():                       # rebuild policy "all"
 				_mark_neighbours(dirty, k)
 	last_rebuilt = dirty.size()
 	var chunk_set := {}
@@ -189,13 +211,13 @@ func _apply_delta() -> void:
 		chunk_set[Vector2i(k.x, k.z) if k is Vector3i else k] = true
 	last_rebuilt_chunks = chunk_set.size()
 	for k in dirty:
-		if renderer == "faces":
+		if _is_mesh():
 			_build_section(k)
 		else:
 			_build_chunk(k)
 
 func _mark_chunk(dirty: Dictionary, k: Vector2i) -> void:
-	if renderer == "faces":
+	if _is_mesh():
 		dirty[Vector3i(k.x, 0, k.y)] = true
 		dirty[Vector3i(k.x, 1, k.y)] = true
 	else:
@@ -204,7 +226,7 @@ func _mark_chunk(dirty: Dictionary, k: Vector2i) -> void:
 ## A face-culled mesh depends on the four neighbouring chunks (border faces): for added or removed chunks and
 ## for the "all" policy every loaded neighbour is rebuilt.
 func _mark_neighbours(dirty: Dictionary, k: Vector2i) -> void:
-	if renderer != "faces":
+	if not _is_mesh():
 		return
 	for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
 		if chunks.has(k + d):
@@ -230,7 +252,7 @@ func _drop_chunk(k: Vector2i) -> void:
 ## Faces renderer: replaces the mesh of one section (brick) of a chunk.
 func _build_section(s: Vector3i) -> void:
 	var t0 := Time.get_ticks_usec()
-	var mesh: ArrayMesh = world.section_mesh(s.x, s.y, s.z)
+	var mesh: ArrayMesh = world.section_mesh_greedy(s.x, s.y, s.z) if renderer == "greedy" else world.section_mesh(s.x, s.y, s.z)
 	var t1 := Time.get_ticks_usec()
 	var key := Vector2i(s.x, s.z)
 	if sec_nodes.has(s):
@@ -286,18 +308,22 @@ func _drawn_triangles() -> int:
 	return _drawn_elements() * (12 if renderer == "cubes" else 2)
 
 func _on_mode() -> void:
-	renderer = "faces" if renderer == "cubes" else "cubes"
+	_set_renderer({"cubes": "faces", "faces": "greedy", "greedy": "cubes"}[renderer])
+
+## Switches the renderer in the running app: every chunk is rebuilt in the new mode.
+func _set_renderer(mode: String) -> void:
+	renderer = mode
 	_update_mode_button()
 	_clear_chunks()
 	var a: PackedInt32Array = world.active_chunks()
 	var dirty := {}
 	for i in range(0, a.size(), 2):
 		var k := Vector2i(a[i], a[i + 1])
-		if renderer == "faces":
+		if _is_mesh():
 			_ensure_container(k)
 		_mark_chunk(dirty, k)
 	for k in dirty:
-		if renderer == "faces":
+		if _is_mesh():
 			_build_section(k)
 		else:
 			_build_chunk(k)
@@ -435,12 +461,15 @@ func _smoke() -> void:
 	var ms5 := (Time.get_ticks_usec() - t0) / 1000.0
 	_check("5x5 chunks active", world.active_count() == 25 and chunks.size() == 25)
 	print("WORLDTEST TIME first_5x5 mode=%s total_ms=%.2f build_ms_per_chunk=%.2f voxels=%d drawn=%d triangles=%d" % [renderer, ms5, _avg(update_us) / 1000.0, world.active_voxels(), _drawn_elements(), _drawn_triangles()])
-	if renderer == "faces":
-		_check("visible faces are far fewer than cube faces", _drawn_elements() * 10 < world.active_voxels() * 6, "faces=%d cube_faces=%d" % [_drawn_elements(), world.active_voxels() * 6])
+	print("WORLDTEST GEOM mode=%s elements=%d triangles=%d mesh_bytes=%d voxels=%d nodes=%d" % [renderer, _drawn_elements(), _drawn_triangles(), _mesh_bytes(), world.active_voxels(), _node_count()])
+	if _is_mesh():
+		_check("drawn elements are far fewer than cube faces", _drawn_elements() * 10 < world.active_voxels() * 6, "elements=%d cube_faces=%d" % [_drawn_elements(), world.active_voxels() * 6])
 		var sum := 0
 		for k in chunks:
 			sum += world.chunk_face_count(k.x, k.y)
-		_check("face count from Rust equals drawn", sum == _drawn_elements())
+		var totals := _geom_totals()
+		_check("covered unit faces from Rust equal the visible faces", totals["area"] == sum, "%d vs %d" % [totals["area"], sum])
+		_check("no stale section after the first fill", totals["stale"] == 0)
 	else:
 		_check("one cube instance per voxel", _drawn_elements() == world.active_voxels())
 	await _frames(60)
@@ -450,8 +479,9 @@ func _smoke() -> void:
 	print("WORLDTEST FPS 5x5 mode=%s fps=%.0f (headless/dummy renderer fps is not a rendering result)" % [renderer, fps])
 	print("WORLDTEST MEM mode=%s static_mb=%.1f video_mb=%.1f draw_calls=%d primitives=%d" % [renderer, OS.get_static_memory_usage() / 1048576.0, RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_VIDEO_MEM_USED) / 1048576.0, RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME), RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME)])
 	await _shot(shot_dir + "/world-%s-3-5x5.png" % renderer, Vector3(0, 70, 80))
-	if renderer == "faces":
+	if _is_mesh():
 		await _edit_bench(shot_dir)
+		await _renderer_matrix(shot_dir)
 	print("WORLDTEST SUMMARY failures=%d" % _failures)
 	# Mobile validation exports (custom feature "worldtest") stay alive so memory can be read from outside.
 	if OS.has_feature("worldtest") and not ("--world-smoke" in OS.get_cmdline_user_args()):
@@ -487,9 +517,134 @@ func _stale_sections() -> int:
 	for k in chunks:
 		for bi in 2:
 			var want: int = world.section_face_count(k.x, bi, k.y)
+			if renderer == "greedy":
+				want = world.section_greedy_stats(k.x, bi, k.y)[0]
 			if drawn.get(Vector3i(k.x, bi, k.y), 0) != maxi(want, 0):
 				n += 1
 	return n
+
+## Visible unit faces covered by the current meshes (greedy: sum of quad areas), drawn elements, stale sections.
+func _geom_totals() -> Dictionary:
+	var area := 0
+	for k in chunks:
+		for bi in 2:
+			if renderer == "greedy":
+				area += maxi(world.section_greedy_stats(k.x, bi, k.y)[1], 0)
+			else:
+				area += maxi(world.section_face_count(k.x, bi, k.y), 0)
+	return {"area": area, "elements": _drawn_elements(), "stale": _stale_sections()}
+
+func _mesh_bytes() -> int:
+	if renderer == "cubes":
+		return _drawn_elements() * 64
+	return _drawn_elements() * (4 * 40 + 6 * 4)        # 4 vertices (position, normal, colour = 40 B) + 6 indices
+
+func _node_count() -> int:
+	return sec_nodes.size() if _is_mesh() else chunks.size()
+
+## Compares the 3D area (below the HUD strip, which shows a live fps number): returns Vector3i(pixels of the 3D
+## area, pixels that differ at all, pixels that differ by more than 16 in some channel). -1 for different sizes.
+func _diff_images(x: Image, y: Image) -> Vector3i:
+	var w: int = x.get_width()
+	var a: PackedByteArray = x.get_data()
+	var b: PackedByteArray = y.get_data()
+	var stride: int = a.size() / (w * x.get_height())
+	var start := 130 * w * stride
+	var area := w * (x.get_height() - 130)
+	if a.size() != b.size():
+		return Vector3i(area, -1, -1)
+	if a.slice(start) == b.slice(start):
+		return Vector3i(area, 0, 0)
+	var diff := 0
+	var big := 0
+	for i in range(start, a.size() - 3, stride):
+		var d := maxi(maxi(absi(a[i] - b[i]), absi(a[i + 1] - b[i + 1])), absi(a[i + 2] - b[i + 2]))
+		if d > 0:
+			diff += 1
+			if d > 16:
+				big += 1
+	return Vector3i(area, diff, big)
+
+## faces vs greedy rasterise the same geometry but not bit-identically: a merged quad has T-junctions with its
+## neighbours, so a few edge pixels differ (rounding by one level, rarely a pinhole). Accepted: at most 0.01% of
+## the 3D area differ and at most 0.001% differ visibly; reported exactly in the log.
+func _images_equivalent(d: Vector3i) -> bool:
+	return d.y >= 0 and d.y * 10000 <= d.x and d.z * 100000 <= d.x
+
+## The same user session in the given renderer: Fill, Edit inside a section, on a brick boundary, on a chunk border,
+## 3x3x3 Edit, Undo, Redo, Jump, Save, wander off, Load. Checks no stale section after every step.
+func _session(mode: String, tag: String) -> Dictionary:
+	renderer = mode
+	rebuild_policy = "partial"
+	world.create(SEED, 2)
+	_clear_chunks()
+	_place_player(8.5, 8.5)
+	_stream()
+	var steps := []
+	var tt := Time.get_ticks_usec()
+	var filled: int = world.fill_box(Vector3i(12, 20, 12), Vector3i(20, 22, 20), 4)            # Fill across two chunk borders
+	_apply_delta()
+	steps.append(["fill", filled, last_rebuilt])
+	for e in [[8, 10, 8], [8, 15, 8], [15, 10, 8], [15, 15, 15]]:         # section / brick / chunk border / corner
+		world.edit_voxel(e[0], e[1], e[2], 4)
+		_apply_delta()
+		steps.append(["edit_%d_%d_%d" % [e[0], e[1], e[2]], 1, last_rebuilt])
+	world.edit_around(-8, 14, -8)
+	_apply_delta()
+	steps.append(["edit_block", 27, last_rebuilt])
+	world.undo()
+	_apply_delta()
+	steps.append(["undo", 0, last_rebuilt])
+	world.undo()
+	_apply_delta()
+	world.redo()
+	_apply_delta()
+	steps.append(["redo", 0, last_rebuilt])
+	var path := ProjectSettings.globalize_path("user://world_%s.wst0" % tag)
+	_check("%s: save" % mode, world.save(path), world.last_error())
+	var before_totals := _geom_totals()
+	_place_player(8.5 + 64.0, 8.5)                                         # Jump
+	_stream()
+	steps.append(["jump", 0, last_rebuilt])
+	_check("%s: no stale section after jump" % mode, _stale_sections() == 0)
+	_check("%s: load" % mode, world.load(path), world.last_error())
+	_clear_chunks()
+	_apply_delta()
+	_place_player(8.5, 8.5)
+	_stream()
+	var after_totals := _geom_totals()
+	for st in steps:
+		print("WORLDTEST STEP mode=%s %s changed=%d rebuilt_sections=%d" % [mode, st[0], st[1], st[2]])
+	_check("%s: no stale section after load" % mode, after_totals["stale"] == 0, "%s" % [after_totals])
+	_check("%s: load restores the saved geometry" % mode, after_totals["area"] == before_totals["area"], "%d vs %d" % [after_totals["area"], before_totals["area"]])
+	print("WORLDTEST SESSION mode=%s total_ms=%.1f area=%d elements=%d" % [mode, (Time.get_ticks_usec() - tt) / 1000.0, after_totals["area"], after_totals["elements"]])
+	return after_totals
+
+## faces and greedy must show the same geometry and the same picture, also after switching in a running app.
+func _renderer_matrix(shot_dir: String) -> void:
+	var fa := _session("faces", "m_faces")
+	var img_f: Image = await _capture(Vector3(0, 40, 48))
+	_set_renderer("greedy")                                                  # switch in the running app
+	var sw := _geom_totals()
+	_check("switch faces -> greedy keeps the covered geometry", sw["area"] == fa["area"] and sw["stale"] == 0, "%s vs %s" % [sw, fa])
+	_check("greedy draws fewer elements than faces", sw["elements"] * 3 < fa["elements"], "%d vs %d" % [sw["elements"], fa["elements"]])
+	var img_s: Image = await _capture(Vector3(0, 40, 48))
+	var ga := _session("greedy", "m_greedy")
+	var img_g: Image = await _capture(Vector3(0, 40, 48))
+	_check("greedy session covers the same geometry as faces", ga["area"] == fa["area"], "%d vs %d" % [ga["area"], fa["area"]])
+	if img_f != null:
+		var d1 := _diff_images(img_f, img_s)
+		var d2 := _diff_images(img_f, img_g)
+		print("WORLDTEST IMAGE faces vs greedy(after switch): of %d px %d differ, %d by more than 16; faces vs greedy(session): %d differ, %d by more than 16" % [d1.x, d1.y, d1.z, d2.y, d2.z])
+		_check("faces and greedy pictures equivalent after switching", _images_equivalent(d1))
+		_check("faces and greedy pictures equivalent after the same session", _images_equivalent(d2))
+		img_f.save_png(shot_dir + "/world-session-faces.png")
+		img_g.save_png(shot_dir + "/world-session-greedy.png")
+	_set_renderer("cubes")                                                   # cycle back through all modes
+	_check("cubes mode after switching has one node per chunk", chunks.size() == world.active_count() and _drawn_elements() == world.active_voxels())
+	_set_renderer("faces")
+	var back := _geom_totals()
+	_check("switch back to faces keeps the geometry", back["area"] == fa["area"] and back["stale"] == 0)
 
 func _capture(offset: Vector3) -> Image:
 	if DisplayServer.get_name() == "headless":
@@ -549,14 +704,23 @@ func _edit_bench(shot_dir: String) -> void:
 				if not changed:
 					_check("edit %s toggle %d changed" % [name, i], false)
 			var stale := _stale_sections()
-			print("WORLDTEST EDIT policy=%s scenario=%s avg_ms=%.2f rust_ms=%.2f node_ms=%.2f sections=%.1f chunks=%.1f faces=%d stale=%d" % [policy, name, total_us / 1000.0 / reps, rust_us / 1000.0 / reps, node_us / 1000.0 / reps, float(rebuilt) / reps, float(rebuilt_chunks) / reps, _drawn_elements(), stale])
+			print("WORLDTEST EDIT mode=" + renderer + " policy=%s scenario=%s avg_ms=%.2f rust_ms=%.2f node_ms=%.2f sections=%.1f chunks=%.1f faces=%d stale=%d" % [policy, name, total_us / 1000.0 / reps, rust_us / 1000.0 / reps, node_us / 1000.0 / reps, float(rebuilt) / reps, float(rebuilt_chunks) / reps, _drawn_elements(), stale])
 			_check("no stale mesh after %s edits (%s)" % [name, policy], stale == 0)
 			_check("%s edit rebuilds %d section(s) (%s)" % [name, want_sections[policy][name], policy], rebuilt == want_sections[policy][name] * reps, "rebuilt=%d" % rebuilt)
+		_reset_timers()
+		var tf := Time.get_ticks_usec()
+		var nf: int = world.fill_box(Vector3i(12, 20, 12), Vector3i(20, 22, 20), 4)
+		_apply_delta()
+		print("WORLDTEST FILL mode=%s policy=%s fill_ms=%.2f voxels=%d sections=%d chunks=%d rust_ms=%.2f node_ms=%.2f" % [renderer, policy, (Time.get_ticks_usec() - tf) / 1000.0, nf, last_rebuilt, last_rebuilt_chunks, rust_us / 1000.0, node_us / 1000.0])
+		_check("fill leaves no stale mesh (%s %s)" % [renderer, policy], _stale_sections() == 0)
+		world.undo()
+		_apply_delta()
+		_check("undo of the fill leaves no stale mesh (%s %s)" % [renderer, policy], _stale_sections() == 0)
 		_reset_timers()
 		var tb := Time.get_ticks_usec()
 		var n: int = world.edit_around(24, world.ground_height(24, 24) + 3, 24)
 		_apply_delta()
-		print("WORLDTEST EDIT policy=%s scenario=block3x3x3 avg_ms=%.2f rust_ms=%.2f node_ms=%.2f sections=%d chunks=%d faces=%d stale=%d voxels=%d" % [policy, (Time.get_ticks_usec() - tb) / 1000.0, rust_us / 1000.0, node_us / 1000.0, last_rebuilt, last_rebuilt_chunks, _drawn_elements(), _stale_sections(), n])
+		print("WORLDTEST EDIT mode=" + renderer + " policy=%s scenario=block3x3x3 avg_ms=%.2f rust_ms=%.2f node_ms=%.2f sections=%d chunks=%d faces=%d stale=%d voxels=%d" % [policy, (Time.get_ticks_usec() - tb) / 1000.0, rust_us / 1000.0, node_us / 1000.0, last_rebuilt, last_rebuilt_chunks, _drawn_elements(), _stale_sections(), n])
 		_check("3x3x3 block leaves no stale mesh (%s)" % policy, _stale_sections() == 0 and n == 27)
 
 		# Undo / redo of three edits (interior voxel, chunk border voxel, a 3x3x3 block in chunk -1,-1).
@@ -597,7 +761,7 @@ func _edit_bench(shot_dir: String) -> void:
 		_check("redo x3 leaves no stale mesh (%s)" % policy, stale_r == 0)
 		_check("redo x3 restores the edited face count (%s)" % policy, _drawn_elements() == faces_edited, "%d vs %d" % [_drawn_elements(), faces_edited])
 		_check("undo then redo move the same number of voxels (%s)" % policy, undone == redone and undone > 0, "%d vs %d" % [undone, redone])
-		print("WORLDTEST UNDO policy=%s undo_avg_ms=%.2f redo_avg_ms=%.2f undo_sections=%d redo_sections=%d rust_ms=%.2f node_ms=%.2f faces_before=%d edited=%d undone=%d" % [policy, undo_us / 3000.0, redo_us / 3000.0, undo_sections, redo_sections, undo_rust / 1000.0, undo_node / 1000.0, faces_before, faces_edited, faces_undone])
+		print("WORLDTEST UNDO mode=" + renderer + " policy=%s undo_avg_ms=%.2f redo_avg_ms=%.2f undo_sections=%d redo_sections=%d rust_ms=%.2f node_ms=%.2f faces_before=%d edited=%d undone=%d" % [policy, undo_us / 3000.0, redo_us / 3000.0, undo_sections, redo_sections, undo_rust / 1000.0, undo_node / 1000.0, faces_before, faces_edited, faces_undone])
 		finals[policy] = _drawn_elements()
 		print("WORLDTEST MEM edit policy=%s static_mb=%.1f" % [policy, OS.get_static_memory_usage() / 1048576.0])
 		var img: Image = await _capture(Vector3(0, 40, 48))
@@ -605,7 +769,7 @@ func _edit_bench(shot_dir: String) -> void:
 			images[policy] = img
 			if base_img != null:
 				_check("edits are visible in the picture (%s)" % policy, base_img.get_data() != img.get_data())
-			img.save_png(shot_dir + "/world-faces-edit-%s.png" % policy)
+			img.save_png(shot_dir + "/world-%s-edit-%s.png" % [renderer, policy])
 	if finals.size() > 1:
 		var ref: int = finals["partial"]
 		for p in finals:

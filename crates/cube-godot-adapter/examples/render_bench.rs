@@ -102,6 +102,38 @@ fn main() {
             median(&mut t_s0),
             median(&mut t_s1)
         );
+        // Greedy (per section, same-material rectangles) vs faces (unit faces), both built per section.
+        let (mut t_faces, mut t_greedy) = (Vec::new(), Vec::new());
+        let (mut gq, mut garea, mut gbytes) = (0usize, 0usize, 0usize);
+        for _ in 0..15 {
+            let (mut f, mut g) = (0.0, 0.0);
+            gq = 0;
+            garea = 0;
+            gbytes = 0;
+            for ch in &chunks {
+                for bi in 0..2 {
+                    let t = Instant::now();
+                    std::hint::black_box(b.section_mesh(ch[0], bi, ch[1]));
+                    f += t.elapsed().as_secs_f64();
+                    let t = Instant::now();
+                    let m = b.section_mesh_greedy(ch[0], bi, ch[1]).unwrap();
+                    g += t.elapsed().as_secs_f64();
+                    gq += m.faces;
+                    garea += m.area;
+                    gbytes += m.byte_size();
+                }
+            }
+            let n = chunks.len() as f64 / 1000.0;
+            t_faces.push(f / n);
+            t_greedy.push(g / n);
+        }
+        println!(
+            "  greedy: quads {gq} (covering {garea} unit faces)  triangles {}  arrays {} KB  build per chunk (2 sections): faces {:.3} ms, greedy {:.3} ms",
+            gq * 2,
+            gbytes / 1024,
+            median(&mut t_faces),
+            median(&mut t_greedy)
+        );
         let _ = FLOATS_PER_INSTANCE;
     }
 }

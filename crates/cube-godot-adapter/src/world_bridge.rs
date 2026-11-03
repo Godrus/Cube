@@ -31,7 +31,52 @@ pub struct ChunkMesh {
     /// `r, g, b, a` per vertex.
     pub colors: Vec<f32>,
     pub indices: Vec<u32>,
+    /// Drawable elements: unit faces for the `faces` mesh, merged quads for the `greedy` mesh.
     pub faces: usize,
+    /// Unit voxel faces covered (equals `faces` for the `faces` mesh; sum of quad areas for `greedy`).
+    pub area: usize,
+}
+
+/// One merged rectangle of coplanar voxel faces of one material (greedy mesh). `voxel` is the voxel
+/// with the smallest coordinates among the covered voxels; `size` is the extent in voxels along the
+/// face's `u` and `v` axes (see `FACES`: both are positive unit axes with `u x v = normal`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct Quad {
+    pub normal: [i32; 3],
+    pub voxel: [i32; 3],
+    pub size: [i32; 2],
+    pub material: u16,
+}
+
+/// One unit voxel face: the voxel, the outward normal and the material of the voxel.
+pub type UnitFace = ([i32; 3], [i32; 3], u16);
+
+impl Quad {
+    /// The positive `u` and `v` axes (as unit vectors) of the face this quad lies on.
+    pub fn axes(&self) -> ([i32; 3], [i32; 3]) {
+        let (_, u, v, _) = FACES
+            .iter()
+            .copied()
+            .find(|f| f.0 == self.normal)
+            .expect("normal is one of the six axis directions");
+        (u, v)
+    }
+
+    /// Unit faces covered by this quad.
+    pub fn unit_faces(&self) -> Vec<UnitFace> {
+        let (u, v) = self.axes();
+        let mut out = Vec::with_capacity((self.size[0] * self.size[1]) as usize);
+        for j in 0..self.size[1] {
+            for i in 0..self.size[0] {
+                let mut p = self.voxel;
+                for k in 0..3 {
+                    p[k] += i * u[k] + j * v[k];
+                }
+                out.push((p, self.normal, self.material));
+            }
+        }
+        out
+    }
 }
 
 impl ChunkMesh {
@@ -54,6 +99,7 @@ impl ChunkMesh {
         self.colors.extend_from_slice(&o.colors);
         self.indices.extend(o.indices.iter().map(|i| i + base));
         self.faces += o.faces;
+        self.area += o.area;
     }
 
     /// Hash of the face list (FNV-1a 64 over integer vertex positions, normals, indices and 8-bit
@@ -122,6 +168,24 @@ fn emit_faces(mesh: &mut ChunkMesh, p: VoxelPos, m: u16, hidden: impl Fn([i32; 3
         mesh.indices
             .extend_from_slice(&[base, base + 1, base + 2, base, base + 2, base + 3]);
         mesh.faces += 1;
+        mesh.area += 1;
+    }
+}
+
+const SEC_N: usize = 18;
+
+/// A section's own voxels and an 18^3 grid with one voxel of padding on every side.
+struct SectionData {
+    cells: Vec<(VoxelPos, u16)>,
+    grid: Vec<u16>,
+    ox: i32,
+    oy: i32,
+    oz: i32,
+}
+
+impl SectionData {
+    fn idx(x: i32, y: i32, z: i32) -> usize {
+        ((y + 1) as usize * SEC_N + (z + 1) as usize) * SEC_N + (x + 1) as usize
     }
 }
 
@@ -313,6 +377,22 @@ impl WorldBridge {
         n
     }
 
+    /// Fills the inclusive box with `material` (Ready chunks only, y clamped to the world); one undo
+    /// step. Returns how many voxels changed.
+    pub fn fill_box(&mut self, a: [i32; 3], b: [i32; 3], material: u16) -> usize {
+        let mut batch = Vec::new();
+        for y in a[1].min(b[1]).max(0)..=a[1].max(b[1]).min(CHUNK_HEIGHT - 1) {
+            for z in a[2].min(b[2])..=a[2].max(b[2]) {
+                for x in a[0].min(b[0])..=a[0].max(b[0]) {
+                    self.set_recorded(VoxelPos::new(x, y, z), material, &mut batch);
+                }
+            }
+        }
+        let n = batch.len();
+        self.finish_batch(batch);
+        n
+    }
+
     pub fn undo_depth(&self) -> usize {
         self.undo.len()
     }
@@ -429,10 +509,9 @@ impl WorldBridge {
         Some(mesh)
     }
 
-    /// Face mesh of one mesh section (brick `bi` of chunk `(cx, cz)`): only the faces of the section's
-    /// own voxels. `chunk_mesh(c)` equals section 0 appended with section 1 (same faces, same order).
-    /// Neighbouring voxels are read from the other brick of the chunk and the neighbouring chunks.
-    pub fn section_mesh(&self, cx: i32, bi: i32, cz: i32) -> Option<ChunkMesh> {
+    /// Cells of one section plus a padded 18^3 grid (the section, one voxel of its neighbours on every
+    /// side: other brick, neighbouring chunks, world limits). Shared by the `faces` and `greedy` builders.
+    fn section_data(&self, cx: i32, bi: i32, cz: i32) -> Option<SectionData> {
         if !(0..BRICKS_PER_CHUNK as i32).contains(&bi) {
             return None;
         }
@@ -442,25 +521,29 @@ impl WorldBridge {
             brick: bi as u8,
         })?;
         let (ox, oy, oz) = (coord.origin_x(), bi * 16, coord.origin_z());
-        const N: usize = 18;
-        let idx = |x: i32, y: i32, z: i32| {
-            ((y + 1) as usize * N + (z + 1) as usize) * N + (x + 1) as usize
+        let mut d = SectionData {
+            cells,
+            grid: vec![0u16; SEC_N * SEC_N * SEC_N],
+            ox,
+            oy,
+            oz,
         };
-        let mut grid = vec![0u16; N * N * N];
-        for &(p, m) in &cells {
-            grid[idx(p.x - ox, p.y - oy, p.z - oz)] = m;
+        for k in 0..d.cells.len() {
+            let (p, m) = d.cells[k];
+            let i = SectionData::idx(p.x - ox, p.y - oy, p.z - oz);
+            d.grid[i] = m;
         }
         // Padding planes above and below inside the chunk (other brick) or the world limit.
         for z in 0..16 {
             for x in 0..16 {
-                grid[idx(x, -1, z)] = if oy == 0 {
+                d.grid[SectionData::idx(x, -1, z)] = if oy == 0 {
                     SOLID_BELOW_WORLD
                 } else {
                     self.w
                         .voxel(VoxelPos::new(ox + x, oy - 1, oz + z))
                         .unwrap_or(0)
                 };
-                grid[idx(x, 16, z)] = if oy + 16 >= CHUNK_HEIGHT {
+                d.grid[SectionData::idx(x, 16, z)] = if oy + 16 >= CHUNK_HEIGHT {
                     0
                 } else {
                     self.w
@@ -472,19 +555,145 @@ impl WorldBridge {
         for y in 0..16 {
             for i in 0..16 {
                 for (lx, lz) in [(-1, i), (16, i), (i, -1), (i, 16)] {
-                    grid[idx(lx, y, lz)] = self
+                    d.grid[SectionData::idx(lx, y, lz)] = self
                         .w
                         .voxel(VoxelPos::new(ox + lx, oy + y, oz + lz))
                         .unwrap_or(0);
                 }
             }
         }
+        Some(d)
+    }
+
+    /// Face mesh of one mesh section (brick `bi` of chunk `(cx, cz)`): only the faces of the section's
+    /// own voxels. `chunk_mesh(c)` equals section 0 appended with section 1 (same faces, same order).
+    /// Neighbouring voxels are read from the other brick of the chunk and the neighbouring chunks.
+    pub fn section_mesh(&self, cx: i32, bi: i32, cz: i32) -> Option<ChunkMesh> {
+        let d = self.section_data(cx, bi, cz)?;
         let mut mesh = ChunkMesh::default();
-        for &(p, m) in &cells {
-            let (lx, ly, lz) = (p.x - ox, p.y - oy, p.z - oz);
+        for &(p, m) in &d.cells {
+            let (lx, ly, lz) = (p.x - d.ox, p.y - d.oy, p.z - d.oz);
             emit_faces(&mut mesh, p, m, |n| {
-                grid[idx(lx + n[0], ly + n[1], lz + n[2])] != 0
+                d.grid[SectionData::idx(lx + n[0], ly + n[1], lz + n[2])] != 0
             });
+        }
+        Some(mesh)
+    }
+
+    /// Reference list of the visible unit faces of a section (voxel, normal, material), computed
+    /// directly from the voxels: a face is visible iff the voxel is solid and its neighbour is not.
+    pub fn section_unit_faces(&self, cx: i32, bi: i32, cz: i32) -> Option<Vec<UnitFace>> {
+        let d = self.section_data(cx, bi, cz)?;
+        let mut out = Vec::new();
+        for &(p, m) in &d.cells {
+            let (lx, ly, lz) = (p.x - d.ox, p.y - d.oy, p.z - d.oz);
+            for (n, _, _, _) in FACES {
+                if d.grid[SectionData::idx(lx + n[0], ly + n[1], lz + n[2])] == 0 {
+                    out.push(([p.x, p.y, p.z], n, m));
+                }
+            }
+        }
+        Some(out)
+    }
+
+    /// Greedy quads of one section. For each of the six directions and each of the 16 slices along the
+    /// normal, a 16x16 mask holds the material of every visible face of the section's own voxels; the
+    /// mask is covered with maximal rectangles of one material (scan v outer, u inner: extend along u,
+    /// then along v while the whole row matches). Rectangles never leave the section's 16x16 slice, so no
+    /// quad crosses a section (brick or chunk) boundary. Order of quads: direction, slice, v, u.
+    pub fn section_quads(&self, cx: i32, bi: i32, cz: i32) -> Option<Vec<Quad>> {
+        let d = self.section_data(cx, bi, cz)?;
+        let mut quads = Vec::new();
+        for (n, u, v, _) in FACES {
+            let axis = |a: [i32; 3]| a.iter().position(|&c| c != 0).unwrap();
+            let (an, au, av) = (axis(n), axis(u), axis(v));
+            for slice in 0..16 {
+                let mut mask = [0u16; 256];
+                let mut any = false;
+                for iv in 0..16 {
+                    for iu in 0..16 {
+                        let mut l = [0i32; 3];
+                        l[an] = slice;
+                        l[au] = iu;
+                        l[av] = iv;
+                        let m = d.grid[SectionData::idx(l[0], l[1], l[2])];
+                        if m != 0
+                            && d.grid[SectionData::idx(l[0] + n[0], l[1] + n[1], l[2] + n[2])] == 0
+                        {
+                            mask[(iv * 16 + iu) as usize] = m;
+                            any = true;
+                        }
+                    }
+                }
+                if !any {
+                    continue;
+                }
+                for iv in 0..16usize {
+                    let mut iu = 0usize;
+                    while iu < 16 {
+                        let m = mask[iv * 16 + iu];
+                        if m == 0 {
+                            iu += 1;
+                            continue;
+                        }
+                        let mut w = 1;
+                        while iu + w < 16 && mask[iv * 16 + iu + w] == m {
+                            w += 1;
+                        }
+                        let mut h = 1;
+                        'rows: while iv + h < 16 {
+                            for k in 0..w {
+                                if mask[(iv + h) * 16 + iu + k] != m {
+                                    break 'rows;
+                                }
+                            }
+                            h += 1;
+                        }
+                        for dv in 0..h {
+                            for du in 0..w {
+                                mask[(iv + dv) * 16 + iu + du] = 0;
+                            }
+                        }
+                        let mut l = [0i32; 3];
+                        l[an] = slice;
+                        l[au] = iu as i32;
+                        l[av] = iv as i32;
+                        quads.push(Quad {
+                            normal: n,
+                            voxel: [l[0] + d.ox, l[1] + d.oy, l[2] + d.oz],
+                            size: [w as i32, h as i32],
+                            material: m,
+                        });
+                        iu += w;
+                    }
+                }
+            }
+        }
+        Some(quads)
+    }
+
+    /// Greedy mesh of a section: one rectangle (4 vertices, 6 indices) per quad, same vertex layout and
+    /// winding as the `faces` mesh. `faces` counts quads, `area` the unit faces they cover.
+    pub fn section_mesh_greedy(&self, cx: i32, bi: i32, cz: i32) -> Option<ChunkMesh> {
+        let quads = self.section_quads(cx, bi, cz)?;
+        let mut mesh = ChunkMesh::default();
+        for q in &quads {
+            let (n, u, v, o) = FACES.iter().copied().find(|f| f.0 == q.normal).unwrap();
+            let col = material_color(q.material);
+            let base = (mesh.positions.len() / 3) as u32;
+            let p0 = [q.voxel[0] + o[0], q.voxel[1] + o[1], q.voxel[2] + o[2]];
+            for (a, b) in [(0, 0), (0, 1), (1, 1), (1, 0)] {
+                for k in 0..3 {
+                    mesh.positions
+                        .push((p0[k] + a * u[k] * q.size[0] + b * v[k] * q.size[1]) as f32);
+                    mesh.normals.push(n[k] as f32);
+                }
+                mesh.colors.extend_from_slice(&col);
+            }
+            mesh.indices
+                .extend_from_slice(&[base, base + 1, base + 2, base, base + 2, base + 3]);
+            mesh.faces += 1;
+            mesh.area += (q.size[0] * q.size[1]) as usize;
         }
         Some(mesh)
     }
