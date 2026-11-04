@@ -65,3 +65,18 @@
 ## 4. Limits of this study
 
 Veloren was inspected through summaries of selected upstream files, not functionally and not as a code review; CubeWorld-Reversal through the README, the file tree and four declaration-only headers (no implementation file read). Performance, scalability, security and correctness of either project were not assessed. All "Proposed" and "Needs spike" items must be validated against Cube's constraints before adoption.
+
+## 5. Separation of statement types
+
+The table in section 1 and the register in section 2 combine facts and interpretation. To keep them apart:
+
+| Type | Where it lives | Rule |
+|---|---|---|
+| **Fact (upstream)** | the "Veloren" and "CubeWorld-Reversal" columns of section 1; section 2 of `veloren-notes.md` onwards; `cubeworld-reversal-notes.md` section 1 | observed in the remote repositories named in the headers; says nothing about Cube |
+| **Fact (Cube)** | the "Cube (today)" column | measured or observed in the Cube repository; spike data is experimental, desktop or emulator only |
+| **Agent inference** | "Observation" columns, "Agent inference" notes, section 3 | a conclusion by the agent; may be wrong |
+| **Recommendation** | principle statuses Proposed / Needs spike / Rejected in section 2 | a suggestion, never a decision |
+| **Owner decision** | cells that cite an AOD (for example AOD-05, AOD-10, AOD-17) and statuses "Accepted" justified by an AOD | only AOD-01…19 are Approved; "Accepted" means consistent with an AOD or already true in Cube |
+| **Unconfirmed hypothesis** | statements marked "Hypothesis", "not examined" or "inferred" | not to be used in a decision |
+
+Veloren data are not evidence of suitability for Cube or for mobile platforms; neither reference contains mobile evidence. Owner-facing options and their consequences are in `docs/decisions/owner-approval-matrix-v1.md`.

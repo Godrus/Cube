@@ -57,3 +57,25 @@ Keep this source **at the level of a feature and structure checklist** (world hi
 | REF-31 | Structures, dungeons and spawning separate from terrain generation | Proposed |
 | REF-38 | Behaviour-tree style AI | Needs spike (Gate 8) |
 | (not numbered) | Smooth-mesh shapes, sprite/creature hierarchy | Rejected / not adopted |
+
+## 6. Separation of statement types
+
+Evidence here is weak (README, file tree, folder listings, four declaration-only headers; no implementation file read). Nothing below is evidence of fitness for Cube or for mobile platforms.
+
+**Facts found in upstream (Fact (upstream), GitHub `master`)**
+* The repository is an unofficial reconstructed source tree of a 2013 alpha client and dedicated server of a commercial game; it does not build; the README states original rights belong to its creators; no software licence is shown on the repository page.
+* 196 files; the folder layout and file counts listed in section 1; `GAP_ANALYSIS.md` reports 3,429 analysed functions with 1,578 high, 1,172 medium and 679 low confidence.
+* The four headers read contain declarations only.
+
+**Agent inferences (may be wrong)**
+* The file names suggest a world container with region/zone/field levels, chunk columns, separate structure/dungeon/spawn modules, a behaviour-tree style AI and a 46-widget UI set.
+* The server folder containing only a world subset is consistent with a client/server split; it says nothing about authority.
+
+**Recommendations (Proposed, not decisions)**
+* Use the source only as a feature and structure checklist (section 4); REF statuses in section 5.
+
+**Owner decisions**
+* None. Whether studying a reverse-engineered repository is acceptable at all is an open owner decision (OAM-07 in `docs/decisions/owner-approval-matrix-v1.md`). No class, function or data-format name is recorded in Cube documents.
+
+**Unconfirmed hypotheses**
+* Any claim about memory layout, streaming policy, threading, performance, gameplay design intent or correctness of the reconstruction.

@@ -84,6 +84,8 @@ Components (names are proposals, not contracts):
 
 ### Layer model options inside Core (open decision O-WG-1)
 
+**Naming note:** the owner decision package `owner-approval-matrix-v1.md` (section 1.1) names the variants C1 = seed + block-level overrides, C2 = generated base + mutable overlay, C3 = operation journal + materialised chunk state. The "C1" below (single layer + journal re-application) corresponds to **C3** there; the "C2" below is the same as **C2** there. The matrix is authoritative for naming.
+
 * **C1: single voxel layer + journal re-application.** Materialised chunk, then journal entries for that chunk are replayed on top (this is what the spike does with its edit list). Minimal Core change; a generator-version change can invalidate absolute-voxel deltas (see section 8).
 * **C2: two layers: generated + edit overlay with defined precedence.** Reads compose overlay over generated; user data is physically separate; eviction of generated data never touches user data. More Core surface (layer composition rules), cleaner persistence and replication of user changes.
 * **Recommendation:** start with C1 for the next spike (it is measured and needs no new Core semantics), keep the journal format independent of the choice, and decide C1 vs C2 after the spike measures conflict cases (generator version bump with existing journals) and mobile memory. This is a decision point, not a commitment.

@@ -38,6 +38,7 @@ Documents that cite the missing sources (Geometry Editing Specification, Agent S
 |---|---|---|
 | Approved Owner Decisions AOD-01…19 | `docs/decisions/owner-architecture-decisions-v1.md` | Recorded from the owner's instruction (2026-11-04); contracts, ACRs and AU-1.0 untouched |
 | WorldGen / Core boundary: options A, B, C and recommendation | `docs/decisions/worldgen-core-boundary.md` | Proposed; owner decision required |
+| Owner Approval Matrix: eight decisions with options, recommendations, impacts and blockers | `docs/decisions/owner-approval-matrix-v1.md` | Proposed; decides nothing |
 | System boundaries (processes, trust zones, write paths, data ownership) | `docs/architecture/system-boundaries-v1.md` | Proposed |
 | Roadmap with gates 0-10, critical path, blockers | `docs/architecture/roadmap-v1.md` | Proposed; budgets provisional |
 | Reference comparison (Veloren, CubeWorld-Reversal, Cube) | `docs/research/reference-comparison.md` | Research record |

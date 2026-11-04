@@ -117,3 +117,34 @@ Applicability labels: **Accepted** (consistent with an Approved Owner Decision o
 | REF-37 | Cooperative cancellation polled inside generation | Proposed |
 
 **Not evidence of fitness for Cube:** Veloren is a desktop game with a different art style, scale and team; its persistence is feature-gated and has acknowledged durability gaps; every "Proposed" or "Needs spike" item must be validated against Cube's constraints (mobile first, Godot frontend, 16^3 bricks, deterministic integer generation, server authority) before adoption.
+
+## 12. Separation of statement types
+
+The sections above mix observation and interpretation by necessity. This section separates them. Nothing in Veloren is evidence that a design suits Cube or a mobile platform.
+
+**Facts found in upstream (Fact (upstream), master `7daa95fd`, 2026-10-30)**
+* The workspace has 25 members and pins `nightly-2026-06-13`; graphics use `wgpu` 27 and `winit` 0.30.12; the README lists Windows, macOS and Linux builds and no mobile target.
+* A `singleplayer` feature of the graphical client embeds the server library.
+* Chunks are 32 x 32 blocks with variable-height columns; coordinate conversion uses Euclidean division.
+* Terrain generation takes a 32-bit seed and a cancellation callback; dynamic content uses a system-seeded random generator.
+* The server keeps a deduplicated pending map with cancel flags, a dedicated slow-job pool with per-job-name limits, a 2-chunk hysteresis margin, staggered unload checks (one sixteenth per tick) and background deallocation.
+* Terrain persistence stores block-level overrides per modified chunk (versioned files, newest-to-oldest fallback readers, atomic writes, backup on unknown version), written on unload only; the source states this is not durable across power loss; persistence is feature-gated.
+* The greedy mesher merges by caller-supplied metadata and stores AO/light/glow per texel in an atlas; T-junctions are not mentioned in the file read.
+* The network crate has an I/O-free protocol core with TCP, in-process and QUIC backends, prioritised streams and a bandwidth budget.
+
+**Agent inferences (may be wrong)**
+* Veloren's override store matches the "seed plus modified data" idea at chunk granularity (supports a comparison with Cube's options C1 and C3, see `owner-approval-matrix-v1.md`).
+* Cancellation, pools and hysteresis are cheap ideas that map to Cube's streamer; the mapping to a mobile CPU budget is untested.
+* The write-on-unload policy leaves a durability gap that a journal-first design avoids.
+
+**Recommendations (Proposed, not decisions)**
+* The REF-xx statuses in section 11. "Accepted" in this document means only "consistent with an Approved Owner Decision or already true in Cube" (REF-01, REF-03); it is not an owner decision about Veloren.
+
+**Owner decisions**
+* None are derived from Veloren. The relevant approved records are AOD-01…19 only.
+
+**Unconfirmed hypotheses**
+* That Veloren's embedded single-player mode uses the same authority rules as a remote server (not examined).
+* That any Veloren technique performs acceptably on Android or iOS (no mobile evidence exists).
+* How Veloren handles generator changes between releases (not examined).
+* That its meshing, persistence or networking choices are good for Cube's scale, art style or team.
