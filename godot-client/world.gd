@@ -35,6 +35,7 @@ var mode_button := Button.new()
 var rebuild_policy := "partial"        # faces renderer after an edit: "partial", "chunk" or "all" (see header)
 var last_rebuilt := 0                  # mesh sections (faces) or chunk nodes (cubes) rebuilt by the last _apply_delta
 var last_rebuilt_chunks := 0           # distinct chunks among them
+var mesh_stats := {}                   # Vector3i section -> Vector3i(vertices, indices, drawn elements)
 var sec_nodes := {}                    # Vector3i(chunk x, brick, chunk z) -> MeshInstance3D (faces renderer)
 var rust_us := 0                       # microseconds inside world.section_mesh (Rust meshing + ArrayMesh creation)
 var node_us := 0                       # microseconds spent replacing Godot nodes
@@ -104,6 +105,11 @@ func _build_scene() -> void:
 	mat.vertex_color_use_as_albedo = true
 	box.material = mat
 	face_mat.vertex_color_use_as_albedo = true
+	# Diffuse only: lighting then depends on the (constant) normal alone. With specular the view vector comes from the
+	# interpolated fragment position, which differs by float noise between two triangulations of the same surface.
+	face_mat.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
+	face_mat.metallic_specular = 0.0
+	face_mat.diffuse_mode = BaseMaterial3D.DIFFUSE_LAMBERT       # Burley diffuse also depends on the view vector
 	var env := Environment.new()
 	env.background_mode = Environment.BG_COLOR
 	env.background_color = Color(0.3, 0.3, 0.3)
@@ -251,6 +257,7 @@ func _drop_chunk(k: Vector2i) -> void:
 	for bi in 2:
 		sec_nodes.erase(Vector3i(k.x, bi, k.y))
 		drawn.erase(Vector3i(k.x, bi, k.y))
+		mesh_stats.erase(Vector3i(k.x, bi, k.y))
 
 ## Faces renderer: replaces the mesh of one section (brick) of a chunk.
 func _build_section(s: Vector3i) -> void:
@@ -262,6 +269,7 @@ func _build_section(s: Vector3i) -> void:
 		sec_nodes[s].free()
 		sec_nodes.erase(s)
 		drawn.erase(s)
+		mesh_stats.erase(s)
 	if mesh != null and chunks.has(key):
 		mesh.surface_set_material(0, face_mat)
 		var mi := MeshInstance3D.new()
@@ -269,7 +277,10 @@ func _build_section(s: Vector3i) -> void:
 		mi.name = "section_%d" % s.y
 		chunks[key].add_child(mi)
 		sec_nodes[s] = mi
-		drawn[s] = mesh.surface_get_array_index_len(0) / 6
+		var idx_len: int = mesh.surface_get_array_index_len(0)
+		var elements: int = mesh.get_meta("elements", idx_len / 6)
+		drawn[s] = elements
+		mesh_stats[s] = Vector3i(mesh.surface_get_array_len(0), idx_len, elements)
 	var t2 := Time.get_ticks_usec()
 	rust_us += t1 - t0
 	node_us += t2 - t1
@@ -308,7 +319,12 @@ func _drawn_elements() -> int:
 	return n
 
 func _drawn_triangles() -> int:
-	return _drawn_elements() * (12 if renderer == "cubes" else 2)
+	if renderer == "cubes":
+		return _drawn_elements() * 12
+	var n := 0
+	for k in mesh_stats:
+		n += mesh_stats[k].y / 3
+	return n
 
 func _on_mode() -> void:
 	_set_renderer({"cubes": "faces", "faces": "greedy", "greedy": "cubes"}[renderer])
@@ -363,6 +379,7 @@ func _clear_chunks() -> void:
 	chunks.clear()
 	drawn.clear()
 	sec_nodes.clear()
+	mesh_stats.clear()
 
 func _on_undo() -> void:
 	var n: int = world.undo()
@@ -540,13 +557,17 @@ func _geom_totals() -> Dictionary:
 func _mesh_bytes() -> int:
 	if renderer == "cubes":
 		return _drawn_elements() * 64
-	return _drawn_elements() * (4 * 40 + 6 * 4)        # 4 vertices (position, normal, colour = 40 B) + 6 indices
+	var n := 0
+	for k in mesh_stats:                                # vertices (position, normal, colour = 40 B) + 32-bit indices
+		n += mesh_stats[k].x * 40 + mesh_stats[k].y * 4
+	return n
 
 func _node_count() -> int:
 	return sec_nodes.size() if _is_mesh() else chunks.size()
 
 ## Compares the 3D area (below the HUD strip, which shows a live fps number): returns Vector3i(pixels of the 3D
-## area, pixels that differ at all, pixels that differ by more than 16 in some channel). -1 for different sizes.
+## area, pixels that differ at all, pixels where the background colour shows in exactly one of the two pictures
+## = holes). -1 for different sizes.
 func _diff_images(x: Image, y: Image) -> Vector3i:
 	var w: int = x.get_width()
 	var a: PackedByteArray = x.get_data()
@@ -559,20 +580,21 @@ func _diff_images(x: Image, y: Image) -> Vector3i:
 	if a.slice(start) == b.slice(start):
 		return Vector3i(area, 0, 0)
 	var diff := 0
-	var big := 0
+	var holes := 0
 	for i in range(start, a.size() - 3, stride):
-		var d := maxi(maxi(absi(a[i] - b[i]), absi(a[i + 1] - b[i + 1])), absi(a[i + 2] - b[i + 2]))
-		if d > 0:
+		if a[i] != b[i] or a[i + 1] != b[i + 1] or a[i + 2] != b[i + 2]:
 			diff += 1
-			if d > 16:
-				big += 1
-	return Vector3i(area, diff, big)
+			var bg_a: bool = a[i] == 76 and a[i + 1] == 76 and a[i + 2] == 76    # Environment background (0.3 grey)
+			var bg_b: bool = b[i] == 76 and b[i + 1] == 76 and b[i + 2] == 76
+			if bg_a != bg_b:
+				holes += 1
+	return Vector3i(area, diff, holes)
 
-## faces vs greedy rasterise the same geometry but not bit-identically: a merged quad has T-junctions with its
-## neighbours, so a few edge pixels differ (rounding by one level, rarely a pinhole). Accepted: at most 0.01% of
-## the 3D area differ and at most 0.001% differ visibly; reported exactly in the log.
+## faces and greedy cover the same surface with different triangulations. The greedy mesh has no T-junctions and
+## subdivides every edge that borders another surface like the one-face-per-voxel mesh (report section 29), so
+## the pictures must be identical in the 3D area, in every view.
 func _images_equivalent(d: Vector3i) -> bool:
-	return d.y >= 0 and d.y * 10000 <= d.x and d.z * 100000 <= d.x
+	return d.y == 0
 
 ## The same user session in the given renderer: Fill, Edit inside a section, on a brick boundary, on a chunk border,
 ## 3x3x3 Edit, Undo, Redo, Jump, Save, wander off, Load. Checks no stale section after every step.
@@ -638,7 +660,7 @@ func _renderer_matrix(shot_dir: String) -> void:
 	if img_f != null:
 		var d1 := _diff_images(img_f, img_s)
 		var d2 := _diff_images(img_f, img_g)
-		print("WORLDTEST IMAGE faces vs greedy(after switch): of %d px %d differ, %d by more than 16; faces vs greedy(session): %d differ, %d by more than 16" % [d1.x, d1.y, d1.z, d2.y, d2.z])
+		print("WORLDTEST IMAGE faces vs greedy(after switch): of %d px %d differ, %d holes; faces vs greedy(session): %d differ, %d holes" % [d1.x, d1.y, d1.z, d2.y, d2.z])
 		_check("faces and greedy pictures equivalent after switching", _images_equivalent(d1))
 		_check("faces and greedy pictures equivalent after the same session", _images_equivalent(d2))
 		img_f.save_png(shot_dir + "/world-session-faces.png")
@@ -657,14 +679,17 @@ func _renderer_matrix(shot_dir: String) -> void:
 		var gi: Image = await _capture(views[i])
 		if gi == null or fimgs[i] == null:
 			continue
+		fimgs[i].save_png(shot_dir + "/world-view%d-faces.png" % i)
+		gi.save_png(shot_dir + "/world-view%d-greedy.png" % i)
 		var dd := _diff_images(fimgs[i], gi)
 		tot_px += dd.x
 		tot_diff += dd.y
 		tot_big += dd.z
-		print("WORLDTEST VIEW %d of %d px: %d differ, %d by more than 16" % [i, dd.x, dd.y, dd.z])
+		print("WORLDTEST VIEW %d of %d px: %d differ, %d of them background holes" % [i, dd.x, dd.y, dd.z])
 	if tot_px > 0:
-		print("WORLDTEST VIEWS total of %d px: %d differ, %d visible (pinholes)" % [tot_px, tot_diff, tot_big])
-		_check("faces and greedy differ in at most 0.01 percent of pixels over all views", tot_diff * 10000 <= tot_px, "%d of %d" % [tot_diff, tot_px])
+		print("WORLDTEST VIEWS total of %d px: %d differ, %d background holes" % [tot_px, tot_diff, tot_big])
+		_check("no background shows through the greedy mesh in any view", tot_big == 0, "%d holes" % tot_big)
+		_check("faces and greedy pictures identical in all views", tot_diff == 0, "%d of %d pixels differ" % [tot_diff, tot_px])
 	_set_renderer("cubes")                                                   # cycle back through all modes
 	_check("cubes mode after switching has one node per chunk", chunks.size() == world.active_count() and _drawn_elements() == world.active_voxels())
 	_set_renderer("faces")

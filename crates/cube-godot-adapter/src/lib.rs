@@ -46,6 +46,8 @@ fn mesh_to_godot(m: world_bridge::ChunkMesh) -> Option<Gd<godot::classes::ArrayM
     arrays.set(ArrayType::INDEX.ord() as usize, &indices.to_variant());
     let mut mesh = ArrayMesh::new_gd();
     mesh.add_surface_from_arrays(PrimitiveType::TRIANGLES, &arrays);
+    // Drawable elements (unit faces or merged quads): a greedy mesh has more triangles than 2 per element.
+    mesh.set_meta("elements", &(m.faces as i64).to_variant());
     Some(mesh)
 }
 

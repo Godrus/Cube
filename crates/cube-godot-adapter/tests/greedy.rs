@@ -348,8 +348,9 @@ fn greedy_reduces_quads_and_keeps_the_covered_area() {
         greedy += g.faces;
         area += g.area;
         assert_eq!(g.area, f.faces, "section {s:?}");
-        assert_eq!(g.vertex_count(), g.faces * 4);
-        assert_eq!(g.indices.len(), g.faces * 6);
+        // Conforming triangulation: a polygon with n boundary vertices has n - 2 triangles.
+        assert!(g.vertex_count() >= g.faces * 4);
+        assert_eq!(g.triangle_count(), g.vertex_count() - 2 * g.faces);
     }
     assert_eq!(area, faces);
     assert!(greedy * 4 < faces, "{greedy} quads vs {faces} faces");

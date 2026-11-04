@@ -37,6 +37,16 @@ pub struct ChunkMesh {
     pub area: usize,
 }
 
+/// A greedy quad with the vertices of its boundary polygon (corners plus the extra points required to
+/// avoid T-junctions) and its triangulation (indices into `vertices`, clockwise seen from outside like
+/// every other face, no degenerate triangle, `vertices.len() - 2` triangles).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct QuadMesh {
+    pub quad: Quad,
+    pub vertices: Vec<[i32; 3]>,
+    pub triangles: Vec<[usize; 3]>,
+}
+
 /// One merged rectangle of coplanar voxel faces of one material (greedy mesh). `voxel` is the voxel
 /// with the smallest coordinates among the covered voxels; `size` is the extent in voxels along the
 /// face's `u` and `v` axes (see `FACES`: both are positive unit axes with `u x v = normal`).
@@ -52,6 +62,28 @@ pub struct Quad {
 pub type UnitFace = ([i32; 3], [i32; 3], u16);
 
 impl Quad {
+    /// The four corners in emission order `p, p+v*h, p+u*w+v*h, p+u*w` (clockwise from outside).
+    pub fn corners(&self) -> [[i32; 3]; 4] {
+        let (_, u, v, o) = FACES
+            .iter()
+            .copied()
+            .find(|f| f.0 == self.normal)
+            .expect("normal is one of the six axis directions");
+        let p0 = [
+            self.voxel[0] + o[0],
+            self.voxel[1] + o[1],
+            self.voxel[2] + o[2],
+        ];
+        let at = |a: i32, b: i32| {
+            [
+                p0[0] + a * u[0] * self.size[0] + b * v[0] * self.size[1],
+                p0[1] + a * u[1] * self.size[0] + b * v[1] * self.size[1],
+                p0[2] + a * u[2] * self.size[0] + b * v[2] * self.size[1],
+            ]
+        };
+        [at(0, 0), at(0, 1), at(1, 1), at(1, 0)]
+    }
+
     /// The positive `u` and `v` axes (as unit vectors) of the face this quad lies on.
     pub fn axes(&self) -> ([i32; 3], [i32; 3]) {
         let (_, u, v, _) = FACES
@@ -82,6 +114,38 @@ impl Quad {
 impl ChunkMesh {
     pub fn vertex_count(&self) -> usize {
         self.positions.len() / 3
+    }
+
+    /// Mesh of greedy quads with their triangulations: one polygon per quad, same vertex layout and
+    /// winding as the `faces` mesh. `faces` counts quads, `area` the unit faces they cover.
+    pub fn from_quad_meshes(quads: &[QuadMesh]) -> ChunkMesh {
+        let mut mesh = ChunkMesh::default();
+        for qm in quads {
+            let n = qm.quad.normal;
+            let col = material_color(qm.quad.material);
+            let base = (mesh.positions.len() / 3) as u32;
+            for p in &qm.vertices {
+                for k in 0..3 {
+                    mesh.positions.push(p[k] as f32);
+                    mesh.normals.push(n[k] as f32);
+                }
+                mesh.colors.extend_from_slice(&col);
+            }
+            for t in &qm.triangles {
+                mesh.indices.extend_from_slice(&[
+                    base + t[0] as u32,
+                    base + t[1] as u32,
+                    base + t[2] as u32,
+                ]);
+            }
+            mesh.faces += 1;
+            mesh.area += (qm.quad.size[0] * qm.quad.size[1]) as usize;
+        }
+        mesh
+    }
+
+    pub fn triangle_count(&self) -> usize {
+        self.indices.len() / 3
     }
 
     /// Bytes of the arrays as handed to the renderer (positions, normals, colours, 32-bit indices).
@@ -188,6 +252,122 @@ impl SectionData {
         ((y + 1) as usize * SEC_N + (z + 1) as usize) * SEC_N + (x + 1) as usize
     }
 }
+
+/// True if the axis-aligned edge `a -> b` lies in one of the six boundary planes of the section whose
+/// minimum corner is `origin` (a plane `axis = origin[axis]` or `origin[axis] + 16`, `axis` not the
+/// edge direction).
+pub fn edge_on_section_boundary(a: [i32; 3], b: [i32; 3], origin: [i32; 3]) -> bool {
+    (0..3).any(|k| a[k] == b[k] && (a[k] == origin[k] || a[k] == origin[k] + 16))
+}
+
+/// Which extra boundary vertices a greedy quad carries (both rules are crack-free; see
+/// `WorldBridge::section_quad_meshes_with`).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SeamRule {
+    /// Corners of other quads on the edge, plus every lattice point on section boundary planes.
+    Minimal,
+    /// `Minimal`, plus every lattice point along an edge stretch that borders a surface of another colour
+    /// or plane (a different material, a perpendicular wall, or the section boundary). Those are the
+    /// stretches where two different-coloured surfaces meet on screen, so they are subdivided exactly
+    /// like the one-face-per-voxel mesh and the GPU snaps them identically. Edge stretches between two
+    /// coplanar quads of the same material keep only the corner vertices.
+    VisibleEdges,
+}
+
+type FaceMap = std::collections::HashMap<([i32; 3], [i32; 3]), u16>;
+
+/// True if the unit stretch `k` of edge `e` (0..4, in emission order) of quad `q` borders a surface that
+/// is not a coplanar face of the same material (`faces` maps (voxel, normal) -> material of the section's
+/// visible unit faces; a face outside the section is unknown and counts as different).
+fn stretch_borders_other_surface(q: &Quad, e: usize, k: i32, faces: &FaceMap) -> bool {
+    let (u, v) = q.axes();
+    let add =
+        |p: [i32; 3], d: [i32; 3], t: i32| [p[0] + t * d[0], p[1] + t * d[1], p[2] + t * d[2]];
+    let (w, h) = (q.size[0], q.size[1]);
+    let outside = match e {
+        0 => add(add(q.voxel, v, k), u, -1),
+        1 => add(add(add(q.voxel, v, h - 1), u, k), v, 1),
+        2 => add(add(add(q.voxel, u, w - 1), v, h - 1 - k), u, 1),
+        _ => add(add(add(q.voxel, u, w - 1 - k), v, 0), v, -1),
+    };
+    faces.get(&(outside, q.normal)) != Some(&q.material)
+}
+
+/// Boundary polygon of a quad with T-junction vertices, triangulated without degenerate triangles.
+///
+/// The quad `c0 c1 c2 c3` is split along the diagonal `c0 c2` into the triangles `T1 = (c0, c1, c2)` and
+/// `T2 = (c2, c3, c0)`. The diagonal is interior and never needs extra vertices; the other two sides of
+/// each triangle may. For a triangle `A B C` with chains `A..B` (points `a_1..a_m`) and `B..C` (points
+/// `b_1..b_n`): a fan from `C` over `A, a_1, .., a_m` plus a fan from `a_m` over `B, b_1, .., b_n, C`
+/// cover it exactly with `m + n + 1` non-degenerate triangles, using every boundary vertex.
+fn triangulate_quad(
+    q: Quad,
+    corners: &std::collections::HashSet<[i32; 3]>,
+    origin: [i32; 3],
+    rule: SeamRule,
+    faces: &FaceMap,
+) -> QuadMesh {
+    let c = q.corners();
+    let mut poly: Vec<[i32; 3]> = Vec::new();
+    // Index chains per edge, each from the start corner to the end corner (inclusive).
+    let mut chains: Vec<Vec<usize>> = Vec::new();
+    for e in 0..4 {
+        let (a, b) = (c[e], c[(e + 1) % 4]);
+        let len = (0..3).map(|k| (b[k] - a[k]).abs()).sum::<i32>();
+        let dir = [
+            (b[0] - a[0]).signum(),
+            (b[1] - a[1]).signum(),
+            (b[2] - a[2]).signum(),
+        ];
+        let full = edge_on_section_boundary(a, b, origin);
+        let mut chain = Vec::new();
+        if e == 0 {
+            chain.push(poly.len());
+            poly.push(a);
+        } else {
+            chain.push(poly.len() - 1);
+        }
+        for k in 1..len {
+            let p = [a[0] + k * dir[0], a[1] + k * dir[1], a[2] + k * dir[2]];
+            let visible = rule == SeamRule::VisibleEdges
+                && (stretch_borders_other_surface(&q, e, k - 1, faces)
+                    || stretch_borders_other_surface(&q, e, k, faces));
+            if full || visible || corners.contains(&p) {
+                chain.push(poly.len());
+                poly.push(p);
+            }
+        }
+        if e < 3 {
+            chain.push(poly.len());
+            poly.push(b);
+        } else {
+            chain.push(0); // back to c0
+        }
+        chains.push(chain);
+    }
+    let mut triangles: Vec<[usize; 3]> = Vec::new();
+    // (leg A..B, leg B..C): T1 uses edges 0 and 1, T2 uses edges 2 and 3.
+    for (ab, bc) in [(&chains[0], &chains[1]), (&chains[2], &chains[3])] {
+        let c_apex = *bc.last().unwrap();
+        // fan from C over A .. a_m (everything on A..B except the last segment to B)
+        for w in ab[..ab.len() - 1].windows(2) {
+            triangles.push([c_apex, w[0], w[1]]);
+        }
+        // fan from a_m over B .. C
+        let a_m = ab[ab.len() - 2];
+        for w in bc.windows(2) {
+            triangles.push([a_m, w[0], w[1]]);
+        }
+    }
+    QuadMesh {
+        quad: q,
+        vertices: poly,
+        triangles,
+    }
+}
+
+/// Seam rule used by [`WorldBridge::section_mesh_greedy`].
+pub const GREEDY_SEAM_RULE: SeamRule = SeamRule::VisibleEdges;
 
 pub struct WorldBridge {
     w: WorldStreamer,
@@ -672,30 +852,64 @@ impl WorldBridge {
         Some(quads)
     }
 
-    /// Greedy mesh of a section: one rectangle (4 vertices, 6 indices) per quad, same vertex layout and
-    /// winding as the `faces` mesh. `faces` counts quads, `area` the unit faces they cover.
+    /// Greedy mesh of a section without T-junctions: every quad is emitted as a rectangle whose boundary
+    /// carries the extra vertices of [`GREEDY_SEAM_RULE`], split along a diagonal and fan-triangulated.
+    /// Same vertex layout and winding as the `faces` mesh. `faces` counts quads, `area` the unit faces
+    /// they cover.
     pub fn section_mesh_greedy(&self, cx: i32, bi: i32, cz: i32) -> Option<ChunkMesh> {
+        Some(ChunkMesh::from_quad_meshes(
+            &self.section_quad_meshes(cx, bi, cz)?,
+        ))
+    }
+
+    /// The greedy quads of a section with their conforming triangulation (see [`QuadMesh`]).
+    ///
+    /// T-junction rule. A vertex lying in the interior of another quad's edge makes the GPU rasterise the
+    /// two sides slightly differently (pinholes), so every quad edge carries
+    ///  * every integer point on it that is a corner of another quad of the same section, and
+    ///  * **every** integer point on it if the edge lies in one of the section's six boundary planes
+    ///    (the faces of its 16^3 brick). The neighbouring section follows the same rule on the shared
+    ///    plane, so both sides get identical vertices without looking at each other: a section's mesh still
+    ///    depends only on its own quads, which keeps the partial rebuild rule intact.
+    ///
+    /// [`SeamRule::VisibleEdges`] (the default) adds every lattice point along edge stretches that border a
+    /// surface of another colour or plane. Without it the picture still differs from the one-face-per-voxel
+    /// mesh in a few pixels per frame, where two different surfaces meet along an edge that is subdivided
+    /// differently in the two meshes (sub-pixel snapping of the vertices).
+    pub fn section_quad_meshes(&self, cx: i32, bi: i32, cz: i32) -> Option<Vec<QuadMesh>> {
+        self.section_quad_meshes_with(cx, bi, cz, GREEDY_SEAM_RULE)
+    }
+
+    /// Like [`Self::section_quad_meshes`] with an explicit [`SeamRule`] (for comparison).
+    pub fn section_quad_meshes_with(
+        &self,
+        cx: i32,
+        bi: i32,
+        cz: i32,
+        rule: SeamRule,
+    ) -> Option<Vec<QuadMesh>> {
         let quads = self.section_quads(cx, bi, cz)?;
-        let mut mesh = ChunkMesh::default();
-        for q in &quads {
-            let (n, u, v, o) = FACES.iter().copied().find(|f| f.0 == q.normal).unwrap();
-            let col = material_color(q.material);
-            let base = (mesh.positions.len() / 3) as u32;
-            let p0 = [q.voxel[0] + o[0], q.voxel[1] + o[1], q.voxel[2] + o[2]];
-            for (a, b) in [(0, 0), (0, 1), (1, 1), (1, 0)] {
-                for k in 0..3 {
-                    mesh.positions
-                        .push((p0[k] + a * u[k] * q.size[0] + b * v[k] * q.size[1]) as f32);
-                    mesh.normals.push(n[k] as f32);
+        let mut faces = FaceMap::new();
+        if rule == SeamRule::VisibleEdges {
+            for q in &quads {
+                for (p, n, m) in q.unit_faces() {
+                    faces.insert((p, n), m);
                 }
-                mesh.colors.extend_from_slice(&col);
             }
-            mesh.indices
-                .extend_from_slice(&[base, base + 1, base + 2, base, base + 2, base + 3]);
-            mesh.faces += 1;
-            mesh.area += (q.size[0] * q.size[1]) as usize;
         }
-        Some(mesh)
+        let origin = [cx * 16, bi * 16, cz * 16];
+        let mut corners: std::collections::HashSet<[i32; 3]> = std::collections::HashSet::new();
+        for q in &quads {
+            for c in q.corners() {
+                corners.insert(c);
+            }
+        }
+        Some(
+            quads
+                .into_iter()
+                .map(|q| triangulate_quad(q, &corners, origin, rule, &faces))
+                .collect(),
+        )
     }
 
     pub fn ground_height(&self, x: i32, z: i32) -> i32 {

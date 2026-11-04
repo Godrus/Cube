@@ -4,7 +4,7 @@
 
 use std::time::Instant;
 
-use cube_godot_adapter::world_bridge::{WorldBridge, FLOATS_PER_INSTANCE};
+use cube_godot_adapter::world_bridge::{SeamRule, WorldBridge, FLOATS_PER_INSTANCE};
 
 fn median(v: &mut [f64]) -> f64 {
     v.sort_by(|a, b| a.partial_cmp(b).unwrap());
@@ -104,12 +104,15 @@ fn main() {
         );
         // Greedy (per section, same-material rectangles) vs faces (unit faces), both built per section.
         let (mut t_faces, mut t_greedy) = (Vec::new(), Vec::new());
-        let (mut gq, mut garea, mut gbytes) = (0usize, 0usize, 0usize);
+        let (mut gq, mut garea, mut gbytes, mut gtris, mut gverts) =
+            (0usize, 0usize, 0usize, 0usize, 0usize);
         for _ in 0..15 {
             let (mut f, mut g) = (0.0, 0.0);
             gq = 0;
             garea = 0;
             gbytes = 0;
+            gtris = 0;
+            gverts = 0;
             for ch in &chunks {
                 for bi in 0..2 {
                     let t = Instant::now();
@@ -121,6 +124,8 @@ fn main() {
                     gq += m.faces;
                     garea += m.area;
                     gbytes += m.byte_size();
+                    gtris += m.triangle_count();
+                    gverts += m.vertex_count();
                 }
             }
             let n = chunks.len() as f64 / 1000.0;
@@ -128,29 +133,24 @@ fn main() {
             t_greedy.push(g / n);
         }
         println!(
-            "  greedy: quads {gq} (covering {garea} unit faces)  triangles {}  arrays {} KB  build per chunk (2 sections): faces {:.3} ms, greedy {:.3} ms",
-            gq * 2,
+            "  greedy (T-junction free): quads {gq} (covering {garea} unit faces)  vertices {gverts}  triangles {gtris}  arrays {} KB  build per chunk (2 sections): faces {:.3} ms, greedy {:.3} ms",
             gbytes / 1024,
             median(&mut t_faces),
             median(&mut t_greedy)
         );
-        // Estimate of a T-junction-free greedy mesh: every lattice vertex on a quad's boundary is emitted and the
-        // quad is fan-triangulated (2 * (w + h) boundary vertices, 2 * (w + h) - 2 triangles). Not implemented.
-        let (mut tj_tris, mut tj_verts) = (0usize, 0usize);
-        for ch in &chunks {
-            for bi in 0..2 {
-                for q in b.section_quads(ch[0], bi, ch[1]).unwrap() {
-                    let nb = (2 * (q.size[0] + q.size[1])) as usize;
-                    tj_verts += nb;
-                    tj_tris += nb - 2;
+        // Seam rules compared on the same quads.
+        for rule in [SeamRule::Minimal, SeamRule::VisibleEdges] {
+            let (mut v, mut t) = (0usize, 0usize);
+            for ch in &chunks {
+                for bi in 0..2 {
+                    for qm in b.section_quad_meshes_with(ch[0], bi, ch[1], rule).unwrap() {
+                        v += qm.vertices.len();
+                        t += qm.triangles.len();
+                    }
                 }
             }
+            println!("  seam rule {rule:?}: {v} vertices, {t} triangles");
         }
-        println!(
-            "  greedy without T-junctions (estimate): {tj_verts} vertices, {tj_tris} triangles (current greedy {} triangles, faces {})",
-            gq * 2,
-            faces * 2
-        );
         let _ = FLOATS_PER_INSTANCE;
     }
 }
