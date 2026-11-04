@@ -1,0 +1,188 @@
+11-04 13:27:00.341   548   548 I adbd    : adbd service requested 'shell,v2,TERM=xterm-256color,raw:am start -W -n org.cube.spike.world/com.godot.game.GodotAppLauncher'
+11-04 13:27:00.375   693  1031 V ActivityTaskManager: TaskLaunchParamsModifier: phase=2 task=Task{80fc036 #169 type=standard A=10271:org.cube.spike.world} activity=ActivityRecord{187043281 u0 org.cube.spike.world/com.godot.game.GodotAppLauncher t-1} display-fr
+11-04 13:27:00.375   693  1031 I ActivityTaskManager: START u0 {flg=0x10000000 xflg=0x5 cmp=org.cube.spike.world/com.godot.game.GodotAppLauncher} with LAUNCH_SINGLE_INSTANCE_PER_TASK from uid 2000 (com.android.shell) (BAL_ALLOW_ALLOWLISTED_UID) result code=0
+11-04 13:27:00.376   979  1038 V WindowManagerShell: Transition requested (#34): android.os.BinderProxy@dd50fc9 TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=169 effectiveUid=10271 seqId=0 displayId=0 isRunning=true baseIntent=Int
+11-04 13:27:00.395   693   735 I ActivityManager: Start proc 5336:org.cube.spike.world/u0a271 for next-top-activity {org.cube.spike.world/com.godot.game.GodotAppLauncher}
+11-04 13:27:00.464   693   725 V WindowManager: Sent Transition (#34) createdAt=11-04 13:27:00.365 via request=TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=169 effectiveUid=10271 seqId=0 displayId=0 isRunning=true baseIntent=Inte
+11-04 13:27:01.002  5336  5336 D GodotActivity: Launch intent Intent { flg=0x10000000 xflg=0x5 cmp=org.cube.spike.world/com.godot.game.GodotAppLauncher } with parameters []
+11-04 13:27:01.576  5336  5336 D nativeloader: Load /data/app/~~8UyUEbT5tg-w3MGJ43E_FA==/org.cube.spike.world-ttGIl2UXAo6FLfmKed9mwg==/lib/arm64/libgodot_android.so using class loader ns clns-9 (caller=/data/app/~~8UyUEbT5tg-w3MGJ43E_FA==/org.cube.spike.world-
+11-04 13:27:02.473   693   719 D CoreBackPreview: Window{5d524c2 u0 org.cube.spike.world/com.godot.game.GodotAppLauncher}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@6f9d09, mPriority=0, mIsAnimat
+11-04 13:27:02.499   693   953 D WindowManager: setClientSurface Surface(name=VRI-org.cube.spike.world/com.godot.game.GodotAppLauncher#355)/@0xf54cb0e for 5d524c2 org.cube.spike.world/com.godot.game.GodotAppLauncher
+11-04 13:27:02.513  5336  5336 I Surface : Creating surface for consumer 80152e SurfaceView[org.cube.spike.world/com.godot.game.GodotAppLauncher]#1(BLAST Consumer)1 with slotExpansion=1 for 64 slots
+11-04 13:27:02.586  5336  5365 I godot   : Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+11-04 13:27:04.136  5336  5365 I godot   : OpenGL API OpenGL ES 3.1 (4.5.0 NVIDIA 610.88) - Compatibility - Using Device: Google (NVIDIA Corporation) - Android Emulator OpenGL ES Translator (NVIDIA GeForce RTX 3070 Ti/PCIe/SSE2)
+11-04 13:27:04.210  5336  5365 I godot   : 
+11-04 13:27:05.522  5336  5372 E SurfaceSyncGroup: Failed to receive transaction ready in 3000ms. Marking SurfaceSyncGroup(SurfaceView[org.cube.spike.world/com.godot.game.GodotAppLauncher]#0) as ready
+11-04 13:27:05.524   693   725 I ActivityTaskManager: Displayed org.cube.spike.world/com.godot.game.GodotAppLauncher for user 0: +5s162ms
+11-04 13:27:06.214  5336  5365 E BLASTBufferQueue: [80152e SurfaceView[org.cube.spike.world/com.godot.game.GodotAppLauncher]#1](f:0,a:0) rejecting buffer:active_size=2400x954, requested_size=2400x954 buffer{size=2400x1080 transform=0}
+11-04 13:27:08.592  5336  5365 I godot   : WORLDTEST ENV godot=4.7.2-stable (official) gpu=Android Emulator OpenGL ES Translator (NVIDIA GeForce RTX 3070 Ti/PCIe/SSE2) mode=greedy
+11-04 13:27:08.592  5336  5365 I godot   : WORLDTEST PASS class available and seed set 
+11-04 13:27:09.114  5336  5365 I godot   : WORLDTEST PASS 3x3 chunks active active=9
+11-04 13:27:09.115  5336  5365 I godot   : WORLDTEST PASS 3x3 chunk nodes 
+11-04 13:27:09.118  5336  5365 I godot   : WORLDTEST TIME first_3x3 mode=greedy total_ms=515.42 build_ms_per_chunk=23.49 voxels=32141 drawn=825
+11-04 13:27:11.881  5336  5365 I godot   : WORLDTEST SHOT user:///world-greedy-1-3x3.png err=0
+11-04 13:27:11.887  5336  5365 I godot   : WORLDTEST PASS voxel data of ready chunk voxels=3594
+11-04 13:27:11.895  5336  5365 I godot   : WORLDTEST PASS unloaded chunk has no data 
+11-04 13:27:12.048  5336  5365 I godot   : WORLDTEST PASS still 9 active after moving 
+11-04 13:27:12.049  5336  5365 I godot   : WORLDTEST PASS every chunk left of x=1 was unloaded 
+11-04 13:27:12.761  5336  5365 I godot   : WORLDTEST SHOT user:///world-greedy-2-moved.png err=0
+11-04 13:27:12.761  5336  5365 I godot   : WORLDTEST PASS new neighbours loaded 
+11-04 13:27:12.835  5336  5365 I godot   : WORLDTEST TIME edit mode=greedy total_ms=73.24
+11-04 13:27:12.836  5336  5365 I godot   : WORLDTEST PASS edit changed 27 voxels edited=27
+11-04 13:27:12.851  5336  5365 I godot   : WORLDTEST PASS save 
+11-04 13:27:12.929  5336  5365 I godot   : WORLDTEST PASS wandered to a different area 
+11-04 13:27:12.950  5336  5365 I godot   : WORLDTEST PASS load 
+11-04 13:27:13.002  5336  5365 I godot   : WORLDTEST TIME load mode=greedy total_ms=73.50
+11-04 13:27:13.003  5336  5365 I godot   : WORLDTEST PASS loaded world has 9 active chunks and nodes 
+11-04 13:27:13.005  5336  5365 I godot   : WORLDTEST PASS voxel count restored 27978 vs 27978
+11-04 13:27:13.005  5336  5365 I godot   : WORLDTEST PASS edits restored 
+11-04 13:27:13.176  5336  5365 I godot   : WORLDTEST PASS 5x5 chunks active 
+11-04 13:27:13.180  5336  5365 I godot   : WORLDTEST TIME first_5x5 mode=greedy total_ms=166.28 build_ms_per_chunk=2.94 voxels=87098 drawn=1710 triangles=10858
+11-04 13:27:13.183  5336  5365 I godot   : WORLDTEST GEOM mode=greedy elements=1710 triangles=10858 mesh_bytes=701416 voxels=87098 nodes=33
+11-04 13:27:13.192  5336  5365 I godot   : WORLDTEST PASS drawn elements are far fewer than cube faces elements=1710 cube_faces=522588
+11-04 13:27:13.448  5336  5365 I godot   : WORLDTEST PASS covered unit faces from Rust equal the visible faces 12146 vs 12146
+11-04 13:27:13.448  5336  5365 I godot   : WORLDTEST PASS no stale section after the first fill 
+11-04 13:27:20.677  5336  5365 I godot   : WORLDTEST FPS 5x5 mode=greedy fps=55 (headless/dummy renderer fps is not a rendering result)
+11-04 13:27:20.677  5336  5365 I godot   : WORLDTEST MEM mode=greedy static_mb=0.0 video_mb=24.3 draw_calls=48 primitives=9074
+11-04 13:27:21.009  5336  5365 I godot   : WORLDTEST SHOT user:///world-greedy-3-5x5.png err=0
+11-04 13:27:21.747  5336  5365 I godot   : WORLDTEST EDIT mode=greedy policy=all scenario=inside_section avg_ms=28.36 rust_ms=17.10 node_ms=3.89 sections=10.0 chunks=5.0 faces=1710 stale=0
+11-04 13:27:21.747  5336  5365 I godot   : WORLDTEST PASS no stale mesh after inside_section edits (all) 
+11-04 13:27:21.748  5336  5365 I godot   : WORLDTEST PASS inside_section edit rebuilds 10 section(s) (all) rebuilt=110
+11-04 13:27:22.016  5336  5365 I godot   : WORLDTEST EDIT mode=greedy policy=all scenario=brick_boundary avg_ms=17.95 rust_ms=14.10 node_ms=3.38 sections=10.0 chunks=5.0 faces=1716 stale=0
+11-04 13:27:22.016  5336  5365 I godot   : WORLDTEST PASS no stale mesh after brick_boundary edits (all) 
+11-04 13:27:22.016  5336  5365 I godot   : WORLDTEST PASS brick_boundary edit rebuilds 10 section(s) (all) rebuilt=110
+11-04 13:27:22.573  5336  5365 I godot   : WORLDTEST EDIT mode=greedy policy=all scenario=chunk_border avg_ms=43.73 rust_ms=32.94 node_ms=7.37 sections=10.0 chunks=5.0 faces=1716 stale=0
+11-04 13:27:22.573  5336  5365 I godot   : WORLDTEST PASS no stale mesh after chunk_border edits (all) 
+11-04 13:27:22.573  5336  5365 I godot   : WORLDTEST PASS chunk_border edit rebuilds 10 section(s) (all) rebuilt=110
+11-04 13:27:22.881  5336  5365 I godot   : WORLDTEST EDIT mode=greedy policy=all scenario=corner avg_ms=21.58 rust_ms=18.09 node_ms=2.79 sections=10.0 chunks=5.0 faces=1716 stale=0
+11-04 13:27:22.881  5336  5365 I godot   : WORLDTEST PASS no stale mesh after corner edits (all) 
+11-04 13:27:22.881  5336  5365 I godot   : WORLDTEST PASS corner edit rebuilds 10 section(s) (all) rebuilt=110
+11-04 13:27:23.171  5336  5365 I godot   : WORLDTEST EDIT mode=greedy policy=all scenario=corner_brick avg_ms=20.34 rust_ms=16.64 node_ms=2.63 sections=10.0 chunks=5.0 faces=1722 stale=0
+11-04 13:27:23.171  5336  5365 I godot   : WORLDTEST PASS no stale mesh after corner_brick edits (all) 
+11-04 13:27:23.172  5336  5365 I godot   : WORLDTEST PASS corner_brick edit rebuilds 10 section(s) (all) rebuilt=110
+11-04 13:27:23.225  5336  5365 I godot   : WORLDTEST FILL mode=greedy policy=all fill_ms=53.48 voxels=243 sections=24 chunks=12 rust_ms=45.20 node_ms=4.79
+11-04 13:27:23.294  5336  5365 I godot   : WORLDTEST PASS fill leaves no stale mesh (greedy all) 
+11-04 13:27:23.409  5336  5365 I godot   : WORLDTEST PASS undo of the fill leaves no stale mesh (greedy all) 
+11-04 13:27:23.503  5336  5365 I godot   : WORLDTEST EDIT mode=greedy policy=all scenario=block3x3x3 avg_ms=22.70 rust_ms=15.46 node_ms=2.03 sections=10 chunks=5 faces=1732 stale=0 voxels=27
+11-04 13:27:23.573  5336  5365 I godot   : WORLDTEST PASS 3x3x3 block leaves no stale mesh (all) 
+11-04 13:27:23.769  5336  5365 I godot   : WORLDTEST PASS undo x3 leaves no stale mesh (all) stale=0
+11-04 13:27:23.770  5336  5365 I godot   : WORLDTEST PASS undo x3 restores the earlier face count (all) 1732 vs 1732
+11-04 13:27:23.901  5336  5365 I godot   : WORLDTEST PASS redo x3 leaves no stale mesh (all) 
+11-04 13:27:23.902  5336  5365 I godot   : WORLDTEST PASS redo x3 restores the edited face count (all) 1746 vs 1746
+11-04 13:27:23.902  5336  5365 I godot   : WORLDTEST PASS undo then redo move the same number of voxels (all) 29 vs 29
+11-04 13:27:23.902  5336  5365 I godot   : WORLDTEST UNDO mode=greedy policy=all undo_avg_ms=27.85 redo_avg_ms=19.35 undo_sections=30 redo_sections=30 rust_ms=69.50 node_ms=10.92 faces_before=1732 edited=1746 undone=1732
+11-04 13:27:23.902  5336  5365 I godot   : WORLDTEST MEM edit policy=all static_mb=0.0
+11-04 13:27:23.967  5336  5365 I godot   : WORLDTEST PASS edits are visible in the picture (all) 
+11-04 13:27:24.612  5336  5365 I godot   : WORLDTEST EDIT mode=greedy policy=chunk scenario=inside_section avg_ms=5.38 rust_ms=4.48 node_ms=0.49 sections=2.0 chunks=1.0 faces=1710 stale=0
+11-04 13:27:24.613  5336  5365 I godot   : WORLDTEST PASS no stale mesh after inside_section edits (chunk) 
+11-04 13:27:24.613  5336  5365 I godot   : WORLDTEST PASS inside_section edit rebuilds 2 section(s) (chunk) rebuilt=22
+11-04 13:27:24.735  5336  5365 I godot   : WORLDTEST EDIT mode=greedy policy=chunk scenario=brick_boundary avg_ms=4.79 rust_ms=3.40 node_ms=0.69 sections=2.0 chunks=1.0 faces=1716 stale=0
+11-04 13:27:24.735  5336  5365 I godot   : WORLDTEST PASS no stale mesh after brick_boundary edits (chunk) 
+11-04 13:27:24.736  5336  5365 I godot   : WORLDTEST PASS brick_boundary edit rebuilds 2 section(s) (chunk) rebuilt=22
+11-04 13:27:24.887  5336  5365 I godot   : WORLDTEST EDIT mode=greedy policy=chunk scenario=chunk_border avg_ms=7.15 rust_ms=5.99 node_ms=0.66 sections=4.0 chunks=2.0 faces=1716 stale=0
+11-04 13:27:24.887  5336  5365 I godot   : WORLDTEST PASS no stale mesh after chunk_border edits (chunk) 
+11-04 13:27:24.887  5336  5365 I godot   : WORLDTEST PASS chunk_border edit rebuilds 4 section(s) (chunk) rebuilt=44
+11-04 13:27:25.092  5336  5365 I godot   : WORLDTEST EDIT mode=greedy policy=chunk scenario=corner avg_ms=11.51 rust_ms=9.89 node_ms=1.20 sections=6.0 chunks=3.0 faces=1716 stale=0
+11-04 13:27:25.093  5336  5365 I godot   : WORLDTEST PASS no stale mesh after corner edits (chunk) 
+11-04 13:27:25.093  5336  5365 I godot   : WORLDTEST PASS corner edit rebuilds 6 section(s) (chunk) rebuilt=66
+11-04 13:27:25.305  5336  5365 I godot   : WORLDTEST EDIT mode=greedy policy=chunk scenario=corner_brick avg_ms=12.72 rust_ms=9.87 node_ms=2.43 sections=6.0 chunks=3.0 faces=1722 stale=0
+11-04 13:27:25.306  5336  5365 I godot   : WORLDTEST PASS no stale mesh after corner_brick edits (chunk) 
+11-04 13:27:25.306  5336  5365 I godot   : WORLDTEST PASS corner_brick edit rebuilds 6 section(s) (chunk) rebuilt=66
+11-04 13:27:25.330  5336  5365 I godot   : WORLDTEST FILL mode=greedy policy=chunk fill_ms=23.81 voxels=243 sections=8 chunks=4 rust_ms=16.81 node_ms=1.98
+11-04 13:27:25.408  5336  5365 I godot   : WORLDTEST PASS fill leaves no stale mesh (greedy chunk) 
+11-04 13:27:25.507  5336  5365 I godot   : WORLDTEST PASS undo of the fill leaves no stale mesh (greedy chunk) 
+11-04 13:27:25.587  5336  5365 I godot   : WORLDTEST EDIT mode=greedy policy=chunk scenario=block3x3x3 avg_ms=5.38 rust_ms=3.63 node_ms=1.40 sections=2 chunks=1 faces=1732 stale=0 voxels=27
+11-04 13:27:25.663  5336  5365 I godot   : WORLDTEST PASS 3x3x3 block leaves no stale mesh (chunk) 
+11-04 13:27:25.757  5336  5365 I godot   : WORLDTEST PASS undo x3 leaves no stale mesh (chunk) stale=0
+11-04 13:27:25.758  5336  5365 I godot   : WORLDTEST PASS undo x3 restores the earlier face count (chunk) 1732 vs 1732
+11-04 13:27:25.846  5336  5365 I godot   : WORLDTEST PASS redo x3 leaves no stale mesh (chunk) 
+11-04 13:27:25.846  5336  5365 I godot   : WORLDTEST PASS redo x3 restores the edited face count (chunk) 1746 vs 1746
+11-04 13:27:25.846  5336  5365 I godot   : WORLDTEST PASS undo then redo move the same number of voxels (chunk) 29 vs 29
+11-04 13:27:25.847  5336  5365 I godot   : WORLDTEST UNDO mode=greedy policy=chunk undo_avg_ms=4.38 redo_avg_ms=5.46 undo_sections=8 redo_sections=8 rust_ms=10.88 node_ms=1.43 faces_before=1732 edited=1746 undone=1732
+11-04 13:27:25.847  5336  5365 I godot   : WORLDTEST MEM edit policy=chunk static_mb=0.0
+11-04 13:27:25.923  5336  5365 I godot   : WORLDTEST PASS edits are visible in the picture (chunk) 
+11-04 13:27:26.540  5336  5365 I godot   : WORLDTEST EDIT mode=greedy policy=partial scenario=inside_section avg_ms=2.85 rust_ms=2.35 node_ms=0.35 sections=1.0 chunks=1.0 faces=1710 stale=0
+11-04 13:27:26.540  5336  5365 I godot   : WORLDTEST PASS no stale mesh after inside_section edits (partial) 
+11-04 13:27:26.541  5336  5365 I godot   : WORLDTEST PASS inside_section edit rebuilds 1 section(s) (partial) rebuilt=11
+11-04 13:27:26.656  5336  5365 I godot   : WORLDTEST EDIT mode=greedy policy=partial scenario=brick_boundary avg_ms=3.98 rust_ms=3.42 node_ms=0.40 sections=2.0 chunks=1.0 faces=1716 stale=0
+11-04 13:27:26.656  5336  5365 I godot   : WORLDTEST PASS no stale mesh after brick_boundary edits (partial) 
+11-04 13:27:26.656  5336  5365 I godot   : WORLDTEST PASS brick_boundary edit rebuilds 2 section(s) (partial) rebuilt=22
+11-04 13:27:26.784  5336  5365 I godot   : WORLDTEST EDIT mode=greedy policy=partial scenario=chunk_border avg_ms=5.22 rust_ms=4.42 node_ms=0.61 sections=2.0 chunks=2.0 faces=1716 stale=0
+11-04 13:27:26.785  5336  5365 I godot   : WORLDTEST PASS no stale mesh after chunk_border edits (partial) 
+11-04 13:27:26.785  5336  5365 I godot   : WORLDTEST PASS chunk_border edit rebuilds 2 section(s) (partial) rebuilt=22
+11-04 13:27:26.986  5336  5365 I godot   : WORLDTEST EDIT mode=greedy policy=partial scenario=corner avg_ms=11.87 rust_ms=8.05 node_ms=3.58 sections=3.0 chunks=3.0 faces=1716 stale=0
+11-04 13:27:26.986  5336  5365 I godot   : WORLDTEST PASS no stale mesh after corner edits (partial) 
+11-04 13:27:26.986  5336  5365 I godot   : WORLDTEST PASS corner edit rebuilds 3 section(s) (partial) rebuilt=33
+11-04 13:27:27.159  5336  5365 I godot   : WORLDTEST EDIT mode=greedy policy=partial scenario=corner_brick avg_ms=9.28 rust_ms=7.16 node_ms=1.82 sections=4.0 chunks=3.0 faces=1722 stale=0
+11-04 13:27:27.159  5336  5365 I godot   : WORLDTEST PASS no stale mesh after corner_brick edits (partial) 
+11-04 13:27:27.159  5336  5365 I godot   : WORLDTEST PASS corner_brick edit rebuilds 4 section(s) (partial) rebuilt=44
+11-04 13:27:27.167  5336  5365 I godot   : WORLDTEST FILL mode=greedy policy=partial fill_ms=7.92 voxels=243 sections=4 chunks=4 rust_ms=5.38 node_ms=0.65
+11-04 13:27:27.234  5336  5365 I godot   : WORLDTEST PASS fill leaves no stale mesh (greedy partial) 
+11-04 13:27:27.310  5336  5365 I godot   : WORLDTEST PASS undo of the fill leaves no stale mesh (greedy partial) 
+11-04 13:27:27.385  5336  5365 I godot   : WORLDTEST EDIT mode=greedy policy=partial scenario=block3x3x3 avg_ms=5.67 rust_ms=4.75 node_ms=0.56 sections=2 chunks=1 faces=1732 stale=0 voxels=27
+11-04 13:27:27.458  5336  5365 I godot   : WORLDTEST PASS 3x3x3 block leaves no stale mesh (partial) 
+11-04 13:27:27.546  5336  5365 I godot   : WORLDTEST PASS undo x3 leaves no stale mesh (partial) stale=0
+11-04 13:27:27.546  5336  5365 I godot   : WORLDTEST PASS undo x3 restores the earlier face count (partial) 1732 vs 1732
+11-04 13:27:27.627  5336  5365 I godot   : WORLDTEST PASS redo x3 leaves no stale mesh (partial) 
+11-04 13:27:27.628  5336  5365 I godot   : WORLDTEST PASS redo x3 restores the edited face count (partial) 1746 vs 1746
+11-04 13:27:27.628  5336  5365 I godot   : WORLDTEST PASS undo then redo move the same number of voxels (partial) 29 vs 29
+11-04 13:27:27.629  5336  5365 I godot   : WORLDTEST UNDO mode=greedy policy=partial undo_avg_ms=2.84 redo_avg_ms=3.06 undo_sections=5 redo_sections=5 rust_ms=7.09 node_ms=0.89 faces_before=1732 edited=1746 undone=1732
+11-04 13:27:27.629  5336  5365 I godot   : WORLDTEST MEM edit policy=partial static_mb=0.0
+11-04 13:27:27.680  5336  5365 I godot   : WORLDTEST PASS edits are visible in the picture (partial) 
+11-04 13:27:27.924  5336  5365 I godot   : WORLDTEST PASS all ends with the same number of faces as partial 1746 vs 1746
+11-04 13:27:27.924  5336  5365 I godot   : WORLDTEST PASS chunk ends with the same number of faces as partial 1746 vs 1746
+11-04 13:27:27.924  5336  5365 I godot   : WORLDTEST PASS partial ends with the same number of faces as partial 1746 vs 1746
+11-04 13:27:27.938  5336  5365 I godot   : WORLDTEST IMAGE policy=all vs partial differing_pixels=0 of 1977600 (3D area)
+11-04 13:27:27.939  5336  5365 I godot   : WORLDTEST PASS picture after edits and undo/redo identical to partial (all) 
+11-04 13:27:27.949  5336  5365 I godot   : WORLDTEST IMAGE policy=chunk vs partial differing_pixels=0 of 1977600 (3D area)
+11-04 13:27:27.949  5336  5365 I godot   : WORLDTEST PASS picture after edits and undo/redo identical to partial (chunk) 
+11-04 13:27:27.959  5336  5365 I godot   : WORLDTEST IMAGE policy=partial vs partial differing_pixels=0 of 1977600 (3D area)
+11-04 13:27:27.959  5336  5365 I godot   : WORLDTEST PASS picture after edits and undo/redo identical to partial (partial) 
+11-04 13:27:28.126  5336  5365 I godot   : WORLDTEST PASS faces: save 
+11-04 13:27:28.308  5336  5365 I godot   : WORLDTEST PASS faces: no stale section after jump 
+11-04 13:27:28.385  5336  5365 I godot   : WORLDTEST PASS faces: load 
+11-04 13:27:28.518  5336  5365 I godot   : WORLDTEST STEP mode=faces fill changed=243 rebuilt_sections=4
+11-04 13:27:28.518  5336  5365 I godot   : WORLDTEST STEP mode=faces edit_8_10_8 changed=1 rebuilt_sections=1
+11-04 13:27:28.518  5336  5365 I godot   : WORLDTEST STEP mode=faces edit_8_15_8 changed=1 rebuilt_sections=2
+11-04 13:27:28.519  5336  5365 I godot   : WORLDTEST STEP mode=faces edit_15_10_8 changed=1 rebuilt_sections=2
+11-04 13:27:28.519  5336  5365 I godot   : WORLDTEST STEP mode=faces edit_15_15_15 changed=1 rebuilt_sections=4
+11-04 13:27:28.520  5336  5365 I godot   : WORLDTEST STEP mode=faces edit_block changed=27 rebuilt_sections=2
+11-04 13:27:28.520  5336  5365 I godot   : WORLDTEST STEP mode=faces undo changed=0 rebuilt_sections=2
+11-04 13:27:28.521  5336  5365 I godot   : WORLDTEST STEP mode=faces redo changed=0 rebuilt_sections=4
+11-04 13:27:28.521  5336  5365 I godot   : WORLDTEST STEP mode=faces jump changed=0 rebuilt_sections=84
+11-04 13:27:28.522  5336  5365 I godot   : WORLDTEST PASS faces: no stale section after load { "area": 12428, "elements": 12428, "stale": 0 }
+11-04 13:27:28.523  5336  5365 I godot   : WORLDTEST PASS faces: load restores the saved geometry 12428 vs 12428
+11-04 13:27:28.523  5336  5365 I godot   : WORLDTEST SESSION mode=faces total_ms=489.4 area=12428 elements=12428
+11-04 13:27:28.909  5336  5365 I godot   : WORLDTEST PASS switch faces -> greedy keeps the covered geometry { "area": 12428, "elements": 1738, "stale": 0 } vs { "area": 12428, "elements": 12428, "stale": 0 }
+11-04 13:27:28.909  5336  5365 I godot   : WORLDTEST PASS greedy draws fewer elements than faces 1738 vs 12428
+11-04 13:27:29.124  5336  5365 I godot   : WORLDTEST PASS greedy: save 
+11-04 13:27:29.431  5336  5365 I godot   : WORLDTEST PASS greedy: no stale section after jump 
+11-04 13:27:29.435  5336  5365 I godot   : WORLDTEST PASS greedy: load 
+11-04 13:27:29.648  5336  5365 I godot   : WORLDTEST STEP mode=greedy fill changed=243 rebuilt_sections=4
+11-04 13:27:29.648  5336  5365 I godot   : WORLDTEST STEP mode=greedy edit_8_10_8 changed=1 rebuilt_sections=1
+11-04 13:27:29.648  5336  5365 I godot   : WORLDTEST STEP mode=greedy edit_8_15_8 changed=1 rebuilt_sections=2
+11-04 13:27:29.648  5336  5365 I godot   : WORLDTEST STEP mode=greedy edit_15_10_8 changed=1 rebuilt_sections=2
+11-04 13:27:29.648  5336  5365 I godot   : WORLDTEST STEP mode=greedy edit_15_15_15 changed=1 rebuilt_sections=4
+11-04 13:27:29.648  5336  5365 I godot   : WORLDTEST STEP mode=greedy edit_block changed=27 rebuilt_sections=2
+11-04 13:27:29.648  5336  5365 I godot   : WORLDTEST STEP mode=greedy undo changed=0 rebuilt_sections=2
+11-04 13:27:29.648  5336  5365 I godot   : WORLDTEST STEP mode=greedy redo changed=0 rebuilt_sections=4
+11-04 13:27:29.648  5336  5365 I godot   : WORLDTEST STEP mode=greedy jump changed=0 rebuilt_sections=82
+11-04 13:27:29.648  5336  5365 I godot   : WORLDTEST PASS greedy: no stale section after load { "area": 12428, "elements": 1738, "stale": 0 }
+11-04 13:27:29.648  5336  5365 I godot   : WORLDTEST PASS greedy: load restores the saved geometry 12428 vs 12428
+11-04 13:27:29.648  5336  5365 I godot   : WORLDTEST SESSION mode=greedy total_ms=589.2 area=12428 elements=1738
+11-04 13:27:29.733  5336  5365 I godot   : WORLDTEST PASS greedy session covers the same geometry as faces 12428 vs 12428
+11-04 13:27:29.755  5336  5365 I godot   : WORLDTEST IMAGE faces vs greedy(after switch): of 1977600 px 0 differ, 0 holes; faces vs greedy(session): 0 differ, 0 holes
+11-04 13:27:29.755  5336  5365 I godot   : WORLDTEST PASS faces and greedy pictures equivalent after switching 
+11-04 13:27:29.755  5336  5365 I godot   : WORLDTEST PASS faces and greedy pictures equivalent after the same session 
+11-04 13:27:31.295  5336  5365 I godot   : WORLDTEST VIEW 0 of 1977600 px: 0 differ, 0 of them background holes
+11-04 13:27:31.840  5336  5365 I godot   : WORLDTEST VIEW 1 of 1977600 px: 0 differ, 0 of them background holes
+11-04 13:27:32.464  5336  5365 I godot   : WORLDTEST VIEW 2 of 1977600 px: 0 differ, 0 of them background holes
+11-04 13:27:33.030  5336  5365 I godot   : WORLDTEST VIEW 3 of 1977600 px: 0 differ, 0 of them background holes
+11-04 13:27:33.542  5336  5365 I godot   : WORLDTEST VIEW 4 of 1977600 px: 0 differ, 0 of them background holes
+11-04 13:27:33.542  5336  5365 I godot   : WORLDTEST VIEWS total of 9888000 px: 0 differ, 0 background holes
+11-04 13:27:33.543  5336  5365 I godot   : WORLDTEST PASS no background shows through the greedy mesh in any view 0 holes
+11-04 13:27:33.543  5336  5365 I godot   : WORLDTEST PASS faces and greedy pictures identical in all views 0 of 9888000 pixels differ
+11-04 13:27:33.651  5336  5365 I godot   : WORLDTEST PASS cubes mode after switching has one node per chunk 
+11-04 13:27:33.781  5336  5365 I godot   : WORLDTEST PASS switch back to faces keeps the geometry 
+11-04 13:27:33.781  5336  5365 I godot   : WORLDTEST SUMMARY failures=0
+11-04 13:27:33.782  5336  5365 I godot   : WORLDTEST DONE staying alive

@@ -535,3 +535,128 @@ Smoke thresholds (so the test documents rather than hides the defect): over all 
 ## 28. Not for `master` without a separate owner decision
 
 Everything in this branch remains experimental. In particular from this stage: the greedy mesher and its `Quad` format; the spike-local inverse-edit journal (`undo`/`redo`) and `fill_box` in the adapter (writes through the Core commit primitive outside the Editing API); `world-state-v0` and the terrain/chunk layout (unchanged but still unapproved); the world-generation API, `CubeWorld`/`WorldBridge`; the Android validation presets (debug-key signing) and the harness scripts; the `OS.execute`-based property mechanism. Nothing touching RevisionToken, undo semantics, persistence format, TCP protocol, ACR-001/002/003 or P0/P1 status was changed.
+
+
+---
+
+# Stage 6: T-junction fix, greedy equals faces pixel for pixel
+
+**Status:** experimental, `spike/rust-world-generation`, base `239aea8`. `master` unchanged, nothing merged; **greedy is not promoted to the main renderer** (that stays `faces`) and must not go to `master` without a separate owner decision. Not changed: Geometry Core API, RevisionToken, undo semantics, `world-state-v0`, persistence format, TCP protocol, P0/P1 status, the terrain algorithm.
+
+## 29. Decisions recorded (owner)
+
+* `OS.execute` makes the ARM64 translated emulator unstable (section 26). Runs without `OS.execute` had no crashes in the tests performed (ARM64 9/9 in stage 5, 9/9 again in this stage). ARM64 emulator validation stays **`inconclusive`**.
+* The `noexec` presets are used for every further automated run. `OS.execute` must not reach any production runtime (it is a test-harness mechanism only; the property lookup is now skipped under the `noexec` feature and must be removed before any non-spike build).
+* `greedy` is not the main renderer; `faces` and `cubes` are the reference modes.
+
+## 30. Options evaluated
+
+The pinholes of section 25 are T-junctions: vertices of neighbouring quads lying in the interior of a quad's edge. Costs are triangles of the 5x5 area (87 098 voxels, 12 146 visible faces); `faces` has 24 292.
+
+| # | Option | Result |
+|---|---|---|
+| 1 | Compatible vertex grid: every lattice point on every quad edge | estimated 13 954 triangles (stage 5), not built; most of the saving is lost |
+| 2 | Forced subdivision only where a neighbour has a vertex (minimal conforming: corners of other quads on the edge, plus every lattice point on section-boundary planes) | **8 482 triangles**, implemented as `SeamRule::Minimal`; holes gone, but 25 single-pixel differences remained in 4 extra camera views |
+| 3 | Seam strips along section boundaries | not needed: on the six boundary planes of a section every edge carries every lattice point on **both** sides, so adjacent sections match without looking at each other (this also keeps the partial rebuild rule: a section's mesh depends only on its own quads) |
+| 4 | Option 2 plus every lattice point along edge stretches that border a surface of another colour or plane | **10 858 triangles**, implemented as `SeamRule::VisibleEdges` (default); **0 differing pixels in all views** |
+
+The edge stretches between two coplanar quads of the same material keep only the corner vertices (they are invisible: same colour, same plane). A stretch borders "another surface" unless the coplanar cell across it holds a visible face of the same material (cells outside the section count as different, which is also what makes the section boundary rule consistent).
+
+Triangulation: each quad rectangle is split along its diagonal `c0 c2`; for a triangle `A B C` with extra points `a_1..a_m` on `A..B` and `b_1..b_n` on `B..C`, a fan from `C` over `A..a_m` plus a fan from `a_m` over `B..b_n..C` cover it exactly with `m + n + 1` triangles and use every boundary vertex (a first attempt with ear clipping left collinear boundary points unused and was dropped).
+
+## 31. What it took to reach 0 pixel differences (found by measurement)
+
+Pixel differences between `faces` and `greedy` had three independent causes; each was identified from the pixel positions and removed:
+
+1. **T-junction pinholes**: background shows through at some edges. Fixed by sections 30 option 2 (holes: 77 visible pixels per 9.9 M before, 0 after).
+2. **±1 colour level inside surfaces**: the default Godot material (Burley diffuse, specular) computes lighting from the interpolated fragment position, which differs by float noise between two triangulations of the same plane. The `faces`/`greedy` material now uses Lambert diffuse and no specular, so a flat face has one colour per normal. (The `cubes` material is unchanged; cubes and faces/greedy now differ slightly in shading, which is a rendering choice, not a geometry difference.)
+3. **Single-pixel swaps along edges where two different surfaces meet** (25 pixels per 2.98 M with option 2): the GPU snaps vertices to a sub-pixel grid, and an edge subdivided differently in the two meshes lands up to a fraction of a pixel apart. Fixed by option 4: wherever two different-coloured surfaces meet, the edge has the same vertices as in the one-face-per-voxel mesh.
+
+## 32. Tests (128 workspace tests pass, was 119; clippy clean)
+
+New `crates/cube-godot-adapter/tests/tjunction.rs` (9), plus the 11 existing greedy tests (all pass unchanged on quads; mesh-level tests updated to the new vertex counts):
+
+| Requirement | Test |
+|---|---|
+| geometric comparison of normalised quads | `greedy.rs`: unit-face expansion of the quads equals the reference (position, normal, size, material), in every section, after random edits, undo/redo |
+| no T-junction anywhere | `the_whole_greedy_surface_has_no_t_junctions` (3 seeds incl. negative coordinates, both seam rules): no vertex of any section lies strictly inside any triangle edge of any section |
+| each quad triangulated exactly | `every_quad_is_triangulated_exactly_without_degenerate_triangles`: `n - 2` triangles, all non-degenerate and clockwise from outside, areas sum to `w*h`, all vertices on the quad rectangle, distinct |
+| boundary vertices | `boundary_vertices_follow_the_rule`: a point on a quad edge is a vertex iff the edge lies on a section boundary plane, or the point is a corner of another quad, or (VisibleEdges) it touches a stretch that borders another surface; the rule is re-implemented independently from the reference unit faces |
+| two greedy sections joined | `two_greedy_sections_conform_on_a_brick_joint_and_on_a_chunk_border` (busy fills straddling y = 16 and x = 16; brick joint, chunk border, four chunks) |
+| neighbouring chunks | same test and `the_whole_greedy_surface...` over all chunk borders |
+| different materials | `different_materials_keep_conforming_seams` (material changes next to borders) |
+| Edit/Undo/Redo after the fix | `edit_undo_redo_keep_the_mesh_conforming_and_restore_it` (meshes restored exactly, conforming after each step), `partial_rebuild_equals_full_rebuild_and_stays_conforming` (40 random edits, cache refreshed from dirty sections equals full rebuild) |
+| triangle saving kept | `conforming_greedy_keeps_most_of_the_triangle_saving` (more than 2x fewer triangles than faces) |
+
+Mutation checks: dropping the corner rule or the boundary-lattice rule fails 6 of 8 tests; disabling the visible-edge rule fails `boundary_vertices_follow_the_rule`.
+
+**Godot smoke** (all modes, `failures=0`; desktop headless x6 runs, desktop windowed x2, Android x86_64 x6, Android ARM64 x9): everything of section 22 plus the pixel comparison below.
+
+## 33. Pixel comparison faces vs greedy: 0 differences
+
+3D area below the HUD, same scene after the same Fill/Edit/Undo/Redo/Save/Jump/Load session, switched in the running app, in 5 camera views:
+
+| Platform | Pixels compared | Differing | Background holes |
+|---|---|---|---|
+| Windows desktop, windowed (x2 runs, both renderer start modes) | 2 983 680 | **0** | 0 |
+| Android x86_64 emulator, noexec (x4 faces/greedy runs) | 9 888 000 each | **0** | 0 |
+| Android ARM64 emulator, translated, noexec (x6 faces/greedy runs) | 9 888 000 each | **0** | 0 |
+
+The desktop result was cross-checked outside Godot with an independent image difference (Python/Pillow on the saved PNGs of all 5 views and of the session view): 0 differing pixels. Pictures under the three rebuild policies of one renderer remain bit-identical (section 24). The check is sensitive: the same comparison reported 77 and 25 differing pixels before the fixes of section 31.
+
+Limit of this claim: bit-identity was reached for these scenes, resolutions, views and GPUs (RTX 3070 Ti, emulator GL translator). Two different triangulations are not guaranteed to rasterise identically in general; the guarantee is structural (no T-junction, identical vertices on every edge between different surfaces, flat lighting), not a proof for every camera.
+
+## 34. Costs: faces vs greedy (T-junction free)
+
+5x5 area; the same on every platform:
+
+| | faces | greedy before (stage 5) | **greedy now** |
+|---|---|---|---|
+| drawable elements | 12 146 faces | 1 710 quads | 1 710 quads |
+| vertices | 48 584 | 6 840 | **14 278** |
+| triangles | 24 292 | 3 420 | **10 858** (2.2x fewer than faces; 3x more than before) |
+| mesh data (Godot formula) | 2 182 KB | 307 KB | **701 KB** (3.2x smaller than faces) |
+| primitives in a frame (windowed) | 18 562 | 3 798 | **9 074** |
+| video memory (windowed desktop) | 13.4 MB | 12.3 MB | 12.6 MB |
+| draw calls | 48 | 48 | 48 |
+
+The fix gives back part of the geometric saving (3 420 -> 10 858 triangles) in exchange for visual equality; 3x3 / 7x7 areas: 4 980 / 18 652 triangles (faces 11 068 / 42 080).
+
+CPU time (the conforming build needs hash sets and a face map per section): Rust per chunk (2 sections) `render_bench`: faces 0.156 ms, greedy **0.261 ms** (+67%; stage 5 greedy: 0.173 ms). Desktop headless, Godot, 2 runs (release Rust library):
+
+| | faces | greedy |
+|---|---|---|
+| full build 5x5 (total / per chunk) | 10.3-10.4 ms / 0.17 ms | 10.9-11.4 ms / 0.18-0.19 ms |
+| Edit inside a section / on a chunk border (`partial`) | 0.21-0.23 / 0.43-0.44 ms | 0.29 / 0.54-0.57 ms |
+| Fill 9x3x9 across 4 chunks (`partial`) | 0.75-1.21 ms | 0.90-0.93 ms |
+| Undo avg / redo avg | 0.25-0.30 / 0.39-0.40 ms | 0.29-0.31 / 0.34-0.35 ms |
+| Load | 4.4 ms | 4.4-4.9 ms |
+| Godot static memory | 27.3 MB | 26.4 MB |
+
+`all` / `chunk` / `partial` policies keep their ordering for greedy (Edit inside a section, desktop: 1.78 / 0.37 / 0.29 ms; faces 1.46 / 0.28 / 0.21 ms). Android noexec, run 1 (ms):
+
+| | x86_64 faces | x86_64 greedy | ARM64 faces | ARM64 greedy |
+|---|---|---|---|---|
+| full build 5x5 | 45.3 | 56.3 | 90.3 | 166.3 |
+| Edit inside a section (`partial`) | 2.51 | 1.30 | 2.19 | 2.85 |
+| Edit on a chunk border | 2.52 | 2.48 | 4.10 | 5.22 |
+| Fill (`partial`) | 4.73 | 6.34 | 7.09 | 7.92 |
+| Undo avg / redo avg | 1.53 / 1.34 | 1.69 / 2.72 | 2.37 / 2.77 | 2.84 / 3.06 |
+| Load | 15.6 | 17.3 | 42.3 | 73.5 |
+| Godot video memory | 25.2 MB | 24.3 MB | 25.2 MB | 24.3 MB |
+
+Run-to-run variation on the emulators is 2x, so only coarse conclusions hold: **greedy is no longer faster than faces in CPU time** (up to 1.5-2x slower in the build on the translated ARM64), and its advantage is in GPU data (3.2x less mesh data, 2x fewer primitives, 2.2x fewer triangles). Process memory (1 run per cell, end of the run; cubes does not run the edit/renderer-matrix phases, so its peak is not comparable): x86_64 peak RSS 335 / 387 / 384 MB (cubes / faces / greedy), PSS 163 / 142 / 137 MB; ARM64 767 / 818 / 818 MB, PSS 545 / 532 / 532 MB.
+
+## 35. Android emulator runs (all without `OS.execute`)
+
+15 launches, every launch counted: **ARM64 translated: 9 of 9 completed the full smoke with `failures=0`** (cubes 3, faces 3, greedy 3); **x86_64: 6 of 6** (2 per mode). No SIGSEGV or ANR in any run; raw verdicts in `tjunction-runs/`. Had the translated emulator crashed it would have been recorded as an emulator limitation, not as an application result; it did not. These results are still emulator results: ARM64 validation remains `inconclusive` until a physical ARM64 device is tested.
+
+## 36. Limitations and decision
+
+* Visual equality is bit-exact only for the tested scenes; it rests on identical vertices along edges between different surfaces, which cost 3x the triangles of the stage 5 mesh.
+* Greedy now costs more CPU than faces to build (the saving is GPU data and primitives); on mobile the trade may still be right, but the emulator cannot show it. Possible next steps (not started): cheaper seam bookkeeping (no hash maps), fewer extra vertices on edges whose both sides are the same colour from the camera's viewpoint (not safe), measuring on a real GPU.
+* Section-local meshes and brick-sized quads remain: quads do not merge across sections.
+* The faces/greedy material changed to Lambert diffuse without specular; a production material would need to decide this explicitly.
+* No physical ARM64 phone, no iOS: nothing is mobile-ready.
+
+**Readiness:** `greedy` meets the stated bar (no background through it, same visible surface as `faces`, 0 differing pixels in the compared views on all three platforms, partial rebuild, Edit/Undo/Redo and section/chunk seams correct). It is **not** promoted: it remains an experimental option behind `faces`, and a decision to make it the default belongs to the owner after (a) a real-device run and (b) a review of the CPU cost above. Not for `master`: the greedy mesher, `Quad`/`QuadMesh`/`SeamRule`, the spike-local undo journal and `fill_box`, the `noexec` presets and harness scripts, and everything listed in section 28.
