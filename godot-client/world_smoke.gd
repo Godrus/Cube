@@ -1,0 +1,543 @@
+extends "res://world.gd"
+## Test-only entry point (scene `world_test.tscn`). It extends the client script and drives it: scripted smoke
+## test, edit/undo/redo/fill benchmark, renderer comparison and an optional soak run. It is not part of the
+## client export presets and is never loaded by `world.tscn`.
+##   godot --headless --path godot-client world_test.tscn -- --world-smoke [--renderer=<m>] [--rebuild=<p>]
+##   godot --path godot-client world_test.tscn -- --world-smoke --shot=<dir>     with a renderer (screenshots, images)
+##   ... -- --soak-seconds=N     run the soak loop for N seconds after the smoke test (default 600 with feature "soak")
+## Mobile test exports (custom feature "worldtest") start this scene, print `WORLDTEST DONE` and stay alive so
+## that memory can be read from outside; the buttons' screen positions are printed as `WORLDTEST BTN`.
+
+var start_renderer := "faces"          # the renderer requested for this run (the renderer matrix switches modes)
+
+func _ready() -> void:
+	if not _init_world():
+		print("WORLDTEST FAIL CubeWorld class missing (GDExtension not loaded)")
+		get_tree().quit(1)
+		return
+	start_renderer = renderer
+	auto_stream = false
+	await _smoke()
+	auto_stream = true
+
+
+var _failures := 0
+
+func _check(name: String, cond: bool, detail: String = "") -> void:
+	print("WORLDTEST %s %s %s" % ["PASS" if cond else "FAIL", name, detail])
+	if not cond:
+		_failures += 1
+
+func _node_keys_match_active() -> bool:
+	var a: PackedInt32Array = world.active_chunks()
+	if a.size() / 2 != chunks.size():
+		return false
+	for i in range(0, a.size(), 2):
+		if not chunks.has(Vector2i(a[i], a[i + 1])):
+			return false
+	return true
+
+func _frames(n: int) -> void:
+	for i in n:
+		await get_tree().process_frame
+
+func _smoke() -> void:
+	print("WORLDTEST ENV godot=%s gpu=%s mode=%s" % [Engine.get_version_info().string, RenderingServer.get_video_adapter_name(), renderer])
+	_check("class available and seed set", world.seed() == SEED)
+	var shot_dir := "user://"
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--shot="):
+			shot_dir = a.substr(7)
+
+	var t0 := Time.get_ticks_usec()
+	_stream()
+	var first_ms := (Time.get_ticks_usec() - t0) / 1000.0
+	_check("3x3 chunks active", world.active_count() == 9, "active=%d" % world.active_count())
+	_check("3x3 chunk nodes", chunks.size() == 9 and _node_keys_match_active())
+	print("WORLDTEST TIME first_3x3 mode=%s total_ms=%.2f build_ms_per_chunk=%.2f voxels=%d drawn=%d" % [renderer, first_ms, _avg(update_us) / 1000.0, world.active_voxels(), _drawn_elements()])
+	await _shot(shot_dir + "/world-%s-1-3x3.png" % renderer, Vector3(0, 40, 48))
+	var data: PackedInt32Array = world.chunk_voxels(0, 0)
+	_check("voxel data of ready chunk", data.size() > 0 and data.size() % 4 == 0, "voxels=%d" % (data.size() / 4))
+	_check("unloaded chunk has no data", world.chunk_voxels(99, 99).is_empty() and world.chunk_voxel_count(99, 99) == -1)
+
+	# Move the camera/player five chunks east (beyond radius + margin): far chunks must go, new ones must come.
+	var before_keys := chunks.keys()
+	_place_player(player.x + 80.0, player.z)
+	_stream()
+	_check("still 9 active after moving", world.active_count() == 9 and chunks.size() == 9 and _node_keys_match_active())
+	var far_gone := true
+	for k in before_keys:
+		if k.x <= 0 and chunks.has(k):
+			far_gone = false
+	_check("every chunk left of x=1 was unloaded", far_gone)
+	await _shot(shot_dir + "/world-%s-2-moved.png" % renderer, Vector3(0, 40, 48))
+	_check("new neighbours loaded", chunks.has(Vector2i(4, 0)) and chunks.has(Vector2i(5, 0)) and chunks.has(Vector2i(6, 0)))
+
+	# Edit near the player, then save, wander off, load.
+	var te := Time.get_ticks_usec()
+	var edited: int = world.edit_around(floori(player.x), floori(player.y) + 2, floori(player.z))
+	_apply_delta()
+	print("WORLDTEST TIME edit mode=%s total_ms=%.2f" % [renderer, (Time.get_ticks_usec() - te) / 1000.0])
+	_check("edit changed 27 voxels", edited == 27 and world.edit_count() == 27, "edited=%d" % edited)
+	var voxels_before: int = world.active_voxels()
+	var path := ProjectSettings.globalize_path("user://world_smoke.wst0")
+	_check("save", world.save(path), world.last_error())
+	_place_player(-400.0, 300.0)
+	_stream()
+	_check("wandered to a different area", world.active_count() == 9 and not chunks.has(Vector2i(5, 0)))
+	var tl := Time.get_ticks_usec()
+	_check("load", world.load(path), world.last_error())
+	_clear_chunks()
+	_apply_delta()
+	print("WORLDTEST TIME load mode=%s total_ms=%.2f" % [renderer, (Time.get_ticks_usec() - tl) / 1000.0])
+	_check("loaded world has 9 active chunks and nodes", world.active_count() == 9 and chunks.size() == 9 and _node_keys_match_active())
+	_check("voxel count restored", world.active_voxels() == voxels_before, "%d vs %d" % [world.active_voxels(), voxels_before])
+	_check("edits restored", world.edit_count() == 27)
+
+	# 5x5 and timings.
+	world.create(SEED, 2)
+	_clear_chunks()
+	update_us.clear()
+	_place_player(8.5, 8.5)
+	t0 = Time.get_ticks_usec()
+	_stream()
+	var ms5 := (Time.get_ticks_usec() - t0) / 1000.0
+	_check("5x5 chunks active", world.active_count() == 25 and chunks.size() == 25)
+	print("WORLDTEST TIME first_5x5 mode=%s total_ms=%.2f build_ms_per_chunk=%.2f voxels=%d drawn=%d triangles=%d" % [renderer, ms5, _avg(update_us) / 1000.0, world.active_voxels(), _drawn_elements(), _drawn_triangles()])
+	print("WORLDTEST GEOM mode=%s elements=%d triangles=%d mesh_bytes=%d voxels=%d nodes=%d" % [renderer, _drawn_elements(), _drawn_triangles(), _mesh_bytes(), world.active_voxels(), _node_count()])
+	if _is_mesh():
+		_check("drawn elements are far fewer than cube faces", _drawn_elements() * 10 < world.active_voxels() * 6, "elements=%d cube_faces=%d" % [_drawn_elements(), world.active_voxels() * 6])
+		var sum := 0
+		for k in chunks:
+			sum += world.chunk_face_count(k.x, k.y)
+		var totals := _geom_totals()
+		_check("covered unit faces from Rust equal the visible faces", totals["area"] == sum, "%d vs %d" % [totals["area"], sum])
+		_check("no stale section after the first fill", totals["stale"] == 0)
+	else:
+		_check("one cube instance per voxel", _drawn_elements() == world.active_voxels())
+	await _frames(60)
+	var t1 := Time.get_ticks_usec()
+	await _frames(300)
+	var fps := 300.0 / ((Time.get_ticks_usec() - t1) / 1e6)
+	print("WORLDTEST FPS 5x5 mode=%s fps=%.0f (headless/dummy renderer fps is not a rendering result)" % [renderer, fps])
+	print("WORLDTEST MEM mode=%s static_mb=%.1f video_mb=%.1f draw_calls=%d primitives=%d" % [renderer, OS.get_static_memory_usage() / 1048576.0, RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_VIDEO_MEM_USED) / 1048576.0, RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME), RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME)])
+	await _shot(shot_dir + "/world-%s-3-5x5.png" % renderer, Vector3(0, 70, 80))
+	if _is_mesh():
+		await _edit_bench(shot_dir)
+		await _renderer_matrix(shot_dir)
+	print("WORLDTEST SUMMARY failures=%d" % _failures)
+	var soak_s := _soak_seconds()
+	if soak_s > 0:
+		await _soak(soak_s)
+	_set_renderer(start_renderer)              # leave the app in the requested mode for manual / touch checks
+	_print_buttons()
+	# Mobile validation exports (custom feature "worldtest") stay alive so memory can be read from outside.
+	if OS.has_feature("worldtest") and not ("--world-smoke" in OS.get_cmdline_user_args()):
+		print("WORLDTEST DONE staying alive")
+		return
+	get_tree().quit(0 if _failures == 0 else 1)
+
+## Saves a screenshot when a real renderer is present (skipped headless); camera is posed behind the player.
+func _shot(path: String, offset: Vector3) -> void:
+	if DisplayServer.get_name() == "headless":
+		return
+	camera.look_at_from_position(player + offset, player)
+	await _frames(3)
+	await RenderingServer.frame_post_draw
+	var img := get_viewport().get_texture().get_image()
+	print("WORLDTEST SHOT %s err=%d" % [path, img.save_png(path)])
+
+func _avg(a: Array) -> float:
+	if a.is_empty():
+		return 0.0
+	var s := 0.0
+	for v in a:
+		s += v
+	return s / a.size()
+
+## Edit cost of the faces renderer under each rebuild policy, on a fresh 5x5 world each time.
+## Scenarios (single-voxel toggles between a placed block and air) with the sections the "partial" policy must rebuild:
+##   inside_section (1), brick_boundary (2), chunk_border (2), corner (3), corner_brick (4); plus a 3x3x3 block,
+## then three edits undone and redone. Every step checks that no drawn mesh is stale and that the pictures of all
+## policies are identical.
+func _stale_sections() -> int:
+	var n := 0
+	for k in chunks:
+		for bi in 2:
+			var want: int = world.section_face_count(k.x, bi, k.y)
+			if renderer == "greedy":
+				want = world.section_greedy_stats(k.x, bi, k.y)[0]
+			if drawn.get(Vector3i(k.x, bi, k.y), 0) != maxi(want, 0):
+				n += 1
+	return n
+
+## Visible unit faces covered by the current meshes (greedy: sum of quad areas), drawn elements, stale sections.
+func _geom_totals() -> Dictionary:
+	var area := 0
+	for k in chunks:
+		for bi in 2:
+			if renderer == "greedy":
+				area += maxi(world.section_greedy_stats(k.x, bi, k.y)[1], 0)
+			else:
+				area += maxi(world.section_face_count(k.x, bi, k.y), 0)
+	return {"area": area, "elements": _drawn_elements(), "stale": _stale_sections()}
+
+func _mesh_bytes() -> int:
+	if renderer == "cubes":
+		return _drawn_elements() * 64
+	var n := 0
+	for k in mesh_stats:                                # vertices (position, normal, colour = 40 B) + 32-bit indices
+		n += mesh_stats[k].x * 40 + mesh_stats[k].y * 4
+	return n
+
+func _node_count() -> int:
+	return sec_nodes.size() if _is_mesh() else chunks.size()
+
+## Compares the 3D area (below the HUD strip, which shows a live fps number): returns Vector3i(pixels of the 3D
+## area, pixels that differ at all, pixels where the background colour shows in exactly one of the two pictures
+## = holes). -1 for different sizes.
+func _diff_images(x: Image, y: Image) -> Vector3i:
+	var w: int = x.get_width()
+	var a: PackedByteArray = x.get_data()
+	var b: PackedByteArray = y.get_data()
+	var stride: int = a.size() / (w * x.get_height())
+	var start := 130 * w * stride
+	var area := w * (x.get_height() - 130)
+	if a.size() != b.size():
+		return Vector3i(area, -1, -1)
+	if a.slice(start) == b.slice(start):
+		return Vector3i(area, 0, 0)
+	var diff := 0
+	var holes := 0
+	for i in range(start, a.size() - 3, stride):
+		if a[i] != b[i] or a[i + 1] != b[i + 1] or a[i + 2] != b[i + 2]:
+			diff += 1
+			var bg_a: bool = a[i] == 76 and a[i + 1] == 76 and a[i + 2] == 76    # Environment background (0.3 grey)
+			var bg_b: bool = b[i] == 76 and b[i + 1] == 76 and b[i + 2] == 76
+			if bg_a != bg_b:
+				holes += 1
+	return Vector3i(area, diff, holes)
+
+## faces and greedy cover the same surface with different triangulations. The greedy mesh has no T-junctions and
+## subdivides every edge that borders another surface like the one-face-per-voxel mesh (report section 29), so
+## the pictures must be identical in the 3D area, in every view.
+func _images_equivalent(d: Vector3i) -> bool:
+	return d.y == 0
+
+## The same user session in the given renderer: Fill, Edit inside a section, on a brick boundary, on a chunk border,
+## 3x3x3 Edit, Undo, Redo, Jump, Save, wander off, Load. Checks no stale section after every step.
+func _session(mode: String, tag: String) -> Dictionary:
+	renderer = mode
+	rebuild_policy = "partial"
+	world.create(SEED, 2)
+	_clear_chunks()
+	_place_player(8.5, 8.5)
+	_stream()
+	var steps := []
+	var tt := Time.get_ticks_usec()
+	var filled: int = world.fill_box(Vector3i(12, 20, 12), Vector3i(20, 22, 20), 4)            # Fill across two chunk borders
+	_apply_delta()
+	steps.append(["fill", filled, last_rebuilt])
+	for e in [[8, 10, 8], [8, 15, 8], [15, 10, 8], [15, 15, 15]]:         # section / brick / chunk border / corner
+		world.edit_voxel(e[0], e[1], e[2], 4)
+		_apply_delta()
+		steps.append(["edit_%d_%d_%d" % [e[0], e[1], e[2]], 1, last_rebuilt])
+	world.edit_around(-8, 14, -8)
+	_apply_delta()
+	steps.append(["edit_block", 27, last_rebuilt])
+	world.undo()
+	_apply_delta()
+	steps.append(["undo", 0, last_rebuilt])
+	world.undo()
+	_apply_delta()
+	world.redo()
+	_apply_delta()
+	steps.append(["redo", 0, last_rebuilt])
+	var path := ProjectSettings.globalize_path("user://world_%s.wst0" % tag)
+	_check("%s: save" % mode, world.save(path), world.last_error())
+	var before_totals := _geom_totals()
+	_place_player(8.5 + 64.0, 8.5)                                         # Jump
+	_stream()
+	steps.append(["jump", 0, last_rebuilt])
+	_check("%s: no stale section after jump" % mode, _stale_sections() == 0)
+	_check("%s: load" % mode, world.load(path), world.last_error())
+	_clear_chunks()
+	_apply_delta()
+	_place_player(8.5, 8.5)
+	_stream()
+	var after_totals := _geom_totals()
+	for st in steps:
+		print("WORLDTEST STEP mode=%s %s changed=%d rebuilt_sections=%d" % [mode, st[0], st[1], st[2]])
+	_check("%s: no stale section after load" % mode, after_totals["stale"] == 0, "%s" % [after_totals])
+	_check("%s: load restores the saved geometry" % mode, after_totals["area"] == before_totals["area"], "%d vs %d" % [after_totals["area"], before_totals["area"]])
+	print("WORLDTEST SESSION mode=%s total_ms=%.1f area=%d elements=%d" % [mode, (Time.get_ticks_usec() - tt) / 1000.0, after_totals["area"], after_totals["elements"]])
+	return after_totals
+
+## faces and greedy must show the same geometry and the same picture, also after switching in a running app.
+func _renderer_matrix(shot_dir: String) -> void:
+	var fa := _session("faces", "m_faces")
+	var img_f: Image = await _capture(Vector3(0, 40, 48))
+	_set_renderer("greedy")                                                  # switch in the running app
+	var sw := _geom_totals()
+	_check("switch faces -> greedy keeps the covered geometry", sw["area"] == fa["area"] and sw["stale"] == 0, "%s vs %s" % [sw, fa])
+	_check("greedy draws fewer elements than faces", sw["elements"] * 3 < fa["elements"], "%d vs %d" % [sw["elements"], fa["elements"]])
+	var img_s: Image = await _capture(Vector3(0, 40, 48))
+	var ga := _session("greedy", "m_greedy")
+	var img_g: Image = await _capture(Vector3(0, 40, 48))
+	_check("greedy session covers the same geometry as faces", ga["area"] == fa["area"], "%d vs %d" % [ga["area"], fa["area"]])
+	if img_f != null:
+		var d1 := _diff_images(img_f, img_s)
+		var d2 := _diff_images(img_f, img_g)
+		print("WORLDTEST IMAGE faces vs greedy(after switch): of %d px %d differ, %d holes; faces vs greedy(session): %d differ, %d holes" % [d1.x, d1.y, d1.z, d2.y, d2.z])
+		_check("faces and greedy pictures equivalent after switching", _images_equivalent(d1))
+		_check("faces and greedy pictures equivalent after the same session", _images_equivalent(d2))
+		img_f.save_png(shot_dir + "/world-session-faces.png")
+		img_g.save_png(shot_dir + "/world-session-greedy.png")
+	# Several camera views of the same final state: count the pixels where faces and greedy differ.
+	var views := [Vector3(0, 40, 48), Vector3(30, 25, 30), Vector3(-40, 60, 10), Vector3(0, 90, 5), Vector3(-25, 12, -30)]
+	_set_renderer("faces")
+	var fimgs := []
+	for v in views:
+		fimgs.append(await _capture(v))
+	_set_renderer("greedy")
+	var tot_px := 0
+	var tot_diff := 0
+	var tot_big := 0
+	for i in views.size():
+		var gi: Image = await _capture(views[i])
+		if gi == null or fimgs[i] == null:
+			continue
+		fimgs[i].save_png(shot_dir + "/world-view%d-faces.png" % i)
+		gi.save_png(shot_dir + "/world-view%d-greedy.png" % i)
+		var dd := _diff_images(fimgs[i], gi)
+		tot_px += dd.x
+		tot_diff += dd.y
+		tot_big += dd.z
+		print("WORLDTEST VIEW %d of %d px: %d differ, %d of them background holes" % [i, dd.x, dd.y, dd.z])
+	if tot_px > 0:
+		print("WORLDTEST VIEWS total of %d px: %d differ, %d background holes" % [tot_px, tot_diff, tot_big])
+		_check("no background shows through the greedy mesh in any view", tot_big == 0, "%d holes" % tot_big)
+		_check("faces and greedy pictures identical in all views", tot_diff == 0, "%d of %d pixels differ" % [tot_diff, tot_px])
+	_set_renderer("cubes")                                                   # cycle back through all modes
+	_check("cubes mode after switching has one node per chunk", chunks.size() == world.active_count() and _drawn_elements() == world.active_voxels())
+	_set_renderer("faces")
+	var back := _geom_totals()
+	_check("switch back to faces keeps the geometry", back["area"] == fa["area"] and back["stale"] == 0)
+
+func _capture(offset: Vector3) -> Image:
+	if DisplayServer.get_name() == "headless":
+		return null
+	camera.look_at_from_position(player + offset, player)
+	await _frames(3)
+	await RenderingServer.frame_post_draw
+	return get_viewport().get_texture().get_image()
+
+func _reset_timers() -> void:
+	rust_us = 0
+	node_us = 0
+
+func _edit_bench(shot_dir: String) -> void:
+	var policies := ["all", "chunk", "partial"]
+	var only := _rebuild_arg()
+	if only in policies:
+		policies = [only]               # one policy per process, so process memory can be compared
+	var images := {}
+	var finals := {}
+	for policy in policies:
+		rebuild_policy = policy
+		world.create(SEED, 2)
+		_clear_chunks()
+		update_us.clear()
+		_place_player(8.5, 8.5)
+		_stream()
+		await _frames(2)
+		var base_img: Image = await _capture(Vector3(0, 40, 48))
+		var scenarios := {
+			"inside_section": [8, 10, 8],
+			"brick_boundary": [8, 15, 8],
+			"chunk_border": [15, 10, 8],
+			"corner": [15, 10, 15],
+			"corner_brick": [15, 15, 15],
+		}
+		# Sections rebuilt per edit and chunks touched, by policy: partial / chunk / all.
+		var want_sections := {
+			"partial": {"inside_section": 1, "brick_boundary": 2, "chunk_border": 2, "corner": 3, "corner_brick": 4},
+			"chunk": {"inside_section": 2, "brick_boundary": 2, "chunk_border": 4, "corner": 6, "corner_brick": 6},
+			"all": {"inside_section": 10, "brick_boundary": 10, "chunk_border": 10, "corner": 10, "corner_brick": 10},
+		}
+		for name in scenarios:
+			var v: Array = scenarios[name]
+			var total_us := 0
+			var rebuilt := 0
+			var rebuilt_chunks := 0
+			var reps := 11
+			_reset_timers()
+			for i in reps:
+				var t := Time.get_ticks_usec()
+				var changed: bool = world.edit_voxel(v[0], v[1], v[2], 4 if i % 2 == 0 else 0)
+				_apply_delta()
+				total_us += Time.get_ticks_usec() - t
+				rebuilt += last_rebuilt
+				rebuilt_chunks += last_rebuilt_chunks
+				if not changed:
+					_check("edit %s toggle %d changed" % [name, i], false)
+			var stale := _stale_sections()
+			print("WORLDTEST EDIT mode=" + renderer + " policy=%s scenario=%s avg_ms=%.2f rust_ms=%.2f node_ms=%.2f sections=%.1f chunks=%.1f faces=%d stale=%d" % [policy, name, total_us / 1000.0 / reps, rust_us / 1000.0 / reps, node_us / 1000.0 / reps, float(rebuilt) / reps, float(rebuilt_chunks) / reps, _drawn_elements(), stale])
+			_check("no stale mesh after %s edits (%s)" % [name, policy], stale == 0)
+			_check("%s edit rebuilds %d section(s) (%s)" % [name, want_sections[policy][name], policy], rebuilt == want_sections[policy][name] * reps, "rebuilt=%d" % rebuilt)
+		_reset_timers()
+		var tf := Time.get_ticks_usec()
+		var nf: int = world.fill_box(Vector3i(12, 20, 12), Vector3i(20, 22, 20), 4)
+		_apply_delta()
+		print("WORLDTEST FILL mode=%s policy=%s fill_ms=%.2f voxels=%d sections=%d chunks=%d rust_ms=%.2f node_ms=%.2f" % [renderer, policy, (Time.get_ticks_usec() - tf) / 1000.0, nf, last_rebuilt, last_rebuilt_chunks, rust_us / 1000.0, node_us / 1000.0])
+		_check("fill leaves no stale mesh (%s %s)" % [renderer, policy], _stale_sections() == 0)
+		world.undo()
+		_apply_delta()
+		_check("undo of the fill leaves no stale mesh (%s %s)" % [renderer, policy], _stale_sections() == 0)
+		_reset_timers()
+		var tb := Time.get_ticks_usec()
+		var n: int = world.edit_around(24, world.ground_height(24, 24) + 3, 24)
+		_apply_delta()
+		print("WORLDTEST EDIT mode=" + renderer + " policy=%s scenario=block3x3x3 avg_ms=%.2f rust_ms=%.2f node_ms=%.2f sections=%d chunks=%d faces=%d stale=%d voxels=%d" % [policy, (Time.get_ticks_usec() - tb) / 1000.0, rust_us / 1000.0, node_us / 1000.0, last_rebuilt, last_rebuilt_chunks, _drawn_elements(), _stale_sections(), n])
+		_check("3x3x3 block leaves no stale mesh (%s)" % policy, _stale_sections() == 0 and n == 27)
+
+		# Undo / redo of three edits (interior voxel, chunk border voxel, a 3x3x3 block in chunk -1,-1).
+		var faces_before := _drawn_elements()
+		world.edit_voxel(6, 20, 6, 4)
+		world.edit_voxel(15, 12, 9, 4)
+		_apply_delta()
+		world.edit_around(-8, 14, -8)
+		_apply_delta()
+		var faces_edited := _drawn_elements()
+		var undo_us := 0
+		var undo_sections := 0
+		var undone := 0
+		_reset_timers()
+		for i in 3:
+			var tu := Time.get_ticks_usec()
+			undone += world.undo()
+			_apply_delta()
+			undo_us += Time.get_ticks_usec() - tu
+			undo_sections += last_rebuilt
+		var undo_rust := rust_us
+		var undo_node := node_us
+		var stale_u := _stale_sections()
+		_check("undo x3 leaves no stale mesh (%s)" % policy, stale_u == 0, "stale=%d" % stale_u)
+		_check("undo x3 restores the earlier face count (%s)" % policy, _drawn_elements() == faces_before, "%d vs %d" % [_drawn_elements(), faces_before])
+		var faces_undone := _drawn_elements()
+		var redo_us := 0
+		var redo_sections := 0
+		var redone := 0
+		_reset_timers()
+		for i in 3:
+			var tr := Time.get_ticks_usec()
+			redone += world.redo()
+			_apply_delta()
+			redo_us += Time.get_ticks_usec() - tr
+			redo_sections += last_rebuilt
+		var stale_r := _stale_sections()
+		_check("redo x3 leaves no stale mesh (%s)" % policy, stale_r == 0)
+		_check("redo x3 restores the edited face count (%s)" % policy, _drawn_elements() == faces_edited, "%d vs %d" % [_drawn_elements(), faces_edited])
+		_check("undo then redo move the same number of voxels (%s)" % policy, undone == redone and undone > 0, "%d vs %d" % [undone, redone])
+		print("WORLDTEST UNDO mode=" + renderer + " policy=%s undo_avg_ms=%.2f redo_avg_ms=%.2f undo_sections=%d redo_sections=%d rust_ms=%.2f node_ms=%.2f faces_before=%d edited=%d undone=%d" % [policy, undo_us / 3000.0, redo_us / 3000.0, undo_sections, redo_sections, undo_rust / 1000.0, undo_node / 1000.0, faces_before, faces_edited, faces_undone])
+		finals[policy] = _drawn_elements()
+		print("WORLDTEST MEM edit policy=%s static_mb=%.1f" % [policy, OS.get_static_memory_usage() / 1048576.0])
+		var img: Image = await _capture(Vector3(0, 40, 48))
+		if img != null:
+			images[policy] = img
+			if base_img != null:
+				_check("edits are visible in the picture (%s)" % policy, base_img.get_data() != img.get_data())
+			img.save_png(shot_dir + "/world-%s-edit-%s.png" % [renderer, policy])
+	if finals.size() > 1:
+		var ref: int = finals["partial"]
+		for p in finals:
+			_check("%s ends with the same number of faces as partial" % p, finals[p] == ref, "%d vs %d" % [finals[p], ref])
+	if images.size() > 1:
+		# The HUD strip (top 130 px) shows a live fps number, so only the 3D area below it is compared.
+		var ref_img: Image = images["partial"]
+		for p in images:
+			var w: int = images[p].get_width()
+			var a: PackedByteArray = images[p].get_data()
+			var b: PackedByteArray = ref_img.get_data()
+			var stride: int = a.size() / (w * images[p].get_height())
+			var start := 130 * w * stride
+			var diff := 0
+			if a.slice(start) != b.slice(start):
+				for i in range(start, mini(a.size(), b.size()) - 3, stride):
+					if a[i] != b[i] or a[i + 1] != b[i + 1] or a[i + 2] != b[i + 2]:
+						diff += 1
+			print("WORLDTEST IMAGE policy=%s vs partial differing_pixels=%d of %d (3D area)" % [p, diff, w * (images[p].get_height() - 130)])
+			_check("picture after edits and undo/redo identical to partial (%s)" % p, diff == 0)
+
+
+## Screen position of every button (centre, viewport pixels = device pixels without stretch), so that real touch
+## events can be sent with `adb shell input tap x y`.
+func _print_buttons() -> void:
+	var vp := get_viewport().get_visible_rect().size
+	print("WORLDTEST VIEWPORT %d %d" % [vp.x, vp.y])
+	for name in buttons:
+		var c: Vector2 = buttons[name].get_global_rect().get_center()
+		print("WORLDTEST BTN %s %d %d" % [name, c.x, c.y])
+
+func _soak_seconds() -> int:
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--soak-seconds="):
+			return int(a.substr(15))
+	return 600 if OS.has_feature("soak") else 0
+
+## Long run: the player walks east and turns, every few seconds Edit / Undo / Redo / Fill run; every 30 s one line
+## with fps, rendering counters and edit latency. Memory and temperature are read from outside (adb): the app has no
+## way to query them without a child process, and starts none.
+func _soak(seconds: int) -> void:
+	_set_renderer(start_renderer)
+	print("WORLDTEST SOAK START seconds=%d mode=%s" % [seconds, renderer])
+	world.create(SEED, 2)
+	_clear_chunks()
+	_place_player(8.5, 8.5)
+	_stream()
+	var t_start := Time.get_ticks_msec()
+	var last_report := t_start
+	var last_action := t_start
+	var step := 0
+	var frames := 0
+	var edit_us_total := 0
+	var edits := 0
+	var edit_us_max := 0
+	var fps_min := 1000000.0
+	var dir := Vector2(1, 0)
+	while Time.get_ticks_msec() - t_start < seconds * 1000:
+		await get_tree().process_frame
+		frames += 1
+		var delta := get_process_delta_time()
+		fps_min = minf(fps_min, 1.0 / maxf(delta, 0.0001))
+		if int((Time.get_ticks_msec() - t_start) / 20000) % 2 == 1:
+			dir = Vector2(0, 1)
+		else:
+			dir = Vector2(1, 0)
+		_place_player(player.x + dir.x * SPEED * delta, player.z + dir.y * SPEED * delta)
+		_stream(PUMP_PER_FRAME)
+		var now := Time.get_ticks_msec()
+		if now - last_action >= 3000:
+			last_action = now
+			var t0 := Time.get_ticks_usec()
+			match step % 4:
+				0: world.edit_around(floori(player.x), floori(player.y) + 2, floori(player.z))
+				1: world.undo()
+				2: world.redo()
+				3: world.fill_box(Vector3i(floori(player.x) - 4, floori(player.y) + 3, floori(player.z) - 4), Vector3i(floori(player.x) + 4, floori(player.y) + 4, floori(player.z) + 4), 4)
+			_apply_delta()
+			var us := Time.get_ticks_usec() - t0
+			edit_us_total += us
+			edit_us_max = maxi(edit_us_max, us)
+			edits += 1
+			step += 1
+		if now - last_report >= 30000:
+			var span := (now - last_report) / 1000.0
+			last_report = now
+			print("WORLDTEST SOAK t=%d fps_avg=%.1f fps_min=%.1f chunks=%d nodes=%d elements=%d draw_calls=%d primitives=%d video_mb=%.1f edits=%d edit_avg_ms=%.2f edit_max_ms=%.2f stale=%d" % [(now - t_start) / 1000, frames / span, fps_min, world.active_count(), _node_count(), _drawn_elements(), RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME), RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME), RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_VIDEO_MEM_USED) / 1048576.0, edits, edit_us_total / 1000.0 / maxi(edits, 1), edit_us_max / 1000.0, _stale_sections() if _is_mesh() else 0])
+			frames = 0
+			fps_min = 1000000.0
+			update_us.clear()
+	var stale := _stale_sections() if _is_mesh() else 0
+	_check("soak finished without stale meshes", stale == 0)
+	print("WORLDTEST SOAK DONE seconds=%d edits=%d" % [seconds, edits])
