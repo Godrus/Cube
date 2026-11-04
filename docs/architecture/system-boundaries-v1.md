@@ -20,7 +20,7 @@
 
 * The **server** is a separate headless Rust process built from the same Core crates (AOD-05); it decides and stores everything that matters (AOD-13).
 * The **client** is untrusted and never the source of truth (AOD-14): it renders, predicts its own edits and is corrected.
-* **Single-player (proposal, owner decision OI-6):** the same server components run in the client's process as an embedded server instance, behind the same Editing/replication interfaces, so that there is exactly one authoritative path. A "local mode" with client-side authority is not allowed by AOD-14.
+* **Single-player (proposal, owner decision OI-6):** the same server components run in the client's process as an embedded server instance, behind the same Editing/replication interfaces, so that there is exactly one authoritative path (Veloren does this behind a `singleplayer` feature, REF-32; its authority rules were not examined). A "local mode" with client-side authority is not allowed by AOD-14.
 * **Today:** the spike runs a loopback TCP server and an in-process runtime in the Godot adapter; neither implements this separation (see section 8).
 
 ## 2. Modules and layers

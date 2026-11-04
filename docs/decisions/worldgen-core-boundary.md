@@ -17,6 +17,13 @@ How does procedurally generated terrain enter the authoritative geometry, how do
 | An edit changes revisions the same way a streamed chunk does, so a client cannot tell "terrain streamed" from "the user changed something" | design note in the spike report |
 | Regeneration after a generator change alters saved worlds: the terrain function and layout are part of the save contract | `GENERATOR_VERSION`, README "Not production-ready" |
 
+### External evidence (upstream Veloren, `docs/research/veloren-notes.md`; not proof for Cube)
+
+* Veloren keeps the generated world out of its save: only **block-level overrides** of modified chunks are persisted (per chunk, versioned files with fallback readers) and they are **re-applied over regenerated terrain**, dropping any override equal to the generated block. That is the single-layer-plus-overlay model of option C1, at per-chunk override granularity instead of an operation journal.
+* Its writes happen only when a chunk is unloaded and the source acknowledges this is not durable across power loss; Cube's journal-first design (AOD-17) avoids that gap by construction.
+* Terrain generation takes a seed and a cancellation callback, runs on a dedicated job pool, and its dynamic (entity) output uses non-deterministic randomness while terrain follows the seed.
+* Single-player runs the server in-process (a `singleplayer` feature), which supports the embedded-server proposal in section 7.
+
 ## 3. Requirements (from the approved decisions)
 
 R1 server authoritative (AOD-13); R2 client never authoritative (AOD-14); R3 user changes through the Editing API with operation ids, validation and history (AOD-15); R4 generation is a separate boundary and not a user edit (AOD-16); R5 untouched world stored as seed + generator version, user changes as versioned deltas (AOD-17); R6 pure deterministic Rust generation (AOD-09); R7 mobile: cheap streaming, bounded memory, no long main-thread work (AOD-08); R8 no Godot in the boundary (AOD-04); R9 existing P0/P1 stay Draft (AOD-18).

@@ -20,7 +20,7 @@
 | OI-3 | Decide ACR-001/002/003 (B-3) | Gate 0 |
 | OI-4 | Reconcile persistence contracts and the `cube-persistence` spike with AOD-17 (seed + generator version + journal) | Gate 5 |
 | OI-5 | License policy: Cube's license, rules for third-party code/assets, whether studying GPL or reverse-engineered projects is allowed and how | Gate 0 |
-| OI-6 | Single-player runs an embedded server instance (recommended) | Gate 6 |
+| OI-6 | Single-player runs an embedded server instance (recommended; Veloren embeds its server for single-player, REF-32) | Gate 6 |
 | OI-7 | RevisionToken width and commit algorithm, generated-data revision rule, system-commit port (B-6; possible new ACR) | Gate 2 |
 | OI-8 | Owners for networking (O-3), engine adapters (O-5), import/export, WorldGen, server host, content, live service | Gate 0/1 |
 | OI-9 | Transport, serialisation and authentication for the protocol | Gate 7 |
