@@ -470,14 +470,15 @@ func _edit_bench(shot_dir: String) -> void:
 			_check("picture after edits and undo/redo identical to partial (%s)" % p, diff == 0)
 
 
-## Screen position of every button (centre, viewport pixels = device pixels without stretch), so that real touch
-## events can be sent with `adb shell input tap x y`.
+## Position of every button (centre, viewport pixels). The viewport can be smaller than the screen (system bars);
+## scripts/device-validation.sh converts to screen pixels for `adb shell input tap` with the window-size difference.
 func _print_buttons() -> void:
 	var vp := get_viewport().get_visible_rect().size
-	print("WORLDTEST VIEWPORT %d %d" % [vp.x, vp.y])
+	var sa := DisplayServer.get_display_safe_area()
+	print("WORLDTEST VIEWPORT %d %d SAFE_AREA %d %d %d %d" % [vp.x, vp.y, sa.position.x, sa.position.y, sa.size.x, sa.size.y])
 	for name in buttons:
 		var c: Vector2 = buttons[name].get_global_rect().get_center()
-		print("WORLDTEST BTN %s %d %d" % [name, c.x, c.y])
+		print("WORLDTEST BTN %s %d %d" % [name.replace(" ", "_"), c.x, c.y])
 
 func _soak_seconds() -> int:
 	for a in OS.get_cmdline_user_args():
