@@ -1,0 +1,29 @@
+* daemon not running; starting now at tcp:5037
+* daemon started successfully
+booted=1
+=== ARM64 translated emulator: test APKs (final build), 3 launches per mode
+Success
+label=arm64emu_test_faces run=1 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=19 am_start=[Status: ok TotalTime: 2742 ]
+label=arm64emu_test_faces run=2 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=19 am_start=[Status: ok TotalTime: 2721 ]
+label=arm64emu_test_faces run=3 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=19 am_start=[Status: ok TotalTime: 2732 ]
+SUMMARY label=arm64emu_test_faces runs=3 ok=3 failed=0
+Success
+label=arm64emu_test_greedy run=1 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=21 am_start=[Status: ok TotalTime: 2599 ]
+label=arm64emu_test_greedy run=2 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=21 am_start=[Status: ok TotalTime: 2613 ]
+label=arm64emu_test_greedy run=3 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=21 am_start=[Status: ok TotalTime: 2613 ]
+SUMMARY label=arm64emu_test_greedy runs=3 ok=3 failed=0
+=== ARM64 translated emulator: client APKs (no test code), 3 launches each, 25 s alive check
+Success
+client_faces run=1 alive=yes fatal_signal_lines=0
+client_faces run=2 alive=yes fatal_signal_lines=0
+client_faces run=3 alive=yes fatal_signal_lines=0
+SUMMARY client_faces runs=3 ok=3
+Success
+client_greedy run=1 alive=yes fatal_signal_lines=0
+client_greedy run=2 alive=yes fatal_signal_lines=0
+client_greedy run=3 alive=yes fatal_signal_lines=0
+SUMMARY client_greedy runs=3 ok=3
+=== device-validation.sh on the x86_64 emulator (script check only, --allow-emulator), faces and greedy, 1 launch each, no soak
+Done. EMULATOR - NOT A DEVICE RESULT. Summary: /c/Users/Godrus/AppData/Local/Temp/claude/9a9f99d73db6a0d5/fe08ec09-37a6-45d2-8d52-168209f62bea/scratchpad/dv_emu3/summary.md
+SET-F-DONE
+cleanup done

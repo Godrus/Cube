@@ -1,0 +1,7 @@
+edit changed 26 voxels
+undo restored 26 voxels
+redo applied 26 voxels
+save ok=true
+load ok=true
+jump to (72, 8)
+edit changed 27 voxels

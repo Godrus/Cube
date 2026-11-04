@@ -1,0 +1,12 @@
+t_s,vmrss_kb,pss_kb,battery_temp,thermal
+0,215112,101926,25 C,Thermal Status: 0
+61,267228,132240,25 C,Thermal Status: 0
+122,265028,130295,25 C,Thermal Status: 0
+183,266348,131605,25 C,Thermal Status: 0
+244,266436,131780,25 C,Thermal Status: 0
+305,266368,131662,25 C,Thermal Status: 0
+366,266736,132010,25 C,Thermal Status: 0
+427,266528,131818,25 C,Thermal Status: 0
+488,266720,132010,25 C,Thermal Status: 0
+549,266720,132010,25 C,Thermal Status: 0
+610,268688,132272,25 C,Thermal Status: 0

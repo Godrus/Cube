@@ -660,3 +660,62 @@ Run-to-run variation on the emulators is 2x, so only coarse conclusions hold: **
 * No physical ARM64 phone, no iOS: nothing is mobile-ready.
 
 **Readiness:** `greedy` meets the stated bar (no background through it, same visible surface as `faces`, 0 differing pixels in the compared views on all three platforms, partial rebuild, Edit/Undo/Redo and section/chunk seams correct). It is **not** promoted: it remains an experimental option behind `faces`, and a decision to make it the default belongs to the owner after (a) a real-device run and (b) a review of the CPU cost above. Not for `master`: the greedy mesher, `Quad`/`QuadMesh`/`SeamRule`, the spike-local undo journal and `fill_box`, the `noexec` presets and harness scripts, and everything listed in section 28.
+
+
+---
+
+# Stage 7: runtime cleanup (no child processes) and Android device validation
+
+**Status:** experimental, `spike/rust-world-generation`, base `379b5b6`. `master` unchanged, nothing merged. **Android ARM64 physical-device validation: `Blocked: no physical ARM64 device`. iOS: `iOS validation: blocked — no macOS/Xcode`. Mobile readiness: not established.** Not for `master`: the greedy renderer, `world-state-v0`, the world-generation API, the spike undo journal, the spike test hooks and entry point, the Android debug signing, the experimental export presets.
+
+## 37. `OS.execute` removed from the runtime
+
+**Where it was:** only in `godot-client/world.gd`, in `_renderer_arg()` (`getprop debug.cube.renderer`) and `_rebuild_arg()` (`getprop debug.cube.rebuild`), added in stages 4 and 5 to select the renderer and rebuild policy by `adb setprop`. Both called `OS.execute("getprop", ...)`, which forks a child process (the cause of the ARM64 emulator crashes, section 26).
+
+**Now:** no `.gd` file in `godot-client/` contains `OS.execute`, `OS.execute_with_pipe`, `OS.create_process`, `OS.create_instance`, `OS.shell_open`, `OS.shell_show_in_file_manager` or `getprop`.
+
+* `world.gd` (the runtime client) contains no test code at all. The scripted smoke test, benchmarks, renderer matrix, soak loop and the button-position printout moved to `godot-client/world_smoke.gd`, a subclass of the client script, started only through the separate scene `world_test.tscn` (`main.gd` starts it for the custom feature `worldtest`; the client export starts `world.tscn` for `worldclient`). `world.gd` keeps only a generic `auto_stream` flag that tests switch off.
+* **How the renderer is chosen without a child process:** (1) the Godot user argument `--renderer=<cubes|faces|greedy>` (`godot ... -- --renderer=greedy`), (2) the export preset's custom feature `cubes` / `faces` / `greedy`, (3) default `faces` (the reference renderer). The rebuild policy comes from `--rebuild=<partial|chunk|all>`. The in-app Renderer button cycles the modes at run time. On Android the mode is therefore fixed per APK by the preset. Nothing shells out, reads a system property or starts a process.
+* **Export presets** were rebuilt: `Test <abi> <mode>` (feature `worldtest`, includes the test scripts), `Soak <abi> <mode>` (plus a 10-minute loop), `Client <abi> <mode>` (feature `worldclient`; `exclude_filter` removes `world_smoke.gd` and `world_test.tscn`). Scripts are exported as text so packages can be inspected.
+* **Guards:** `crates/cube-godot-adapter/tests/no_child_processes.rs` (part of `cargo test`, 131 workspace tests pass, clippy clean) fails when any GDScript uses a process or `getprop` call (comments ignored), when `world.gd` contains test hooks (`WORLDTEST`, `worldtest`, `--world-smoke`, `_smoke`, `soak`, `world_test`), or when a client preset has test features or does not exclude the test scripts. Checked by mutation: appending an `OS.execute` call to `world.gd` makes it fail; a comment mentioning it does not. `scripts/check-apk-no-exec.py` inspects exported APKs: all 14 exported APKs (test, soak, client; both ABIs) pass (no packaged script contains `execute` / `getprop` / `create_process` / `shell_open`, the client APKs contain no `world_smoke` / `world_test`); verified to fail on an APK built from a `world.gd` with an `OS.execute` call. The engine and the Rust binding libraries contain the *names* of OS methods (for example `create_process`) as part of their API tables; no script calls them.
+* Host-side scripts (`scripts/device-validation.sh`, the emulator harnesses) call `adb shell getprop`/`dumpsys` **on the host**; that is test tooling outside the app.
+
+## 38. Android validation
+
+**Physical device: not available.** `adb devices` listed no device and no phone is connected to this machine; no result in this branch is from a phone, and none is simulated. Prepared for the owner (details and commands in `build-and-targets.md`): the APKs (`test-*`, `soak-*`, `client-*` for arm64, SHA-256 in that file), the in-app 10-minute soak mode, and `scripts/device-validation.sh`, which refuses to run (`Blocked: no physical ARM64 device`, exit 2) unless exactly one physical ARM64 device is attached and, per mode (`faces`, `greedy`): 3 launches of the scripted test (Fill, Edit, Undo, Redo, Jump, Save, Load, renderer switch, faces-vs-greedy picture comparison), start time (`am start -W`), app timings (first build, Edit, Fill, Undo/Redo, Load), FPS, peak memory (`VmHWM`, `VmRSS`, PSS), battery temperature and thermal status, logcat error lines, SIGSEGV/ANR detection, real touch events with `adb input tap` on Edit / Undo / Redo / Save / Load / Jump / Renderer, and a 10-minute soak with a memory and temperature sample every 60 s.
+
+**What was run instead (emulators only, labelled; not device results):**
+
+| Check | Result |
+|---|---|
+| ARM64 translated emulator, final `test-faces-arm64` / `test-greedy-arm64`, no `OS.execute` | 3 of 3 and 3 of 3 launches completed the full smoke, `failures=0`, no SIGSEGV, no ANR |
+| ARM64 translated emulator, final `client-*-arm64` (no test code) | 3 of 3 and 3 of 3 launches alive after 25 s, no `Fatal signal` in logcat |
+| x86_64 emulator, `device-validation.sh --allow-emulator`, faces and greedy | smoke `failures=0`; faces-vs-greedy comparison 0 differing pixels of 9 888 000, 0 holes; **real touch**: 8 `adb input tap` events per mode, 7 of them logged by the app (the Renderer tap has no log line): (`edit changed 26 voxels`, `undo restored 26 voxels`, `redo applied 26 voxels`, `save ok=true`, `load ok=true`, `jump to (72, 8)`, `edit changed 27 voxels`) |
+| x86_64 emulator, 10-minute soak of the faces build (in-app loop: walk, Edit, Undo, Redo, Fill every 3 s) | completed (`SOAK DONE`, 199 edits), no crash or ANR, 0 stale meshes, FPS 50-60 (vsync cap), Edit avg 0.95-1.4 ms and max 11 ms, **process RSS flat at 266-269 MB over the 10 minutes, PSS 130-132 MB**, battery temperature 25 C and thermal status 0 throughout (an emulator reports no real thermal behaviour). The greedy soak ran 7.5 minutes in an earlier check (same result, no crash, 0 stale meshes); the full 10 minutes was run for faces only |
+
+Script bugs found and fixed while testing the tooling: the in-app soak length is fixed at 10 minutes (it first waited for a length given on the command line); the button positions printed by the app were viewport pixels, while `adb input tap` needs screen pixels, so the first run sent 8 taps that reached nothing (the log lines came out empty and the script says so); the script now adds the system-bar offset `(screen - viewport) / 2` taken from `wm size`.
+
+## 39. faces vs greedy: what is known and what is not
+
+| Quantity | Known value | From |
+|---|---|---|
+| triangles (5x5 area) | faces 24 292, greedy 10 858 | exact, any platform |
+| draw calls | 48 and 48 | emulator / desktop GL |
+| primitives in a frame | 18 562 and 9 074 | emulator / desktop GL |
+| mesh data | 2 182 KB and 701 KB | exact |
+| memory | PSS 142 / 137 MB (x86_64 emulator), 532 / 532 MB (ARM64 translated) | emulator, section 34 |
+| Edit latency (`partial`) | 0.2-0.3 ms desktop, 1.3-2.9 ms emulators | desktop / emulator |
+| Load latency | 4.4 ms desktop, 16-73 ms emulators | desktop / emulator |
+| visual difference | 0 differing pixels in all compared views, 3 platforms | sections 33 and 38 |
+| stability after 10 minutes | faces: 10 min on the x86_64 emulator (stable); greedy: 7.5 min on the x86_64 emulator | emulator only |
+| FPS | vsync-capped 60 on emulators | not a measure |
+
+None of these is a phone measurement: GPU, driver, thermal behaviour, memory pressure and the real ARM CPU are unmeasured. FPS on the emulator cannot rank the renderers (both sit on the 60 Hz cap), which is why the comparison above relies on geometry, memory and latency instead.
+
+## 40. Status and decisions
+
+* **`faces` stays the reference renderer and the default; `greedy` stays experimental.** Reasons that remain open: no device measurement of either renderer; greedy's CPU cost is higher (section 34) and its GPU advantage (2.2x fewer triangles, 3.2x less mesh data) is unquantified on a mobile GPU; the 10-minute stability run exists only on an emulator. Greedy is visually identical to faces in all compared scenes.
+* **Android ARM64:** `Blocked: no physical ARM64 device`. The ARM64 translated emulator results are real runs of the real ARM64 binaries but do not describe a phone.
+* **iOS:** `iOS validation: blocked — no macOS/Xcode.` No iOS build exists and none is claimed.
+* **Mobile readiness: not established** (no device, no iOS, no thermal data, no long-run data on a device).
+* **Remaining limits:** the soak and the touch checks run on emulators; the per-device numbers the owner will produce with `scripts/device-validation.sh` replace them. The client still contains logging `print` calls (`edit changed ...`) used by the touch check; they are plain output, not process or shell calls. Emulator timings vary by about 2x between identical runs.

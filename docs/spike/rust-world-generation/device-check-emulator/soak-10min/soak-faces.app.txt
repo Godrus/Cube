@@ -1,0 +1,21 @@
+  SOAK START seconds=600 mode=faces
+  SOAK t=30 fps_avg=60.0 fps_min=7.0 chunks=30 nodes=41 elements=14742 draw_calls=55 primitives=24154 video_mb=25.5 edits=9 edit_avg_ms=0.91 edit_max_ms=2.38 stale=0
+  SOAK t=60 fps_avg=60.0 fps_min=60.0 chunks=30 nodes=39 elements=14102 draw_calls=57 primitives=22808 video_mb=25.4 edits=19 edit_avg_ms=0.82 edit_max_ms=2.58 stale=0
+  SOAK t=90 fps_avg=60.0 fps_min=31.5 chunks=30 nodes=48 elements=14430 draw_calls=61 primitives=22512 video_mb=25.4 edits=29 edit_avg_ms=0.85 edit_max_ms=2.58 stale=0
+  SOAK t=120 fps_avg=53.8 fps_min=7.6 chunks=30 nodes=40 elements=14238 draw_calls=58 primitives=23346 video_mb=25.4 edits=39 edit_avg_ms=0.98 edit_max_ms=4.92 stale=0
+  SOAK t=150 fps_avg=51.6 fps_min=11.5 chunks=30 nodes=42 elements=14082 draw_calls=59 primitives=23150 video_mb=25.4 edits=49 edit_avg_ms=1.29 edit_max_ms=11.36 stale=0
+  SOAK t=180 fps_avg=51.8 fps_min=14.8 chunks=30 nodes=43 elements=14592 draw_calls=60 primitives=23246 video_mb=27.5 edits=59 edit_avg_ms=1.30 edit_max_ms=11.36 stale=0
+  SOAK t=210 fps_avg=50.4 fps_min=12.3 chunks=30 nodes=43 elements=15180 draw_calls=58 primitives=23424 video_mb=27.5 edits=69 edit_avg_ms=1.40 edit_max_ms=11.36 stale=0
+  SOAK t=240 fps_avg=51.3 fps_min=11.1 chunks=30 nodes=41 elements=14276 draw_calls=57 primitives=23038 video_mb=27.4 edits=79 edit_avg_ms=1.31 edit_max_ms=11.36 stale=0
+  SOAK t=270 fps_avg=59.9 fps_min=21.1 chunks=30 nodes=54 elements=14726 draw_calls=72 primitives=24422 video_mb=27.5 edits=89 edit_avg_ms=1.29 edit_max_ms=11.36 stale=0
+  SOAK t=300 fps_avg=60.0 fps_min=40.6 chunks=30 nodes=38 elements=14036 draw_calls=54 primitives=21684 video_mb=27.4 edits=99 edit_avg_ms=1.21 edit_max_ms=11.36 stale=0
+  SOAK t=330 fps_avg=60.0 fps_min=60.0 chunks=30 nodes=48 elements=14838 draw_calls=61 primitives=23350 video_mb=27.5 edits=109 edit_avg_ms=1.18 edit_max_ms=11.36 stale=0
+  SOAK t=360 fps_avg=60.0 fps_min=60.0 chunks=30 nodes=49 elements=14506 draw_calls=64 primitives=23654 video_mb=27.5 edits=119 edit_avg_ms=1.14 edit_max_ms=11.36 stale=0
+  SOAK t=390 fps_avg=60.0 fps_min=60.0 chunks=30 nodes=38 elements=14232 draw_calls=55 primitives=23060 video_mb=27.4 edits=129 edit_avg_ms=1.11 edit_max_ms=11.36 stale=0
+  SOAK t=420 fps_avg=60.0 fps_min=60.0 chunks=30 nodes=38 elements=14428 draw_calls=48 primitives=22052 video_mb=27.5 edits=139 edit_avg_ms=1.07 edit_max_ms=11.36 stale=0
+  SOAK t=450 fps_avg=60.0 fps_min=60.0 chunks=30 nodes=34 elements=14324 draw_calls=52 primitives=22622 video_mb=27.4 edits=149 edit_avg_ms=1.04 edit_max_ms=11.36 stale=0
+  SOAK t=480 fps_avg=60.0 fps_min=60.0 chunks=30 nodes=32 elements=13838 draw_calls=49 primitives=22666 video_mb=27.4 edits=159 edit_avg_ms=1.01 edit_max_ms=11.36 stale=0
+  SOAK t=510 fps_avg=60.0 fps_min=60.0 chunks=30 nodes=37 elements=13704 draw_calls=56 primitives=22402 video_mb=27.4 edits=169 edit_avg_ms=0.99 edit_max_ms=11.36 stale=0
+  SOAK t=540 fps_avg=60.0 fps_min=60.0 chunks=30 nodes=47 elements=14966 draw_calls=59 primitives=21942 video_mb=27.5 edits=179 edit_avg_ms=0.95 edit_max_ms=11.36 stale=0
+  SOAK t=570 fps_avg=60.0 fps_min=60.0 chunks=30 nodes=34 elements=14248 draw_calls=50 primitives=22014 video_mb=27.4 edits=189 edit_avg_ms=0.95 edit_max_ms=11.36 stale=0
+  SOAK DONE seconds=600 edits=199

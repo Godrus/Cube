@@ -1,0 +1,4 @@
+label=arm64emu_test_faces run=1 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=19 am_start=[Status: ok TotalTime: 2742 ]
+label=arm64emu_test_faces run=2 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=19 am_start=[Status: ok TotalTime: 2721 ]
+label=arm64emu_test_faces run=3 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=19 am_start=[Status: ok TotalTime: 2732 ]
+SUMMARY label=arm64emu_test_faces runs=3 ok=3 failed=0

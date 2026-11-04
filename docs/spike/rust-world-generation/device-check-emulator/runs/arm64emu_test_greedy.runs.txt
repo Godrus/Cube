@@ -1,0 +1,4 @@
+label=arm64emu_test_greedy run=1 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=21 am_start=[Status: ok TotalTime: 2599 ]
+label=arm64emu_test_greedy run=2 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=21 am_start=[Status: ok TotalTime: 2613 ]
+label=arm64emu_test_greedy run=3 verdict=OK sigsegv=no anr=no process_alive_at_end=yes secs=21 am_start=[Status: ok TotalTime: 2613 ]
+SUMMARY label=arm64emu_test_greedy runs=3 ok=3 failed=0
