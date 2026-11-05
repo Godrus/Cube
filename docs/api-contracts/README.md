@@ -14,6 +14,17 @@
 | `persistence-contracts.md` | Agent H | 8 |
 | `revision-and-snapshot-semantics.md` | Integration Owner (semantics) | cross-cutting |
 
+### 1.1 Draft additions of 2026-11-05 (outside the 45 + 3 count, no tier assigned)
+
+| File | Contracts | Status |
+|---|---|---|
+| `worldgen-contracts.md` | WG-01…WG-10 | Draft 0.1.0-draft, Proposed |
+| `system-commit-contracts.md` | SC-01…SC-10 (proposes extensions of C-16/C-17/C-18; see ACR-004, Pending) | Draft, Proposed |
+| `world-persistence-contracts.md` | WP-01…WP-10 (reconciliation draft for OI-4; P-01…P-07 untouched) | Draft, Proposed |
+| `server-runtime-contracts.md` | SR-01…SR-10 | Draft, Proposed |
+
+None is approved; the matrix counts, tiers and P0/P1 below are unchanged.
+
 ## 2. Common Conventions (apply unless a contract says otherwise)
 
 1. **Threading:** value types are immutable and thread-safe. Authoritative data is mutated only inside the commit primitive; readers use snapshots or read views.

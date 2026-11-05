@@ -20,7 +20,7 @@
 
 * The **server** is a separate headless Rust process built from the same Core crates (AOD-05); it decides and stores everything that matters (AOD-13).
 * The **client** is untrusted and never the source of truth (AOD-14): it renders, predicts its own edits and is corrected.
-* **Single-player (Approved, AOD-22):** the same authoritative server runtime runs in the client's process as an embedded instance, and the dedicated server runs the same runtime in its own process; transport, persistence and authority boundaries are identical, so that there is exactly one authoritative path (Fact (upstream): Veloren embeds its server behind a `singleplayer` feature, REF-32; its authority rules were not examined and it is not evidence for Cube). A "local mode" with client-side authority is not allowed by AOD-14.
+* **Single-player (Approved, AOD-22):** the same authoritative server runtime runs in the client's process as an embedded instance, and the dedicated server runs the same runtime in its own process; transport semantics, persistence and authority boundaries are identical, so that there is exactly one authoritative path. **Transport (Approved, AOD-22, confirmed 2026-11-05):** the embedded server uses an in-process transport, the dedicated server an external transport; the implementations may differ, but protocol, authority, authentication, authorization, OperationId, revision and conflict rules are the same, the embedded mode has no special rights and is never client-authoritative, and the conformance tests run on both implementations. The external transport is not chosen (OAM-05, Spike Required) (Fact (upstream): Veloren embeds its server behind a `singleplayer` feature, REF-32; its authority rules were not examined and it is not evidence for Cube). A "local mode" with client-side authority is not allowed by AOD-14.
 * **Today:** the spike runs a loopback TCP server and an in-process runtime in the Godot adapter; neither implements this separation (see section 8).
 
 ## 2. Modules and layers
@@ -60,7 +60,7 @@ Exactly three writers may commit to the authoritative asset:
 
 1. **Editing service** - every user or designer operation (AOD-15): validated, id-tagged, revision-counted, recorded in the journal and in history.
 2. **WorldGen Materialiser** - generated data only, through a narrow Core system-commit port (AOD-16, AOD-20); never part of ordinary undo/redo; the commit receives an OperationId (origin: system) and takes part in the revision/commit semantics (how it advances revisions needs the B-6 decision; ACR-004 Pending).
-3. **Persistence loader** - restoring a saved state at start in the AOD-21 order: base generation, then snapshot, then journal tail.
+3. **Persistence loader** - restoring a saved state at start in the AOD-21 order: base generation, then snapshot, then journal tail, as the `Recovery` actor through the system-commit port; snapshots are activated only by the verified compaction protocol (AOD-21).
 
 Everything else, including the renderer, the client runtime, tools and the adapter, reads snapshots or views. A client message is a *request* (an operation proposal); the server may reject or alter it.
 
@@ -75,6 +75,7 @@ Current non-compliant spike code (documented, experimental): the streamer and `e
 | System-commit (materialise/evict) | WorldGen to Core | generated chunk values | **new, not written** (touches P0, ACR-001 area) |
 | Persistence ports (`IDeltaStore`, `ISnapshotStore`, P-series) | server-internal | world record, journal, snapshots | Draft; must be aligned with AOD-17 |
 | Replication protocol | server to client (and requests back) | chunk baselines or seed + version, journal deltas, revisions, interest changes | **not designed**; spike TCP protocol is Draft and unauthenticated |
+| Transport abstraction (client runtime to server runtime) | both | the same messages over an in-process carrier (embedded) or an external carrier (dedicated); identical semantics | **Draft** `api-contracts/server-runtime-contracts.md` (SR-05…SR-07); external carrier **Spike Required** |
 | Runtime-to-frontend adapter | client runtime to Godot | read views of chunks, dirty sections, mesh arrays, input intents | spike: `CubeRuntime`/`CubeWorld` (experimental) |
 
 ## 6. Frontend boundary (Godot replaceable, AOD-06/07)
@@ -104,6 +105,7 @@ Memory and thermal budgets must be measured on a physical device (none available
 | Deterministic generation | pinned hashes, reference LE hash implementation | cross-device hash test (Gate 3) |
 | Frontend replaceability | adapter boundary document | adapter API snapshot test (Gate 4) |
 | Server authority | none | authority tests (client cannot commit) (Gate 7) |
+| Same semantics on in-process and external transport | none | shared conformance suite on both transports (Gate 6/7; SR-09) |
 
 ## 10. Open decisions for the owner
 

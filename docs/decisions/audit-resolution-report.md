@@ -109,13 +109,36 @@ These do not change an approved decision; they place contracts where AU-1.0's ow
 
 ## ACR-004 — System-commit boundary for procedural generation
 
-**Status: PENDING** (prepared 2026-11-05 after the owner approved AOD-20; not approved, not rejected, AU-1.0 not edited).
+**Status: PENDING** (prepared 2026-11-05 after the owner approved AOD-20; **not approved, not rejected**; AU-1.0, ACR-001/002/003 and all P0/P1 contracts are not edited). Draft contracts that elaborate it: `docs/api-contracts/worldgen-contracts.md`, `system-commit-contracts.md`, `world-persistence-contracts.md`, `server-runtime-contracts.md` (all Draft).
+
+### A. Architectural decision (already made; not decided by this ACR)
+
+AOD-20 (Approved, 2026-11-05, variant C3): procedural generation creates the base world through a separate WorldGen/System-commit boundary; it is not an ordinary Editing-API operation; user terrain changes go only through the Editing API; the server owns the authoritative world; initial generation is outside ordinary undo/redo; system generation receives an OperationId and takes part in revision/commit semantics; WorldGen never bypasses public Core ports. Approving or rejecting ACR-004 does not reopen this decision; it decides only **where and how** it is expressed in the module and layer structure.
+
+### B. Proposal: a new public Core port (needs approval)
+
+A narrow **system-commit port** next to the commit primitive (materialise, evict, restore), callable only by the WorldGen Materialiser and the persistence loader, atomic and idempotent, never exposed to the network; plus a **WorldGen module** in the layer grid that depends on Core value types and ports only. Contract draft: `system-commit-contracts.md` SC-10 and `worldgen-contracts.md`.
+
+### C. Proposal: OperationId origin (needs approval)
+
+`OperationId` (C-17) is accompanied by an origin `User | System | Recovery`; `Recovery` replays reuse the original ids; the origin is derived by the server, never supplied by a client. Draft: SC-01, SC-02. Representation (part of the id or of the request) and the id format (OD-R8) are open.
+
+### D. Open questions: revision semantics (B-6, not decided)
+
+Whether a system commit advances (R1) the same revision scope as an edit or (R2) a separate chunk-scoped generation epoch; RevisionToken width and commit algorithm; whether `Evict` is a commit; new `ChangeType` values for generated and restored data (C-18); whether and how long system commits are audit-logged.
+
+### E. Contracts not approved
+
+The four Draft documents above (WG-01…WG-10, SC-01…SC-10, WP-01…WP-10, SR-01…SR-10); the existing P0 contracts C-16, C-17, C-18 and the commit primitive that they would extend; the Draft persistence contracts P-01…P-07 and `IDeltaStore`/`ISnapshotStore` that WP-xx would reconcile. All remain `Draft`.
+
+### F. Standard fields
 
 1. **Current approved design:** AU-1.0 (reconstructed copy, B-13) knows the Editing API as the path that changes geometry, with operation ids and revisions; its module and layer grid has no WorldGen module and no non-user actor. §3 and §5.3 keep Core independent; §23 lists the foundation types (see ACR-001).
-2. **Problem:** the Approved Owner Decision AOD-20 (hybrid option C, variant C3) requires that procedural generation creates the base world through a separate WorldGen/System-commit boundary, receives an OperationId, takes part in revision/commit semantics, stays out of ordinary undo/redo and never bypasses the public Core ports. None of this is expressible in the current grid: a new public Core port, an operation origin "system", a WorldGen module and its place in the layers.
-3. **Proposed change:** (a) Core exposes a narrow **system-commit port** (materialise and evict generated data) next to the commit primitive; (b) `OperationId` (C-17) carries an origin (user or system); (c) system commits are subject to the commit and revision rules but are excluded from history/undo (E-series and Agent G); (d) a **WorldGen** module is added to the layer grid depending on Core value types and ports only; (e) the revision effect of a system commit (same token scope or a scoped generation epoch) is decided together with B-6.
-4. **Alternatives:** (a) system generation as Editing-API operations of a system actor (option B; rejected as the default by AOD-16); (b) direct writes into Core outside any port (option A; rejected for production); (c) treat the change as a clarification under ACR-001 (not chosen: it adds a module and a port, not only a placement).
-5. **Affected modules:** Core (P0: C-17, commit primitive, RevisionToken), Editing API and History (exclusion rule), Persistence (what is journaled), WorldGen, the server runtime. **API impact:** new port and operation origin. **Data compatibility:** none (nothing implemented). **Performance:** one materialisation per chunk (spike baseline 0.009 ms per chunk commit, experimental). **Tests:** call-site audit of the three writers, history exclusion, revision tests, authority test. **Migration:** the spike's direct commits are removed when the port exists.
+2. **Problem:** the decision in A cannot be expressed in the current grid: it needs a new public Core port, an operation origin and a WorldGen module with a place in the layers.
+3. **Proposed change:** B and C above; the revision effect (D) decided together with B-6.
+4. **Alternatives:** (a) system generation as Editing-API operations of a system actor (option B; rejected as the default by AOD-16); (b) direct writes into Core outside any port (option A; not for production); (c) treat it as a clarification under ACR-001 (not chosen: it adds a module and a port).
+5. **Affected modules:** Core (C-16, C-17, C-18, commit primitive), Editing API and History (exclusion rule), Persistence (what is journaled; recovery actor), WorldGen, the server runtime. **API impact:** new port and operation origin. **Data compatibility:** none (nothing implemented). **Performance:** one materialisation per chunk (spike baseline 0.009 ms per chunk commit, experimental). **Tests:** call-site audit of the three writers, history exclusion, revision tests, authority test. **Migration:** the spike's direct commits are removed when the port exists.
+6. **Related candidates, not filed:** placing the server runtime and the persistence manifest/recovery module in the AU-1.0 module grid may need a further ACR when the owner assigns owners (OI-8); it is not prepared now.
 
 ---
 

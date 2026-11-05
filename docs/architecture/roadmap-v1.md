@@ -38,7 +38,7 @@ Notation used everywhere: **C1** seed plus block-level overrides; **C2** generat
 | OI-3 | Decide ACR-001/002/003 (B-3) | Gate 0 |
 | OI-4 | Reconcile persistence contracts and the `cube-persistence` spike with AOD-17 and AOD-21 (direction **decided**; contract rewrite open) | Gate 5 |
 | OI-5 | License policy: rules for third-party code/assets and for studying other projects are **decided** (AOD-23); Cube's own license and the dependency license list stay open | Gate 0 |
-| OI-6 | Single-player runs an embedded server instance: **decided** (AOD-22). Open: runtime placement in the module grid, transport binding, device measurement | Gate 6 |
+| OI-6 | Single-player runs an embedded server instance: **decided** (AOD-22). Embedded uses an in-process transport, dedicated an external one (confirmed). Open: runtime placement in the module grid, the dedicated carrier (OAM-05), device measurement | Gate 6 |
 | OI-7 | RevisionToken width and commit algorithm, generated-data revision rule, system-commit port (B-6; possible new ACR) | Gate 2 |
 | OI-8 | Owners for networking (O-3), engine adapters (O-5), import/export, WorldGen, server host, content, live service | Gate 0/1 |
 | OI-9 | Transport, serialisation and authentication for the protocol | Gate 7 |
@@ -251,13 +251,13 @@ The **earliest** point for the first module (`cube-core` hardened) is the **exit
 
 ## 5. The nearest three tasks
 
-These follow from the decisions of 2026-11-05 and are documentation or specification work (no code on `master`):
+First Draft contracts now exist (no approval): `docs/api-contracts/worldgen-contracts.md`, `system-commit-contracts.md`, `world-persistence-contracts.md`, `server-runtime-contracts.md`. The next tasks are:
 
-1. **Draft the WorldGen port, the system-commit port and the OperationId origin as Draft contracts**, with the revision options for B-6, and bring ACR-004 and the revision rule to the owner for decision (unblocked by AOD-20; approval waits for ACR-004 and the sources).
-2. **Rewrite the persistence contracts against AOD-21** (world record with seed and GeneratorVersion, mutation journal, chunk snapshots, load order, version policy, crash-recovery tests) and specify the combined spike for the Core layer model and compaction (unblocked by AOD-21; no binary format is approved).
-3. **Specify the server runtime host and lifecycle contract** for embedded and dedicated modes with a shared conformance suite and authority tests (unblocked by AOD-22; the transport binding waits for the OAM-05 spike).
+1. **Owner review of the four Draft contracts and the decision on ACR-004** (with the revision rule for system commits, B-6). Nothing is approved before this and before the missing sources (AOD-24) allow P0 approval.
+2. **The combined spike:** the durable compaction protocol (platform fsync/atomic replace on desktop, then on a device), fault injection at every crash point, journal granularity, and the Core layer model (single layer or C2 overlay). No binary format is approved by it.
+3. **The transport spike (OAM-05) and the conformance harness specification:** the dedicated carrier candidates, and one suite that runs on the in-process and the external transport.
 
-Independent and still open: the **physical-device track** (OI-10, OI-11) and the **Gate 1 foundation specification** (toolchain pins, GDExtension ABI policy, profiles, CI that includes the dependency-rule test, the `no_child_processes` guard and the package check); the owner supplies or confirms the missing sources and names owners (OAM-08, OI-8).
+Independent and still open: the **physical-device track** (OI-10, OI-11) and the **Gate 1 foundation specification** (toolchain pins, GDExtension ABI policy, profiles, CI with the dependency-rule test, the `no_child_processes` guard and the package check); the owner supplies or confirms the missing sources and names owners (OAM-08, OI-8).
 
 ## 6. Blockers
 

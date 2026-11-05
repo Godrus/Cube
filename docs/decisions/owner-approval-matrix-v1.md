@@ -32,8 +32,8 @@
 | ID | Decision | Status | Recorded decision or recommendation | Still needed from the owner |
 |---|---|---|---|---|
 | OAM-01 | WorldGen to Core boundary | **Approved** (AOD-20, 2026-11-05) | hybrid option C, variant C3; **ACR-004 prepared, Pending** | Core layer model (single layer or C2 overlay, Spike Required), revision effect of system commits (B-6), decision on ACR-004 |
-| OAM-02 | Persistence | **Approved** (AOD-21, 2026-11-05) | `WorldSeed + GeneratorVersion`, durable journal, compaction into chunk snapshots, load order base generation, snapshot, journal tail | binary formats, journal granularity, compaction policy, per-world generator-version policy (all not approved) |
-| OAM-03 | Embedded server | **Approved** (AOD-22, 2026-11-05) | one authoritative Rust server runtime, embedded or dedicated; no client-only authoritative mode | transport binding (OAM-05), runtime placement in the module grid, mobile measurement |
+| OAM-02 | Persistence | **Approved** (AOD-21, 2026-11-05) | `WorldSeed + GeneratorVersion`, durable journal, compaction into chunk snapshots, load order base generation, snapshot, journal tail | binary formats, concrete database, exact fields, journal granularity, retention numbers, per-world generator-version policy (all not approved) |
+| OAM-03 | Embedded server | **Approved** (AOD-22, 2026-11-05; transport rule confirmed) | one authoritative Rust server runtime, embedded (in-process transport) or dedicated (external transport); no client-only authoritative mode | dedicated transport (OAM-05), runtime placement in the module grid, mobile measurement |
 | OAM-04 | Renderer | Proposed (`faces` reference/default, `greedy` experimental per AOD-10) | no change; mobile decision needs a physical device | the default after a device benchmark |
 | OAM-05 | Network layer | Spike Required | no transport chosen | approve the spike and its criteria; networking owner |
 | OAM-06 | Mobile targets | Proposed | adopt the criteria table | approve criteria; devices and macOS/Xcode |
@@ -103,7 +103,7 @@ Relation to roadmap open items: OAM-01 = OI-12 (and OI-7 for the system-commit p
 | **Impact on Mobile** | Write volume, storage growth, flush behaviour on suspend or kill and low-memory behaviour are device questions; no measurement exists. P-A has the largest write volume (Agent inference). |
 | **Reversibility** | The direction is reversible while no format is frozen. A frozen, shipped format is expensive to change, so versioned schemas and a migration framework are required from the first release (roadmap Gate 5). |
 | **Blocks** | The persistence contract rewrite (OI-4), Gate 5, replication of baselines (Gate 7), the answer for O-WG-2 (generator version policy). |
-| **Owner decision required** | Recorded as AOD-21. **Still required:** the persistence spike and format approval (Gate 5); the per-world generator-version policy; the local single-player store (REF-23); confirmation of the interpretation that compaction must be verifiable and must not leave an unverified snapshot as the sole copy of history (AOD-21 section 5.2). |
+| **Owner decision required** | Recorded as AOD-21; the compaction protocol and recovery rules were **confirmed as Approved architecture on 2026-11-05** (section 2.2). **Still required:** the persistence spike and format approval (Gate 5); formats, concrete database, exact fields (Proposed / Spike Required); the per-world generator-version policy; the local single-player store (REF-23). |
 
 ### 2.1 Comparison on the requested criteria
 
@@ -119,6 +119,16 @@ Relation to roadmap open items: OAM-01 = OI-12 (and OI-7 for the system-commit p
 
 **Agent inference:** only P-C and P-D give operation identity for undo, idempotent retry and conflict handling without extra machinery; P-B is attractive for per-chunk loading and is what Veloren does, but for a server-authoritative multiplayer game with undo it lacks operation identity. This is an inference, not a measurement.
 **Spike criteria (proposed):** kill-during-write and truncated-tail recovery tests; replay time per 10 000 operations on a mobile-class device; storage growth per hour of scripted play; compaction crash safety; generator-bump behaviour for the three version policies.
+
+### 2.2 Compaction protocol and recovery rules (Approved architecture, AOD-21, confirmed 2026-11-05)
+
+`write snapshot → fsync snapshot → verify snapshot → atomically update manifest → fsync manifest → compact/truncate journal only after successful verification`
+
+* a snapshot is not the only source of truth before verification; the previous snapshot is kept until the new one is activated; the journal tail is kept until the new recovery point is confirmed;
+* a crash between any steps leaves a recoverable state (crash table in `../api-contracts/world-persistence-contracts.md`, WP-07);
+* a snapshot contains its base generator version and revision boundary; a generator change never alters an existing world silently; compaction is idempotent; recovery checks hash, epoch, revision and generator version.
+
+Status: the **architecture is Approved**. Binary format, concrete database, exact file fields, hash algorithm, platform durability mechanism and retention numbers remain `Proposed` or `Spike Required`.
 
 ---
 
@@ -139,7 +149,7 @@ Relation to roadmap open items: OAM-01 = OI-12 (and OI-7 for the system-commit p
 | **Impact on Mobile** | S-A: CPU, memory and battery of the server loop must fit the phone budget; Hypothesis, no measurement. S-B: on iOS a second process is not an option (Agent inference; to verify). S-C: lowest cost. |
 | **Reversibility** | S-A to S-B (dedicated) is cheap if the interfaces stay transport-independent. S-C to either is expensive. |
 | **Blocks** | The server host design (Gate 7 scoping), the local store decision (REF-23), Gate 6 local game structure, the prediction and reconciliation scaffolding. |
-| **Owner decision required** | Recorded as AOD-22. **Still required:** the transport binding (OAM-05); placement of the runtime in the module grid; the transition conditions of 3.1 (remain a proposal); a physical-device measurement of the embedded runtime. Fact (upstream): Veloren embeds its server behind a `singleplayer` feature; its authority rules for that mode were not examined, so it is not evidence for Cube. |
+| **Owner decision required** | Recorded as AOD-22; the embedded transport rule was **confirmed on 2026-11-05** (section 3.2). **Still required:** the external transport of the dedicated server (OAM-05, Spike Required); placement of the runtime in the module grid; the transition conditions of 3.1 (Proposed); a physical-device measurement of the embedded runtime. Fact (upstream): Veloren embeds its server behind a `singleplayer` feature; its authority rules for that mode were not examined, so it is not evidence for Cube. |
 
 ### 3.1 Conditions to move from embedded to dedicated server (Proposed; not part of AOD-22)
 
@@ -151,7 +161,15 @@ Move a given world from an embedded instance to a dedicated server when **any** 
 4. server-side anti-cheat or moderation is required for the world;
 5. the world is migrated to a hosted environment by the owner or the player (export of seed, generator version and journal).
 
-The migration is possible only if the persisted world is transport- and process-independent (OAM-02) and the Editing/replication interfaces are identical in both modes. **Hypothesis:** the same binary logic can serve both with an in-process channel replacing the socket; this needs the Gate 7 spike.
+The migration is possible only if the persisted world is transport- and process-independent (OAM-02) and the Editing/replication interfaces are identical in both modes. The in-process versus external transport difference is decided (3.2); whether the conformance suite proves identical behaviour is a Gate 6/7 verification item.
+
+### 3.2 Transport rule (Approved, AOD-22, confirmed 2026-11-05)
+
+* the embedded server uses an **in-process transport**; the dedicated server uses an **external transport**; the implementations may differ;
+* protocol, authority, authentication, authorization, OperationId, revision and conflict rules are identical on both; the embedded mode has no special rights and is not client-authoritative;
+* the conformance tests run on **both** transport implementations (`../api-contracts/server-runtime-contracts.md`, SR-09).
+
+The external transport of the dedicated server is **not chosen** (OAM-05 stays `Spike Required`).
 
 ---
 
