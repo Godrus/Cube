@@ -11,15 +11,27 @@
 | ID | Stage | Scope | Files/modules | Public API | Required tests | Deliverables | Acceptance |
 |---|---|---|---|---|---|---|---|
 | DEV-01 | PS-0 | Acquire physical Android ARM64 devices and macOS/Xcode access (does not gate PS-1..PS-13) | n/a | none | n/a | device inventory | recorded; gates only DG-1..DG-3 |
-| GOV-01 | PS-0 | Decide ACR-001/002/003, ACR-004 part A (Core prerequisites) and part D principle (OAM-10 revision model); OD-R1, OD-R2, OD-R6, D-R8 (OperationId format), D-K, D-T, D-C, D-0 (P0-alpha scope) | docs/decisions/decision-registry.md | none | review checklist | decision-registry entries with confirmation source | every PS-1 prerequisite decision is Owner-Approved, Rejected or explicitly deferred with an extension point |
+| GOV-01 | PS-0 | Decide ACR-001/002/003, ACR-004 part A (Core prerequisites) and part D principle (OAM-10 revision model); OD-R1, OD-R2, OD-R6, D-R8 (OperationId format), D-K, D-T, D-C, D-0 (P0-alpha scope); D-E (toolchain, execution model, dependency licence allow-list); the branch option for the docs-only baseline (GOV-04) | docs/decisions/decision-registry.md | none | review checklist | decision-registry entries with confirmation source | every PS-1 prerequisite decision is Owner-Approved, Rejected or explicitly deferred with an extension point |
 | GOV-02 | PS-0 | Owner-Approve P0-alpha; record Provisional Contracts PC-1 with assumptions and revalidation gate RG-1; adopt the Contract Status Model | docs/api-contracts/README.md (status column), decision-registry.md | none | n/a | registry entries; contract status updates made by the Integration Owner on the owner record | P0-alpha status Owner-Approved; PC-1 status Provisional with all mandatory fields |
 | GOV-03 | PS-0 | Decide owners for UNASSIGNED modules needed by the next stages (WorldGen, Networking Adapter, Server Runtime, Client Runtime, Engine Adapter) and for Import/Export, Derived Data Providers (O-1), Modifier Evaluation (O-2), or defer each in writing | docs/production/module-boundaries.md (ownership table) | none | n/a | ownership table updated by the Integration Owner from the owner record | every module needed by PS-1..PS-5 has a named owner; others deferred with the stage that needs them |
 | GOV-07 | PS-2 | Owner-Approve PR-01..PR-08 after the Geometry Processing Specification is supplied (RG-2) | decision-registry.md | none | n/a | registry entry | PR-01..PR-08 Owner-Approved or an owner-recorded alternative |
+| GOV-16 | PS-2 | Owner-Approve C-05 GeometryBounds | decision-registry.md | none | n/a | registry entry | Owner-Approved or amended |
+| GOV-24 | PS-2 | Decide OD-R4 (snapshot lifetime and caps) | decision-registry.md | none | n/a | registry entry | Owner-Approved or amended |
 | GOV-09 | PS-3 | Owner-Approve E-02..E-12 (P1 Editing slice) and the storage ports | decision-registry.md | none | n/a | registry entry | Owner-Approved or amended |
+| GOV-08 | PS-5 | Record the result of revalidation gate RG-1: Voxel Architecture compared with PC-1 (C-07, C-08, C-09) and C-10…C-12; required before any Frozen status of those contracts | decision-registry.md | none | n/a | registry entry | PC-1 confirmed, amended or replaced; result recorded |
+| GOV-17 | PS-5 | Owner-Approve C-10 MaterialMapping (after RG-1) | decision-registry.md | none | n/a | registry entry | Owner-Approved or amended |
+| GOV-20 | PS-6 | Owner-Approve tool-level contracts for Sculpt/Brush and BooleanPolicy (B-7) | decision-registry.md | none | n/a | registry entry | Owner-Approved before tool implementations merge |
+| GOV-25 | PS-7 | Decide OD-R5 (undo when later edits touched the same cells) | decision-registry.md | none | n/a | registry entry | Owner-Approved or amended |
+| GOV-19 | PS-8 | Owner-Approve C-13, C-14, C-15 (junction, composite part, assembly graph; after ACR-003) | decision-registry.md | none | n/a | registry entry | Owner-Approved or amended |
+| GOV-23 | PS-8 | Owner-Approve composite-operation contracts and resample/refine contracts (B-7) | decision-registry.md | none | n/a | registry entry | Owner-Approved before COMP and RES implementations merge |
+| GOV-18 | PS-9 | Owner-Approve C-11 ResolutionProfile and C-12 RefinementRegion (after RG-1) | decision-registry.md | none | n/a | registry entry | Owner-Approved or amended |
 | GOV-10 | PS-10 | Owner approves the persistence format after SPK-PERS and PERS-05 results and after the Voxel Architecture revalidation (RG-1) | decision-registry.md | none | n/a | registry entry | format Owner-Approved or amended |
 | GOV-11 | PS-10 | Decide ACR-004 parts B (WorldGen integration), C (Persistence recovery) and E (removal of legacy direct writes); OAM-09 (C1/C2) | decision-registry.md | none | n/a | registry entry | each part Owner-Approved, Rejected or deferred |
+| GOV-21 | PS-11 | Owner-Approve the WorldGen contracts WG-01…WG-10 | decision-registry.md | none | n/a | registry entry | Owner-Approved before the 11B tasks merge |
 | GOV-12 | PS-13 | Owner chooses the external transport after SPK-NET | decision-registry.md | none | n/a | registry entry | Owner-Approved or amended |
+| GOV-22 | PS-13 | Owner-Approve the server-runtime contracts SR-01…SR-10 and the protocol/session type contracts | decision-registry.md | none | n/a | registry entry | Owner-Approved before NET-02 and SRV-01 merge |
 | GOV-13 | PS-14 | Owner records the default renderer after DG-1 | decision-registry.md | none | n/a | registry entry | recorded (AOD-10 stays until then) |
+| GOV-15 | PS-14 | Decision to Freeze PC-1 (C-07, C-08, C-09): allowed only after the RG-1 revalidation record | decision-registry.md | none | n/a | registry entry | no Provisional contract is Frozen without GOV-08 |
 
 ## 2. Main Agent / Integration Owner
 **Crate / area:** cube-editing-api, xtask, composition, reviews. **Acceptance authority:** project owner (contracts); Integration Owner (engineering). **Forbidden scope:** implementing behaviour in cube-editing-api; approving contracts.
@@ -28,8 +40,9 @@
 |---|---|---|---|---|---|---|---|
 | GOV-04 | PS-0 | Docs-only baseline on master (docs branch must not carry spike code); owner chooses the option | master (docs only) | none | n/a | baseline branch/PR | no file of the spike code list is on master |
 | GOV-05 | PS-0 | CI SPECIFICATION document (checks, required statuses, tool pins) - a specification, not a running CI | docs/production/integration-and-qa-plan.md section 5 | none | n/a | Owner-Approved CI specification | specification reviewed; every check has an owner and a pass condition |
-| XT-01 | PS-0 | archcheck v0: crate graph equals the ADG module edges; use-level scan for forbidden imports | xtask/src/archcheck.rs | CLI | seeded-violation self-tests | tool | catches every seeded violation |
-| XT-02 | PS-1 | archcheck v1: mutation-boundary rules (only allowed crates reference the handles), no history/undo patterns in adapters, API snapshots | xtask/src/archcheck.rs | CLI | seeded violations incl. a worldgen crate naming UserCommit | tool | every seeded direct-write violation is caught |
+| XT-01 | PS-0 | archcheck v0: crate graph equals the ADG module edges; use-level scan for forbidden imports | xtask/src/archcheck.rs | CLI | seeded-violation self-tests | tool | catches every seeded violation; registered as a required status check |
+| INT-01 | PS-1 | Record contract status Implemented for the P0-alpha contracts; PC-1 contracts stay at Provisional approval (status model: approval axis unchanged) | docs/api-contracts/README.md (status column), decision-registry.md | none | n/a | status record by the Integration Owner | Implemented is recorded only with CI evidence; no contract is set Frozen |
+| XT-02 | PS-1 | archcheck v1: mutation-boundary rules (only allowed crates reference the handles), no history/undo patterns in adapters, API snapshots | xtask/src/archcheck.rs | CLI | seeded violations incl. a worldgen crate naming UserCommit | tool | every seeded direct-write violation is caught; registered as a required status check; runs on every PR |
 | API-01 | PS-3 | Public types: operations, transactions, results, conflict results (E-03..E-06) | crates/cube-editing-api/src/types | listed types | mock-based contract tests | module | no behaviour in the crate |
 | API-02 | PS-3 | Ports: IEditingService, IGeometryBackend + capabilities, ITransactionObserver (E-07, E-11, E-12; ACR-002) | crates/cube-editing-api/src/ports | listed ports | mock conformance | module | backends compile without Orchestration |
 | API-03 | PS-3 | AuthorizationContext (E-02) with origin mapping to ActorKind | crates/cube-editing-api/src/auth.rs | AuthorizationContext | denial leaves no state | module | mapping documented; LocalClient origin gives no extra rights |
@@ -47,12 +60,13 @@
 | CORE-04 | PS-1 | GeometryTransform: integer-only authoritative representation per D-T (C-04) | crates/cube-core/src/transform.rs | GeometryTransform | composition and determinism tests | module | no floating point in authoritative state (compile-time lint + test) |
 | CORE-05 | PS-1 | RevisionToken (Asset, Layer, Cell scopes), epoch, RegionStamp (C-16) | crates/cube-core/src/revision.rs | RevisionToken, RegionStamp | ordering, incomparability, overflow | module | spike revision tests ported; overflow is a critical error, never wraps |
 | CORE-06 | PS-1 | Commit: SharedAsset, immutable AssetState, commit gate, CommitBatch (atomic across layers of one asset), dirty regions (C-18, C-01) | crates/cube-core/src/{asset,commit,dirty}.rs | SharedAsset::{snapshot, commit}, CommitBatch | atomicity, isolation, loom gate tests | module | spike asset tests ported; loom green; all-or-nothing |
-| CORE-07 | PS-1 | OperationId, ActorKind {User, System, Recovery}, WorldSeed and GeneratorVersion value types, error envelope (C-17, C-19) | crates/cube-core/src/{ids,error}.rs | OperationId, ActorKind, WorldSeed, GeneratorVersion, Error | code uniqueness, envelope fields | module | every error code has a negative test; formats versioned per D-R8 |
+| CORE-07 | PS-1 | OperationId, ActorKind {User, System, Recovery}, error envelope (C-17, C-19, with the ACR-004 part A amendment to C-17) | crates/cube-core/src/{ids,error}.rs | OperationId, ActorKind, Error | code uniqueness, envelope fields | module | every error code has a negative test; formats versioned per D-R8 |
 | CORE-08 | PS-1 | Mutation boundary: capability handles UserCommit, SystemCommit, RecoveryCommit; in-memory commit log; no public mutating API besides handles (ACR-004 part A) | crates/cube-core/src/boundary.rs | handle types, CommitLog (test-time) | compile-fail tests (trybuild), log completeness test | module | a revision increment without a commit-log entry is impossible (test) |
-| CORE-09 | PS-1 | System-commit and recovery ports: Materialise, Evict, Restore (types + implementation behind the handles) (ACR-004 part A) | crates/cube-core/src/system_commit.rs | SystemCommit, RecoveryCommit methods | atomic, idempotent, unreachable from a User handle | module | call-site audit passes; client-facing crates cannot name the handles |
+| CORE-09 | PS-1 | System-commit and recovery ports: Materialise, Evict, Restore (types + implementation behind the handles) (ACR-004 part A). The callers (Materialiser, persistence loader) are NOT part of PS-1 | crates/cube-core/src/system_commit.rs | SystemCommit, RecoveryCommit methods | atomic, idempotent, unreachable from a User handle | module | call-site audit passes; client-facing crates cannot name the handles |
 | CORE-10 | PS-1 | CORE API FREEZE v0.1: publish the public-API snapshot of CORE-01..07 (the event CF-1) | crates/cube-core/api-snapshot.txt | API snapshot | API snapshot test | snapshot + contract tests | CI fails on any later public-API difference without an accepted change request |
 | CORE-11 | PS-1 | Export/import views (not a file format) and stable content hash | crates/cube-core/src/{view,hash}.rs | AssetView, content_hash | roundtrip; golden hashes | module | no serialization format defined; hash algorithm and byte order fixed by the contract |
 | CORE-15 | PS-2 | GeometryBounds data (C-05), separate approval | crates/cube-core/src/bounds.rs | GeometryBounds | bounds invariants | module | C-05 Owner-Approved before merge |
+| CORE-16 | PS-2 | World identity value types WorldSeed and GeneratorVersion (plain newtypes, no behaviour; support for ACR-004 parts B and C, NOT part of PS-1) | crates/cube-core/src/world_ids.rs | WorldSeed, GeneratorVersion | newtype tests | module | additive to the frozen Core API; no WorldGen or Persistence logic in Core |
 | CORE-12 | PS-5 | MaterialMapping palette data (C-10), separate approval and RG-1 | crates/cube-core/src/palette.rs | MaterialPalette | palette invariants | module | C-10 Owner-Approved after Voxel Architecture revalidation |
 | CORE-14 | PS-8 | Composite data and junction data (C-13, C-14, C-15), after ACR-003 | crates/cube-core/src/{composite,junction}.rs | CompositePart, AssemblyGraph | graph invariants | module | ACR-003 decided; no operations in Core |
 | CORE-13 | PS-9 | Resolution profile and refinement region data (C-11, C-12), separate approval and RG-1 | crates/cube-core/src/resolution.rs | ResolutionProfile, RefinementRegion | data invariants | module | C-11/C-12 Owner-Approved after revalidation |
@@ -226,26 +240,28 @@
 
 | ID | Stage | Scope | Files/modules | Public API | Required tests | Deliverables | Acceptance |
 |---|---|---|---|---|---|---|---|
-| SRV-01 | PS-13 | Server runtime: lifecycle and the two hosts (embedded, dedicated) sharing one runtime; recovery wiring (IBaseProvider from WorldGen, PERS-06) | crates/cube-server/src | ServerRuntime | lifecycle suite on both hosts | module | AOD-22 rules; one runtime, two hosts |
+| SRV-01 | PS-13 | Server runtime: lifecycle and the EMBEDDED host over the in-process transport; shared runtime for both hosts; recovery wiring (IBaseProvider from WorldGen, PERS-06) | crates/cube-server/src | ServerRuntime | lifecycle suite on both hosts | module | AOD-22 rules; one runtime, two hosts |
 | SRV-02 | PS-13 | Server session management and authentication INTEGRATION | crates/cube-server/src/session.rs | none | authority tests | module | no unauthenticated edit path |
 | SRV-03 | PS-13 | Tick loop and single writer | crates/cube-server/src/tick.rs | none | determinism; soak | module | no concurrent commit paths |
 | SRV-04 | PS-13 | Interest management and replication | crates/cube-server/src/replicate.rs | none | consistency under loss | module | client cache equals server state |
 | SRV-05 | PS-13 | Reconnect, catch-up, idempotent retry | crates/cube-server/src/reconnect.rs | none | replay tests | module | reconnect within the budget (device figure in DG-3) |
 | SRV-06 | PS-13 | Permissions and protected regions | crates/cube-server/src/perm.rs | none | permission matrix | module | denial leaves no state |
 | SRV-07 | PS-13 | Server-side history integration (per-actor stacks over the session) | crates/cube-server/src/history.rs | none | per-actor isolation | module | no cross-actor undo without permission |
+| SRV-08 | PS-13 | DEDICATED host over the external transport (same runtime as SRV-01) | crates/cube-server/src/host/dedicated.rs | none | lifecycle and conformance suites on the dedicated host | module | differs from the embedded host only in launch, lifecycle and transport (AOD-22) |
 
 ## 20. Agent I (QA and Benchmarks)
 **Crate / area:** cube-testkit, cube-integration-tests, CI, device tooling. **Acceptance authority:** Integration Owner. **Forbidden scope:** production code in other crates; changing acceptance thresholds.
 
 | ID | Stage | Scope | Files/modules | Public API | Required tests | Deliverables | Acceptance |
 |---|---|---|---|---|---|---|---|
-| GOV-06 | PS-0 | CI IMPLEMENTATION: workspace skeleton PR with pinned toolchain and running fmt, clippy, test, deny, archcheck v0 | .github/workflows/*, rust-toolchain.toml, deny.toml, Cargo.toml | none | CI self-run on a seeded failing PR | running CI | a workflow run URL shows every required check green on an empty skeleton and red on seeded failures |
+| GOV-06 | PS-0 | CI IMPLEMENTATION: workspace skeleton PR with pinned toolchain and running fmt, clippy, test, deny, archcheck v0 | .github/workflows/*, rust-toolchain.toml, deny.toml, Cargo.toml | none | CI self-run on a seeded failing PR | running CI | a workflow run URL shows every required check green on an empty skeleton and red on seeded failures; branch protection on master lists them as required status checks (API output attached) |
 | TEST-01 | PS-0 | cube-testkit skeleton: deterministic strategies, fakes | crates/cube-testkit | test helpers | self-tests | crate | used by at least two crates |
 | TEST-02 | PS-1 | Golden-hash harness (software, any host); device runs belong to DG-2 | crates/cube-testkit | golden runner | harness self-tests | harness | hashes reproduce on the CI host |
 | TEST-05 | PS-1 | Core property and loom suites: commit atomicity, snapshot isolation, monotonic revisions | crates/cube-integration-tests/tests/core_properties.rs | none | proptest, loom | suites | suites run in CI and fail on seeded violations |
+| TEST-06 | PS-1 | Mutation-boundary negative tests available in PS-1: compile-fail (trybuild) tests for handles, commit-log completeness test, archcheck seeded violations | crates/cube-integration-tests/tests/mutation_boundary.rs | none | compile-fail + archcheck | tests | every seeded bypass fails CI |
 | TEST-08 | PS-2 | Processing concurrency and cancellation suites (loom, stress) | crates/cube-integration-tests/tests/processing_concurrency.rs | none | loom, stress | suites | no stale publication under any interleaving explored |
 | TEST-03a | PS-4 | Backend conformance suite (independent of any renderer choice) | crates/cube-integration-tests/src/conformance/backend.rs | suite | self-check against fakes | suite | each backend can run it |
-| TEST-06 | PS-4 | Negative tests for forbidden mutation paths (user path cannot reach system/recovery handles; adapters cannot commit) | crates/cube-integration-tests/tests/mutation_negative.rs | none | compile-fail + archcheck | tests | every seeded bypass fails CI |
+| TEST-10 | PS-4 | Negative tests through the real Orchestration path: a user request cannot yield a System or Recovery commit; clients and adapters cannot commit | crates/cube-integration-tests/tests/mutation_negative.rs | none | compile-fail + archcheck | tests | every seeded bypass fails CI |
 | ITG-01 | PS-10 | Integration test: journal produced by user commits replays to the identical state (History not required) | integration tests (composition crate) | none | replay equality | test | replay equals live state for the spike scenarios |
 | QA-P2 | PS-10 | Persistence crash-recovery matrix on desktop (all numbered crash points, truncated tail, corrupted files, version mismatch, double recovery) | crates/cube-integration-tests/tests/persistence_crash.rs | none | fault injection | suite | all crash points recover; no unverified snapshot ever becomes sole truth |
 | TEST-04 | PS-10 | Fault-injecting filesystem and crash-point runner | crates/cube-testkit/src/faultfs | FaultFs | self-tests | harness | can crash after any numbered I/O step |
@@ -266,12 +282,12 @@
 
 | Owner | Tasks |
 |---|---|
-| Project owner | 10 |
-| Main Agent / Integration Owner | 9 |
-| Agent I (QA and Benchmarks) | 21 |
+| Project owner | 22 |
+| Main Agent / Integration Owner | 10 |
+| Agent I (QA and Benchmarks) | 22 |
 | Agent H | 10 |
 | UNASSIGNED (Networking Adapter, O-3) - owner decision | 5 |
-| Core Agent | 15 |
+| Core Agent | 16 |
 | Processing Agent | 6 |
 | Agent A | 5 |
 | Agent B | 5 |
@@ -285,5 +301,5 @@
 | UNASSIGNED (WorldGen) - owner decision | 6 |
 | UNASSIGNED (Client Runtime) - owner decision | 6 |
 | UNASSIGNED (Engine Adapter, O-5) - owner decision | 4 |
-| UNASSIGNED (Server Runtime) - owner decision | 7 |
-| **Total** | **131** |
+| UNASSIGNED (Server Runtime) - owner decision | 8 |
+| **Total** | **147** |

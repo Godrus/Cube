@@ -1,5 +1,7 @@
 # Cube Production Plan Revision v2: Report
 
+> **SUPERSEDED by `production-plan-revision-v2.1-report.md`.** Kept for traceability. Counts, task ids and statements below describe the v2 set; where they differ from v2.1 (for example TEST-06 stage, 131 tasks, CORE-07 content), the v2.1 documents and report prevail.
+
 **Status:** report on a **Proposed** revision. Nothing in the seven v2 documents is approved; no contract, ACR, AOD or blocker closure changed; no code, merge, commit or branch change was made; the repository was not touched (work done in a scratchpad workspace).
 **Set:** `production-architecture-plan.md`, `module-boundaries.md` (with the ADG), `implementation-roadmap.md`, `agent-task-breakdown.md`, `architecture-blocker-decisions.md`, `integration-and-qa-plan.md`, this report.
 
@@ -131,22 +133,7 @@ PC-1 (C-07, C-08, C-09 with baseline BL-1); every item marked "Proposed" in the 
 
 ## 10. Re-audit of the seven documents
 
-| # | Check | Result | Detail |
-|---|---|---|---|
-| 1 | no unfilled placeholders | PASS |  |
-| 2 | all task ids mentioned in the seven documents exist in the ADG | PASS |  |
-| 3 | no unqualified "Stage n"/"Gate n" reference | PASS |  |
-| 4 | PS-n (0..14), Gn (0..14), DG-n (1..3), RG-n (1..2) references are valid | PASS | [] |
-| 5 | P0-alpha contract list identical wherever it is spelled out | PASS | occurrences {'production-architecture-plan.md': 2, 'module-boundaries.md': 0, 'implementation-roadmap.md': 1, 'agent-task-breakdown.md': 0, 'architecture-blocker-decisions.md': 1, 'production-plan-revision-v2-report.md': 1}; deviating [] |
-| 6 | PC-1 is C-07, C-08, C-09 wherever it is spelled out | PASS | [('architecture-blocker-decisions.md', 'C-07, C-08, C-09')] |
-| 7 | no bare "Approved" claim without Owner- prefix or negation (manual list) | PASS |  |
-| 8 | architecture-plan sections referenced elsewhere exist (3.3, 5, 6, 8, 12, 14, 15, 4, 2) | PASS | [] |
-| 9 | every ADG task has a row in the task breakdown | PASS | [] |
-| 10 | every task id appears in the roadmap stage blocks | PASS | [] |
-| 11 | UNASSIGNED owners appear only in PS-11+ (and the transport spike) | PASS | [] |
-| 12 | roadmap and task breakdown do not restate dependency lists | PASS |  |
-| 13 | ADG parts A-E present | PASS |  |
-| 14 | legacy status word "Draft" not used as a v2 status | PASS |  |
+(v2 re-audit table omitted: superseded by section 10 of the v2.1 report.)
 
 ### 10.1 Remaining discrepancies and weaknesses (not closable by documents)
 

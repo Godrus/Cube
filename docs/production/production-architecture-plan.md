@@ -1,6 +1,6 @@
 # Cube Production Architecture Plan v2 (proposal)
 
-**Status:** **Proposed**. Revision v2 of `production-architecture-plan.md`. It is not a normative document and approves nothing: no contract, ACR, AOD, blocker closure, merge or start of implementation. All owner decisions it needs are listed in `architecture-blocker-decisions.md`; nothing in this plan becomes a decision without a decision-registry entry made by the project owner (section 3.3).
+**Status:** **Proposed**. Revision v2.1 (final consistency review) of `production-architecture-plan.md`. It is not a normative document and approves nothing: no contract, ACR, AOD, blocker closure, merge or start of implementation. All owner decisions it needs are listed in `architecture-blocker-decisions.md`; nothing in this plan becomes a decision without a decision-registry entry made by the project owner (section 3.3).
 **Location:** prepared in a scratchpad workspace outside the repository; proposed repository path `docs/production/`.
 **Document set (all v2):** `production-architecture-plan.md` (this), `module-boundaries.md` (contains the **Authoritative Dependency Graph, ADG**), `implementation-roadmap.md`, `agent-task-breakdown.md`, `architecture-blocker-decisions.md`, `integration-and-qa-plan.md`, `production-plan-revision-v2-report.md`.
 **Single-source rule:** stage numbers, task ids, task dependencies and gate conditions are defined **only** in the ADG (`module-boundaries.md`, part C). Every other document refers to the ADG and never restates a dependency. The ADG is generated from one data file and machine-checked (acyclic, no unknown nodes, no stage inversion, one owner per crate); the check result is in the report.
@@ -9,7 +9,7 @@
 ## 1. Conventions and canonical identifiers
 
 * **Canonical stage names are `PS-0 … PS-14` (Production Stage).** A bare "Stage 11" or "Gate 7" is not used anywhere in v2; every reference names its system: `PS-n` (this plan), `QA-Pack stage n`, `Roadmap-v1 gate n`.
-* **Gate nodes** `G0 … G14` close the stages `PS-0 … PS-14` (membership and conditions: ADG parts C and D). **Device gates** `DG-1…DG-3` are separate tasks for physical-device validation (section 2.3 of the roadmap). **Revalidation gates** `RG-1` (Voxel Architecture) and `RG-2` (Geometry Processing Specification) are external-input gates (section 4.4).
+* **Gate nodes** `G0 … G14` close the stages `PS-0 … PS-14` (membership and conditions: ADG parts C and D). **Device gates** `DG-1…DG-3` are separate tasks for physical-device validation (`implementation-roadmap.md` section 4). **Revalidation gates** `RG-1` (Voxel Architecture) and `RG-2` (Geometry Processing Specification) are external-input gates (section 4.4).
 * **Edge kinds in the ADG:** `S` = *start-after* (the dependency's public interface is frozen, work may begin in a branch); `I` = *merge-after* (the dependency is merged and accepted). A task merges only after the union of its `S` and `I` dependencies.
 * **Contract ids:** C-xx (Core), PR-xx (Processing), E-xx (Editing), P-xx (Persistence), WG-xx, SC-xx, WP-xx, SR-xx (Draft additions). Decision ids: `D-…` in `architecture-blocker-decisions.md`.
 
@@ -72,21 +72,25 @@
 
 ## 3. Contract Status Model and Decision Registry
 
-### 3.1 Statuses
+### 3.1 Statuses: two axes
 
-Main line: **Proposed → Owner-Approved → Implemented → Frozen**. Side states: **Provisional**, **Rejected**, **Superseded**. The legacy words in `docs/api-contracts/README.md` map as: `Draft` = `Proposed`; `Draft+OD` = `Proposed` with open decisions; `Approved` = `Owner-Approved`.
+A contract has an **approval status** and, independently, a **maturity status**. Maturity can only progress for contracts whose approval status is `Owner-Approved`; this is how "no Provisional contract becomes Frozen without revalidation" is enforced by the model itself.
 
-| Status | Assigned by | Evidence required | Allowed | Restrictions |
-|---|---|---|---|---|
-| **Proposed** | any author (agent or owner) | the contract text in the repository | design, review, mock implementations, spikes | no production module may claim it; no persisted/wire format may depend on it |
-| **Provisional** | project owner (record), set by the Integration Owner | registry entry with the five mandatory fields (3.2) | implementation behind explicit extension points; merge to `master` marked provisional | **cannot become Frozen**; must pass its revalidation gate; downstream modules may use it only if their own tasks list the dependency and accept rework risk |
-| **Owner-Approved** | **project owner only** | registry entry with the confirmation source (3.3) | production implementation against the contract | text changes need a change request; an agent never sets this status |
-| **Implemented** | Integration Owner | module merged; contract tests listed in the task are green in CI; acceptance criteria evidenced | consumers integrate | public API changes need a change request |
-| **Frozen** | project owner on the Integration Owner's recommendation | Implemented + stable for the freeze criteria in the stage gate + for provisional contracts: revalidation gate passed | consumers rely on it; breaking change only via ACR | any change is breaking and needs an ACR and owner approval |
-| **Rejected** | project owner | registry entry | none | text kept for history, never implemented |
-| **Superseded** | project owner | registry entry naming the replacing contract | none for new code | existing code migrates per the replacing contract's plan |
+**Approval axis:** `Proposed` -> (`Provisional`) -> `Owner-Approved`; terminal states `Rejected`, `Superseded`.
+**Maturity axis:** `Implemented` -> `Frozen`. A contract that is only `Provisional` may be `Implemented` (written "Implemented under Provisional approval") but can never be `Frozen`: its approval status must first change to `Owner-Approved` through its revalidation gate and an owner registry entry.
+The legacy words of `docs/api-contracts/README.md` map as: `Draft` = `Proposed`; `Draft+OD` = `Proposed` with open decisions; `Approved` = `Owner-Approved`.
 
-**Agents never move a contract from Proposed to Owner-Approved.** A document that says "Approved" without a registry entry is wrong and is corrected by the Integration Owner.
+| Status | Axis | Assigned by | Evidence required | Allowed | Restrictions |
+|---|---|---|---|---|---|
+| **Proposed** | approval | any author (agent or owner) | the contract text in the repository | design, review, mocks, spikes | no production module may claim it; no persisted/wire format may depend on it |
+| **Provisional** | approval | project owner (registry entry), recorded by the Integration Owner | registry entry with the five mandatory fields (3.2) | implementation behind explicit extension points; merge marked provisional | **cannot become Frozen**; needs its revalidation gate (RG-n) and then `Owner-Approved`; consumers list the dependency and accept rework risk |
+| **Owner-Approved** | approval | **project owner only** | registry entry with the confirmation source (3.3) | production implementation against the contract | text changes need a change request; an agent never sets this status |
+| **Implemented** | maturity | Integration Owner (task INT-01 for PS-1; the stage gate elsewhere) | module merged; the contract tests named in the task green in CI; acceptance criteria evidenced | consumers integrate | public API changes need a change request; does not imply `Owner-Approved` |
+| **Frozen** | maturity | project owner on the Integration Owner's recommendation | `Implemented` + approval status `Owner-Approved` + the freeze criteria of the stage gate; for formerly Provisional contracts the revalidation record (GOV-08) and the freeze decision (GOV-15) | consumers rely on it; a breaking change only via ACR | any change is breaking and needs an ACR and owner approval |
+| **Rejected** | approval | project owner | registry entry | none | text kept for history, never implemented |
+| **Superseded** | approval | project owner | registry entry naming the replacing contract | none for new code | existing code migrates per the replacing contract's plan |
+
+**Agents never move a contract from Proposed to Provisional or Owner-Approved.** A document that says "Approved" without a registry entry is wrong and is corrected by the Integration Owner.
 
 ### 3.2 Provisional Contracts: mandatory fields
 
@@ -102,6 +106,7 @@ A single file `docs/decisions/decision-registry.md` (proposed; created by the ow
 
 * **Full P0** = all 19 Core contracts C-01…C-19 Owner-Approved (and the Provisional ones revalidated).
 * **P0-alpha** = the subset the owner may approve **now**, independent of the missing Voxel Architecture: **C-01, C-02, C-03, C-04, C-06, C-16, C-17, C-18, C-19** (core slices only; the open fields named in the contracts, e.g. asset metadata schema and collision profile, are excluded from the approval and stay Proposed).
+  The ACR-004 part A amendments (`ActorKind` on C-17, the commit-primitive handles and the system-commit and recovery port types of C-01/C-16) are part of the P0-alpha approval; their draft texts are SC-01, SC-02, SC-05 and SC-10. No other SC-xx, WG-xx, WP-xx or SR-xx contract is part of P0-alpha.
 * **Provisional Contracts PC-1** = **C-07 BrickKey, C-08 BrickStorage, C-09 GeometryChannel**, restricted to the minimum slice needed to store cells (section 5.3).
 * **Deferred from PS-1** (separate Core Agent tasks in the stage that consumes them, each with its own approval): C-05 (CORE-15, PS-2), C-10 (CORE-12, PS-5), C-11 and C-12 (CORE-13, PS-9), C-13, C-14, C-15 (CORE-14, PS-8).
 
@@ -110,7 +115,7 @@ A single file `docs/decisions/decision-registry.md` (proposed; created by the ow
 1. **PS-1 may close only on an Owner-Approved P0-alpha**; Provisional contracts are implemented and tested in PS-1 but do not close it by themselves.
 2. A Provisional contract **never becomes Frozen automatically**. Freezing requires its revalidation gate (4.4).
 3. **P0-alpha is not Full P0.** No document may call P0-alpha "P0". Full P0 completes only after the deferred contracts are Owner-Approved and RG-1 passed.
-4. Resolution of the earlier contradiction (v1 D-0 versus PS-1 exit): v1 let Stage 1 "implement C-07…C-12 provisional" while its exit required P0 "Implemented". v2: PS-1 exit requires **P0-alpha Owner-Approved and Implemented**, PC-1 **Provisional and Implemented-Provisional**; C-10…C-12 are not part of PS-1 at all.
+4. Resolution of the earlier contradiction (v1 D-0 versus PS-1 exit): v1 let Stage 1 "implement C-07…C-12 provisional" while its exit required P0 "Implemented". v2: PS-1 exit requires **P0-alpha Owner-Approved and Implemented**, PC-1 **Provisional and Implemented under Provisional approval**; C-10…C-12 are not part of PS-1 at all.
 
 ### 4.3 Provisional register (proposed entries; effective only after owner approval, GOV-02)
 
@@ -126,6 +131,8 @@ A single file `docs/decisions/decision-registry.md` (proposed; created by the ow
 ## 5. Geometry Core: minimal universal model (Proposed)
 
 The model must be small yet not voxel-only. Everything below is a **proposal** for owner approval (decisions D-K, D-T, D-C, D-R1, D-R2, D-R6, D-R8). Spike facts: `GeometryAsset` holds `Vec<VoxelLayer>`; bricks are `Constant|Dense` `u16`; `BrickLookup` already has five states; commit takes a write set for one layer; `voxel_size_m: f32` is stored.
+
+**Layer-model compatibility (OAM-09):** the model below is the single-logical-layer baseline (C1, recommended, not yet decided). Choosing C2 later adds layer-composition rules and does not change the shapes below; PS-1 therefore does not wait for OAM-09 (decided in GOV-11).
 
 ### 5.1 Layer, Representation
 * **Purpose:** a named, transformable container of one representation of geometry.
@@ -187,7 +194,7 @@ No plugin registry for representations, no multi-asset commits, no non-box regio
 1. **Type-level capability handles:** `SharedAsset` has no public mutating method except through the three handles; handles are created only by the composition root, so an unauthorised crate cannot construct them (compile-fail tests with `trybuild`).
 2. **Commit log:** a test-time log records every revision increment with `ActorKind`; a property test asserts there is no increment without a log entry.
 3. **archcheck rules (XT-02):** only the allowed crates mention the handle types; adapters and clients contain no history patterns (`undo`, `redo`, `EditBatch`) and no `commit`.
-4. **Negative tests (TEST-06):** a user-path request cannot produce a `System` commit; a client crate cannot name a handle; an adapter cannot change revisions; recovery cannot run on a live asset without the recovery handle.
+4. **Negative tests:** TEST-06 (PS-1): compile-fail tests show that an unauthorised crate cannot construct or name a handle, the commit-log completeness test, archcheck seeded violations. TEST-10 (PS-4): through the real Orchestration path a user request cannot yield a `System` or `Recovery` commit, a client or adapter cannot commit, recovery cannot run on a live asset without the recovery handle.
 5. **Public-API snapshot** of `cube-core` fails CI if a mutating method appears outside the handles.
 
 ## 7. ACR-004: split into five independent parts
@@ -213,7 +220,7 @@ Production requirements (AOD-21 architecture is Approved-recorded; formats are n
 
 | Concern | Crate / task | Needs | Parallel with |
 |---|---|---|---|
-| Pure Generator | `cube-worldgen::generator`, WGEN-01 | read-only Core API frozen (CORE-10), ids | Processing, Editing API |
+| Pure Generator | `cube-worldgen::generator`, WGEN-01 | read-only Core API frozen (CORE-10), world identity types (CORE-16, PS-2) | Processing, Editing API |
 | Streaming (queue, cancellation, cache, states) | WGEN-02 | WGEN-01, executor and cancellation (PROC-03/04) | Persistence |
 | Materialisation | WGEN-03 | system-commit port (CORE-09), ACR-004 B decision (GOV-11) | none before CORE-09 |
 | Eviction | WGEN-04 | WGEN-03, storage ports (API-04), journal durability contract | |
@@ -250,9 +257,9 @@ Order: **Transport contract (NET-01) → protocol and session types incl. handsh
 ## 12. Critical path
 
 Two critical paths are reported because one is computed and one is owner-blocked.
-1. **Longest engineering chain (computed from the ADG):** `GOV-04 -> GOV-06 -> TEST-01 -> G0 -> CORE-01 -> CORE-03 -> CORE-06 -> CORE-10 -> API-01 -> API-04 -> PERS-01 -> PERS-02 -> PERS-03 -> PERS-05 -> PERS-06 -> QA-P2 -> G10 -> SRV-01 -> SRV-03 -> SRV-04 -> SRV-05 -> G13 -> QA-04 -> G14` (20 tasks; computed by the validator)
-2. **Externally blocked chain:** `EXT-GPS → GOV-07 → G2 (Processing production gate) → ORCH-01…05 → G4 → SRV-01 …` and `EXT-VA-RG1 → CORE-12 / CORE-13 / GOV-10 (format approval)`. The Processing gate is on the critical path of every downstream production integration (checked in the validation: G2 is an ancestor of all ORCH tasks, all backend operation tasks and SRV-01).
-3. **Parallel from the Core API freeze (CORE-10):** PROC-01…05 start; API-01 starts; WGEN-01 (pure generator); CLI-00; tool contract drafting. **Parallel from PS-0:** SPK-PERS, SPK-NET, TEST-01, XT-01, CI.
+1. **Longest engineering chain (computed from the ADG, v2.1):** `GOV-01 -> GOV-04 -> GOV-06 -> TEST-01 -> G0 -> CORE-01 -> CORE-03 -> CORE-06 -> CORE-10 -> PROC-01 -> PROC-05 -> TEST-08 -> G2 -> API-02 -> GOV-09 -> G3 -> ORCH-05 -> TEST-10 -> G4 -> ITG-01 -> G10 -> SRV-01 -> SRV-03 -> SRV-04 -> SRV-05 -> G13 -> QA-04 -> G14` (21 tasks; computed by the validator) It passes through the Processing gate **G2 before the Editing API ports (API-02) and before Orchestration**, as required.
+2. **Externally blocked chain:** `EXT-GPS -> GOV-07 -> G2 (Processing production gate) -> API-02 -> G3 -> ORCH-01…05 -> G4 -> SRV-01 …` and `EXT-VA-RG1 -> GOV-08 -> GOV-17 / GOV-18 -> CORE-12 / CORE-13`, `EXT-VA-RG1 -> GOV-10 (format approval)`. G2 is an ancestor of every API-02, ORCH, backend-operation and SRV-01 task (checked in the ADG validation).
+3. **Parallel from the Core API freeze (CORE-10):** PROC-01…05 start; API-01 starts; WGEN-01 (pure generator, after CORE-16); CLI-00; tool contract drafting. API-02 may start when PROC-01 and PROC-04 interfaces are frozen but merges only after G2. **Parallel from PS-0:** SPK-PERS, SPK-NET (once the networking owner is named), TEST-01, XT-01, CI.
 4. **Out-of-scope items that still bound the project:** roadmap-v1 gates 6, 8, 9 (gameplay, content, MMO) are not covered by this geometry-focused production plan; the owner decides whether further plans follow.
 
 ## 13. Risks
@@ -275,7 +282,7 @@ All of the following, each with evidence:
 2. P0-alpha Owner-Approved; PC-1 registered Provisional with the mandatory fields (GOV-02).
 3. Named owners for Core Agent, Integration Owner, Agent I (GOV-03); unassigned modules are not required for PS-1.
 4. Docs-only baseline on `master` (GOV-04).
-5. CI **specification** Owner-Approved (GOV-05) **and** CI **implementation** running with a workflow-run URL showing green on an empty skeleton and red on seeded failures (GOV-06); `archcheck` v0 (XT-01) and `cube-testkit` skeleton (TEST-01) merged.
+5. CI **specification** Owner-Approved (GOV-05) **and**, as a separate condition, CI **implementation** running (GOV-06): a workflow-run URL green on an empty skeleton and red on seeded failures, and branch protection on `master` listing the checks as **required status checks**; `archcheck` v0 (XT-01) and the `cube-testkit` skeleton (TEST-01) merged.
 6. This plan's ADG validated (report section on validation) and adopted.
 Not required for PS-1: physical devices, Android emulator runs, the Geometry Processing Specification, any WorldGen/server/client owner.
 
@@ -284,9 +291,9 @@ Not required for PS-1: physical devices, Android emulator runs, the Geometry Pro
 1. CORE-01…CORE-11 merged; `G1` conditions satisfied (ADG part D).
 2. Contract tests pass for C-01, C-02, C-03, C-04, C-06, C-16, C-17, C-18, C-19 (P0-alpha) and for the PC-1 slice, **on the CI host** (desktop); no emulator or device run is part of this exit.
 3. Property tests (atomicity, snapshot isolation, monotonic revisions, negative-coordinate symmetry) and loom tests of the commit gate pass; golden hashes reproducible.
-4. Negative tests prove the mutation boundary (TEST-06 subset available at PS-1: compile-fail and commit-log tests in CORE-08/XT-02).
+4. Negative tests prove the mutation boundary: TEST-06 (compile-fail, commit-log completeness, archcheck seeded violations; member of G1).
 5. Public-API snapshot published (CORE-10) and enforced by CI.
-6. Owner records: P0-alpha **Implemented** acknowledged; PC-1 **Implemented-Provisional**; no contract Frozen.
+6. The Integration Owner records (INT-01, member of G1): P0-alpha contracts **Implemented**; PC-1 contracts **Implemented under Provisional approval**; no contract Frozen. PS-1 contains no WorldGen, Persistence, History, Processing or Editing-API task and no world identity types (CORE-16 is PS-2).
 7. No dependency on `godot`, I/O, clocks or randomness in `cube-core` (archcheck).
 
 ## 16. Open items kept visible

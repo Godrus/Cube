@@ -50,10 +50,10 @@ Critical paths: see `production-architecture-plan.md` section 12 (computed chain
 ### PS-1: Geometry Core Foundation (P0-alpha)
 * **Gate:** G1 (conditions: ADG part D). **Dependencies and start/merge conditions:** ADG part C, not repeated here.
 * **Inputs:** Core model of the architecture plan section 5; spike `cube-core` as reference only.
-* **Tasks (id, owner):** CORE-01 (Core Agent); CORE-02 (Core Agent); CORE-03 (Core Agent); CORE-04 (Core Agent); CORE-05 (Core Agent); CORE-07 (Core Agent); CORE-06 (Core Agent); CORE-08 (Core Agent); CORE-09 (Core Agent); CORE-11 (Core Agent); CORE-10 (Core Agent); TEST-02 (Agent I (QA and Benchmarks)); TEST-05 (Agent I (QA and Benchmarks)); XT-02 (Main Agent / Integration Owner)
+* **Tasks (id, owner):** CORE-01 (Core Agent); CORE-02 (Core Agent); CORE-03 (Core Agent); CORE-04 (Core Agent); CORE-05 (Core Agent); CORE-07 (Core Agent); CORE-06 (Core Agent); CORE-08 (Core Agent); CORE-09 (Core Agent); CORE-11 (Core Agent); CORE-10 (Core Agent); TEST-02 (Agent I (QA and Benchmarks)); TEST-05 (Agent I (QA and Benchmarks)); XT-02 (Main Agent / Integration Owner); TEST-06 (Agent I (QA and Benchmarks)); INT-01 (Main Agent / Integration Owner)
 * **Output artifacts:** `cube-core` with Layer/Representation, CellKey(level), Region, channels and cell state, Transform, revision tokens, commit gate and CommitBatch, ids/ActorKind/errors, mutation-boundary handles, system-commit and recovery ports, export views and content hash, API freeze snapshot; golden-hash harness; Core property and loom suites; archcheck v1.
-* **Contracts needed:** P0-alpha Owner-Approved and Implemented; PC-1 Implemented-Provisional; C-05, C-10…C-15 NOT in this stage.
-* **Tests:** contract tests per contract; property and loom tests; compile-fail tests for handles; commit-log completeness; golden hashes on the CI host.
+* **Contracts needed:** P0-alpha Owner-Approved and Implemented; PC-1 Implemented under Provisional approval (INT-01 records the statuses); C-05, C-10…C-15 NOT in this stage.
+* **Tests:** contract tests per contract; property and loom tests; TEST-06 mutation-boundary negative tests (compile-fail, commit-log completeness, archcheck seeded violations); golden hashes on the CI host.
 * **Acceptance criteria:** Exit criteria of the architecture plan section 15, including: no emulator or device condition; no Frozen contract; ACR-004 part A closed.
 * **Exit gate:** G1 closes when every member is merged and accepted (ADG part D).
 * **Parallel work:** From CORE-10: Processing, API-01, WGEN-01, CLI-00.
@@ -61,8 +61,8 @@ Critical paths: see `production-architecture-plan.md` section 12 (computed chain
 ### PS-2: Processing Foundation
 * **Gate:** G2 (conditions: ADG part D). **Dependencies and start/merge conditions:** ADG part C, not repeated here.
 * **Inputs:** Core API freeze (CORE-10).
-* **Tasks (id, owner):** CORE-15 (Core Agent); PROC-01 (Processing Agent); PROC-02 (Processing Agent); PROC-03 (Processing Agent); PROC-04 (Processing Agent); PROC-05 (Processing Agent); PROC-06 (Processing Agent); TEST-08 (Agent I (QA and Benchmarks)); GOV-07 (Project owner)
-* **Output artifacts:** `cube-processing` (snapshot with apron, provider registry and dependency graph, executor and task states, cancellation, stale rejection, caps, bounds slots); C-05 bounds data.
+* **Tasks (id, owner):** CORE-15 (Core Agent); PROC-01 (Processing Agent); PROC-02 (Processing Agent); PROC-03 (Processing Agent); PROC-04 (Processing Agent); PROC-05 (Processing Agent); PROC-06 (Processing Agent); TEST-08 (Agent I (QA and Benchmarks)); GOV-07 (Project owner); CORE-16 (Core Agent); GOV-16 (Project owner); GOV-24 (Project owner)
+* **Output artifacts:** world identity value types (CORE-16); `cube-processing` (snapshot with apron, provider registry and dependency graph, executor and task states, cancellation, stale rejection, caps, bounds slots); C-05 bounds data.
 * **Contracts needed:** PR-01…PR-08 (Proposed; Owner-Approved only after the Geometry Processing Specification, task GOV-07); C-05.
 * **Tests:** loom and stress suites (TEST-08); cap enforcement against a synthetic mobile budget; cancellation at every state. No device smoke is required for the stage exit.
 * **Acceptance criteria:** No stale result is ever published under the explored interleavings; caps enforced; **G2 requires GOV-07**, so the stage cannot close without the specification or an owner-recorded alternative.
@@ -71,20 +71,20 @@ Critical paths: see `production-architecture-plan.md` section 12 (computed chain
 
 ### PS-3: Editing API and Contracts
 * **Gate:** G3 (conditions: ADG part D). **Dependencies and start/merge conditions:** ADG part C, not repeated here.
-* **Inputs:** Core frozen; Processing interfaces frozen.
+* **Inputs:** Core frozen; Processing interfaces frozen (API-02 merges only after G2: Processing production gate).
 * **Tasks (id, owner):** API-01 (Main Agent / Integration Owner); API-02 (Main Agent / Integration Owner); API-03 (Main Agent / Integration Owner); API-04 (Main Agent / Integration Owner); API-05 (Main Agent / Integration Owner); GOV-09 (Project owner)
 * **Output artifacts:** `cube-editing-api` with public types, ports (editing service, backend, observer, storage, journal, base provider), authorisation context, API-snapshot tooling.
 * **Contracts needed:** E-02…E-07, E-09, E-11, E-12 and the storage ports Owner-Approved (GOV-09).
 * **Tests:** mock-based contract tests; negative tests per error; API snapshot.
-* **Acceptance criteria:** Backends, tools, history and persistence compile against the API without orchestration; no behaviour in the crate.
+* **Acceptance criteria:** Backends, tools, history and persistence compile against the API without orchestration; no behaviour in the crate; API-02 merged only after G2.
 * **Exit gate:** G3 closes when every member is merged and accepted (ADG part D).
 * **Parallel work:** Orchestration (design), backends, persistence ports after freeze.
 
 ### PS-4: Editing Orchestration
 * **Gate:** G4 (conditions: ADG part D). **Dependencies and start/merge conditions:** ADG part C, not repeated here.
 * **Inputs:** API frozen (start); G2 and G3 (merge).
-* **Tasks (id, owner):** ORCH-01 (Agent A); ORCH-02 (Agent A); ORCH-03 (Agent A); ORCH-04 (Agent A); ORCH-05 (Agent A); TEST-03a (Agent I (QA and Benchmarks)); TEST-06 (Agent I (QA and Benchmarks))
-* **Output artifacts:** `cube-orchestration`; backend conformance suite (generic); mutation-path negative tests.
+* **Tasks (id, owner):** ORCH-01 (Agent A); ORCH-02 (Agent A); ORCH-03 (Agent A); ORCH-04 (Agent A); ORCH-05 (Agent A); TEST-03a (Agent I (QA and Benchmarks)); TEST-10 (Agent I (QA and Benchmarks))
+* **Output artifacts:** `cube-orchestration`; backend conformance suite (generic, TEST-03a); mutation-path negative tests through the real path (TEST-10).
 * **Contracts needed:** E-04, E-06, E-07, E-11, E-12 Implemented.
 * **Tests:** conflict matrix; rollback atomicity; retry by OperationId; observer ordering; no direct commit (archcheck, compile-fail).
 * **Acceptance criteria:** All spike `cube-editing` behaviours reproduced through the new single user commit path; the three-writer audit passes.
@@ -94,7 +94,7 @@ Critical paths: see `production-architecture-plan.md` section 12 (computed chain
 ### PS-5: Geometry Backends and Derived Providers
 * **Gate:** G5 (conditions: ADG part D). **Dependencies and start/merge conditions:** ADG part C, not repeated here.
 * **Inputs:** API frozen; Processing interfaces; (merge) G2, G3.
-* **Tasks (id, owner):** CORE-12 (Core Agent); VOX-01 (Agent B); VOX-02 (Agent B); VOX-03 (Agent B); VOX-04 (Agent B); VOX-05 (Agent B); SDF-01 (Agent C); SDF-02 (Agent C); SDF-03 (Agent C); MSH-01 (Agent D); MSH-02 (Agent D); MSH-03 (Agent D)
+* **Tasks (id, owner):** CORE-12 (Core Agent); VOX-01 (Agent B); VOX-02 (Agent B); VOX-03 (Agent B); VOX-04 (Agent B); VOX-05 (Agent B); SDF-01 (Agent C); SDF-02 (Agent C); SDF-03 (Agent C); MSH-01 (Agent D); MSH-02 (Agent D); MSH-03 (Agent D); GOV-08 (Project owner); GOV-17 (Project owner)
 * **Output artifacts:** three backend crates; providers (faces, greedy, Surface Nets, collision, LOD) with ownership pending O-1; palette data (CORE-12).
 * **Contracts needed:** E-07 capabilities; PR-07/PR-08 registration; C-10 after RG-1.
 * **Tests:** backend conformance (independent of any renderer); greedy covers the same area as faces; no T-junctions; determinism; benches on the CI host.
@@ -105,7 +105,7 @@ Critical paths: see `production-architecture-plan.md` section 12 (computed chain
 ### PS-6: Tools: Sculpting and Boolean
 * **Gate:** G6 (conditions: ADG part D). **Dependencies and start/merge conditions:** ADG part C, not repeated here.
 * **Inputs:** ORCH-02, VOX-01, SDF-01 (start); G4, G5 (merge). Tool-level contracts must exist first (B-7).
-* **Tasks (id, owner):** SCU-01 (Agent E); SCU-02 (Agent E); SCU-03 (Agent E); BOO-01 (Agent F); BOO-02 (Agent F); BOO-03 (Agent F)
+* **Tasks (id, owner):** SCU-01 (Agent E); SCU-02 (Agent E); SCU-03 (Agent E); BOO-01 (Agent F); BOO-02 (Agent F); BOO-03 (Agent F); GOV-20 (Project owner)
 * **Output artifacts:** `cube-tool-sculpt`, `cube-tool-boolean`.
 * **Contracts needed:** BooleanPolicy and sculpt contracts Owner-Approved before implementation merges.
 * **Tests:** transaction integration; explicit-conversion tests; async revision safety; undo round trips against a History fake.
@@ -116,7 +116,7 @@ Critical paths: see `production-architecture-plan.md` section 12 (computed chain
 ### PS-7: History
 * **Gate:** G7 (conditions: ADG part D). **Dependencies and start/merge conditions:** ADG part C, not repeated here.
 * **Inputs:** API ports; (merge) G4.
-* **Tasks (id, owner):** HIST-01 (Agent G); HIST-02 (Agent G); HIST-03 (Agent G); HIST-04 (Agent G)
+* **Tasks (id, owner):** HIST-01 (Agent G); HIST-02 (Agent G); HIST-03 (Agent G); HIST-04 (Agent G); GOV-25 (Project owner)
 * **Output artifacts:** `cube-history`.
 * **Contracts needed:** E-09, E-10, E-12 consumers.
 * **Tests:** undo/redo properties; divergence conflicts; memory limits; history and persistence independence (archcheck).
@@ -127,7 +127,7 @@ Critical paths: see `production-architecture-plan.md` section 12 (computed chain
 ### PS-8: Composite Geometry
 * **Gate:** G8 (conditions: ADG part D). **Dependencies and start/merge conditions:** ADG part C, not repeated here.
 * **Inputs:** ACR-003 decided; ORCH-01 (start); G4 (merge).
-* **Tasks (id, owner):** CORE-14 (Core Agent); COMP-01 (Composite Agent); COMP-02 (Composite Agent); COMP-03 (Composite Agent)
+* **Tasks (id, owner):** CORE-14 (Core Agent); COMP-01 (Composite Agent); COMP-02 (Composite Agent); COMP-03 (Composite Agent); GOV-19 (Project owner); GOV-23 (Project owner)
 * **Output artifacts:** Composite data in Core (CORE-14) and `cube-composite` operations.
 * **Contracts needed:** C-13, C-14, C-15 Owner-Approved.
 * **Tests:** graph invariants; transform propagation determinism.
@@ -138,7 +138,7 @@ Critical paths: see `production-architecture-plan.md` section 12 (computed chain
 ### PS-9: Resampling and Resolution Refinement
 * **Gate:** G9 (conditions: ADG part D). **Dependencies and start/merge conditions:** ADG part C, not repeated here.
 * **Inputs:** RG-1 passed for C-11/C-12; VOX-01.
-* **Tasks (id, owner):** CORE-13 (Core Agent); RES-01 (Resolution Agent); RES-02 (Resolution Agent); RES-03 (Resolution Agent)
+* **Tasks (id, owner):** CORE-13 (Core Agent); RES-01 (Resolution Agent); RES-02 (Resolution Agent); RES-03 (Resolution Agent); GOV-18 (Project owner)
 * **Output artifacts:** resolution data (CORE-13) and `cube-resolution`.
 * **Contracts needed:** C-11, C-12 Owner-Approved after RG-1.
 * **Tests:** mixed-resolution tests; seam tests between levels; round trips.
@@ -160,8 +160,8 @@ Critical paths: see `production-architecture-plan.md` section 12 (computed chain
 ### PS-11: World Generation
 * **Gate:** G11 (conditions: ADG part D). **Dependencies and start/merge conditions:** ADG part C, not repeated here.
 * **Inputs:** 11A: Core read-only API frozen. 11B: system-commit port and ACR-004 part B decision.
-* **Tasks (id, owner):** WGEN-01 (UNASSIGNED (WorldGen)); TEST-09 (Agent I (QA and Benchmarks)); WGEN-02 (UNASSIGNED (WorldGen)); WGEN-03 (UNASSIGNED (WorldGen)); WGEN-04 (UNASSIGNED (WorldGen)); WGEN-05 (UNASSIGNED (WorldGen)); ITG-02 (Agent I (QA and Benchmarks)); LEG-01 (UNASSIGNED (WorldGen))
-* **Output artifacts:** 11A pure generator and version registry; 11B service, Materialiser, eviction; cross-device harness (software); retirement of the spike streamer and `world-state-v0`.
+* **Tasks (id, owner):** WGEN-01 (UNASSIGNED (WorldGen)); TEST-09 (Agent I (QA and Benchmarks)); WGEN-02 (UNASSIGNED (WorldGen)); WGEN-03 (UNASSIGNED (WorldGen)); WGEN-04 (UNASSIGNED (WorldGen)); WGEN-05 (UNASSIGNED (WorldGen)); ITG-02 (Agent I (QA and Benchmarks)); LEG-01 (UNASSIGNED (WorldGen)); GOV-21 (Project owner)
+* **Output artifacts:** 11A pure generator and version registry (uses CORE-16 types); 11B service, Materialiser, eviction; cross-device harness (software); retirement of the spike streamer and `world-state-v0`.
 * **Contracts needed:** WG-01…WG-10 Owner-Approved before 11B merges; SC-xx system-commit contracts.
 * **Tests:** pinned hashes per version on the CI host; cancellation; border consistency; materialise/evict idempotence; authority; generation + journal + recovery end to end (ITG-02); archcheck: no direct commit left.
 * **Acceptance criteria:** Only the Materialiser writes generated data; user data is never evicted before it is durable.
@@ -182,7 +182,7 @@ Critical paths: see `production-architecture-plan.md` section 12 (computed chain
 ### PS-13: Server Runtime and Networking
 * **Gate:** G13 (conditions: ADG part D). **Dependencies and start/merge conditions:** ADG part C, not repeated here.
 * **Inputs:** see ADG; transport spike; owner transport decision.
-* **Tasks (id, owner):** NET-01 (UNASSIGNED (Networking Adapter, O-3)); NET-02 (UNASSIGNED (Networking Adapter, O-3)); NET-03 (UNASSIGNED (Networking Adapter, O-3)); GOV-12 (Project owner); NET-04 (UNASSIGNED (Networking Adapter, O-3)); SRV-01 (UNASSIGNED (Server Runtime)); SRV-02 (UNASSIGNED (Server Runtime)); SRV-03 (UNASSIGNED (Server Runtime)); SRV-04 (UNASSIGNED (Server Runtime)); SRV-05 (UNASSIGNED (Server Runtime)); SRV-06 (UNASSIGNED (Server Runtime)); SRV-07 (UNASSIGNED (Server Runtime)); CLI-05 (UNASSIGNED (Client Runtime)); TEST-03b (Agent I (QA and Benchmarks)); TEST-07 (Agent I (QA and Benchmarks))
+* **Tasks (id, owner):** NET-01 (UNASSIGNED (Networking Adapter, O-3)); NET-02 (UNASSIGNED (Networking Adapter, O-3)); NET-03 (UNASSIGNED (Networking Adapter, O-3)); GOV-12 (Project owner); NET-04 (UNASSIGNED (Networking Adapter, O-3)); SRV-01 (UNASSIGNED (Server Runtime)); SRV-02 (UNASSIGNED (Server Runtime)); SRV-03 (UNASSIGNED (Server Runtime)); SRV-04 (UNASSIGNED (Server Runtime)); SRV-05 (UNASSIGNED (Server Runtime)); SRV-06 (UNASSIGNED (Server Runtime)); SRV-07 (UNASSIGNED (Server Runtime)); CLI-05 (UNASSIGNED (Client Runtime)); TEST-03b (Agent I (QA and Benchmarks)); TEST-07 (Agent I (QA and Benchmarks)); GOV-22 (Project owner); SRV-08 (UNASSIGNED (Server Runtime))
 * **Output artifacts:** transport contract, protocol/session types, in-process and external transports, server runtime with embedded and dedicated hosts, sessions and authentication integration, tick and single writer, replication, reconnect, permissions, server history integration, client network integration.
 * **Contracts needed:** SR-01…SR-10, NET contracts Owner-Approved; protocol and transport approved by the owner.
 * **Tests:** transport and host conformance on both transports; authority and security tests; fuzzing; bot soak.
@@ -193,7 +193,7 @@ Critical paths: see `production-architecture-plan.md` section 12 (computed chain
 ### PS-14: Full QA and Release Validation
 * **Gate:** G14 (conditions: ADG part D). **Dependencies and start/merge conditions:** ADG part C, not repeated here.
 * **Inputs:** G13 for the soak; physical devices for DG-1…DG-3.
-* **Tasks (id, owner):** QA-02 (Agent I (QA and Benchmarks)); QA-04 (Agent I (QA and Benchmarks)); QA-06 (Agent I (QA and Benchmarks)); DG-1 (Agent I (QA and Benchmarks)); GOV-13 (Project owner); DG-2 (Agent I (QA and Benchmarks)); DG-3 (Agent I (QA and Benchmarks))
+* **Tasks (id, owner):** QA-02 (Agent I (QA and Benchmarks)); QA-04 (Agent I (QA and Benchmarks)); QA-06 (Agent I (QA and Benchmarks)); DG-1 (Agent I (QA and Benchmarks)); GOV-13 (Project owner); DG-2 (Agent I (QA and Benchmarks)); DG-3 (Agent I (QA and Benchmarks)); GOV-15 (Project owner)
 * **Output artifacts:** benches with baselines, full regression/soak, device tooling, DG-1…DG-3 reports, renderer default decision record.
 * **Contracts needed:** none new.
 * **Tests:** full suites; device matrix (low/mid/high Android ARM64, iOS); determinism matrix; thermal, battery, memory, cold start, 4 KB/16 KB pages.

@@ -22,9 +22,9 @@
 | Deliverable | Task | Evidence |
 |---|---|---|
 | **CI specification** (what must run, required statuses, tool pins, pass conditions) | GOV-05 | an Owner-Approved document |
-| **CI implementation** (a running pipeline) | GOV-06 | workflow-run URL: green on the empty skeleton, red on seeded failures (format error, clippy warning, failing test, forbidden dependency, forbidden `use`, forbidden licence) |
+| **CI implementation** (a running pipeline) | GOV-06 | workflow-run URL: green on the empty skeleton, red on seeded failures (format error, clippy warning, failing test, forbidden dependency, forbidden `use`, forbidden licence); **branch protection on `master` lists every check below as a required status check** (API output attached) |
 
-Required checks (specification): `cargo fmt --check`; `clippy -D warnings`; `cargo test` (workspace); `cargo deny` (licence allow-list set by the owner, advisories); `xtask archcheck` (crate graph equals ADG part B; `use`-level scan; mutation-boundary rules; no `std::process`, no `OS.execute` outside tests/tools; no floating point in authoritative or world-defining code per D-T); public-API snapshots for `cube-core` and `cube-editing-api`; contract-id check against `docs/api-contracts/README.md`; benchmarks within thresholds (desktop). **No check requires a device or an Android emulator.** Nightly jobs: loom, stress, soak.
+Required checks (specification): `cargo fmt --check`; `clippy -D warnings`; `cargo test` (workspace); `cargo deny` (licence allow-list set by the owner, advisories); `xtask archcheck` (crate graph equals ADG part B; `use`-level scan; mutation-boundary rules; no `std::process`, no `OS.execute` outside tests/tools; no floating point in authoritative or world-defining code per D-T); public-API snapshots for `cube-core` and `cube-editing-api`; contract-id check against `docs/api-contracts/README.md`; benchmarks within thresholds (desktop). **A check that is only described is not a gate:** each check counts only after it is registered as a required status check and has shown red on a seeded failure (`archcheck` included: XT-01, XT-02). **No check requires a device or an Android emulator.** Nightly jobs: loom, stress, soak.
 
 ## 4. Spike tests ported as acceptance cases
 
@@ -56,7 +56,7 @@ A test that cannot be ported is replaced by one of equal or greater strength and
 |---|---|---|---|
 | Unit and contract tests | `cargo test`, one set per contract | every crate | every PR |
 | Negative tests per error code | | every crate | every PR |
-| **Negative tests for forbidden mutation paths** | `trybuild` compile-fail, archcheck seeded violations, commit-log test | CORE-08, XT-02, TEST-06 | PS-1 |
+| **Negative tests for forbidden mutation paths** | `trybuild` compile-fail, archcheck seeded violations, commit-log test (TEST-06, PS-1); through the real Orchestration path (TEST-10, PS-4) | CORE-08, XT-02, TEST-06, TEST-10 | PS-1, PS-4 |
 | Property-based | `proptest` strategies from testkit | Core (atomicity, isolation, monotonic revisions, coordinate symmetry), Processing (stale never published), History, backends (greedy area equals faces), Persistence (snapshot plus tail equals replay) | PS-1 |
 | **Concurrency** | `loom` (commit gate, slot publish), stress runners, ThreadSanitizer nightly where available | Core, Processing, Orchestration | PS-1, PS-2, PS-4 |
 | **Fault injection** | `FaultFs` crash at every numbered I/O step; truncated tail; corrupted manifest and snapshot; version mismatch; double recovery | Persistence | PS-10 (TEST-04, QA-P2) |
@@ -73,6 +73,7 @@ A test that cannot be ported is replaced by one of equal or greater strength and
 * `UserCommit`, `SystemCommit`, `RecoveryCommit` handles are the only mutating entries; compile-fail tests prove that `cube-worldgen`, `cube-client`, `cube-godot-adapter`, `cube-persistence` (for `UserCommit`) and `cube-orchestration` (for `SystemCommit`/`RecoveryCommit`) cannot construct or name the wrong handle.
 * A property test asserts that every revision increment has a commit-log entry with an `ActorKind`.
 * archcheck fails on history patterns and `commit` references in adapters and clients, and on direct commits in worldgen after LEG-01.
+* TEST-10 repeats the checks through the real Orchestration path once ORCH-05 exists.
 * A regression test replays the spike scenarios through the new path and compares content hashes.
 
 ## 8. Persistence verification (summary; requirements in the architecture plan section 8)

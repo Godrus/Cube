@@ -1,6 +1,6 @@
 # Cube Architecture Blocker Decisions v2 (proposal for the owner)
 
-**Status:** **Proposed**. Nothing here is a decision and nothing is represented as approved. Each decision has: 1 Problem, 2 Current implementation, 3 Proposed solution, 4 Alternative, 5 Compatibility impact, 6 Affected modules, 7 Migration strategy, 8 Required owner approval. The owner approves, amends or rejects each item in a **decision-registry entry with a confirmation source** (`production-architecture-plan.md` section 3.3). ACR-001…004 stay `Pending`. Task ids and stages refer to the ADG (`module-boundaries.md`).
+**Status:** **Proposed**. Revision v2.1. Nothing here is a decision and nothing is represented as approved. Each decision has: 1 Problem, 2 Current implementation, 3 Proposed solution, 4 Alternative, 5 Compatibility impact, 6 Affected modules, 7 Migration strategy, 8 Required owner approval. The owner approves, amends or rejects each item in a **decision-registry entry with a confirmation source** (`production-architecture-plan.md` section 3.3). ACR-001…004 stay `Pending`. Task ids and stages refer to the ADG (`module-boundaries.md`).
 **Differences from v1:** D-0 is rewritten (no contradiction with the PS-1 exit); ACR-004 is split into five independent parts with owners, contracts, dependencies, stages and acceptance; the registry/status model is a decision; revalidation gates RG-1/RG-2 added; D-R8 and D-P extended.
 
 ## 1. Decisions needed before PS-1 (task GOV-01 / GOV-02)
@@ -71,7 +71,7 @@ Open questions that stay open and visible: ABI of the handles (signature), wheth
 
 | Decision | Decided by (task) | Blocks (examples) |
 |---|---|---|
-| D-0, D-REG, ACR-001, ACR-003, OD-R1/R2/R6, D-R8, D-K, D-T, D-C, ACR-004 A and D, ACR-002 | GOV-01, GOV-02 | G0, then CORE-01…CORE-11 |
+| D-0, D-REG, ACR-001, ACR-002, ACR-003, OD-R1/R2/R6, D-R8, D-K, D-T, D-C, D-E, the branch option, ACR-004 A and D principle | GOV-01, GOV-02 | G0, then CORE-01…CORE-11 |
 | ACR-004 B, C, E; OAM-09 | GOV-11 | WGEN-03, PERS-06, LEG-01, LEG-02 |
 | PR-01…PR-08 approval | GOV-07 (after RG-2) | G2, every production merge of PS-4 and later |
 | E-02…E-12 approval | GOV-09 | G3 |
@@ -79,3 +79,15 @@ Open questions that stay open and visible: ABI of the handles (signature), wheth
 | Transport | GOV-12 | NET-04 |
 | Renderer default | GOV-13 (after DG-1) | none of PS-1…PS-13 |
 | Owners | GOV-03 | every UNASSIGNED task |
+| OD-R4 snapshot caps | GOV-24 | PROC-06 |
+| OD-R5 undo policy | GOV-25 | HIST-02 |
+| C-05 | GOV-16 | CORE-15 |
+| RG-1 revalidation record | GOV-08 | GOV-15, GOV-17, GOV-18, GOV-10 |
+| C-10 | GOV-17 | CORE-12 |
+| C-11, C-12 | GOV-18 | CORE-13 |
+| C-13, C-14, C-15 | GOV-19 | CORE-14 |
+| tool-level contracts | GOV-20 | SCU-02, BOO-01 |
+| composite-operation and resample/refine contracts | GOV-23 | COMP-01, RES-01 |
+| WG-01…WG-10 | GOV-21 | WGEN-02, WGEN-03 |
+| SR-01…SR-10, protocol types | GOV-22 | NET-02, SRV-01 |
+| Freeze of PC-1 | GOV-15 (after GOV-08) | release gate G14 |

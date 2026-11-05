@@ -31,7 +31,7 @@
 | `cube-integration-tests` | test-time (leaf) | Agent I | PS-1 | cross-crate suites, conformance suites, benches; a leaf crate so that it may depend on everything without cycles |
 | `xtask` | tooling | Main Agent / Integration Owner | PS-0 | archcheck and package checks |
 
-20 workspace members in total; at most four exist when PS-1 starts (`cube-core`, `cube-testkit`, `cube-integration-tests`, `xtask`). Not created: `cube-common`, `cube-meshing`, `cube-protocol`, collision/LOD crates.
+20 workspace members in total; at most four exist during PS-1 (`cube-core`, `cube-testkit`, `cube-integration-tests`, `xtask`). Not created: `cube-common`, `cube-meshing`, `cube-protocol`, collision/LOD crates.
 **Rule R-DEVCYCLE:** `cube-testkit` may depend (normally) on `cube-core`, `cube-processing`, `cube-editing-api` only; crates may use it as a dev-dependency (a dev-dependency cycle is permitted by Cargo); `archcheck` evaluates **normal** dependencies only, and the ADG part B grid is about normal dependencies.
 
 ### A.2 Ownership matrix
@@ -89,7 +89,7 @@ Candidate options for the unassigned owners are not proposed here; the owner dec
 | core | - | | | | | | | | | | | | | | | |
 | processing | D | - | | | | | | | | | | | | | | |
 | editing-api | D | D | - | | | | | | | | | | | | | |
-| orchestration | D | D | D | - | A | | | A | | | | | | | | |
+| orchestration | D | D | D | - | A | | | A | | A (journal port only) | | | | | | |
 | backends | D | D | D | | - | | | | | | | | | | | |
 | tools / resolution | D | D | D | A | A | - | | | | | | | | | | |
 | history | D | D | D | A | | | | - | | A | | | | | | |
@@ -114,8 +114,9 @@ Notes: (1) History and Persistence never import each other; both use L2 ports (c
 | `Provider`, `Snapshot`, `Executor`, `CancellationToken` | processing | backends, orchestration, worldgen, client | Processing Agent | PROC-01…04 (G2 for production) |
 | `IEditingService`, operations, results | orchestration | tools, history, composite, server | Integration Owner | API-02 |
 | `IGeometryBackend` + capabilities | backends | orchestration, tools | Integration Owner | API-02 |
-| `ITransactionObserver` | history, persistence journal observer | orchestration | Integration Owner | API-02 |
-| `IDeltaStore`, `ISnapshotStore`, `IOperationJournal` | persistence | history, server | Integration Owner | API-04 |
+| `ITransactionObserver` | history | orchestration | Integration Owner | API-02 |
+| `IDeltaStore`, `ISnapshotStore` | persistence | history, server | Integration Owner | API-04 |
+| `IOperationJournal` (append of committed user operations) | persistence | orchestration (ORCH-04), server wiring | Integration Owner | API-04 |
 | `IBaseProvider` | worldgen | persistence recovery, server | Integration Owner | API-04 |
 | `AuthorizationContext` | server (session) | orchestration | Integration Owner | API-03 |
 | `Transport` | net | server, client | Networking owner (UNASSIGNED) | NET-01 |
@@ -132,8 +133,8 @@ Semantics: **S (start-after)** - the dependency's public interface is frozen; th
 | GOV-01 | PS-0 | Project owner | - | - |
 | GOV-02 | PS-0 | Project owner | - | GOV-01 |
 | GOV-03 | PS-0 | Project owner | - | - |
-| GOV-04 | PS-0 | Main Agent / Integration Owner | - | - |
-| GOV-05 | PS-0 | Main Agent / Integration Owner | - | - |
+| GOV-04 | PS-0 | Main Agent / Integration Owner | - | GOV-01 |
+| GOV-05 | PS-0 | Main Agent / Integration Owner | GOV-01 | GOV-01 |
 | GOV-06 | PS-0 | Agent I (QA and Benchmarks) | - | GOV-04, GOV-05 |
 | SPK-NET | PS-0 | UNASSIGNED (Networking Adapter, O-3) - owner decision | - | - |
 | SPK-PERS | PS-0 | Agent H | - | - |
@@ -148,22 +149,27 @@ Semantics: **S (start-after)** - the dependency's public interface is frozen; th
 | CORE-07 | PS-1 | Core Agent | G0 | - |
 | CORE-08 | PS-1 | Core Agent | CORE-06, CORE-07 | - |
 | CORE-09 | PS-1 | Core Agent | CORE-08 | - |
-| CORE-10 | PS-1 | Core Agent | CORE-01, CORE-02, CORE-03, CORE-05, CORE-06, CORE-07 | CORE-01, CORE-02, CORE-03, CORE-05, CORE-06, CORE-07 |
+| CORE-10 | PS-1 | Core Agent | CORE-01, CORE-02, CORE-03, CORE-05, CORE-06, CORE-07, CORE-04 | CORE-01, CORE-02, CORE-03, CORE-05, CORE-06, CORE-07, CORE-04 |
 | CORE-11 | PS-1 | Core Agent | CORE-03, CORE-05 | CORE-06 |
+| INT-01 | PS-1 | Main Agent / Integration Owner | - | CORE-01, CORE-02, CORE-03, CORE-04, CORE-05, CORE-06, CORE-07, CORE-08, CORE-09, CORE-10, CORE-11, TEST-02, TEST-05, TEST-06, XT-02 |
 | TEST-02 | PS-1 | Agent I (QA and Benchmarks) | TEST-01 | CORE-11 |
 | TEST-05 | PS-1 | Agent I (QA and Benchmarks) | CORE-06 | CORE-06 |
+| TEST-06 | PS-1 | Agent I (QA and Benchmarks) | CORE-08 | CORE-09, XT-02 |
 | XT-02 | PS-1 | Main Agent / Integration Owner | CORE-08 | CORE-09 |
-| CORE-15 | PS-2 | Core Agent | CORE-10 | CORE-10 |
+| CORE-15 | PS-2 | Core Agent | CORE-10 | CORE-10, GOV-16 |
+| CORE-16 | PS-2 | Core Agent | CORE-10 | CORE-10 |
 | GOV-07 | PS-2 | Project owner | EXT-GPS | EXT-GPS, PROC-02, PROC-04 |
+| GOV-16 | PS-2 | Project owner | - | - |
+| GOV-24 | PS-2 | Project owner | - | - |
 | PROC-01 | PS-2 | Processing Agent | CORE-10 | CORE-06 |
 | PROC-02 | PS-2 | Processing Agent | PROC-01 | PROC-01 |
 | PROC-03 | PS-2 | Processing Agent | CORE-10 | - |
 | PROC-04 | PS-2 | Processing Agent | PROC-03 | PROC-03 |
 | PROC-05 | PS-2 | Processing Agent | PROC-01 | PROC-01 |
-| PROC-06 | PS-2 | Processing Agent | PROC-01, CORE-15 | PROC-01 |
+| PROC-06 | PS-2 | Processing Agent | PROC-01, CORE-15 | PROC-01, GOV-24 |
 | TEST-08 | PS-2 | Agent I (QA and Benchmarks) | PROC-03 | PROC-05 |
 | API-01 | PS-3 | Main Agent / Integration Owner | CORE-10 | CORE-07 |
-| API-02 | PS-3 | Main Agent / Integration Owner | API-01, PROC-01, PROC-04 | API-01 |
+| API-02 | PS-3 | Main Agent / Integration Owner | API-01, PROC-01, PROC-04 | API-01, G2 |
 | API-03 | PS-3 | Main Agent / Integration Owner | API-01 | API-01 |
 | API-04 | PS-3 | Main Agent / Integration Owner | API-01, CORE-09 | API-01 |
 | API-05 | PS-3 | Main Agent / Integration Owner | API-01 | API-01 |
@@ -171,11 +177,13 @@ Semantics: **S (start-after)** - the dependency's public interface is frozen; th
 | ORCH-01 | PS-4 | Agent A | API-02 | G2, G3 |
 | ORCH-02 | PS-4 | Agent A | API-02 | G2, G3 |
 | ORCH-03 | PS-4 | Agent A | CORE-10, API-01 | G2, G3 |
-| ORCH-04 | PS-4 | Agent A | PROC-02, API-02 | G2, G3 |
+| ORCH-04 | PS-4 | Agent A | PROC-02, API-02, API-04 | G2, G3 |
 | ORCH-05 | PS-4 | Agent A | API-03, CORE-08 | G2, G3, XT-02 |
 | TEST-03a | PS-4 | Agent I (QA and Benchmarks) | API-02 | API-02 |
-| TEST-06 | PS-4 | Agent I (QA and Benchmarks) | CORE-08 | ORCH-05, XT-02 |
-| CORE-12 | PS-5 | Core Agent | CORE-10 | CORE-10, EXT-VA-RG1 |
+| TEST-10 | PS-4 | Agent I (QA and Benchmarks) | CORE-08 | ORCH-05, XT-02 |
+| CORE-12 | PS-5 | Core Agent | CORE-10 | CORE-10, EXT-VA-RG1, GOV-17 |
+| GOV-08 | PS-5 | Project owner | EXT-VA-RG1 | EXT-VA-RG1 |
+| GOV-17 | PS-5 | Project owner | GOV-08 | GOV-08 |
 | MSH-01 | PS-5 | Agent D | API-02, CORE-03, TEST-03a | G2, G3 |
 | MSH-02 | PS-5 | Agent D | MSH-01 | MSH-01 |
 | MSH-03 | PS-5 | Agent D | PROC-02 | G2 |
@@ -187,22 +195,27 @@ Semantics: **S (start-after)** - the dependency's public interface is frozen; th
 | VOX-03 | PS-5 | Agent B | VOX-02 | VOX-02 |
 | VOX-04 | PS-5 | Agent B | VOX-03 | VOX-03 |
 | VOX-05 | PS-5 | Agent B | PROC-02 | G2 |
-| BOO-01 | PS-6 | Agent F | API-01 | API-01 |
+| BOO-01 | PS-6 | Agent F | API-01 | API-01, GOV-20 |
 | BOO-02 | PS-6 | Agent F | ORCH-02, BOO-01 | G4, G5 |
 | BOO-03 | PS-6 | Agent F | BOO-02 | BOO-02 |
+| GOV-20 | PS-6 | Project owner | - | - |
 | SCU-01 | PS-6 | Agent E | API-01 | API-01 |
-| SCU-02 | PS-6 | Agent E | ORCH-02, VOX-01, SDF-01 | G4, G5 |
+| SCU-02 | PS-6 | Agent E | ORCH-02, VOX-01, SDF-01 | G4, G5, GOV-20 |
 | SCU-03 | PS-6 | Agent E | SCU-02 | SCU-02 |
+| GOV-25 | PS-7 | Project owner | - | - |
 | HIST-01 | PS-7 | Agent G | API-02, API-04 | G4 |
-| HIST-02 | PS-7 | Agent G | ORCH-03, HIST-01 | G4 |
+| HIST-02 | PS-7 | Agent G | ORCH-03, HIST-01 | G4, GOV-25 |
 | HIST-03 | PS-7 | Agent G | API-04 | HIST-01 |
 | HIST-04 | PS-7 | Agent G | HIST-02 | HIST-02 |
-| COMP-01 | PS-8 | Composite Agent | ORCH-01, CORE-14 | G4 |
+| COMP-01 | PS-8 | Composite Agent | ORCH-01, CORE-14 | G4, GOV-23 |
 | COMP-02 | PS-8 | Composite Agent | COMP-01 | COMP-01 |
 | COMP-03 | PS-8 | Composite Agent | CORE-04, COMP-01 | COMP-01 |
-| CORE-14 | PS-8 | Core Agent | CORE-10 | CORE-10 |
-| CORE-13 | PS-9 | Core Agent | CORE-10 | CORE-10, EXT-VA-RG1 |
-| RES-01 | PS-9 | Resolution Agent | CORE-13, VOX-01 | G4, G5 |
+| CORE-14 | PS-8 | Core Agent | CORE-10 | CORE-10, GOV-19 |
+| GOV-19 | PS-8 | Project owner | - | - |
+| GOV-23 | PS-8 | Project owner | - | - |
+| CORE-13 | PS-9 | Core Agent | CORE-10 | CORE-10, EXT-VA-RG1, GOV-18 |
+| GOV-18 | PS-9 | Project owner | GOV-08 | GOV-08 |
+| RES-01 | PS-9 | Resolution Agent | CORE-13, VOX-01 | G4, G5, GOV-23 |
 | RES-02 | PS-9 | Resolution Agent | CORE-13 | G4 |
 | RES-03 | PS-9 | Resolution Agent | VOX-03, RES-02 | RES-02 |
 | GOV-10 | PS-10 | Project owner | SPK-PERS, PERS-05, EXT-VA-RG1 | SPK-PERS, PERS-05, EXT-VA-RG1 |
@@ -215,16 +228,17 @@ Semantics: **S (start-after)** - the dependency's public interface is frozen; th
 | PERS-05 | PS-10 | Agent H | PERS-02, PERS-03, PERS-04, SPK-PERS, TEST-04 | PERS-03, PERS-04 |
 | PERS-06 | PS-10 | Agent H | PERS-05, CORE-09, API-04, GOV-11 | PERS-05, CORE-09 |
 | PERS-07 | PS-10 | Agent H | PERS-01 | PERS-01 |
-| PERS-08 | PS-10 | Agent H | PERS-01, CORE-07 | PERS-01 |
+| PERS-08 | PS-10 | Agent H | PERS-01, CORE-07, CORE-16 | PERS-01, CORE-16 |
 | PERS-09 | PS-10 | Agent H | PERS-01, CORE-14 | PERS-01, CORE-14 |
 | QA-P2 | PS-10 | Agent I (QA and Benchmarks) | PERS-05, TEST-04 | PERS-06 |
 | TEST-04 | PS-10 | Agent I (QA and Benchmarks) | TEST-01 | TEST-01 |
+| GOV-21 | PS-11 | Project owner | - | - |
 | ITG-02 | PS-11 | Agent I (QA and Benchmarks) | WGEN-04, PERS-06 | G10, WGEN-04 |
 | LEG-01 | PS-11 | UNASSIGNED (WorldGen) - owner decision | WGEN-03, GOV-11 | WGEN-04, PERS-08, ITG-02 |
 | TEST-09 | PS-11 | Agent I (QA and Benchmarks) | TEST-02, WGEN-01 | WGEN-01 |
-| WGEN-01 | PS-11 | UNASSIGNED (WorldGen) - owner decision | CORE-10, CORE-07 | CORE-10 |
-| WGEN-02 | PS-11 | UNASSIGNED (WorldGen) - owner decision | WGEN-01, PROC-03, PROC-04 | PROC-04 |
-| WGEN-03 | PS-11 | UNASSIGNED (WorldGen) - owner decision | WGEN-01, CORE-09, GOV-11 | CORE-09, GOV-11 |
+| WGEN-01 | PS-11 | UNASSIGNED (WorldGen) - owner decision | CORE-10, CORE-07, CORE-16 | CORE-10, CORE-16 |
+| WGEN-02 | PS-11 | UNASSIGNED (WorldGen) - owner decision | WGEN-01, PROC-03, PROC-04 | PROC-04, GOV-21 |
+| WGEN-03 | PS-11 | UNASSIGNED (WorldGen) - owner decision | WGEN-01, CORE-09, GOV-11 | CORE-09, GOV-11, GOV-21 |
 | WGEN-04 | PS-11 | UNASSIGNED (WorldGen) - owner decision | WGEN-02, WGEN-03, API-04 | WGEN-03 |
 | WGEN-05 | PS-11 | UNASSIGNED (WorldGen) - owner decision | WGEN-01, TEST-02 | WGEN-01 |
 | ADP-01 | PS-12 | UNASSIGNED (Engine Adapter, O-5) - owner decision | CLI-01 | CLI-01, CLI-02, CORE-12 |
@@ -235,27 +249,30 @@ Semantics: **S (start-after)** - the dependency's public interface is frozen; th
 | CLI-02 | PS-12 | UNASSIGNED (Client Runtime) - owner decision | CLI-00, PROC-03, VOX-02 | VOX-03, PROC-05 |
 | CLI-03 | PS-12 | UNASSIGNED (Client Runtime) - owner decision | VOX-05 | VOX-05 |
 | CLI-04 | PS-12 | UNASSIGNED (Client Runtime) - owner decision | CLI-00, API-01 | API-01 |
-| LEG-02 | PS-12 | UNASSIGNED (Engine Adapter, O-5) - owner decision | ADP-01, CLI-01, GOV-11 | ORCH-05, HIST-02, CLI-01, ADP-01, TEST-06 |
+| LEG-02 | PS-12 | UNASSIGNED (Engine Adapter, O-5) - owner decision | ADP-01, CLI-01, GOV-11 | ORCH-05, HIST-02, CLI-01, ADP-01, TEST-10 |
 | RND-01 | PS-12 | Agent I (QA and Benchmarks) | VOX-03 | VOX-03 |
 | CLI-05 | PS-13 | UNASSIGNED (Client Runtime) - owner decision | CLI-01, NET-02 | NET-03, SRV-04, CLI-01 |
 | GOV-12 | PS-13 | Project owner | SPK-NET | SPK-NET |
+| GOV-22 | PS-13 | Project owner | - | - |
 | NET-01 | PS-13 | UNASSIGNED (Networking Adapter, O-3) - owner decision | API-02 | API-02 |
-| NET-02 | PS-13 | UNASSIGNED (Networking Adapter, O-3) - owner decision | NET-01, CORE-07 | NET-01 |
+| NET-02 | PS-13 | UNASSIGNED (Networking Adapter, O-3) - owner decision | NET-01, CORE-07 | NET-01, GOV-22 |
 | NET-03 | PS-13 | UNASSIGNED (Networking Adapter, O-3) - owner decision | NET-01 | NET-01 |
 | NET-04 | PS-13 | UNASSIGNED (Networking Adapter, O-3) - owner decision | NET-02, GOV-12 | NET-02, GOV-12 |
-| SRV-01 | PS-13 | UNASSIGNED (Server Runtime) - owner decision | CORE-10, API-02, NET-01 | G4, G10, WGEN-03, NET-03, PERS-06 |
+| SRV-01 | PS-13 | UNASSIGNED (Server Runtime) - owner decision | CORE-10, API-02, NET-01 | G4, G10, WGEN-03, NET-03, PERS-06, GOV-22 |
 | SRV-02 | PS-13 | UNASSIGNED (Server Runtime) - owner decision | NET-02, API-03, SRV-01 | NET-02, SRV-01 |
 | SRV-03 | PS-13 | UNASSIGNED (Server Runtime) - owner decision | SRV-01 | ORCH-05, SRV-01 |
 | SRV-04 | PS-13 | UNASSIGNED (Server Runtime) - owner decision | SRV-03, WGEN-04, NET-02 | SRV-03, WGEN-04 |
 | SRV-05 | PS-13 | UNASSIGNED (Server Runtime) - owner decision | SRV-04, ORCH-03 | SRV-04 |
 | SRV-06 | PS-13 | UNASSIGNED (Server Runtime) - owner decision | SRV-02 | SRV-02 |
 | SRV-07 | PS-13 | UNASSIGNED (Server Runtime) - owner decision | HIST-04, SRV-02 | HIST-04, SRV-02 |
-| TEST-03b | PS-13 | Agent I (QA and Benchmarks) | NET-01 | NET-03 |
+| SRV-08 | PS-13 | UNASSIGNED (Server Runtime) - owner decision | SRV-01, NET-04 | SRV-01, NET-04 |
+| TEST-03b | PS-13 | Agent I (QA and Benchmarks) | NET-01 | NET-03, NET-04 |
 | TEST-07 | PS-13 | Agent I (QA and Benchmarks) | SRV-02 | SRV-06 |
 | DG-1 | PS-14 | Agent I (QA and Benchmarks) | VOX-03, CLI-02, ADP-01, EXT-DEV, QA-06 | QA-06, EXT-DEV |
 | DG-2 | PS-14 | Agent I (QA and Benchmarks) | WGEN-05, PERS-05, EXT-DEV, QA-06 | QA-06, EXT-DEV |
 | DG-3 | PS-14 | Agent I (QA and Benchmarks) | G13, EXT-DEV, QA-06 | G13, EXT-DEV, QA-06 |
 | GOV-13 | PS-14 | Project owner | DG-1 | DG-1 |
+| GOV-15 | PS-14 | Project owner | GOV-08 | GOV-08 |
 | QA-02 | PS-14 | Agent I (QA and Benchmarks) | TEST-01 | TEST-01 |
 | QA-04 | PS-14 | Agent I (QA and Benchmarks) | G13 | G13 |
 | QA-06 | PS-14 | Agent I (QA and Benchmarks) | ADP-01 | ADP-01 |
@@ -275,42 +292,44 @@ A stage **closes** when its gate node `Gn` is satisfied: every member task is me
 | Gate | Stage | Member tasks (all must be merged and accepted) |
 |---|---|---|
 | G0 | PS-0 | GOV-01, GOV-02, GOV-03, GOV-04, GOV-05, GOV-06, TEST-01, XT-01 |
-| G1 | PS-1 | CORE-01, CORE-02, CORE-03, CORE-04, CORE-05, CORE-06, CORE-07, CORE-08, CORE-09, CORE-10, CORE-11, TEST-02, TEST-05, XT-02 |
-| G2 | PS-2 | CORE-15, PROC-01, PROC-02, PROC-03, PROC-04, PROC-05, PROC-06, TEST-08, GOV-07 |
+| G1 | PS-1 | CORE-01, CORE-02, CORE-03, CORE-04, CORE-05, CORE-06, CORE-07, CORE-08, CORE-09, CORE-10, CORE-11, TEST-02, TEST-05, XT-02, TEST-06, INT-01 |
+| G2 | PS-2 | CORE-15, PROC-01, PROC-02, PROC-03, PROC-04, PROC-05, PROC-06, TEST-08, GOV-07, CORE-16, GOV-16, GOV-24 |
 | G3 | PS-3 | API-01, API-02, API-03, API-04, API-05, GOV-09 |
-| G4 | PS-4 | ORCH-01, ORCH-02, ORCH-03, ORCH-04, ORCH-05, TEST-03a, TEST-06 |
-| G5 | PS-5 | CORE-12, VOX-01, VOX-02, VOX-03, VOX-04, VOX-05, SDF-01, SDF-02, SDF-03, MSH-01, MSH-02, MSH-03 |
-| G6 | PS-6 | SCU-01, SCU-02, SCU-03, BOO-01, BOO-02, BOO-03 |
-| G7 | PS-7 | HIST-01, HIST-02, HIST-03, HIST-04 |
-| G8 | PS-8 | CORE-14, COMP-01, COMP-02, COMP-03 |
-| G9 | PS-9 | CORE-13, RES-01, RES-02, RES-03 |
+| G4 | PS-4 | ORCH-01, ORCH-02, ORCH-03, ORCH-04, ORCH-05, TEST-03a, TEST-10 |
+| G5 | PS-5 | CORE-12, VOX-01, VOX-02, VOX-03, VOX-04, VOX-05, SDF-01, SDF-02, SDF-03, MSH-01, MSH-02, MSH-03, GOV-08, GOV-17 |
+| G6 | PS-6 | SCU-01, SCU-02, SCU-03, BOO-01, BOO-02, BOO-03, GOV-20 |
+| G7 | PS-7 | HIST-01, HIST-02, HIST-03, HIST-04, GOV-25 |
+| G8 | PS-8 | CORE-14, COMP-01, COMP-02, COMP-03, GOV-19, GOV-23 |
+| G9 | PS-9 | CORE-13, RES-01, RES-02, RES-03, GOV-18 |
 | G10 | PS-10 | TEST-04, PERS-01, PERS-02, PERS-03, PERS-04, PERS-05, PERS-06, PERS-07, PERS-08, PERS-09, ITG-01, QA-P2, GOV-10, GOV-11 |
-| G11 | PS-11 | WGEN-01, TEST-09, WGEN-02, WGEN-03, WGEN-04, WGEN-05, ITG-02, LEG-01 |
+| G11 | PS-11 | WGEN-01, TEST-09, WGEN-02, WGEN-03, WGEN-04, WGEN-05, ITG-02, LEG-01, GOV-21 |
 | G12 | PS-12 | CLI-00, CLI-01, CLI-02, CLI-03, CLI-04, ADP-01, ADP-02, ADP-03, LEG-02, RND-01 |
-| G13 | PS-13 | NET-01, NET-02, NET-03, GOV-12, NET-04, SRV-01, SRV-02, SRV-03, SRV-04, SRV-05, SRV-06, SRV-07, CLI-05, TEST-03b, TEST-07 |
-| G14 | PS-14 | QA-02, QA-04, QA-06, DG-1, GOV-13, DG-2, DG-3 |
+| G13 | PS-13 | NET-01, NET-02, NET-03, GOV-12, NET-04, SRV-01, SRV-02, SRV-03, SRV-04, SRV-05, SRV-06, SRV-07, CLI-05, TEST-03b, TEST-07, GOV-22, SRV-08 |
+| G14 | PS-14 | QA-02, QA-04, QA-06, DG-1, GOV-13, DG-2, DG-3, GOV-15 |
 
-| Stage | Start conditions (work may begin) | Production integration conditions (modules may merge) | Closing conditions (gate) |
-|---|---|---|---|
-| PS-0 | none | GOV-06 needs GOV-04 and GOV-05 | G0 members; owner-confirmed registry entries; CI **specification** Owner-Approved and CI **implementation** shown running (workflow-run URL) - two separate conditions |
-| PS-1 | G0 | Core tasks per ADG edges; CORE-10 after CORE-01…07 | G1; P0-alpha Owner-Approved and Implemented; PC-1 Implemented-Provisional; **no device or emulator condition** |
-| PS-2 | CORE-10 (start of PROC-01…05); CORE-15 after CORE-10 | PROC tasks after their I edges | G2 includes GOV-07: **PR-01…PR-08 Owner-Approved after RG-2**; development may precede it, production integration (merges that downstream modules depend on) may not |
-| PS-3 | CORE-10; PROC-01 and PROC-04 interfaces for API-02 | API tasks after their I edges | G3; E-02…E-12 and storage ports Owner-Approved (GOV-09) |
-| PS-4 | API-02 (and API-03, CORE-08 for ORCH-05) | **ORCH-01…05 merge only after G2 and G3** (Processing is on the critical path) | G4 |
-| PS-5 | API-02, TEST-03a, PROC-01/02 | after G2 and G3 for operation tasks; providers after G2 | G5 = backend conformance only; **renderer validation is DG-1, not part of G5** |
-| PS-6 | API-01, ORCH-02, VOX-01, SDF-01 | after G4 and G5 | G6 |
-| PS-7 | API-02, API-04 | after G4 | G7 |
-| PS-8 | ORCH-01, CORE-14 (needs ACR-003) | after G4 | G8 |
-| PS-9 | CORE-13 (needs RG-1), VOX-01 | after G4, G5 | G9 |
-| PS-10 | CORE-11, API-04; SPK-PERS for compaction | PERS tasks per edges; PERS-06 also needs GOV-11 | G10 includes GOV-10 (format approval) and ITG-01 / QA-P2 (desktop crash matrix); **device durability is DG-2** |
-| PS-11 | 11A: CORE-10; 11B: WGEN-01, PROC-03/04, CORE-09, GOV-11 | 11B merges after the system-commit port and PROC-04 | G11 includes ITG-02 and LEG-01 |
-| PS-12 | CLI-00 and skeletons from CORE-10 | CLI/ADP merges per edges; LEG-02 after ORCH-05, HIST-02, ADP-01, TEST-06 | G12 (desktop; **no device condition**) |
-| PS-13 | NET-01 after API-02; SPK-NET | SRV-01 after G4, G10, WGEN-03, NET-03, PERS-06; NET-04 after GOV-12 | G13 |
-| PS-14 | G13 for QA-04; devices for DG gates | DG-1…DG-3 need EXT-DEV and QA-06 | G14 includes DG-1…DG-3 and GOV-13 |
+Generated from the task edges (so that it cannot diverge from part C). "Outside the stage" means a dependency that belongs to another stage, gate or external input. Hand-written text is limited to the extra closing conditions.
+
+| Stage | Start-after (engineering tasks) | Merge-after (engineering tasks) | Inputs of the owner-decision tasks GOV-xx (they delay only those tasks and whatever lists them in the other columns) | Closing condition |
+|---|---|---|---|---|
+| PS-0 | - | - | - | G0: all 8 member tasks merged and accepted; CI specification Owner-Approved and, as a separate condition, CI running (workflow-run URL, required-status-check settings); registry entries owner-confirmed |
+| PS-1 | G0, TEST-01 | - | - | G1: all 16 member tasks merged and accepted; P0-alpha Owner-Approved (done in PS-0) and recorded Implemented by INT-01; PC-1 stays under Provisional approval; no contract Frozen; CI-host evidence only - no device, no emulator condition |
+| PS-2 | CORE-10 | CORE-10, CORE-06 | EXT-GPS | G2: all 12 member tasks merged and accepted; includes GOV-07: PR-01…PR-08 Owner-Approved after RG-2; development may precede it, production merges that depend on Processing may not |
+| PS-3 | CORE-10, PROC-01, PROC-04, CORE-09 | CORE-07, G2 | - | G3: all 6 member tasks merged and accepted; E-02…E-12 and the storage ports Owner-Approved (GOV-09); API-02 merged only after G2 |
+| PS-4 | API-02, CORE-10, API-01, PROC-02, API-04, API-03, CORE-08 | G2, G3, XT-02, API-02 | - | G4: all 7 member tasks merged and accepted; Orchestration merged only after G2 and G3 |
+| PS-5 | CORE-10, API-02, TEST-03a, PROC-01, PROC-02, CORE-03 | CORE-10, EXT-VA-RG1, G2, G3 | EXT-VA-RG1 | G5: all 14 member tasks merged and accepted; backend conformance only; renderer validation is DG-1 and the renderer default is GOV-13, both outside this stage |
+| PS-6 | API-01, ORCH-02, VOX-01, SDF-01 | API-01, G4, G5 | - | G6: all 7 member tasks merged and accepted; tool-level contracts Owner-Approved (GOV-20) |
+| PS-7 | API-02, API-04, ORCH-03 | G4 | - | G7: all 5 member tasks merged and accepted; OD-R5 decided (GOV-25); system and recovery commits absent from history (tests) |
+| PS-8 | CORE-10, ORCH-01, CORE-04 | CORE-10, G4 | - | G8: all 6 member tasks merged and accepted; C-13…C-15 and composite-operation contracts Owner-Approved |
+| PS-9 | CORE-10, VOX-01, VOX-03 | CORE-10, EXT-VA-RG1, G4, G5, GOV-23 | GOV-08 | G9: all 5 member tasks merged and accepted; C-11, C-12 Owner-Approved after RG-1 (GOV-18) |
+| PS-10 | TEST-01, CORE-11, API-04, SPK-PERS, CORE-07, CORE-05, CORE-09, CORE-16, CORE-14, ORCH-04 | TEST-01, CORE-11, CORE-09, CORE-16, CORE-14, G4 | SPK-PERS, EXT-VA-RG1 | G10: all 14 member tasks merged and accepted; persistence format Owner-Approved (GOV-10, needs RG-1); desktop crash matrix green; device durability is DG-2, not a condition |
+| PS-11 | CORE-10, CORE-07, CORE-16, TEST-02, PROC-03, PROC-04, CORE-09, GOV-11, API-04, PERS-06 | CORE-10, CORE-16, PROC-04, CORE-09, GOV-11, G10, PERS-08 | - | G11: all 9 member tasks merged and accepted; WG-01…WG-10 Owner-Approved (GOV-21); end-to-end test ITG-02; no direct commit left in worldgen (archcheck) |
+| PS-12 | CORE-10, API-01, CORE-06, PROC-03, VOX-02, VOX-05, GOV-11, VOX-03 | CORE-06, VOX-03, PROC-05, VOX-05, API-01, CORE-12, ORCH-05, HIST-02, TEST-10 | - | G12: all 10 member tasks merged and accepted; desktop evidence only; no write path or history in the adapter (archcheck, TEST-10) |
+| PS-13 | API-02, CORE-07, CORE-10, API-03, WGEN-04, ORCH-03, HIST-04, CLI-01 | API-02, G4, G10, WGEN-03, PERS-06, ORCH-05, WGEN-04, HIST-04, CLI-01 | SPK-NET | G13: all 17 member tasks merged and accepted; protocol, transport and server contracts Owner-Approved (GOV-12, GOV-22); conformance on both transports and both hosts |
+| PS-14 | TEST-01, G13, ADP-01, VOX-03, CLI-02, EXT-DEV, WGEN-05, PERS-05 | TEST-01, G13, ADP-01, EXT-DEV | GOV-08 | G14: all 8 member tasks merged and accepted; DG-1…DG-3 reports; renderer default recorded (GOV-13); PC-1 frozen only through GOV-15 after GOV-08 |
 
 ## Part E: validation of this graph
 
-* Tasks: 131; gates: 15; external inputs: 3; tasks outside any gate (spikes and device acquisition): SPK-PERS, SPK-NET, DEV-01.
+* Tasks: 147; gates: 15; external inputs: 3; tasks outside any gate (spikes and device acquisition): SPK-PERS, SPK-NET, DEV-01.
 * Method: `_build/validate.py` loads the single data file and checks ids, owners, dependency existence, stage monotonicity, gate membership, acyclicity (Kahn) on the union of S and I edges plus gate membership edges, and one owner per crate directory.
 
 | Check | Result |
@@ -331,5 +350,23 @@ A stage **closes** when its gate node `Gn` is satisfied: every member task is me
 | CORE-11 is in gate G1 and is a dependency of PERS-01 | PASS |
 | PERS-09 depends on CORE-14 and does not depend on COMP-* or HIST-* | PASS |
 | every unassigned-owner task is outside PS-0..PS-10 except the networking spike SPK-NET (R-UNOWNED never blocks PS-1) | PASS |
+| CORE-10 (API freeze) depends on CORE-01..CORE-07 including CORE-04 | PASS |
+| G1 members are owned only by Core Agent, Agent I, Integration Owner (no WorldGen, Persistence, History, Processing owner) | PASS |
+| G1 has no ancestor in WorldGen, Persistence, History, Processing, Editing API, Orchestration, backends, network, client, adapter or device tasks | PASS |
+| G1 contains CORE-11, TEST-02, TEST-05, TEST-06, XT-02, INT-01 and CORE-07..09 | PASS |
+| WorldSeed/GeneratorVersion task CORE-16 is outside PS-1 (not in G1) | PASS |
+| API-02 (Editing API ports) merges after G2 (Processing production gate) | PASS |
+| G3 depends on G2 | PASS |
+| no device/emulator input (EXT-DEV) is an ancestor of any gate G0..G13 | PASS |
+| GOV-15 (Freeze of PC-1) depends on GOV-08 and EXT-VA-RG1 | PASS |
+| CORE-12, CORE-13 depend on the RG-1 revalidation record GOV-08 | PASS |
+| every deferred Core contract task has an owner-approval ancestor (CORE-12:GOV-17, CORE-13:GOV-18, CORE-14:GOV-19, CORE-15:GOV-16) | PASS |
+| PROC-06 depends on GOV-24 (OD-R4) and HIST-02 on GOV-25 (OD-R5) | PASS |
+| tool/composite/resolution/WorldGen/server merges depend on their contract approvals (GOV-20, GOV-23, GOV-21, GOV-22) | PASS |
+| ORCH-04 depends on API-04 (journal port); PERS-04 does not depend on API-02 or on G2 | PASS |
+| dedicated host SRV-08 depends on NET-04; transport suite TEST-03b depends on NET-03 and NET-04 | PASS |
+| CI and archcheck acceptance require registration as required status checks | PASS |
+| GOV-04 and GOV-05 depend on the owner decision GOV-01 | PASS |
+| every gate member task belongs to the gate stage and no task is in two gates | PASS |
 
-* Longest dependency chain to G14 (20 task nodes): `GOV-04 -> GOV-06 -> TEST-01 -> G0 -> CORE-01 -> CORE-03 -> CORE-06 -> CORE-10 -> API-01 -> API-04 -> PERS-01 -> PERS-02 -> PERS-03 -> PERS-05 -> PERS-06 -> QA-P2 -> G10 -> SRV-01 -> SRV-03 -> SRV-04 -> SRV-05 -> G13 -> QA-04 -> G14`
+* Longest dependency chain to G14 (21 task nodes): `GOV-01 -> GOV-04 -> GOV-06 -> TEST-01 -> G0 -> CORE-01 -> CORE-03 -> CORE-06 -> CORE-10 -> PROC-01 -> PROC-05 -> TEST-08 -> G2 -> API-02 -> GOV-09 -> G3 -> ORCH-05 -> TEST-10 -> G4 -> ITG-01 -> G10 -> SRV-01 -> SRV-03 -> SRV-04 -> SRV-05 -> G13 -> QA-04 -> G14`
