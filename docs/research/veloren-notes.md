@@ -51,7 +51,7 @@ Applicability labels: **Accepted** (consistent with an Approved Owner Decision o
 * **Overlay semantics:** when a chunk is generated, its stored overrides are applied on top of the generated terrain; an override equal to the generated block is dropped as a size optimisation; new edits go through one setter that converts world coordinates to chunk key and local offset and marks the chunk modified only if the value actually changed; clearing a chunk empties its overlay so generated terrain shows through again. Persistence is feature-gated (`persistent_world`) and optional (`server/src/terrain_persistence.rs`, `sys/terrain.rs`).
 * Character data is stored in SQLite through separate loader/updater components with migrations (`server/src/persistence/`, `server/src/migrations/`; the file list shows a migration from Diesel to rusqlite). Not examined further.
 * Observations for Cube:
-  * This is real-world evidence for AOD-17's "seed plus modified data" and a real-world instance of variant **C1** (seed plus block-level overrides, as named in `docs/decisions/worldgen-core-boundary.md`) at per-chunk override granularity. Cube's approved model is C3 with a durable journal and snapshots (AOD-20, AOD-21), not C1.
+  * This is real-world evidence for AOD-17's "seed plus modified data" and a real-world instance of the C1 idea (one layer with block-level overrides, as named in `docs/decisions/worldgen-core-boundary.md`) at per-chunk override granularity. Cube's approved architecture is C3 with a durable journal and snapshots (AOD-20, AOD-21); C1 (block-level overrides in one layer) is the recommended first baseline of the layer model but persisted through that journal, not through per-chunk files written on unload.
   * **REF-07 Needs spike (Gate 5):** Cube's choice is a versioned delta journal (AOD-17). The Veloren design suggests comparing "journal replay" with "per-chunk override snapshot" as the compaction format, and shows the cost of writing only on unload (not durable) which Cube's journal avoids by design.
   * **REF-35 Proposed (Gate 5):** versioned files with newest-to-oldest fallback readers, backup instead of overwrite for unknown versions, atomic replacement, an "override equals generated: drop it" optimisation, and deletion of empty overlays.
   * **REF-17 Proposed (Gate 9):** a relational store (SQLite) for accounts and characters with migrations; Cube has not chosen one.
@@ -133,7 +133,7 @@ The sections above mix observation and interpretation by necessity. This section
 * The network crate has an I/O-free protocol core with TCP, in-process and QUIC backends, prioritised streams and a bandwidth budget.
 
 **Agent inferences (may be wrong)**
-* Veloren's override store matches the "seed plus modified data" idea at chunk granularity (an instance of variant C1; Cube's approved model is C3 with the AOD-21 journal, see `owner-approval-matrix-v1.md`).
+* Veloren's override store matches the "seed plus modified data" idea at chunk granularity (an instance of variant C1; Cube's approved architecture is C3 with the AOD-21 journal, and C1 is only recommended as the layer baseline, see `owner-approval-matrix-v1.md`).
 * Cancellation, pools and hysteresis are cheap ideas that map to Cube's streamer; the mapping to a mobile CPU budget is untested.
 * The write-on-unload policy leaves a durability gap that a journal-first design avoids.
 

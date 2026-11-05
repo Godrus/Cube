@@ -21,7 +21,7 @@ Field order as in `worldgen-contracts.md`. No language-specific signatures.
 * **Purpose:** the durable, ordered record of user changes (and replayable recovery inputs).
 * **Model:** `Sequence (gapless, per world), OperationId, ActorId, ServerTick, GeneratorVersion, SchemaVersion, Revision/epoch effect, Payload (granularity open), Checksum`. Records are appended; a record is valid only with its checksum.
 * **Rules:** append-only; one logical operation is one record or a group with a commit marker; the journal survives sudden process termination; a **truncated last record is detected and ignored**, never repaired silently; records ≤ the active recovery point are redundant, not wrong.
-* **Open:** payload granularity (voxel deltas versus operation intents), flush policy and its numbers, segment layout.
+* **Open:** payload granularity (voxel deltas versus operation intents; under the recommended C1 baseline the journal records block-level overrides and should carry the previous effective value so that undo can restore it), flush policy and its numbers, segment layout.
 
 ## WP-04 SnapshotRecord
 

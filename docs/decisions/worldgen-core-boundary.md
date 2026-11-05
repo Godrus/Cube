@@ -19,7 +19,7 @@ How does procedurally generated terrain enter the authoritative geometry, how do
 
 ### External evidence (upstream Veloren, `docs/research/veloren-notes.md`; not proof for Cube)
 
-* Veloren keeps the generated world out of its save: only **block-level overrides** of modified chunks are persisted (per chunk, versioned files with fallback readers) and they are **re-applied over regenerated terrain**, dropping any override equal to the generated block. That is variant **C1** (seed plus block-level overrides) in practice; Cube's approved model (C3 with the AOD-21 journal) keeps an operation journal as the durable record instead.
+* Veloren keeps the generated world out of its save: only **block-level overrides** of modified chunks are persisted (per chunk, versioned files with fallback readers) and they are **re-applied over regenerated terrain**, dropping any override equal to the generated block. That is the C1 idea (one layer, block-level overrides re-applied over a regenerated base) in practice; Cube's approved architecture (C3 with the AOD-21 journal) keeps a durable journal and verified snapshots as the record instead of files written on unload.
 * Its writes happen only when a chunk is unloaded and the source acknowledges this is not durable across power loss; Cube's journal-first design (AOD-17) avoids that gap by construction.
 * Terrain generation takes a seed and a cancellation callback, runs on a dedicated job pool, and its dynamic (entity) output uses non-deterministic randomness while terrain follows the seed.
 * Single-player runs the server in-process (a `singleplayer` feature), which supports the embedded-server proposal in section 7.
@@ -57,11 +57,11 @@ Generation becomes ordinary editing operations ("fill region with generated cont
 
 | Name | Meaning | Status |
 |---|---|---|
-| **C1** | seed plus block-level overrides (per-chunk map of changed blocks re-applied over regenerated terrain) | a data-model variant; **not chosen** as Cube's persistence model |
-| **C2** | generated base plus a mutable overlay (two Core layers with defined precedence) | a data-model variant; remains an open Core design option (`Spike Required`) |
+| **C1** | first-baseline layer model: one logical geometry layer; procedural base from `WorldSeed + GeneratorVersion`; user changes as block-level overrides; journal and snapshots store the changes (AOD-21); no C2 overlay | **Recommended / Requires Owner Approval** for the first production baseline (OAM-09) |
+| **C2** | extended model: a separate generated base layer plus a separate mutable overlay, read through compositing (harder meshing, persistence and revision semantics) | **Deferred**; not implemented before a separate spike |
 | **C3** | hybrid system generation (WorldGen/System-commit boundary), Editing API for user changes, and a separate persistence strategy (AOD-21) | **Approved** (AOD-20) |
 
-C3 is the architecture; C1 and C2 describe how generated and user data may be organised inside it.
+C3 is the architecture; C1 and C2 are alternative layer models inside it.
 
 ## 5. Comparison
 
@@ -92,18 +92,18 @@ Components (the structure is Approved by AOD-20; names and signatures are propos
 5. **Mutation journal:** versioned, append-only deltas of user changes with operation id, author, server timestamp/tick, generator version at the time and a schema version; compaction produces snapshots of modified chunks (optimisation, never the primary record).
 6. **Persistence:** world record = `{seed, generator_version, config}` + journal (+ optional compaction snapshots). Untouched chunks cost nothing.
 
-### Layer model options inside Core (open decision O-WG-1, `Spike Required`)
+### Layer model inside Core (OAM-09, `Recommended / Requires Owner Approval`)
 
 AOD-20 does not decide whether the Core keeps generated and user data in one layer or two.
 
-* **Single-layer model:** one voxel layer; the materialised chunk is written once and journal entries for that chunk are replayed on top (this is what the spike does with its edit list). Minimal Core change; a generator-version change can invalidate absolute-voxel deltas (see section 8).
-* **C2: generated base plus mutable overlay:** two layers with defined precedence. Reads compose overlay over generated; user data is physically separate; eviction of generated data never touches user data. More Core surface (layer composition rules), cleaner persistence and replication of user changes.
-* **Recommendation (Proposed):** measure both in the next spike (generator-version bump with existing journals, mobile memory, replication size) and keep the journal format independent of the choice. A decision point, not a commitment.
+* **C1 (recommended first baseline):** one logical layer. The Materialiser writes the generated base; the persistence loader re-applies block-level user overrides from the journal and snapshots (AOD-21). Minimal Core change; a generator-version change can contradict stored overrides, which AOD-21 already answers with pin or explicit bake/migration; undo needs the previous effective value (journal pre-image or a recomputable base); eviction must never drop overrides.
+* **C2 (Deferred):** separate generated base layer and mutable overlay with defined precedence; reads composite them. Cleaner physical separation, but compositing in every read, harder meshing and dirty propagation, two persistence paths and more revision rules.
+* **Recommendation:** approve C1 for the first production baseline; do not implement C2 before a separate spike. Not a decision until the owner records it.
 
 ### Rules
 
 * **Write path rule:** only three callers may commit to the authoritative asset: the Editing service (user/designer operations), the Materialiser (generated data) and the persistence loader (restoring a saved state). Everything else reads snapshots/views. Enforced by dependency rules and a call-site audit test (to be written).
-* **Revision rule (AOD-20 fixes the principle; details need the B-6 decision):** system generation receives an OperationId (origin: system) and takes part in the commit and revision semantics. Whether a system commit advances the same revision scope as an edit or a separate, chunk-scoped generation epoch is **not decided**; the earlier proposal (edit revision counts only Editing-API commits, generation uses a separate epoch) is a candidate. Clients must be able to tell a terrain update from a user edit either way.
+* **Revision rule (AOD-20 fixes the principle; the model is OAM-10, `Proposed / Requires Owner Approval`):** system generation receives an OperationId with `ActorKind::System` and takes part in the commit and revision semantics. **Recommended:** the same asset and layer scopes as other commits, no separate generation epoch without proven necessity; the earlier proposal of a separate generation epoch is an alternative (R-B), as are separate domains for base and overrides (R-C). Clients tell a terrain update from a user edit by the commit's `ActorKind`/`ChangeType`; user edits are validated with brick or region stamps. Token width and commit algorithm (B-6) stay open.
 * **History rule (Approved, AOD-20):** initial generation never appears in ordinary undo/redo. Undo applies to journal operations only; undoing a user edit restores the previous *effective* voxel (generated or earlier edit), not an absolute stored value.
 * **Authority rule:** the server runs WorldGen and the Editing service; clients never run authoritative generation. A client may generate **locally for display/prediction** only if the generator version and the stable chunk hash match the server's; otherwise it receives chunk data. Which of "send seed + version" and "send chunk data" is default is open (O-WG-3).
 * **Determinism rule:** the stable chunk hash (seed, coordinate, generator version, voxel content) is part of the contract; a mismatch between server and client generation is a protocol-visible error, never silently accepted.
@@ -138,7 +138,7 @@ Generation failure marks only the chunk Failed (already the spike behaviour) and
 
 ## 11. Contracts and tests needed before implementation (names only)
 
-New or revised Draft contracts: WorldGen port (generator, chunk lifecycle, cancellation, progress), Materialiser/system-commit port in Core, generated-vs-edit precedence rule (single-layer model or C2), mutation journal schema (versioned), persistence world record, replication of baselines and deltas, determinism/hash contract. Contract and property tests: pinned and cross-device hash tests, generator-version replay tests, journal replay equals live state, materialise/evict idempotence, cancellation, border consistency, authority tests (a client cannot commit), conflict tests (generator bump with journal). The Draft persistence contracts and the RevisionToken proposal need review against this record (B-6, B-9, OI-4).
+New or revised Draft contracts: WorldGen port (generator, chunk lifecycle, cancellation, progress), Materialiser/system-commit port in Core, generated-vs-edit precedence rule (only needed if C2 is ever chosen), mutation journal schema (versioned), persistence world record, replication of baselines and deltas, determinism/hash contract. Contract and property tests: pinned and cross-device hash tests, generator-version replay tests, journal replay equals live state, materialise/evict idempotence, cancellation, border consistency, authority tests (a client cannot commit), conflict tests (generator bump with journal). The Draft persistence contracts and the RevisionToken proposal need review against this record (B-6, B-9, OI-4).
 
 ## 12. Decisions: recorded and still required
 
@@ -146,8 +146,8 @@ New or revised Draft contracts: WorldGen port (generator, chunk lifecycle, cance
 
 **Still required from the owner (not decided by AOD-20):**
 
-1. Single-layer model or C2 overlay in the Core (O-WG-1): the recommendation is to decide after the next spike.
+1. Core layer model, C1 or C2 (O-WG-1, OAM-09): recommended C1 for the first baseline, C2 Deferred; awaiting owner approval.
 2. Generator-version policy per world (O-WG-2): AOD-21 requires pin or explicit bake/migration and forbids silent change; the recommendation remains pin by default, bake on retirement.
 3. Chunk delivery to clients (O-WG-3): chunk data by default, seed + version only for matched generators (Proposed).
-4. The decision on ACR-004 and the revision effect of system commits (B-6).
+4. The decision on ACR-004 (review package `acr-004-owner-review.md`) and the revision model (OAM-10; B-6 token width and algorithm separately).
 5. Where the server runtime and WorldGen sit in the module grid and who owns them.

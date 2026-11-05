@@ -109,4 +109,4 @@ Memory and thermal budgets must be measured on a physical device (none available
 
 ## 10. Open decisions for the owner
 
-placement and ownership of WorldGen and the server runtime in the layer grid; the decision on ACR-004 and the revision rule for system commits (B-6); the Core layer model (single layer or C2 overlay); the transport binding of the embedded runtime; transport and replication design; where meshing lives; the shared "common" crate (REF-02); owners for networking (O-3) and engine adapters (O-5).
+placement and ownership of WorldGen and the server runtime in the layer grid; the decision on ACR-004 and the revision rule for system commits (B-6); the Core layer model (OAM-09: C1 recommended for the first baseline, C2 Deferred) and the revision model (OAM-10: same asset/layer scopes recommended); the transport binding of the embedded runtime; transport and replication design; where meshing lives; the shared "common" crate (REF-02); owners for networking (O-3) and engine adapters (O-5).

@@ -31,18 +31,20 @@
 
 | ID | Decision | Status | Recorded decision or recommendation | Still needed from the owner |
 |---|---|---|---|---|
-| OAM-01 | WorldGen to Core boundary | **Approved** (AOD-20, 2026-11-05) | hybrid option C, variant C3; **ACR-004 prepared, Pending** | Core layer model (single layer or C2 overlay, Spike Required), revision effect of system commits (B-6), decision on ACR-004 |
+| OAM-01 | WorldGen to Core boundary | **Approved** (AOD-20, 2026-11-05) | hybrid option C, variant C3; **ACR-004 prepared, Pending** | decision on ACR-004 (review package `acr-004-owner-review.md`), OAM-09 (C1 / C2), OAM-10 (revision model) |
 | OAM-02 | Persistence | **Approved** (AOD-21, 2026-11-05) | `WorldSeed + GeneratorVersion`, durable journal, compaction into chunk snapshots, load order base generation, snapshot, journal tail | binary formats, concrete database, exact fields, journal granularity, retention numbers, per-world generator-version policy (all not approved) |
 | OAM-03 | Embedded server | **Approved** (AOD-22, 2026-11-05; transport rule confirmed) | one authoritative Rust server runtime, embedded (in-process transport) or dedicated (external transport); no client-only authoritative mode | dedicated transport (OAM-05), runtime placement in the module grid, mobile measurement |
 | OAM-04 | Renderer | Proposed (`faces` reference/default, `greedy` experimental per AOD-10) | no change; mobile decision needs a physical device | the default after a device benchmark |
 | OAM-05 | Network layer | Spike Required | no transport chosen | approve the spike and its criteria; networking owner |
 | OAM-06 | Mobile targets | Proposed | adopt the criteria table | approve criteria; devices and macOS/Xcode |
 | OAM-07 | Licences and sources | **Approved** (AOD-23, 2026-11-05) | policy of section 7.1 | Cube's own licence, dependency licence list |
+| OAM-09 | Core layer model: C1 or C2 | **Recommended / Requires Owner Approval** (C1 first baseline; C2 Deferred) | C1 for the first production baseline; no C2 before a separate spike | choose C1 / C2 |
+| OAM-10 | Revision model for system commits | **Proposed / Requires Owner Approval** | same asset/layer scopes, `ActorKind::System`, no separate generation epoch | choose the model (with ACR-004 part D) |
 | OAM-08 | Missing sources | **Conditionally Approved** (AOD-24, 2026-11-05) | limited temporary baseline; originals still required for final P0/P1 approval | supply the documents; confirm baseline entries |
 
 Relation to roadmap open items: OAM-01 = OI-12 (and OI-7 for the system-commit port), OAM-02 = OI-4, OAM-03 = OI-6, OAM-05 = OI-9, OAM-06 = OI-10/OI-11, OAM-07 = OI-5, OAM-08 = OI-1/OI-2 (and OI-3 for the ACRs).
 
-**Notation for option C (uniform in all documents):** **C1** = seed plus block-level overrides; **C2** = generated base plus mutable overlay; **C3** = hybrid system generation, Editing API for user changes and a separate persistence strategy.
+**Notation for option C (uniform in all documents):** **C1** = the first-baseline layer model: one logical geometry layer, the procedural base given by `WorldSeed + GeneratorVersion`, user changes held as block-level overrides, stored in the journal and snapshots (AOD-21), no C2 overlay; **C2** = the extended model: a separate generated base layer plus a separate mutable overlay read through compositing; **C3** = the approved architecture: hybrid system generation through the WorldGen/System-commit boundary, Editing API for user changes, and a separate persistence strategy. C3 is Approved (AOD-20); C1 versus C2 is a choice inside C3 (OAM-09, `Recommended / Requires Owner Approval`: C1; C2 Deferred).
 
 ---
 
@@ -53,7 +55,7 @@ Relation to roadmap open items: OAM-01 = OI-12 (and OI-7 for the system-commit p
 | **ID** | OAM-01 (also O-WG-1…3 in `worldgen-core-boundary.md`) |
 | **Current state** | **Approved 2026-11-05 as AOD-20.** Earlier: AOD-09, AOD-15, AOD-16 (Approved) left the write path open. The spike still writes generated chunks and edits through the direct commit primitive (documented as non-compliant, experimental). |
 | **Options** | **A** WorldGen writes straight into Core. **B** WorldGen works only through the Editing API. **C** hybrid: pure Generator, WorldGen service, a Materialiser that writes generated data through a narrow Core system-commit port, user edits through the Editing API. The variants of C (C1, C2, C3) are defined in 1.1; C3 is the approved one. |
-| **Recommended** | **Decision (Approved): option C, variant C3.** Not decided and still `Spike Required`: whether the Core keeps one layer or two (C2 overlay). |
+| **Recommended** | **Decision (Approved): option C, variant C3.** Not decided: the Core layer model (OAM-09, `Recommended / Requires Owner Approval`) and the revision model (OAM-10, `Proposed / Requires Owner Approval`). |
 | **Pros** | A: fewest new contracts, lowest implementation risk. B: single write path, no new Core port. C: generated data stays out of history and the edit revision, matches AOD-15/16/17 structurally, regeneration and eviction never touch user data. |
 | **Cons** | A: generation enters revisions and history unless special-cased; two meanings of "write"; weak authority story. B: generation becomes millions of operations (bulk operations, system actor, history pollution, storms on replication, a huge journal), a risk for mobile. C: one new boundary (system-commit port, generation revision) that touches P0 types and possibly ACR-001; more contracts to write. |
 | **Impact on Core** | A: none. B: bulk-operation support is required on the Editing side, none in Core. C: a new **system-commit port** and a system OperationId and a revision rule for system commits (B-6; ACR-004); C2 would add layer composition rules; C1 needs none. |
@@ -61,28 +63,29 @@ Relation to roadmap open items: OAM-01 = OI-12 (and OI-7 for the system-commit p
 | **Impact on Persistence** | A: needs a custom "generated vs edited" rule. B: operations only, huge. C: generated data is not stored; seed + generator version + user changes only (AOD-17). |
 | **Impact on Server** | A: authority is implicit. B: explicit but slow. C: the server runs the boundary (AOD-13); clients may regenerate locally only if version and chunk hash match, else they receive data (O-WG-3). |
 | **Impact on Mobile** | A: fine. B: risky (overhead per operation). C: fine; baseline can be regenerated or received. The mobile cost of C2 (two layers in memory) is a **Hypothesis** until measured. |
-| **Reversibility** | Direction A to C is cheap before production Core code exists and expensive afterwards (it changes P0 surface and the save format). The remaining single-layer versus C2 choice is cheap while the journal schema is independent of it and expensive once a save format is frozen. |
+| **Reversibility** | Direction A to C is cheap before production Core code exists and expensive afterwards (it changes P0 surface and the save format). The C1 versus C2 choice (OAM-09) is cheap while the journal schema is independent of it and expensive once a save format is frozen. |
 | **Blocks** | The system-commit port and generation-revision contracts (Gate 2), production `cube-worldgen` (Gate 3), journal schema (Gate 5), replication of chunk baselines (Gate 7). |
-| **Owner decision required** | Recorded: direction C3 with the seven points of AOD-20 (system generation through a WorldGen/System-commit boundary; not an Editing-API operation; user changes only through the Editing API; server owns the world; initial generation outside ordinary undo/redo; system OperationId and revision/commit semantics; no bypass of the public Core ports). **Still required:** decision on **ACR-004 (prepared, Pending)**; the Core layer model; the revision effect of system commits (B-6). |
+| **Owner decision required** | Recorded: direction C3 with the seven points of AOD-20 (system generation through a WorldGen/System-commit boundary; not an Editing-API operation; user changes only through the Editing API; server owns the world; initial generation outside ordinary undo/redo; system OperationId and revision/commit semantics; no bypass of the public Core ports). **Still required:** decision on **ACR-004 (prepared, Pending; owner review package: `acr-004-owner-review.md`)**; OAM-09; OAM-10. |
 
 ### 1.1 Variants of C and the resulting position
 
-**Notation.** C1, C2 and C3 are defined once, as below, and used identically in every document.
+**Notation.** C1, C2 and C3 are defined once, below and in the notation paragraph above, and used identically in every document.
 
-| Aspect | **C1** seed + block-level overrides | **C2** generated base + mutable overlay | **C3** hybrid system generation + Editing API + separate persistence strategy |
+| Aspect | **C1** first baseline | **C2** extended model | **C3** approved architecture |
 |---|---|---|---|
-| Idea | A chunk's saved data is a map of position to block value for changed blocks; regenerated terrain is the base and overrides are applied over it | Generated data in one Core layer, user changes in a second layer with defined precedence; reads compose the two | System generation through a WorldGen/System-commit boundary, user changes only through the Editing API, persistence per AOD-21 (seed + version, journal, snapshots) |
-| Core change | none (overrides applied by the loader through the commit port) | layer composition rules, precedence, eviction rules | system-commit port, system OperationId, revision rule (ACR-004) |
-| History / undo | no operation identity unless added | natural: overlay entries carry the operation | user operations only; generation excluded |
-| Generator-version change | overrides can contradict a changed base | same risk, but one layer can be baked or migrated separately | explicit pin or bake/migration (AOD-21) |
-| Power loss / atomicity | depends on when files are written (Fact (upstream): Veloren writes on unload only and states this is not durable across power loss) | as C1 per layer | journal durable by requirement (AOD-21); tested by kill-during-write tests |
-| Mobile memory | one layer | two layers in memory (Hypothesis: higher) | depends on the chosen layer model |
-| Evidence | Fact (upstream): Veloren persists block-level overrides per modified chunk and re-applies them on regeneration; nothing measured for Cube | none upstream; nothing measured for Cube | Fact (Cube): the spike regenerates and re-applies an edit list (`world-state-v0`); the boundary itself is not implemented |
-| **Status** | not chosen as Cube's persistence model | **Spike Required** (inside C3: single layer or two) | **Approved** (AOD-20) |
+| Idea | one logical geometry layer; base = `WorldSeed + GeneratorVersion`; user changes as block-level overrides; journal and snapshots store the changes | separate generated base layer plus separate mutable overlay; reads through compositing | hybrid system generation (WorldGen/System-commit boundary), Editing API for user changes, separate persistence strategy (AOD-21) |
+| Core change | none beyond the system-commit port (overrides are ordinary committed voxels; the loader re-applies them) | layer composition rules, precedence, eviction, compositing reads | system-commit port, `ActorKind` on OperationId, revision rule (ACR-004) |
+| Meshing | reads one layer | meshing and dirty tracking must follow compositing | independent of the layer model |
+| Persistence | overrides recorded in the journal; snapshots per chunk | overlay and base persisted or regenerated separately; more files and rules | AOD-21 |
+| Revision semantics | the same scopes for generated and user data | two data sources per layer; revision of a composed read is derived | OAM-10 |
+| Generator-version change | overrides can contradict a changed base: pin or explicit bake/migration (AOD-21) | same risk; the overlay can be baked separately | explicit policy (AOD-21) |
+| Undo | the journal must carry the previous effective value (pre-image) or the base must be recomputable | natural: remove or restore the overlay entry | user operations only; generation excluded |
+| Mobile memory | one layer | two layers (Hypothesis: higher) | depends on the layer model |
+| Evidence | Fact (upstream): Veloren re-applies block-level overrides over regenerated terrain (per-chunk files, written on unload); nothing measured for Cube | none upstream; nothing measured for Cube | Fact (Cube): the spike re-applies an edit list after regeneration; the boundary is not implemented |
+| **Status** | **Recommended / Requires Owner Approval** (OAM-09) | **Deferred**: not implemented before a separate spike | **Approved** (AOD-20) |
 
-**Agent inference:** C3 is the architecture; C1 and C2 describe how generated and user data can be organised inside it. The remaining open question is the Core layer model, which does not change the approved boundary.
-**Recommendation (Proposed):** one spike compares the single-layer model and C2 under the AOD-21 journal, measuring generator-version bump behaviour, memory on an Android-class budget, replication size, undo correctness and compaction cost.
-**Spike criteria (proposed):** journal replay equals live state; undo restores the effective voxel; a generator bump has a defined, tested outcome; overlay eviction never touches user data; peak memory per loaded chunk; replication bytes per edit.
+**Agent inference:** C3 is the architecture; C1 and C2 are alternative layer models inside it. C1 is the smaller change and keeps meshing and revision semantics simple; C2 gives cleaner separation at higher cost in meshing, persistence and revision rules.
+**Spike criteria for C2 (proposed, only if the owner later wants C2):** generator-version bump behaviour, memory on an Android-class budget, compositing cost in meshing, replication size, undo correctness, cost of the second layer's persistence.
 
 ---
 
@@ -327,11 +330,49 @@ The column "Temporary owner-approved assumption" shows what the analysis of 2026
 
 ---
 
+## 8A. OAM-09 Core layer model: C1 or C2
+
+| Field | Content |
+|---|---|
+| **ID** | OAM-09 (the open part of OI-12 and O-WG-1) |
+| **Current state** | **`Recommended / Requires Owner Approval`.** AOD-20 (C3) does not decide it. Nothing is implemented; the spike uses a single layer. |
+| **Options** | **C1** first baseline: one logical geometry layer; procedural base from `WorldSeed + GeneratorVersion`; user changes as block-level overrides; journal and snapshots store the changes; the C2 overlay is not implemented. **C2** extended model: a separate generated base layer, a separate mutable overlay, reads through compositing. |
+| **Recommended** | **C1: approve for the first production baseline. C2: Deferred, not to be implemented before a separate spike.** Recorded as a recommendation only. |
+| **Pros** | C1: no new Core layer semantics, simple meshing and revision rules, smallest memory, consistent with the AOD-21 journal; matches what the spike already does. C2: physically separates generated and user data, eviction of the base never touches user data, may simplify replication of user changes. |
+| **Cons** | C1: a changed generator base can contradict overrides (needs pin or explicit bake/migration, already required by AOD-21); undo needs the previous effective value from the journal or a recomputable base; eviction must not drop overrides. C2: compositing in every read, harder meshing and dirty propagation, two persistence paths, more revision rules, higher memory (Hypothesis), and a larger P0 surface. |
+| **Impact on Core** | C1: none beyond the system-commit port. C2: layer composition rules and precedence in P0. |
+| **Impact on WorldGen** | C1: the Materialiser writes the base into the single layer; overrides are re-applied by the loader. C2: the Materialiser writes the base layer only. |
+| **Impact on Persistence** | C1: journal of block-level changes plus snapshots (record granularity remains open under AOD-21, voxel deltas are the natural fit). C2: base and overlay lifecycle differ. |
+| **Impact on Server** | C1: one authoritative layer. C2: composition on the server and in replication. |
+| **Impact on Mobile** | C1: lower memory and CPU. C2: unmeasured, expected higher. |
+| **Reversibility** | C1 to C2 is possible while the journal format is independent of the layer model and no save format is frozen; afterwards it needs a migration. Choosing C1 first keeps that path open. |
+| **Blocks** | The P0 review of layers and the commit primitive, the meshing design for generated data, the journal record design. |
+| **Owner decision required** | Choose C1 or C2 for the first production baseline. Not changed automatically. |
+
+## 8B. OAM-10 Revision model for system commits
+
+| Field | Content |
+|---|---|
+| **ID** | OAM-10 (ACR-004 part D, B-6) |
+| **Current state** | **`Proposed / Requires Owner Approval`.** AOD-20 says system generation takes part in revision/commit semantics; the model is not chosen. RevisionToken width and commit algorithm (OD-R1, OD-R2) are open independently. |
+| **Options** | **R-A** system operations use the same asset and layer revision scopes as other commits. **R-B** a separate generation epoch. **R-C** separate revision domains for the generated base and for user overrides. |
+| **Recommended** | **R-A**, with `ActorKind::System` on the OperationId (ACR-004 part C). Do not introduce a separate generation epoch without proven necessity. Recorded as a recommendation only. |
+| **Pros** | R-A: uses AU-1.0's existing revision levels (asset, layer, brick) and the invariant `Brick ⇒ Layer ⇒ Asset`; no new token kind; undo-as-forward-commit and conflict rules stay uniform; simplest to test; extendable later. R-B: terrain updates and user edits are told apart by the token. R-C: strongest separation of data sources. |
+| **Cons** | R-A: streaming advances asset and layer revisions (Fact (Cube): one asset revision per streamed chunk in the spike), so a coarse revision no longer means "a user changed something"; clients must use the commit's `ActorKind`/`ChangeType`, and user edits must be validated with brick or region stamps (`revision-and-snapshot-semantics.md` section 2), not asset-level tokens, to avoid spurious conflicts. R-B: a new revision kind, more comparison rules (the existing `Epoch` already means re-creation or recovery and would be overloaded or duplicated), more tests. R-C: two domains per layer, cross-domain consistency and conflict rules, effectively requires C2. |
+| **Impact on Core** | R-A: none to RevisionToken; the commit result carries `ActorKind`. R-B/R-C: change C-16 and the comparison rules. |
+| **Impact on WorldGen** | R-A: materialisation is a normal commit. R-B/R-C: the Materialiser needs its own revision handling. |
+| **Impact on Persistence** | R-A: the journal records only user commits; system commits are regenerable. Recovery uses the existing `Epoch` rule. R-B/R-C: more state to record. |
+| **Impact on Server** | R-A: the interest and replication logic filters by `ActorKind`. Others: more protocol state. |
+| **Impact on Mobile** | R-A: least overhead. Others: unmeasured. |
+| **Reversibility** | R-A is the easiest to extend later (additive); removing a separate epoch after release would be breaking, so introducing one first is the riskier order. |
+| **Blocks** | ACR-004 part D, the P0 review of C-16/C-17/C-18 (with B-6), the system-commit contract (SC-04). |
+| **Owner decision required** | Choose R-A, R-B or R-C. B-6 (token width, commit algorithm) stays open either way. |
+
 ## 9. Decisions that can be taken in parallel (remaining)
 
-Independent of each other: Cube's own licence (OAM-07 remainder), supply of the missing sources (OAM-08), device and iOS access with the mobile criteria (OAM-06), owner assignments (OI-8), the decision on ACR-004, the transport spike approval (OAM-05) and the combined Core-layer/persistence spike (OAM-01/02).
+Independent of each other: Cube's own licence (OAM-07 remainder), supply of the missing sources (OAM-08), device and iOS access with the mobile criteria (OAM-06), owner assignments (OI-8), the transport spike approval (OAM-05), and the persistence durability spike (OAM-02). ACR-004 (parts A to C), OAM-09 and OAM-10 can be decided together in one review (`acr-004-owner-review.md`).
 
-Sequential: ACR-004 and B-6 before the system-commit port contract is drafted for approval; the persistence spike before any persistence format; the transport spike before any protocol approval; the sources before P0/P1 approval; physical-device data before the renderer default.
+Sequential: OAM-10 and ACR-004 before the system-commit port contract is put up for approval; OAM-09 before the journal record design and the meshing design for generated data; the persistence spike before any persistence format; the transport spike before any protocol approval; the sources before P0/P1 approval; physical-device data before the renderer default.
 
 ## 10. What each blocker waits on
 
@@ -341,7 +382,7 @@ Sequential: ACR-004 and B-6 before the system-commit port contract is drafted fo
 | B-3 ACRs | owner decision on ACR-001/002/003 and the new ACR-004 | ACR-004 added as Pending |
 | B-4 P0 not approved | B-1, B-3, B-6 | no |
 | B-5 owners | owner assignment | no |
-| B-6 revision rule | revision effect of system commits (with ACR-004) | principle fixed by AOD-20, details open |
+| B-6 revision rule | revision effect of system commits (OAM-10, with ACR-004 part D); token width and commit algorithm separately | principle fixed by AOD-20; recommendation R-A not yet approved |
 | B-7 tool-level contracts | after B-4 | no |
 | B-9 History/Persistence cycle | verifying test in CI | no |
 | B-13 AU-1.0 original | owner supply or confirmation | no (copy stays unverified) |
@@ -349,14 +390,14 @@ Sequential: ACR-004 and B-6 before the system-commit port contract is drafted fo
 | NB-1 physical device | owner acquisition (OAM-06) | no |
 | NB-2 iOS | macOS/Xcode access (OAM-06) | no |
 | NB-3 licence policy | Cube's own licence | policy approved (AOD-23) |
-| NB-4 WorldGen direction | ACR-004 and the Core layer model | direction approved (AOD-20) |
+| NB-4 WorldGen direction | ACR-004, OAM-09, OAM-10 | direction approved (AOD-20); the three items are recommended, not approved |
 | OI-9 transport | OAM-05 spike | no |
 
 ## 11. Next decisions to take (recommendation)
 
-1. **Decide ACR-004** (system-commit boundary), together with the revision rule for system commits (B-6): it unblocks the P0 review of the commit primitive.
+1. **Decide ACR-004 (parts A to C), OAM-10 (revision model) and OAM-09 (C1 or C2)** in one review with `acr-004-owner-review.md`: they unblock the P0 review of the commit primitive, the journal record design and the meshing design.
 2. **Supply the missing sources** (OAM-08) or confirm the baseline entries BL-1…BL-3: it is the only item that blocks final P0/P1 approval.
-3. **Approve the two spikes** (Core layer model and persistence; transport) and assign the networking and WorldGen owners.
+3. **Approve the two spikes** (persistence durability; transport) and assign the networking and WorldGen owners.
 
 Not a decision but an action to start at once: acquire a physical Android ARM64 device and a path to macOS/Xcode (OAM-06).
 

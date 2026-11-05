@@ -8,10 +8,10 @@ Field order as in `worldgen-contracts.md`. No language-specific signatures.
 
 Exactly three callers may commit to the authoritative asset: the Editing service (user operations), the WorldGen Materialiser (generated data) and the persistence loader (recovery). The Editing service uses the existing commit path; the other two use the **system-commit port** defined here. Nothing else may write (call-site audit test).
 
-## SC-01 OperationOrigin (extension of OperationId, proposal)
+## SC-01 OperationOrigin = ActorKind on OperationId (extension of OperationId, proposal; ACR-004 part C)
 
 * **Purpose:** distinguish who caused a commit without changing OperationId's identity role.
-* **Model:** `OperationId` as in C-17 plus `OperationOrigin ∈ {User, System, Recovery}` (carried with the id, not inside its numeric part; whether it is a field of the id or of the commit request is open).
+* **Model:** `OperationId` as in C-17 plus the origin, expressed as `ActorKind ∈ {User, System, Recovery}` (recommended in `docs/decisions/acr-004-owner-review.md`, requires owner approval) (carried with the id, not inside its numeric part; whether it is a field of the id or of the commit request is open).
 * **Rules:** allocated once per submitted commit (OD-R8 applies); the origin never changes; `Recovery` commits reuse the **original OperationId** of the journal record they replay.
 * **Open:** id format (OD-R8), whether the origin is part of the id.
 
@@ -30,7 +30,7 @@ Exactly three callers may commit to the authoritative asset: the Editing service
 * **Purpose:** optimistic concurrency for system commits.
 * **Model:** `ExpectedTokens` as in the RevisionToken proposal; a system commit carries the token it observed (or `None` for first materialisation of an unloaded chunk).
 * **Rules:** a mismatch gives `RevisionMismatch`; the Materialiser re-reads and retries. Materialisation of a chunk that was meanwhile edited by a user is rejected and reconciled by the service (user data wins; never overwritten).
-* **Open (B-6):** whether a system commit advances (R1) the same revision scope as an edit, or (R2) a separate chunk-scoped generation epoch; clients must in either case be able to tell terrain updates from user edits. RevisionToken width and commit algorithm are undecided.
+* **Revision model (OAM-10, `Proposed / Requires Owner Approval`):** **recommended R-A**: a system commit advances the same asset and layer scopes (and brick revisions) as any commit and is identified by `ActorKind::System`; no separate generation epoch (R-B) and no separate domains for base and overrides (R-C) unless necessity is demonstrated. The existing `Epoch` keeps its meaning (re-creation or recovery). User edits use brick or region stamps as expected tokens so that streaming does not cause spurious conflicts. **Open (B-6):** RevisionToken width and commit algorithm.
 
 ## SC-05 SystemCommitRequest / CommitResult
 
@@ -67,4 +67,4 @@ Exactly three callers may commit to the authoritative asset: the Editing service
 
 ## Not approved
 
-SC-01…SC-10 are Draft. OperationId origin representation, the revision effect (B-6), the ChangeType additions, the audit retention and the port signature are open. **ACR-004 is Pending**; until it is decided no P0 contract is edited and no production Core code is written.
+SC-01…SC-10 are Draft. OperationId origin representation, the revision effect (B-6), the ChangeType additions, the audit retention and the port signature are open. **ACR-004 is Pending** (owner review package: `docs/decisions/acr-004-owner-review.md`); until it is decided no P0 contract is edited and no production Core code is written.

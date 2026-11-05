@@ -68,7 +68,7 @@ WorldGen produces the **base world** as pure values. It has no write handle to C
 ## WG-09 Ownership of generated data
 
 * **Rules:** the Generator owns nothing after it returns a value. The WorldGen service holds results only in a bounded cache. After the Materialiser commits a chunk (`SC-10`) the **Core asset** owns the authoritative copy; generated data is regenerable and is never persisted for untouched chunks (AOD-21). Evicting generated data never touches user changes. Clients may regenerate locally for display only if version and hash match the server's.
-* **Open:** one Core layer or two (C2 overlay; Spike Required), chunk delivery to clients (data versus seed + version).
+* **Open:** the Core layer model: **C1** (one logical layer, recommended first baseline) or **C2** (generated base plus overlay, Deferred), both awaiting owner approval (OAM-09); chunk delivery to clients (data versus seed + version).
 
 ## WG-10 WorldGenService port
 

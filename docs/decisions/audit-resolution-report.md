@@ -125,7 +125,7 @@ A narrow **system-commit port** next to the commit primitive (materialise, evict
 
 ### D. Open questions: revision semantics (B-6, not decided)
 
-Whether a system commit advances (R1) the same revision scope as an edit or (R2) a separate chunk-scoped generation epoch; RevisionToken width and commit algorithm; whether `Evict` is a commit; new `ChangeType` values for generated and restored data (C-18); whether and how long system commits are audit-logged.
+Owner review package: `docs/decisions/acr-004-owner-review.md` (parts A to F with acceptance criteria, recommended statuses and a response sheet; ACR-004 stays Pending). The revision model is OAM-10 (`Proposed / Requires Owner Approval`; recommended: the same asset/layer scopes with `ActorKind::System`, no separate generation epoch); the Core layer model is OAM-09 (`Recommended / Requires Owner Approval`: C1 first baseline, C2 Deferred). Still open: whether a system commit advances the same revision scope as an edit or a separate generation epoch (options R-A, R-B, R-C); RevisionToken width and commit algorithm; whether `Evict` is a commit; new `ChangeType` values for generated and restored data (C-18); whether and how long system commits are audit-logged.
 
 ### E. Contracts not approved
 
