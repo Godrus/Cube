@@ -1,5 +1,6 @@
 import re
-exec(open('ia.py').read().split("print('tasks'")[0])
+import os
+exec(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'ia.py'),encoding='utf8').read().split("print('tasks'")[0])
 mb=open(P+'module-boundaries.md',encoding='utf8').read()
 names={0:'Governance and Architecture Freeze',1:'Geometry Core Foundation (P0-alpha)',2:'Processing Foundation',3:'Editing API and Contracts',4:'Editing Orchestration',5:'Geometry Backends and Derived Providers',6:'Tools: Sculpting and Boolean',7:'History',8:'Composite Geometry',9:'Resampling and Resolution Refinement',10:'Persistence',11:'World Generation',12:'Client Runtime and Engine Adapter',13:'Server Runtime and Networking',14:'Full QA and Release Validation'}
 # part D stage table rows
@@ -18,7 +19,4 @@ for i in range(15):
     s,mg,gin,close=D[ps]
     rows.append('| %s / %s | %s | %s | 0 of %d gate tasks%s | %d gate tasks: %s | %s | none | %s | S: %s; M: %s | %s satisfied |'%(ps,g,names[i],st,len(mem),(' (+%d outside gate: %s)'%(len(extra),', '.join(extra)) if extra else ''),len(mem),', '.join(mem),close.split(': ',1)[1],blk[i],s,mg,g))
 tab='\n'.join(rows)
-f='C:/Users/Godrus/AppData/Local/Temp/claude/9a9f99d73db6a0d5/fe08ec09-37a6-45d2-8d52-168209f62bea/scratchpad/audit-v3/PROJECT_STATUS.md'
-s=open(f,encoding='utf8').read().replace('{{STAGE_TABLE}}',tab)
-open(f,'w',encoding='utf8').write(s)
-print(len(rows)-2, 'rows'); print(rows[2][:600])
+print(tab)  # prints the stage table; paste into PROJECT_STATUS.md 5.4 by hand (the file no longer holds a placeholder)

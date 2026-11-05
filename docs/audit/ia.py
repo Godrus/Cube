@@ -1,5 +1,5 @@
-import re,sys,collections
-P='D:/Projects/GitHub/Games/Cube/docs/production/'
+import re,sys,os,collections
+P=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','production')+os.sep
 mb=open(P+'module-boundaries.md',encoding='utf8').read()
 c=mb[mb.index('## Part C'):mb.index('### C.1')]
 rows=[l for l in c.splitlines() if l.startswith('| ') and not l.startswith('| Task') and not l.startswith('|---')]

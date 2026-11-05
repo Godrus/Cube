@@ -24,7 +24,7 @@ git status --short
 git log --oneline -5
 ```
 
-Compare with `PROJECT_STATUS.md` section 5.2. If HEAD is newer than "last verified commit": run `git log <verified>..HEAD --stat`, read what changed, and update the status before trusting it. If the tree has uncommitted changes you did not make, they are the owner's: leave them.
+Compare with `PROJECT_STATUS.md` section 5.2, which keeps three things apart: the **verified baseline**, the **commit holding the status documentation**, and the **current HEAD** (never written in the file). HEAD need not equal either. Run `git diff <documentation commit>..HEAD --stat`: if only status/audit files changed, the status is still valid; if anything else changed, inspect it and update the status (and the verified baseline only after re-verification) before trusting it. Do not commit just to "refresh HEAD". If the tree has uncommitted changes you did not make, they are the owner's: leave them.
 
 ## 2. Read in this order
 
@@ -52,6 +52,7 @@ Do not read the full chat history; if something is only in the history, it does 
 
 ## 5. Tests and evidence
 
+* Audit aids (manual, not CI gates; exit codes do not prove anything about CI): `python docs/audit/ia.py` (ADG checks), `python docs/audit/gen.py` (stage table), `python docs/audit/val.py` (ids and paths in status documents).
 * Spike workspace (reference only): `cargo test --workspace --offline` (131 tests pass at the last check).
 * Production commands will be defined by GOV-05/GOV-06 (fmt, clippy -D warnings, test, deny, archcheck). Until then none exist: do not claim CI results.
 * For every claim record: the command, the commit it ran on, the result, and where the output is stored. Screenshots or "it works" are not evidence.

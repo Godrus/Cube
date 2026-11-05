@@ -1,6 +1,6 @@
 # PROJECT-STATUS-VALIDATION
 
-Proof that the statuses, references, tasks and dependencies in the package are correct. Check date 2026-11-05. Repository HEAD `2c0c1f3`. The repository was not modified; the one command that writes (`cargo test`) writes only to the git-ignored `target/`; `git status` before and after: only ` M .gitignore`.
+Proof that the statuses, references, tasks and dependencies in the package are correct. Check date 2026-11-05. Audited baseline `2c0c1f3`; the package itself is commit `60d0bfc` (see section 6). The repository was not modified; the one command that writes (`cargo test`) writes only to the git-ignored `target/`; `git status` before and after: only ` M .gitignore`.
 
 ## 1. Facts and commands
 
@@ -45,7 +45,7 @@ Original validator (`production-plan-v2.1/_build/validate.py`): `tasks: 147 gate
 |---|---|
 | every task/gate/external id mentioned in the five new documents exists in the ADG | PASS (`val.py`: 0 unknown ids; 24 / 142 / 20 / 6 / 2 ids checked) |
 | no `PS-n`/`Gn` above 14 | PASS |
-| no unfilled `{{placeholders}}` | PASS (after table generation) |
+| no unfilled template placeholders | PASS (after table generation) |
 | relative repository paths in backticks exist | PASS except two **intended future** files: `docs/PROJECT_STATUS.md` and `docs/production/decision-registry.md` (do not exist yet; the documents say so) |
 | stage table in PROJECT_STATUS generated from Part D, not hand-typed | `gen.py`; 15 rows; member counts 8,16,12,6,7,14,7,5,6,5,14,9,10,17,8 |
 | no status stronger than evidence | no task is marked Implemented/Verified/Accepted; no milestone Reached; every decision in 5.5 B shows "not confirmed" |
@@ -63,4 +63,10 @@ Original validator (`production-plan-v2.1/_build/validate.py`): `tasks: 147 gate
 
 ## 5. Update procedure for this validation
 
-On each status update, re-run: the git commands in section 1, `ia.py` (after fixing D-01/D-02 extend it with the gate-chain check as an assertion), and `val.py`. Record the outputs here with the commit hash.
+On each status update, re-run from the repository root: the git commands in section 1, `python docs/audit/ia.py` (prints the ADG checks; it **only prints**, exit code is always 0, so it is a manual aid and not a CI gate), `python docs/audit/gen.py` (prints the stage table of PROJECT_STATUS 5.4; does not edit files) and `python docs/audit/val.py` (checks ids and paths in the status documents; exit 1 on failure, also not a CI gate). After D-01/D-02 are fixed, extend `ia.py` with the gate-chain check as an assertion. Record the outputs here with the commit hash.
+
+## 6. Post-commit validation (2026-11-05)
+
+* `2c0c1f3..60d0bfc` = 8 files, +920/-0, all under `docs/` (`PROJECT_STATUS.md`, `DEVELOPMENT_ROADMAP.md`, `RELEASE_CRITERIA.md`, `AGENT_HANDOFF.md`, `audit/*` incl. `ia.py`, `gen.py`); no file under `crates/`, `godot-client/`, `scripts/`, `Cargo.*`, and none under `docs/production/`. Parent of `60d0bfc` is `2c0c1f3`.
+* Defects found in the first version of the tools and fixed in the working tree: `ia.py` had a hard-coded absolute path; `gen.py` depended on the current directory and wrote to a scratchpad path with a placeholder that no longer exists; `val.py`, cited here, was not in the repository. Now: relative paths, `gen.py` prints, `val.py` added.
+* Status documents had no separation of baseline / documentation commit / HEAD; fixed in `PROJECT_STATUS.md` 5.2 and `AGENT_HANDOFF.md` section 1.

@@ -1,7 +1,7 @@
 # PROJECT STATUS: Cube
 
 **Document status:** **Proposed** (prepared for owner review; not yet in the repository). Once the owner accepts it, it lives at `docs/PROJECT_STATUS.md` and is the **single source of the current development state**.
-**State as of the last check:** 2026-11-05, repository HEAD `2c0c1f3`. Everything below is a **snapshot of verified facts**, not a plan. A claim without evidence in section 4 is not a fact.
+**State as of the last check:** 2026-11-05, audited baseline `2c0c1f3`; this documentation set is commit `60d0bfc` (see 5.2). Everything below is a **snapshot of verified facts**, not a plan. A claim without evidence in section 4 is not a fact.
 **Evidence vocabulary:** Verified / Reported / Inferred / Unknown (see `Independent-Production-Audit.md`).
 **Status ladder for work (never skip a rung):** documented/specified → Implemented → Verified → Accepted. A specification is not an implementation; an implementation is not verified; verified is not accepted.
 
@@ -34,7 +34,9 @@
 | Field | Value | Class |
 |---|---|---|
 | Branch | `docs/architecture-roadmap-v1` | Verified |
-| HEAD / last verified commit | `2c0c1f37b2ac5f56a37b0995b6b735ab0b04f3e0` (docs: production plan v2.1) | Verified |
+| **Last independently verified baseline** | `2c0c1f37b2ac5f56a37b0995b6b735ab0b04f3e0` (Production Plan v2.1). The audit of the plan and repository refers to this commit | Verified |
+| **Commit holding this status documentation** | `60d0bfc837f135b48e7e86163de8bf9eeb2b2a1f`; `2c0c1f3..60d0bfc` verified: 8 files, +920/-0, docs only, no production, spike or configuration change | Verified |
+| **Current HEAD** | **not recorded here by design** (a file cannot contain the hash of the commit that contains it). Read it with `git rev-parse HEAD`. Any commit after `60d0bfc` must be inspected with `git diff 60d0bfc..HEAD --stat` before this file is trusted | rule |
 | Pushed | `origin/docs/architecture-roadmap-v1` equals HEAD | Verified |
 | Working tree | **not clean:** `.gitignore` modified (adds `AGENTS.md`); this is the owner's own change and is not part of any commit | Verified |
 | Production code | **none** (no `xtask`, no `cube-editing-api`, no `cube-integration-tests`, no toolchain pin, no `deny.toml`) | Verified |
@@ -49,6 +51,7 @@
 
 | Question | Answer |
 |---|---|
+| Release milestone | **M0 Architecture & Governance: in progress, not reached.** No milestone M0…M8 is reached (`DEVELOPMENT_ROADMAP.md`). |
 | Project phase | **Architecture & governance preparation. No production implementation exists.** Documentation preparation, architecture approval and implementation are separate phases; only the first is under way. |
 | Production Stage | **PS-0 Governance and Architecture Freeze: open, 0 of 8 gate tasks done.** (PS-1…PS-14 not started.) |
 | Current Gate | **G0** (not satisfied). Satisfied gates: none. |
