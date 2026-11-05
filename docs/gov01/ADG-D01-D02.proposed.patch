@@ -1,0 +1,245 @@
+--- a/docs/production/module-boundaries.md
++++ b/docs/production/module-boundaries.md
+@@ -159,2 +159,2 @@
+-| CORE-15 | PS-2 | Core Agent | CORE-10 | CORE-10, GOV-16 |
+-| CORE-16 | PS-2 | Core Agent | CORE-10 | CORE-10 |
++| CORE-15 | PS-2 | Core Agent | CORE-10 | CORE-10, GOV-16, G1 |
++| CORE-16 | PS-2 | Core Agent | CORE-10 | CORE-10, G1 |
+@@ -164,12 +164,12 @@
+-| PROC-01 | PS-2 | Processing Agent | CORE-10 | CORE-06 |
+-| PROC-02 | PS-2 | Processing Agent | PROC-01 | PROC-01 |
+-| PROC-03 | PS-2 | Processing Agent | CORE-10 | - |
+-| PROC-04 | PS-2 | Processing Agent | PROC-03 | PROC-03 |
+-| PROC-05 | PS-2 | Processing Agent | PROC-01 | PROC-01 |
+-| PROC-06 | PS-2 | Processing Agent | PROC-01, CORE-15 | PROC-01, GOV-24 |
+-| TEST-08 | PS-2 | Agent I (QA and Benchmarks) | PROC-03 | PROC-05 |
+-| API-01 | PS-3 | Main Agent / Integration Owner | CORE-10 | CORE-07 |
+-| API-02 | PS-3 | Main Agent / Integration Owner | API-01, PROC-01, PROC-04 | API-01, G2 |
+-| API-03 | PS-3 | Main Agent / Integration Owner | API-01 | API-01 |
+-| API-04 | PS-3 | Main Agent / Integration Owner | API-01, CORE-09 | API-01 |
+-| API-05 | PS-3 | Main Agent / Integration Owner | API-01 | API-01 |
++| PROC-01 | PS-2 | Processing Agent | CORE-10 | CORE-06, G1 |
++| PROC-02 | PS-2 | Processing Agent | PROC-01 | PROC-01, G1 |
++| PROC-03 | PS-2 | Processing Agent | CORE-10 | G1 |
++| PROC-04 | PS-2 | Processing Agent | PROC-03 | PROC-03, G1 |
++| PROC-05 | PS-2 | Processing Agent | PROC-01 | PROC-01, G1 |
++| PROC-06 | PS-2 | Processing Agent | PROC-01, CORE-15 | PROC-01, GOV-24, G1 |
++| TEST-08 | PS-2 | Agent I (QA and Benchmarks) | PROC-03 | PROC-05, G1 |
++| API-01 | PS-3 | Main Agent / Integration Owner | CORE-10 | CORE-07, G1 |
++| API-02 | PS-3 | Main Agent / Integration Owner | API-01, PROC-01, PROC-04 | API-01, G2, G1 |
++| API-03 | PS-3 | Main Agent / Integration Owner | API-01 | API-01, G1 |
++| API-04 | PS-3 | Main Agent / Integration Owner | API-01, CORE-09 | API-01, G1 |
++| API-05 | PS-3 | Main Agent / Integration Owner | API-01 | API-01, G1 |
+@@ -177,8 +177,8 @@
+-| ORCH-01 | PS-4 | Agent A | API-02 | G2, G3 |
+-| ORCH-02 | PS-4 | Agent A | API-02 | G2, G3 |
+-| ORCH-03 | PS-4 | Agent A | CORE-10, API-01 | G2, G3 |
+-| ORCH-04 | PS-4 | Agent A | PROC-02, API-02, API-04 | G2, G3 |
+-| ORCH-05 | PS-4 | Agent A | API-03, CORE-08 | G2, G3, XT-02 |
+-| TEST-03a | PS-4 | Agent I (QA and Benchmarks) | API-02 | API-02 |
+-| TEST-10 | PS-4 | Agent I (QA and Benchmarks) | CORE-08 | ORCH-05, XT-02 |
+-| CORE-12 | PS-5 | Core Agent | CORE-10 | CORE-10, EXT-VA-RG1, GOV-17 |
++| ORCH-01 | PS-4 | Agent A | API-02 | G2, G3, G1 |
++| ORCH-02 | PS-4 | Agent A | API-02 | G2, G3, G1 |
++| ORCH-03 | PS-4 | Agent A | CORE-10, API-01 | G2, G3, G1 |
++| ORCH-04 | PS-4 | Agent A | PROC-02, API-02, API-04 | G2, G3, G1 |
++| ORCH-05 | PS-4 | Agent A | API-03, CORE-08 | G2, G3, XT-02, G1 |
++| TEST-03a | PS-4 | Agent I (QA and Benchmarks) | API-02 | API-02, G1 |
++| TEST-10 | PS-4 | Agent I (QA and Benchmarks) | CORE-08 | ORCH-05, XT-02, G1 |
++| CORE-12 | PS-5 | Core Agent | CORE-10 | CORE-10, EXT-VA-RG1, GOV-17, G1 |
+@@ -187,14 +187,14 @@
+-| MSH-01 | PS-5 | Agent D | API-02, CORE-03, TEST-03a | G2, G3 |
+-| MSH-02 | PS-5 | Agent D | MSH-01 | MSH-01 |
+-| MSH-03 | PS-5 | Agent D | PROC-02 | G2 |
+-| SDF-01 | PS-5 | Agent C | API-02, TEST-03a | G2, G3 |
+-| SDF-02 | PS-5 | Agent C | PROC-02, SDF-01 | G2 |
+-| SDF-03 | PS-5 | Agent C | SDF-01 | SDF-01 |
+-| VOX-01 | PS-5 | Agent B | API-02, TEST-03a | G2, G3 |
+-| VOX-02 | PS-5 | Agent B | PROC-01, PROC-02 | G2 |
+-| VOX-03 | PS-5 | Agent B | VOX-02 | VOX-02 |
+-| VOX-04 | PS-5 | Agent B | VOX-03 | VOX-03 |
+-| VOX-05 | PS-5 | Agent B | PROC-02 | G2 |
+-| BOO-01 | PS-6 | Agent F | API-01 | API-01, GOV-20 |
+-| BOO-02 | PS-6 | Agent F | ORCH-02, BOO-01 | G4, G5 |
+-| BOO-03 | PS-6 | Agent F | BOO-02 | BOO-02 |
++| MSH-01 | PS-5 | Agent D | API-02, CORE-03, TEST-03a | G2, G3, G1 |
++| MSH-02 | PS-5 | Agent D | MSH-01 | MSH-01, G1 |
++| MSH-03 | PS-5 | Agent D | PROC-02 | G2, G1 |
++| SDF-01 | PS-5 | Agent C | API-02, TEST-03a | G2, G3, G1 |
++| SDF-02 | PS-5 | Agent C | PROC-02, SDF-01 | G2, G1 |
++| SDF-03 | PS-5 | Agent C | SDF-01 | SDF-01, G1 |
++| VOX-01 | PS-5 | Agent B | API-02, TEST-03a | G2, G3, G1 |
++| VOX-02 | PS-5 | Agent B | PROC-01, PROC-02 | G2, G1 |
++| VOX-03 | PS-5 | Agent B | VOX-02 | VOX-02, G1 |
++| VOX-04 | PS-5 | Agent B | VOX-03 | VOX-03, G1 |
++| VOX-05 | PS-5 | Agent B | PROC-02 | G2, G1 |
++| BOO-01 | PS-6 | Agent F | API-01 | API-01, GOV-20, G1 |
++| BOO-02 | PS-6 | Agent F | ORCH-02, BOO-01 | G4, G5, G1 |
++| BOO-03 | PS-6 | Agent F | BOO-02 | BOO-02, G1 |
+@@ -202,3 +202,3 @@
+-| SCU-01 | PS-6 | Agent E | API-01 | API-01 |
+-| SCU-02 | PS-6 | Agent E | ORCH-02, VOX-01, SDF-01 | G4, G5, GOV-20 |
+-| SCU-03 | PS-6 | Agent E | SCU-02 | SCU-02 |
++| SCU-01 | PS-6 | Agent E | API-01 | API-01, G1 |
++| SCU-02 | PS-6 | Agent E | ORCH-02, VOX-01, SDF-01 | G4, G5, GOV-20, G1 |
++| SCU-03 | PS-6 | Agent E | SCU-02 | SCU-02, G1 |
+@@ -206,8 +206,8 @@
+-| HIST-01 | PS-7 | Agent G | API-02, API-04 | G4 |
+-| HIST-02 | PS-7 | Agent G | ORCH-03, HIST-01 | G4, GOV-25 |
+-| HIST-03 | PS-7 | Agent G | API-04 | HIST-01 |
+-| HIST-04 | PS-7 | Agent G | HIST-02 | HIST-02 |
+-| COMP-01 | PS-8 | Composite Agent | ORCH-01, CORE-14 | G4, GOV-23 |
+-| COMP-02 | PS-8 | Composite Agent | COMP-01 | COMP-01 |
+-| COMP-03 | PS-8 | Composite Agent | CORE-04, COMP-01 | COMP-01 |
+-| CORE-14 | PS-8 | Core Agent | CORE-10 | CORE-10, GOV-19 |
++| HIST-01 | PS-7 | Agent G | API-02, API-04 | G4, G1 |
++| HIST-02 | PS-7 | Agent G | ORCH-03, HIST-01 | G4, GOV-25, G1 |
++| HIST-03 | PS-7 | Agent G | API-04 | HIST-01, G1 |
++| HIST-04 | PS-7 | Agent G | HIST-02 | HIST-02, G1 |
++| COMP-01 | PS-8 | Composite Agent | ORCH-01, CORE-14 | G4, GOV-23, G1 |
++| COMP-02 | PS-8 | Composite Agent | COMP-01 | COMP-01, G1 |
++| COMP-03 | PS-8 | Composite Agent | CORE-04, COMP-01 | COMP-01, G1 |
++| CORE-14 | PS-8 | Core Agent | CORE-10 | CORE-10, GOV-19, G1 |
+@@ -216 +216 @@
+-| CORE-13 | PS-9 | Core Agent | CORE-10 | CORE-10, EXT-VA-RG1, GOV-18 |
++| CORE-13 | PS-9 | Core Agent | CORE-10 | CORE-10, EXT-VA-RG1, GOV-18, G1 |
+@@ -218,3 +218,3 @@
+-| RES-01 | PS-9 | Resolution Agent | CORE-13, VOX-01 | G4, G5, GOV-23 |
+-| RES-02 | PS-9 | Resolution Agent | CORE-13 | G4 |
+-| RES-03 | PS-9 | Resolution Agent | VOX-03, RES-02 | RES-02 |
++| RES-01 | PS-9 | Resolution Agent | CORE-13, VOX-01 | G4, G5, GOV-23, G1 |
++| RES-02 | PS-9 | Resolution Agent | CORE-13 | G4, G1 |
++| RES-03 | PS-9 | Resolution Agent | VOX-03, RES-02 | RES-02, G1 |
+@@ -223,12 +223,12 @@
+-| ITG-01 | PS-10 | Agent I (QA and Benchmarks) | PERS-04, ORCH-04 | G4, PERS-04 |
+-| PERS-01 | PS-10 | Agent H | CORE-11, API-04 | CORE-11 |
+-| PERS-02 | PS-10 | Agent H | PERS-01, SPK-PERS | PERS-01 |
+-| PERS-03 | PS-10 | Agent H | PERS-01, PERS-02, API-04 | PERS-02 |
+-| PERS-04 | PS-10 | Agent H | PERS-01, API-04, CORE-07, CORE-05 | PERS-01 |
+-| PERS-05 | PS-10 | Agent H | PERS-02, PERS-03, PERS-04, SPK-PERS, TEST-04 | PERS-03, PERS-04 |
+-| PERS-06 | PS-10 | Agent H | PERS-05, CORE-09, API-04, GOV-11 | PERS-05, CORE-09 |
+-| PERS-07 | PS-10 | Agent H | PERS-01 | PERS-01 |
+-| PERS-08 | PS-10 | Agent H | PERS-01, CORE-07, CORE-16 | PERS-01, CORE-16 |
+-| PERS-09 | PS-10 | Agent H | PERS-01, CORE-14 | PERS-01, CORE-14 |
+-| QA-P2 | PS-10 | Agent I (QA and Benchmarks) | PERS-05, TEST-04 | PERS-06 |
+-| TEST-04 | PS-10 | Agent I (QA and Benchmarks) | TEST-01 | TEST-01 |
++| ITG-01 | PS-10 | Agent I (QA and Benchmarks) | PERS-04, ORCH-04 | G4, PERS-04, G1 |
++| PERS-01 | PS-10 | Agent H | CORE-11, API-04 | CORE-11, G1 |
++| PERS-02 | PS-10 | Agent H | PERS-01, SPK-PERS | PERS-01, G1 |
++| PERS-03 | PS-10 | Agent H | PERS-01, PERS-02, API-04 | PERS-02, G1 |
++| PERS-04 | PS-10 | Agent H | PERS-01, API-04, CORE-07, CORE-05 | PERS-01, G1 |
++| PERS-05 | PS-10 | Agent H | PERS-02, PERS-03, PERS-04, SPK-PERS, TEST-04 | PERS-03, PERS-04, G1 |
++| PERS-06 | PS-10 | Agent H | PERS-05, CORE-09, API-04, GOV-11 | PERS-05, CORE-09, G1 |
++| PERS-07 | PS-10 | Agent H | PERS-01 | PERS-01, G1 |
++| PERS-08 | PS-10 | Agent H | PERS-01, CORE-07, CORE-16 | PERS-01, CORE-16, G1 |
++| PERS-09 | PS-10 | Agent H | PERS-01, CORE-14 | PERS-01, CORE-14, G1 |
++| QA-P2 | PS-10 | Agent I (QA and Benchmarks) | PERS-05, TEST-04 | PERS-06, G1 |
++| TEST-04 | PS-10 | Agent I (QA and Benchmarks) | TEST-01 | TEST-01, G1 |
+@@ -236,19 +236,19 @@
+-| ITG-02 | PS-11 | Agent I (QA and Benchmarks) | WGEN-04, PERS-06 | G10, WGEN-04 |
+-| LEG-01 | PS-11 | UNASSIGNED (WorldGen) - owner decision | WGEN-03, GOV-11 | WGEN-04, PERS-08, ITG-02 |
+-| TEST-09 | PS-11 | Agent I (QA and Benchmarks) | TEST-02, WGEN-01 | WGEN-01 |
+-| WGEN-01 | PS-11 | UNASSIGNED (WorldGen) - owner decision | CORE-10, CORE-07, CORE-16 | CORE-10, CORE-16 |
+-| WGEN-02 | PS-11 | UNASSIGNED (WorldGen) - owner decision | WGEN-01, PROC-03, PROC-04 | PROC-04, GOV-21 |
+-| WGEN-03 | PS-11 | UNASSIGNED (WorldGen) - owner decision | WGEN-01, CORE-09, GOV-11 | CORE-09, GOV-11, GOV-21 |
+-| WGEN-04 | PS-11 | UNASSIGNED (WorldGen) - owner decision | WGEN-02, WGEN-03, API-04 | WGEN-03 |
+-| WGEN-05 | PS-11 | UNASSIGNED (WorldGen) - owner decision | WGEN-01, TEST-02 | WGEN-01 |
+-| ADP-01 | PS-12 | UNASSIGNED (Engine Adapter, O-5) - owner decision | CLI-01 | CLI-01, CLI-02, CORE-12 |
+-| ADP-02 | PS-12 | UNASSIGNED (Engine Adapter, O-5) - owner decision | ADP-01 | ADP-01 |
+-| ADP-03 | PS-12 | UNASSIGNED (Engine Adapter, O-5) - owner decision | ADP-01 | ADP-01 |
+-| CLI-00 | PS-12 | UNASSIGNED (Client Runtime) - owner decision | CORE-10, API-01 | - |
+-| CLI-01 | PS-12 | UNASSIGNED (Client Runtime) - owner decision | CLI-00, CORE-06 | CORE-06 |
+-| CLI-02 | PS-12 | UNASSIGNED (Client Runtime) - owner decision | CLI-00, PROC-03, VOX-02 | VOX-03, PROC-05 |
+-| CLI-03 | PS-12 | UNASSIGNED (Client Runtime) - owner decision | VOX-05 | VOX-05 |
+-| CLI-04 | PS-12 | UNASSIGNED (Client Runtime) - owner decision | CLI-00, API-01 | API-01 |
+-| LEG-02 | PS-12 | UNASSIGNED (Engine Adapter, O-5) - owner decision | ADP-01, CLI-01, GOV-11 | ORCH-05, HIST-02, CLI-01, ADP-01, TEST-10 |
+-| RND-01 | PS-12 | Agent I (QA and Benchmarks) | VOX-03 | VOX-03 |
+-| CLI-05 | PS-13 | UNASSIGNED (Client Runtime) - owner decision | CLI-01, NET-02 | NET-03, SRV-04, CLI-01 |
++| ITG-02 | PS-11 | Agent I (QA and Benchmarks) | WGEN-04, PERS-06 | G10, WGEN-04, G1 |
++| LEG-01 | PS-11 | UNASSIGNED (WorldGen) - owner decision | WGEN-03, GOV-11 | WGEN-04, PERS-08, ITG-02, G1 |
++| TEST-09 | PS-11 | Agent I (QA and Benchmarks) | TEST-02, WGEN-01 | WGEN-01, G1 |
++| WGEN-01 | PS-11 | UNASSIGNED (WorldGen) - owner decision | CORE-10, CORE-07, CORE-16 | CORE-10, CORE-16, G1 |
++| WGEN-02 | PS-11 | UNASSIGNED (WorldGen) - owner decision | WGEN-01, PROC-03, PROC-04 | PROC-04, GOV-21, G1 |
++| WGEN-03 | PS-11 | UNASSIGNED (WorldGen) - owner decision | WGEN-01, CORE-09, GOV-11 | CORE-09, GOV-11, GOV-21, G1 |
++| WGEN-04 | PS-11 | UNASSIGNED (WorldGen) - owner decision | WGEN-02, WGEN-03, API-04 | WGEN-03, G1 |
++| WGEN-05 | PS-11 | UNASSIGNED (WorldGen) - owner decision | WGEN-01, TEST-02 | WGEN-01, G1 |
++| ADP-01 | PS-12 | UNASSIGNED (Engine Adapter, O-5) - owner decision | CLI-01 | CLI-01, CLI-02, CORE-12, G1 |
++| ADP-02 | PS-12 | UNASSIGNED (Engine Adapter, O-5) - owner decision | ADP-01 | ADP-01, G1 |
++| ADP-03 | PS-12 | UNASSIGNED (Engine Adapter, O-5) - owner decision | ADP-01 | ADP-01, G1 |
++| CLI-00 | PS-12 | UNASSIGNED (Client Runtime) - owner decision | CORE-10, API-01 | G1 |
++| CLI-01 | PS-12 | UNASSIGNED (Client Runtime) - owner decision | CLI-00, CORE-06 | CORE-06, G1 |
++| CLI-02 | PS-12 | UNASSIGNED (Client Runtime) - owner decision | CLI-00, PROC-03, VOX-02 | VOX-03, PROC-05, G1 |
++| CLI-03 | PS-12 | UNASSIGNED (Client Runtime) - owner decision | VOX-05 | VOX-05, G1 |
++| CLI-04 | PS-12 | UNASSIGNED (Client Runtime) - owner decision | CLI-00, API-01 | API-01, G1 |
++| LEG-02 | PS-12 | UNASSIGNED (Engine Adapter, O-5) - owner decision | ADP-01, CLI-01, GOV-11 | ORCH-05, HIST-02, CLI-01, ADP-01, TEST-10, G1 |
++| RND-01 | PS-12 | Agent I (QA and Benchmarks) | VOX-03 | VOX-03, G1 |
++| CLI-05 | PS-13 | UNASSIGNED (Client Runtime) - owner decision | CLI-01, NET-02 | NET-03, SRV-04, CLI-01, G1 |
+@@ -257,17 +257,17 @@
+-| NET-01 | PS-13 | UNASSIGNED (Networking Adapter, O-3) - owner decision | API-02 | API-02 |
+-| NET-02 | PS-13 | UNASSIGNED (Networking Adapter, O-3) - owner decision | NET-01, CORE-07 | NET-01, GOV-22 |
+-| NET-03 | PS-13 | UNASSIGNED (Networking Adapter, O-3) - owner decision | NET-01 | NET-01 |
+-| NET-04 | PS-13 | UNASSIGNED (Networking Adapter, O-3) - owner decision | NET-02, GOV-12 | NET-02, GOV-12 |
+-| SRV-01 | PS-13 | UNASSIGNED (Server Runtime) - owner decision | CORE-10, API-02, NET-01 | G4, G10, WGEN-03, NET-03, PERS-06, GOV-22 |
+-| SRV-02 | PS-13 | UNASSIGNED (Server Runtime) - owner decision | NET-02, API-03, SRV-01 | NET-02, SRV-01 |
+-| SRV-03 | PS-13 | UNASSIGNED (Server Runtime) - owner decision | SRV-01 | ORCH-05, SRV-01 |
+-| SRV-04 | PS-13 | UNASSIGNED (Server Runtime) - owner decision | SRV-03, WGEN-04, NET-02 | SRV-03, WGEN-04 |
+-| SRV-05 | PS-13 | UNASSIGNED (Server Runtime) - owner decision | SRV-04, ORCH-03 | SRV-04 |
+-| SRV-06 | PS-13 | UNASSIGNED (Server Runtime) - owner decision | SRV-02 | SRV-02 |
+-| SRV-07 | PS-13 | UNASSIGNED (Server Runtime) - owner decision | HIST-04, SRV-02 | HIST-04, SRV-02 |
+-| SRV-08 | PS-13 | UNASSIGNED (Server Runtime) - owner decision | SRV-01, NET-04 | SRV-01, NET-04 |
+-| TEST-03b | PS-13 | Agent I (QA and Benchmarks) | NET-01 | NET-03, NET-04 |
+-| TEST-07 | PS-13 | Agent I (QA and Benchmarks) | SRV-02 | SRV-06 |
+-| DG-1 | PS-14 | Agent I (QA and Benchmarks) | VOX-03, CLI-02, ADP-01, EXT-DEV, QA-06 | QA-06, EXT-DEV |
+-| DG-2 | PS-14 | Agent I (QA and Benchmarks) | WGEN-05, PERS-05, EXT-DEV, QA-06 | QA-06, EXT-DEV |
+-| DG-3 | PS-14 | Agent I (QA and Benchmarks) | G13, EXT-DEV, QA-06 | G13, EXT-DEV, QA-06 |
++| NET-01 | PS-13 | UNASSIGNED (Networking Adapter, O-3) - owner decision | API-02 | API-02, G1 |
++| NET-02 | PS-13 | UNASSIGNED (Networking Adapter, O-3) - owner decision | NET-01, CORE-07 | NET-01, GOV-22, G1 |
++| NET-03 | PS-13 | UNASSIGNED (Networking Adapter, O-3) - owner decision | NET-01 | NET-01, G1 |
++| NET-04 | PS-13 | UNASSIGNED (Networking Adapter, O-3) - owner decision | NET-02, GOV-12 | NET-02, GOV-12, G1 |
++| SRV-01 | PS-13 | UNASSIGNED (Server Runtime) - owner decision | CORE-10, API-02, NET-01 | G4, G10, WGEN-03, NET-03, PERS-06, GOV-22, G1 |
++| SRV-02 | PS-13 | UNASSIGNED (Server Runtime) - owner decision | NET-02, API-03, SRV-01 | NET-02, SRV-01, G1 |
++| SRV-03 | PS-13 | UNASSIGNED (Server Runtime) - owner decision | SRV-01 | ORCH-05, SRV-01, G1 |
++| SRV-04 | PS-13 | UNASSIGNED (Server Runtime) - owner decision | SRV-03, WGEN-04, NET-02 | SRV-03, WGEN-04, G1 |
++| SRV-05 | PS-13 | UNASSIGNED (Server Runtime) - owner decision | SRV-04, ORCH-03 | SRV-04, G1 |
++| SRV-06 | PS-13 | UNASSIGNED (Server Runtime) - owner decision | SRV-02 | SRV-02, G1 |
++| SRV-07 | PS-13 | UNASSIGNED (Server Runtime) - owner decision | HIST-04, SRV-02 | HIST-04, SRV-02, G1 |
++| SRV-08 | PS-13 | UNASSIGNED (Server Runtime) - owner decision | SRV-01, NET-04 | SRV-01, NET-04, G1 |
++| TEST-03b | PS-13 | Agent I (QA and Benchmarks) | NET-01 | NET-03, NET-04, G1 |
++| TEST-07 | PS-13 | Agent I (QA and Benchmarks) | SRV-02 | SRV-06, G1 |
++| DG-1 | PS-14 | Agent I (QA and Benchmarks) | VOX-03, CLI-02, ADP-01, EXT-DEV, QA-06 | QA-06, EXT-DEV, G1 |
++| DG-2 | PS-14 | Agent I (QA and Benchmarks) | WGEN-05, PERS-05, EXT-DEV, QA-06 | QA-06, EXT-DEV, G1 |
++| DG-3 | PS-14 | Agent I (QA and Benchmarks) | G13, EXT-DEV, QA-06 | G13, EXT-DEV, QA-06, G1 |
+@@ -276,3 +276,3 @@
+-| QA-02 | PS-14 | Agent I (QA and Benchmarks) | TEST-01 | TEST-01 |
+-| QA-04 | PS-14 | Agent I (QA and Benchmarks) | G13 | G13 |
+-| QA-06 | PS-14 | Agent I (QA and Benchmarks) | ADP-01 | ADP-01 |
++| QA-02 | PS-14 | Agent I (QA and Benchmarks) | TEST-01 | TEST-01, G1 |
++| QA-04 | PS-14 | Agent I (QA and Benchmarks) | G13 | G13, G1, G5, G6, G7, G8, G9, G11, G12 |
++| QA-06 | PS-14 | Agent I (QA and Benchmarks) | ADP-01 | ADP-01, G1 |
+@@ -316,13 +316,13 @@
+-| PS-2 | CORE-10 | CORE-10, CORE-06 | EXT-GPS | G2: all 12 member tasks merged and accepted; includes GOV-07: PR-01…PR-08 Owner-Approved after RG-2; development may precede it, production merges that depend on Processing may not |
+-| PS-3 | CORE-10, PROC-01, PROC-04, CORE-09 | CORE-07, G2 | - | G3: all 6 member tasks merged and accepted; E-02…E-12 and the storage ports Owner-Approved (GOV-09); API-02 merged only after G2 |
+-| PS-4 | API-02, CORE-10, API-01, PROC-02, API-04, API-03, CORE-08 | G2, G3, XT-02, API-02 | - | G4: all 7 member tasks merged and accepted; Orchestration merged only after G2 and G3 |
+-| PS-5 | CORE-10, API-02, TEST-03a, PROC-01, PROC-02, CORE-03 | CORE-10, EXT-VA-RG1, G2, G3 | EXT-VA-RG1 | G5: all 14 member tasks merged and accepted; backend conformance only; renderer validation is DG-1 and the renderer default is GOV-13, both outside this stage |
+-| PS-6 | API-01, ORCH-02, VOX-01, SDF-01 | API-01, G4, G5 | - | G6: all 7 member tasks merged and accepted; tool-level contracts Owner-Approved (GOV-20) |
+-| PS-7 | API-02, API-04, ORCH-03 | G4 | - | G7: all 5 member tasks merged and accepted; OD-R5 decided (GOV-25); system and recovery commits absent from history (tests) |
+-| PS-8 | CORE-10, ORCH-01, CORE-04 | CORE-10, G4 | - | G8: all 6 member tasks merged and accepted; C-13…C-15 and composite-operation contracts Owner-Approved |
+-| PS-9 | CORE-10, VOX-01, VOX-03 | CORE-10, EXT-VA-RG1, G4, G5, GOV-23 | GOV-08 | G9: all 5 member tasks merged and accepted; C-11, C-12 Owner-Approved after RG-1 (GOV-18) |
+-| PS-10 | TEST-01, CORE-11, API-04, SPK-PERS, CORE-07, CORE-05, CORE-09, CORE-16, CORE-14, ORCH-04 | TEST-01, CORE-11, CORE-09, CORE-16, CORE-14, G4 | SPK-PERS, EXT-VA-RG1 | G10: all 14 member tasks merged and accepted; persistence format Owner-Approved (GOV-10, needs RG-1); desktop crash matrix green; device durability is DG-2, not a condition |
+-| PS-11 | CORE-10, CORE-07, CORE-16, TEST-02, PROC-03, PROC-04, CORE-09, GOV-11, API-04, PERS-06 | CORE-10, CORE-16, PROC-04, CORE-09, GOV-11, G10, PERS-08 | - | G11: all 9 member tasks merged and accepted; WG-01…WG-10 Owner-Approved (GOV-21); end-to-end test ITG-02; no direct commit left in worldgen (archcheck) |
+-| PS-12 | CORE-10, API-01, CORE-06, PROC-03, VOX-02, VOX-05, GOV-11, VOX-03 | CORE-06, VOX-03, PROC-05, VOX-05, API-01, CORE-12, ORCH-05, HIST-02, TEST-10 | - | G12: all 10 member tasks merged and accepted; desktop evidence only; no write path or history in the adapter (archcheck, TEST-10) |
+-| PS-13 | API-02, CORE-07, CORE-10, API-03, WGEN-04, ORCH-03, HIST-04, CLI-01 | API-02, G4, G10, WGEN-03, PERS-06, ORCH-05, WGEN-04, HIST-04, CLI-01 | SPK-NET | G13: all 17 member tasks merged and accepted; protocol, transport and server contracts Owner-Approved (GOV-12, GOV-22); conformance on both transports and both hosts |
+-| PS-14 | TEST-01, G13, ADP-01, VOX-03, CLI-02, EXT-DEV, WGEN-05, PERS-05 | TEST-01, G13, ADP-01, EXT-DEV | GOV-08 | G14: all 8 member tasks merged and accepted; DG-1…DG-3 reports; renderer default recorded (GOV-13); PC-1 frozen only through GOV-15 after GOV-08 |
++| PS-2 | CORE-10 | CORE-10, CORE-06, G1 | EXT-GPS | G2: all 12 member tasks merged and accepted; includes GOV-07: PR-01…PR-08 Owner-Approved after RG-2; development may precede it, production merges that depend on Processing may not |
++| PS-3 | CORE-10, PROC-01, PROC-04, CORE-09 | CORE-07, G2, G1 | - | G3: all 6 member tasks merged and accepted; E-02…E-12 and the storage ports Owner-Approved (GOV-09); API-02 merged only after G2 |
++| PS-4 | API-02, CORE-10, API-01, PROC-02, API-04, API-03, CORE-08 | G2, G3, XT-02, API-02, G1 | - | G4: all 7 member tasks merged and accepted; Orchestration merged only after G2 and G3 |
++| PS-5 | CORE-10, API-02, TEST-03a, PROC-01, PROC-02, CORE-03 | CORE-10, EXT-VA-RG1, G2, G3, G1 | EXT-VA-RG1 | G5: all 14 member tasks merged and accepted; backend conformance only; renderer validation is DG-1 and the renderer default is GOV-13, both outside this stage |
++| PS-6 | API-01, ORCH-02, VOX-01, SDF-01 | API-01, G4, G5, G1 | - | G6: all 7 member tasks merged and accepted; tool-level contracts Owner-Approved (GOV-20) |
++| PS-7 | API-02, API-04, ORCH-03 | G4, G1 | - | G7: all 5 member tasks merged and accepted; OD-R5 decided (GOV-25); system and recovery commits absent from history (tests) |
++| PS-8 | CORE-10, ORCH-01, CORE-04 | CORE-10, G4, G1 | - | G8: all 6 member tasks merged and accepted; C-13…C-15 and composite-operation contracts Owner-Approved |
++| PS-9 | CORE-10, VOX-01, VOX-03 | CORE-10, EXT-VA-RG1, G4, G5, GOV-23, G1 | GOV-08 | G9: all 5 member tasks merged and accepted; C-11, C-12 Owner-Approved after RG-1 (GOV-18) |
++| PS-10 | TEST-01, CORE-11, API-04, SPK-PERS, CORE-07, CORE-05, CORE-09, CORE-16, CORE-14, ORCH-04 | TEST-01, CORE-11, CORE-09, CORE-16, CORE-14, G4, G1 | SPK-PERS, EXT-VA-RG1 | G10: all 14 member tasks merged and accepted; persistence format Owner-Approved (GOV-10, needs RG-1); desktop crash matrix green; device durability is DG-2, not a condition |
++| PS-11 | CORE-10, CORE-07, CORE-16, TEST-02, PROC-03, PROC-04, CORE-09, GOV-11, API-04, PERS-06 | CORE-10, CORE-16, PROC-04, CORE-09, GOV-11, G10, PERS-08, G1 | - | G11: all 9 member tasks merged and accepted; WG-01…WG-10 Owner-Approved (GOV-21); end-to-end test ITG-02; no direct commit left in worldgen (archcheck) |
++| PS-12 | CORE-10, API-01, CORE-06, PROC-03, VOX-02, VOX-05, GOV-11, VOX-03 | CORE-06, VOX-03, PROC-05, VOX-05, API-01, CORE-12, ORCH-05, HIST-02, TEST-10, G1 | - | G12: all 10 member tasks merged and accepted; desktop evidence only; no write path or history in the adapter (archcheck, TEST-10) |
++| PS-13 | API-02, CORE-07, CORE-10, API-03, WGEN-04, ORCH-03, HIST-04, CLI-01 | API-02, G4, G10, WGEN-03, PERS-06, ORCH-05, WGEN-04, HIST-04, CLI-01, G1 | SPK-NET | G13: all 17 member tasks merged and accepted; protocol, transport and server contracts Owner-Approved (GOV-12, GOV-22); conformance on both transports and both hosts |
++| PS-14 | TEST-01, G13, ADP-01, VOX-03, CLI-02, EXT-DEV, WGEN-05, PERS-05 | TEST-01, G13, ADP-01, EXT-DEV, G1, G5, G6, G7, G8, G9, G11, G12 | GOV-08 | G14: all 8 member tasks merged and accepted; DG-1…DG-3 reports; renderer default recorded (GOV-13); PC-1 frozen only through GOV-15 after GOV-08 |

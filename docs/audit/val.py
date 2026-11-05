@@ -1,7 +1,11 @@
 """Read-only consistency check of the status documents against the ADG. Run: python docs/audit/val.py  (exit 1 on failure)"""
 import re, os, sys
 H = os.path.dirname(os.path.abspath(__file__))
-exec(open(os.path.join(H, 'ia.py'), encoding='utf8').read().split("print('tasks'")[0])
+sys.path.insert(0, H)
+import adg
+_g = adg.load()
+T = _g.tasks
+G = _g.gates
 D = os.path.join(H, '..'); R = os.path.join(H, '..', '..')
 files = ['PROJECT_STATUS.md','DEVELOPMENT_ROADMAP.md','RELEASE_CRITERIA.md','AGENT_HANDOFF.md','audit/Independent-Production-Audit.md','audit/PROJECT-STATUS-VALIDATION.md']
 pref = r'(?:GOV|CORE|PROC|API|ORCH|VOX|SDF|MSH|SCU|BOO|HIST|COMP|RES|PERS|WGEN|LEG|CLI|ADP|NET|SRV|TEST|XT|QA|ITG|SPK|DEV|RND|INT)'
