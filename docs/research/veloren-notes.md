@@ -13,7 +13,7 @@ Applicability labels: **Accepted** (consistent with an Approved Owner Decision o
 * 25 workspace members: `common` with sub-crates (`assets`, `base`, `dynlib`, `ecs`, `i18n`, `net`, `state`, `systems`, `frontend`, `query_server`), `client` (+ `i18n`), `server` (+ `agent`), `server-cli`, `voxygen` (+ `anim`, `credentialstore`, `egui`, `i18n-helpers`), `world`, `network` (+ `protocol`), `rtsim`; plugin crates are separate.
 * The book classifies the crates as **frontends** (`voxygen`, `server-cli`), **backends** (`server`, `client`, `world`: headless libraries that implement gameplay; `client` is display-agnostic with chat-only, spectator and character modes; `world` is usable without client or server) and **utility crates** (`common` for behaviour and definitions shared by client and server, `network`). Stated goals: modularity, performance, no lock-in; the split also speeds up compilation. Frontends are first-class: any frontend can sit on the generic client library.
 * The graphical client has a `singleplayer` feature that pulls in the server library (built with world generation) so that the game runs a server in the same program.
-* Observations for Cube: this is the separation AOD-04, AOD-05 and AOD-06 require. **REF-01 Accepted** (world generation without client/server: already true for `cube-worldgen`), **REF-03 Accepted** (headless server binary, AOD-05), **REF-02 Proposed** (a shared domain crate used by server and client runtime; its place in the AU-1.0 layer grid is not decided). **REF-32 Proposed:** single-player as an embedded server instance (supports open item OI-6; Veloren does it behind a feature flag; whether its authority rules are the same as for a remote server was not examined).
+* Observations for Cube: this is the separation AOD-04, AOD-05 and AOD-06 require. **REF-01 Accepted** (world generation without client/server: already true for `cube-worldgen`), **REF-03 Accepted** (headless server binary, AOD-05), **REF-02 Proposed** (a shared domain crate used by server and client runtime; its place in the AU-1.0 layer grid is not decided). **REF-32 Accepted (consistent with AOD-22, which Cube decided independently):** single-player as an embedded server instance (Veloren does it behind a feature flag; whether its authority rules are the same as for a remote server was not examined).
 
 ## 2. Terrain model
 
@@ -51,7 +51,7 @@ Applicability labels: **Accepted** (consistent with an Approved Owner Decision o
 * **Overlay semantics:** when a chunk is generated, its stored overrides are applied on top of the generated terrain; an override equal to the generated block is dropped as a size optimisation; new edits go through one setter that converts world coordinates to chunk key and local offset and marks the chunk modified only if the value actually changed; clearing a chunk empties its overlay so generated terrain shows through again. Persistence is feature-gated (`persistent_world`) and optional (`server/src/terrain_persistence.rs`, `sys/terrain.rs`).
 * Character data is stored in SQLite through separate loader/updater components with migrations (`server/src/persistence/`, `server/src/migrations/`; the file list shows a migration from Diesel to rusqlite). Not examined further.
 * Observations for Cube:
-  * This is real-world evidence for AOD-17's "seed plus modified data" and for option **C1** of `docs/decisions/worldgen-core-boundary.md` (single layer plus overlay re-applied after generation), at the granularity of per-block overrides per chunk rather than an operation journal.
+  * This is real-world evidence for AOD-17's "seed plus modified data" and a real-world instance of variant **C1** (seed plus block-level overrides, as named in `docs/decisions/worldgen-core-boundary.md`) at per-chunk override granularity. Cube's approved model is C3 with a durable journal and snapshots (AOD-20, AOD-21), not C1.
   * **REF-07 Needs spike (Gate 5):** Cube's choice is a versioned delta journal (AOD-17). The Veloren design suggests comparing "journal replay" with "per-chunk override snapshot" as the compaction format, and shows the cost of writing only on unload (not durable) which Cube's journal avoids by design.
   * **REF-35 Proposed (Gate 5):** versioned files with newest-to-oldest fallback readers, backup instead of overwrite for unknown versions, atomic replacement, an "override equals generated: drop it" optimisation, and deletion of empty overlays.
   * **REF-17 Proposed (Gate 9):** a relational store (SQLite) for accounts and characters with migrations; Cube has not chosen one.
@@ -110,7 +110,7 @@ Applicability labels: **Accepted** (consistent with an Approved Owner Decision o
 | REF-18 | Server-side interest management | Proposed |
 | REF-19 | Chunk serialisation and compression stage | Proposed |
 | REF-30 | Volume read/write traits independent of storage | Proposed |
-| REF-32 | Single-player as an embedded server instance | Proposed (supports OI-6) |
+| REF-32 | Single-player as an embedded server instance | Accepted (consistent with AOD-22; not evidence for it) |
 | REF-33 | I/O-free protocol core, testable without sockets | Proposed |
 | REF-34 | Hysteresis margin, staggered unload checks, background deallocation | Proposed |
 | REF-35 | Versioned override files with fallback readers, backup on unknown version, atomic writes, drop-if-equal optimisation | Proposed |
@@ -133,7 +133,7 @@ The sections above mix observation and interpretation by necessity. This section
 * The network crate has an I/O-free protocol core with TCP, in-process and QUIC backends, prioritised streams and a bandwidth budget.
 
 **Agent inferences (may be wrong)**
-* Veloren's override store matches the "seed plus modified data" idea at chunk granularity (supports a comparison with Cube's options C1 and C3, see `owner-approval-matrix-v1.md`).
+* Veloren's override store matches the "seed plus modified data" idea at chunk granularity (an instance of variant C1; Cube's approved model is C3 with the AOD-21 journal, see `owner-approval-matrix-v1.md`).
 * Cancellation, pools and hysteresis are cheap ideas that map to Cube's streamer; the mapping to a mobile CPU budget is untested.
 * The write-on-unload policy leaves a durability gap that a journal-first design avoids.
 
@@ -141,7 +141,7 @@ The sections above mix observation and interpretation by necessity. This section
 * The REF-xx statuses in section 11. "Accepted" in this document means only "consistent with an Approved Owner Decision or already true in Cube" (REF-01, REF-03); it is not an owner decision about Veloren.
 
 **Owner decisions**
-* None are derived from Veloren. The relevant approved records are AOD-01…19 only.
+* None are derived from Veloren. The relevant approved records are AOD-01…24 (AOD-23 sets the licence policy for using Veloren as a reference).
 
 **Unconfirmed hypotheses**
 * That Veloren's embedded single-player mode uses the same authority rules as a remote server (not examined).

@@ -1,6 +1,6 @@
 # System Boundaries v1
 
-**Status:** **Proposed** architecture description for the owner, derived from the Approved Owner Decisions (AOD-01…19, `docs/decisions/owner-architecture-decisions-v1.md`). It does not change AU-1.0, ACR-001/002/003, any contract (all stay Draft, AOD-18) or the dependency grid in the QA Pack. Anything marked **(proposal)** is not decided.
+**Status:** **Proposed** architecture description for the owner, derived from the Approved Owner Decisions (AOD-01…24; AOD-20…23 approved on 2026-11-05, AOD-24 conditionally, `docs/decisions/owner-architecture-decisions-v1.md`). It does not change AU-1.0, ACR-001/002/003, any contract (all stay Draft, AOD-18) or the dependency grid in the QA Pack. Anything marked **(proposal)** is not decided. ACR-004 (system-commit boundary) is prepared as Pending in `audit-resolution-report.md`.
 **Scope:** processes, trust zones, modules, write paths, data ownership and the interfaces between them, from the current Rust + Godot spike to a client/server voxel RPG. Behaviour of individual features is out of scope (see `roadmap-v1.md`).
 
 ## 1. Processes and trust zones
@@ -20,7 +20,7 @@
 
 * The **server** is a separate headless Rust process built from the same Core crates (AOD-05); it decides and stores everything that matters (AOD-13).
 * The **client** is untrusted and never the source of truth (AOD-14): it renders, predicts its own edits and is corrected.
-* **Single-player (proposal, owner decision OI-6):** the same server components run in the client's process as an embedded server instance, behind the same Editing/replication interfaces, so that there is exactly one authoritative path (Veloren does this behind a `singleplayer` feature, REF-32; its authority rules were not examined). A "local mode" with client-side authority is not allowed by AOD-14.
+* **Single-player (Approved, AOD-22):** the same authoritative server runtime runs in the client's process as an embedded instance, and the dedicated server runs the same runtime in its own process; transport, persistence and authority boundaries are identical, so that there is exactly one authoritative path (Fact (upstream): Veloren embeds its server behind a `singleplayer` feature, REF-32; its authority rules were not examined and it is not evidence for Cube). A "local mode" with client-side authority is not allowed by AOD-14.
 * **Today:** the spike runs a loopback TCP server and an in-process runtime in the Godot adapter; neither implements this separation (see section 8).
 
 ## 2. Modules and layers
@@ -59,8 +59,8 @@ Rules (existing, unchanged): imports follow the grid; the compile-time graph is 
 Exactly three writers may commit to the authoritative asset:
 
 1. **Editing service** - every user or designer operation (AOD-15): validated, id-tagged, revision-counted, recorded in the journal and in history.
-2. **WorldGen Materialiser** - generated data only, through a narrow Core system-commit port (AOD-16); never recorded in history; carries the generation revision, not the edit revision (revision rule needs the B-6 decision).
-3. **Persistence loader** - restoring a saved state at start (seed + version, then journal replay).
+2. **WorldGen Materialiser** - generated data only, through a narrow Core system-commit port (AOD-16, AOD-20); never part of ordinary undo/redo; the commit receives an OperationId (origin: system) and takes part in the revision/commit semantics (how it advances revisions needs the B-6 decision; ACR-004 Pending).
+3. **Persistence loader** - restoring a saved state at start in the AOD-21 order: base generation, then snapshot, then journal tail.
 
 Everything else, including the renderer, the client runtime, tools and the adapter, reads snapshots or views. A client message is a *request* (an operation proposal); the server may reject or alter it.
 
@@ -107,4 +107,4 @@ Memory and thermal budgets must be measured on a physical device (none available
 
 ## 10. Open decisions for the owner
 
-OI-6 embedded server for single-player; placement and ownership of WorldGen and the server host in the layer grid; the Core system-commit port and generation-revision rule (B-6, possible new ACR); transport and replication design; where meshing lives; the shared "common" crate (REF-02); owners for networking (O-3) and engine adapters (O-5).
+placement and ownership of WorldGen and the server runtime in the layer grid; the decision on ACR-004 and the revision rule for system commits (B-6); the Core layer model (single layer or C2 overlay); the transport binding of the embedded runtime; transport and replication design; where meshing lives; the shared "common" crate (REF-02); owners for networking (O-3) and engine adapters (O-5).

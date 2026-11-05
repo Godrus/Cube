@@ -1,6 +1,6 @@
 # Cube Roadmap v1: from the Rust + Godot Spike to a Voxel RPG/MMORPG
 
-**Status:** **Proposed** roadmap for owner review. The only approved inputs are the Approved Owner Decisions (AOD-01…19, `docs/decisions/owner-architecture-decisions-v1.md`). Gates, budgets, owners and task orders below are proposals; nothing here approves a contract, an ACR, AU-1.0 or a blocker closure. P0/P1 contracts stay **Draft** (AOD-18); AU-1.0 and ACR-001/002/003 are untouched (AOD-19).
+**Status:** **Proposed** roadmap for owner review. The only approved inputs are the Approved Owner Decisions (AOD-01…24, `docs/decisions/owner-architecture-decisions-v1.md`; AOD-20…23 were added on 2026-11-05 and AOD-24 is Conditionally Approved). Gates, budgets, owners and task orders below are proposals; nothing here approves a contract, an ACR, AU-1.0 or a blocker closure. P0/P1 contracts stay **Draft** (AOD-18); AU-1.0 and ACR-001/002/003 are untouched (AOD-19); ACR-004 is prepared as Pending.
 **Companions:** `docs/architecture/system-boundaries-v1.md` (boundaries), `docs/decisions/worldgen-core-boundary.md` (WorldGen decision frame), `docs/research/reference-comparison.md` (Veloren, CubeWorld-Reversal), existing `docs/decisions/audit-resolution-report.md` (blockers B-1…B-13, ACRs), `docs/api-contracts/` (Draft contracts), `docs/spike/` (experimental evidence).
 **Evidence rule:** all spike numbers are experimental and from a desktop (Windows, RTX 3070 Ti) or from Android **emulators**. There is no physical Android ARM64 result (`Blocked: no physical ARM64 device`) and no iOS result (`blocked: no macOS/Xcode`). Budgets are therefore **provisional** until the first device measurements replace them.
 
@@ -17,14 +17,17 @@ Every decision, artifact and exit criterion below carries one of four states (de
 
 | State | Meaning | Today |
 |---|---|---|
-| **Approved** | recorded by the owner | AOD-01…19 only |
-| **Proposed** | a recommendation exists, the owner has not decided | WorldGen direction C, persistence P-D, embedded server, renderer statuses, mobile criteria, licence policy, all gates and budgets in this file |
-| **Spike Required** | a measured comparison is needed before the owner can decide | C1/C2/C3 layer model, persistence details (journal granularity, compaction), transport, embedded server on a device, hybrid renderer |
-| **Blocked** | cannot proceed without an external input | GDD/TDD, Voxel Architecture, Geometry Processing Specification, AU-1.0 original, physical Android ARM64 device, macOS/Xcode, ACR-001/002/003, P0/P1 approval |
+| **Approved** | recorded by the owner | AOD-01…23: including WorldGen direction C3 (AOD-20), persistence model (AOD-21), embedded/dedicated server runtime (AOD-22), licence policy (AOD-23) |
+| **Conditionally Approved** | approved with conditions that are part of the decision | AOD-24 missing sources (limited temporary baseline) |
+| **Proposed** | a recommendation exists, the owner has not decided | renderer status (OAM-04), mobile criteria (OAM-06), embedded-to-dedicated transition conditions, all gates and budgets in this file |
+| **Spike Required** | a measured comparison is needed before the owner can decide | Core layer model (single layer or C2 overlay), persistence details (journal granularity, compaction), transport (OAM-05), embedded runtime on a device, hybrid renderer |
+| **Blocked** | cannot proceed without an external input | GDD/TDD, Voxel Architecture, Geometry Processing Specification, AU-1.0 original, physical Android ARM64 device, macOS/Xcode, ACR-001/002/003 and ACR-004, P0/P1 approval |
 
 ### Owner decision records
 
-The decision package is `docs/decisions/owner-approval-matrix-v1.md`: OAM-01 WorldGen to Core (= OI-12, OI-7), OAM-02 persistence (= OI-4), OAM-03 embedded server (= OI-6), OAM-04 renderer, OAM-05 network layer (= OI-9), OAM-06 mobile targets (= OI-10, OI-11), OAM-07 licences and sources (= OI-5), OAM-08 missing sources (= OI-1, OI-2, OI-3). It decides nothing; its recommendations are `Proposed`.
+The decision package is `docs/decisions/owner-approval-matrix-v1.md`: OAM-01 WorldGen to Core (= OI-12, OI-7), OAM-02 persistence (= OI-4), OAM-03 embedded server (= OI-6), OAM-04 renderer, OAM-05 network layer (= OI-9), OAM-06 mobile targets (= OI-10, OI-11), OAM-07 licences and sources (= OI-5), OAM-08 missing sources (= OI-1, OI-2, OI-3). Decisions recorded on 2026-11-05: OAM-01, 02, 03, 07 Approved (AOD-20…23), OAM-08 Conditionally Approved (AOD-24); full records in `owner-architecture-decisions-v1.md` section 5. OAM-04 Proposed, OAM-05 Spike Required, OAM-06 Proposed.
+
+Notation used everywhere: **C1** seed plus block-level overrides; **C2** generated base plus mutable overlay; **C3** hybrid system generation, Editing API for user changes and a separate persistence strategy (approved).
 
 ### Open items referenced
 
@@ -33,15 +36,15 @@ The decision package is `docs/decisions/owner-approval-matrix-v1.md`: OAM-01 Wor
 | OI-1 | Supply GDD/TDD v0.3, Voxel Architecture v1.0, Geometry Processing Specification (B-1) | Gate 0 |
 | OI-2 | Supply the original AU-1.0 or confirm the reconstructed copy (B-13) | Gate 0 |
 | OI-3 | Decide ACR-001/002/003 (B-3) | Gate 0 |
-| OI-4 | Reconcile persistence contracts and the `cube-persistence` spike with AOD-17 (seed + generator version + journal) | Gate 5 |
-| OI-5 | License policy: Cube's license, rules for third-party code/assets, whether studying GPL or reverse-engineered projects is allowed and how | Gate 0 |
-| OI-6 | Single-player runs an embedded server instance (recommended; Veloren embeds its server for single-player, REF-32) | Gate 6 |
+| OI-4 | Reconcile persistence contracts and the `cube-persistence` spike with AOD-17 and AOD-21 (direction **decided**; contract rewrite open) | Gate 5 |
+| OI-5 | License policy: rules for third-party code/assets and for studying other projects are **decided** (AOD-23); Cube's own license and the dependency license list stay open | Gate 0 |
+| OI-6 | Single-player runs an embedded server instance: **decided** (AOD-22). Open: runtime placement in the module grid, transport binding, device measurement | Gate 6 |
 | OI-7 | RevisionToken width and commit algorithm, generated-data revision rule, system-commit port (B-6; possible new ACR) | Gate 2 |
 | OI-8 | Owners for networking (O-3), engine adapters (O-5), import/export, WorldGen, server host, content, live service | Gate 0/1 |
 | OI-9 | Transport, serialisation and authentication for the protocol | Gate 7 |
 | OI-10 | Physical device matrix (low/mid/high Android ARM64) and acquisition | Gate 1 |
 | OI-11 | Access to macOS/Xcode and an iOS device | Gate 1/10 |
-| OI-12 | WorldGen direction: approve option C of `worldgen-core-boundary.md` (or choose A/B), C1 vs C2, generator-version policy, chunk delivery | Gate 2/3 |
+| OI-12 | WorldGen direction: option C3 **decided** (AOD-20). Open: Core layer model (single layer or C2), per-world generator-version policy, chunk delivery, ACR-004, revision effect of system commits | Gate 2/3 |
 
 ## 2. Current state by gate (what the spike already shows)
 
@@ -64,7 +67,7 @@ The decision package is `docs/decisions/owner-approval-matrix-v1.md`: OAM-01 Wor
 
 * **Input dependencies:** none.
 * **Owner:** project owner (decisions); Main Agent / Integration Owner (document set).
-* **Artifacts:** the missing sources added to the repository (GDD/TDD, Voxel Architecture, Geometry Processing Specification) and the Geometry documents re-cross-checked against them (B-1, OI-1); AU-1.0 original or an owner confirmation of the reconstructed copy (B-13, OI-2); decisions on ACR-001/002/003 (OI-3); owner confirmation of AOD-01…19; a license policy document (OI-5: Cube license, inbound/outbound code and asset rules, clean-room rule for studying other projects); named owners or explicit deferrals for unassigned modules (OI-8); updated blocker register and readiness assessment; definition of how a contract is approved and who records it.
+* **Artifacts:** the missing sources added to the repository (GDD/TDD, Voxel Architecture, Geometry Processing Specification) and the Geometry documents re-cross-checked against them (B-1, OI-1); AU-1.0 original or an owner confirmation of the reconstructed copy (B-13, OI-2); decisions on ACR-001/002/003 (OI-3); owner confirmation of AOD-01…24; a license document (OI-5: the third-party and study rules are decided in AOD-23; Cube's own license and the dependency license list remain); named owners or explicit deferrals for unassigned modules (OI-8); updated blocker register and readiness assessment; definition of how a contract is approved and who records it.
 * **Contract tests:** none (documents). Review checklist: every contract cites its source section; every AOD has an enforcement or an open item.
 * **Performance budget:** not applicable.
 * **Exit criteria:** B-1, B-3 and B-13 closed (or deferred by the owner in writing with consequences); license policy recorded; owners named or deferred; AOD confirmed; readiness assessment re-issued.
@@ -78,15 +81,15 @@ A checkpoint, not a development phase: the owner records the decisions Gate 1 de
 
 | Decision | State | Needed before | Why it is needed |
 |---|---|---|---|
-| Confirm AOD-01…19 | Proposed for confirmation | Gate 1 (required) | all pins and profiles follow from them |
-| OAM-07 licence policy, including third-party dependency rule | Proposed | Gate 1 (required) | Gate 1 pins toolchains and dependencies and publishes build artifacts |
+| Confirm AOD-01…24 | Approved (record awaits the owner's confirmation at merge) | Gate 1 | all pins and profiles follow from them |
+| OAM-07 licence policy (AOD-23) | **Approved**; Cube's own licence and the dependency licence list open | Gate 1 (the list) | Gate 1 pins dependencies and publishes build artifacts |
 | OAM-06 mobile acceptance criteria and device plan (or written deferral) | Proposed | Gate 1 (required) | defines the target matrix, signing and the device track |
-| OAM-08 missing sources: supply, or approve named temporary assumptions | Blocked | Gate 1 for the assumptions, Gate 2 for approval of contracts | Gate 1 needs scale and platform assumptions; P0 approval needs the originals |
+| OAM-08 missing sources (AOD-24) | **Conditionally Approved**: limited baseline allowed; sources still block P0/P1 approval | Gate 2 for approval of contracts | baseline entries must be recorded before use |
 | Build/platform owner named (OI-8) | Blocked | Gate 1 (required) | Gate 1 has no owner otherwise |
-| OAM-01 direction (WorldGen to Core) | Proposed | Gate 2 | the system-commit port and generation revision |
-| OAM-02 persistence direction and spike approval | Proposed / Spike Required | Gate 2 (direction), Gate 5 (format) | storage-independent Core views and journal needs |
-| OAM-03 embedded server | Proposed | Gate 2 (interfaces), Gate 6 | transport-independent Editing/replication interfaces |
-| ACR-001/002/003 | Blocked | Gate 2 | P0 approval |
+| OAM-01 direction (AOD-20) | **Approved**; ACR-004 Pending; layer model Spike Required | Gate 2 (ACR-004, B-6) | the system-commit port and revision rule |
+| OAM-02 persistence (AOD-21) | **Approved**; formats, granularity, compaction not approved | Gate 5 (format) | contract rewrite, journal design |
+| OAM-03 embedded server (AOD-22) | **Approved**; transport binding and placement open | Gate 2 (interfaces), Gate 6 | transport-independent Editing/replication interfaces |
+| ACR-001/002/003 and ACR-004 | Blocked (owner decision) | Gate 2 | P0 approval |
 | OAM-05 transport spike approval and networking owner (O-3) | Spike Required | Gate 7 (spike may start earlier) | protocol approval |
 | OAM-04 renderer default | Proposed (status), Blocked (device) | Gate 4 exit | physical-device comparison |
 
@@ -103,7 +106,7 @@ A checkpoint, not a development phase: the owner records the decisions Gate 1 de
 
 ### Gate 2: Geometry Core
 
-* **Input dependencies:** Gate 0 (B-1 sources, ACR-001/ACR-003 decided); owner approval of the P0 contracts C-01…C-19 (AOD-18: until then Draft); OI-7 (B-6); OI-12 for the system-commit port.
+* **Input dependencies:** Gate 0 (B-1 sources or the AOD-24 baseline for design work, ACR-001/ACR-003 decided; ACR-004 for the system-commit port); owner approval of the P0 contracts C-01…C-19 (AOD-18: until then Draft); OI-7 (B-6); OI-12 for the system-commit port.
 * **Owner:** Core Agent (implementation); Main Agent / Integration Owner (contracts).
 * **Artifacts:** a production `cube-core` hardened from the spike: asset, layer, brick (16^3 copy-on-write, sparse), chunk concept (decide whether it belongs to Core or to streaming), coordinates including negative coordinates (Euclidean division), material/channel model (spike: 16-bit material; channels open), RevisionToken (width, epoch, tri-state compare), DirtyRegion, commit primitive (validate then apply, scoped +1 revisions), snapshots, memory ownership and lifetimes, export/import views, deterministic stable content hash for bricks/chunks, the **system-commit port** for WorldGen and the persistence loader (OI-7, OI-12), P0 contract documents promoted by the owner.
 * **Contract tests:** one test set per C-xx contract; property tests (commit atomicity, snapshot isolation, revision monotonicity, negative-coordinate symmetry); negative tests for every error code; the dependency-direction (DEP-01) test closing B-9.
@@ -121,7 +124,7 @@ A checkpoint, not a development phase: the owner records the decisions Gate 1 de
 * **Performance budget (proposed):** generation at most 0.1 ms per chunk on desktop (baseline 0.008-0.009 ms) and a device budget fixed from the first device run; materialisation at most 1 ms per chunk; no main-thread block longer than 2 ms; queue and cache memory bounded.
 * **Exit criteria:** hash equality server vs client on a physical Android ARM64 device (or an owner deferral); streaming meets budgets on desktop and device; version policy decided and tested; WorldGen contracts Approved; spike streamer and `world-state-v0` retired.
 * **Forbidden before completion:** a saved-world format that depends on the terrain function without version fields; changing the terrain function without a version bump; floating-point arithmetic in world-defining math; writing generated data around the system-commit port.
-* **Open decisions:** C1 vs C2 layer model, version policy, chunk delivery to clients (OI-12); whether a world-scale pass (rivers/biomes) is added (REF-09); chunk height.
+* **Open decisions:** Core layer model (single layer or C2), per-world version policy (pin or explicit bake/migration, AOD-21), chunk delivery to clients (OI-12); whether a world-scale pass (rivers/biomes) is added (REF-09); chunk height.
 * **Starts before completion:** Gate 4 may start once Gate 2's read views are approved.
 
 ### Gate 4: Meshing and Client Adapter
@@ -214,18 +217,18 @@ Gate 0 (sources, ACR, owners, license)  ->  Gate 2 (Core P0 approved)  ->  Gate 
 
 The critical path is **Gate 0 -> Gate 2 -> Gate 5 -> Gate 7 -> Gate 9**, with Gate 3 feeding Gate 7 and Gate 8. The longest-lead external items are the **physical devices and iOS access** (OI-10, OI-11), which gate the renderer decision (Gate 4) and everything in Gate 10: they must start in Gate 1, not at the end. Gate 3, Gate 4 and Gate 6 can proceed in parallel after the Gate 2 read views and the system-commit port exist.
 
-### 4.1 Critical path after the WorldGen layer model is accepted (C1, C2 or C3)
+### 4.1 Critical path after the approval of C3 (AOD-20) and the persistence model (AOD-21)
 
-This assumes the owner has approved direction C and the spike of `owner-approval-matrix-v1.md` section 1.1 has been run and one of the layer models (C1 seed + overrides, C2 two layers, C3 journal + materialised state; durable record per OAM-02) is accepted. Until then the path below is **conditional**.
+C3 and the AOD-21 model are Approved; the path below is therefore no longer conditional on a WorldGen direction. It stays conditional on the items AOD-20 leaves open (ACR-004, the revision rule B-6, the Core layer model).
 
-1. **Core system-commit port and generation-revision rule** (OI-7, B-6; ACR decision if the port touches P0 types): the first thing the accepted model unblocks, and the longest item inside Gate 2.
-2. **P0 approval** (Core contracts C-01…C-19, with the layer model C2 adds or the absence of it), then the production `cube-core` (Gate 2 exit).
+1. **ACR-004 decision and the revision rule for system commits** (B-6, OI-7): the first item and the longest inside Gate 2. Meanwhile the system-commit port, the WorldGen port and the OperationId origin can be drafted as Draft contracts (no approval).
+2. **P0 approval** (C-01…C-19, with C2's layer rules only if the overlay is chosen), then the production `cube-core` (Gate 2 exit). The missing sources (AOD-24) still gate this approval.
 3. **WorldGen port and Materialiser contracts**, then production `cube-worldgen` (Gate 3); this and Gate 4 run in parallel after Gate 2's read views.
-4. **Journal schema and persistence contracts** aligned with the accepted model (OI-4), then Editing API and persistence (Gate 5): the chain Gate 2 to Gate 5 is the critical path.
-5. **Replication of baselines and deltas** (Gate 7) depends on the accepted model and on the transport spike result.
+4. **Persistence contracts rewritten against AOD-21** (world record, journal, snapshots, load order, generator-version policy; OI-4), then Editing API and persistence (Gate 5): the chain Gate 2 to Gate 5 is the critical path.
+5. **Server runtime** (AOD-22): one runtime with embedded and dedicated hosts and one conformance suite (Gate 6 for the embedded host, Gate 7 for the dedicated host), plus replication (depends on the transport spike).
 6. Gate 8 (content) and Gate 9 (MMO) follow Gate 7.
 
-Which model is accepted changes the work inside the chain: C2 adds layer-composition rules to step 1 and 2; C1 adds a per-block override store and its ordering rule to step 4; C3 adds journal compaction to step 4. None changes the order of the gates. **Parallel to the chain** and not on it: the physical-device track, the transport spike, the renderer benchmark.
+The Core layer model (single layer or C2) adds layer-composition rules to steps 1 and 2 only if C2 is chosen; it does not change the order of the gates. **Parallel to the chain** and not on it: the physical-device track, the transport spike, the renderer benchmark.
 
 ### 4.2 Decisions that may be taken in parallel
 
@@ -240,7 +243,7 @@ Sequential: sources before P0 approval; OAM-01 direction before the system-commi
 Spike code never moves as it is. A module may move only through a reviewed, production-quality implementation (or a hardened version of the spike module) after **all** of the following hold for that module:
 
 1. the Owner Decision Gate "required" rows are decided and the licence policy (OAM-07) is recorded;
-2. the module's contracts are **Approved** by the owner (P0 for Core, the WorldGen contracts for `cube-worldgen`, P1 for Editing/persistence) and ACR decisions that touch it are made;
+2. the module's contracts are **Approved** by the owner (P0 for Core, the WorldGen contracts for `cube-worldgen`, P1 for Editing/persistence) and ACR decisions that touch it are made (ACR-004 for the system-commit port and WorldGen);
 3. the CI of Gate 1 exists and runs the dependency-rule test, the process-call guard and the package check;
 4. the owner approves the merge in writing, per module.
 
@@ -248,16 +251,20 @@ The **earliest** point for the first module (`cube-core` hardened) is the **exit
 
 ## 5. The nearest three tasks
 
-1. **Gate 0 package for the owner (OI-1, OI-2, OI-3, OI-5, OI-8, OI-12).** Supply or confirm the missing sources and the AU-1.0 original, decide ACR-001/002/003, confirm AOD-01…19, record the license policy, name owners (or defer), and approve or amend the WorldGen direction (`worldgen-core-boundary.md`). Without it no P0 contract can be approved and no production Core code may start.
-2. **Physical-device track (OI-10, OI-11).** Obtain one Android ARM64 phone and run `scripts/device-validation.sh` (faces and greedy, three launches each, real touches, 10-minute soak, temperature and memory samples); decide how an iOS build will be produced (macOS/Xcode access). This gives the first real mobile numbers and unblocks the renderer decision.
-3. **Gate 1 foundation work order:** pin toolchains (stable Rust, Godot version), define the GDExtension ABI policy and the build profiles, and specify a CI pipeline that includes the dependency-rule test, the `no_child_processes` guard and the package check (a separate implementation task; this roadmap does not change CI). Next after these three: draft contracts for the WorldGen port, the system-commit port and the mutation journal, once the owner decision of task 1 exists.
+These follow from the decisions of 2026-11-05 and are documentation or specification work (no code on `master`):
+
+1. **Draft the WorldGen port, the system-commit port and the OperationId origin as Draft contracts**, with the revision options for B-6, and bring ACR-004 and the revision rule to the owner for decision (unblocked by AOD-20; approval waits for ACR-004 and the sources).
+2. **Rewrite the persistence contracts against AOD-21** (world record with seed and GeneratorVersion, mutation journal, chunk snapshots, load order, version policy, crash-recovery tests) and specify the combined spike for the Core layer model and compaction (unblocked by AOD-21; no binary format is approved).
+3. **Specify the server runtime host and lifecycle contract** for embedded and dedicated modes with a shared conformance suite and authority tests (unblocked by AOD-22; the transport binding waits for the OAM-05 spike).
+
+Independent and still open: the **physical-device track** (OI-10, OI-11) and the **Gate 1 foundation specification** (toolchain pins, GDExtension ABI policy, profiles, CI that includes the dependency-rule test, the `no_child_processes` guard and the package check); the owner supplies or confirms the missing sources and names owners (OAM-08, OI-8).
 
 ## 6. Blockers
 
 | ID | Blocker | Gate affected |
 |---|---|---|
 | B-1 | GDD/TDD, Voxel Architecture, Geometry Processing Specification absent | 0, 2, 6, 8 |
-| B-3 | ACR-001/002/003 undecided | 0, 2, 5 |
+| B-3 | ACR-001/002/003 undecided; ACR-004 prepared (Pending) | 0, 2, 5 |
 | B-4 | P0 contracts unapproved (AOD-18) | 2 and every gate after it |
 | B-5 | No owner for networking, engine adapters, import/export, derived-data providers, modifier evaluation | 1, 4, 7 |
 | B-6 | RevisionToken width, commit algorithm, generated-data revision rule | 2, 3, 5 |
@@ -266,9 +273,9 @@ The **earliest** point for the first module (`cube-core` hardened) is the **exit
 | B-13 | AU-1.0 original not in the repository | 0 |
 | NB-1 | **No physical Android ARM64 device** (`Blocked: no physical ARM64 device`) | 1, 3 (cross-device hash), 4, 10 |
 | NB-2 | **No macOS/Xcode: iOS blocked** | 1, 10 |
-| NB-3 | No license policy (OI-5) | 0 |
-| NB-4 | WorldGen direction not approved (OI-12) | 2, 3 |
-| NB-5 | Persistence contracts not aligned with AOD-17 (OI-4) | 5 |
+| NB-3 | Cube's own license and dependency license list undecided (the study policy is approved, AOD-23) | 0 |
+| NB-4 | WorldGen: direction approved (AOD-20); ACR-004 Pending, Core layer model and revision rule open | 2, 3 |
+| NB-5 | Persistence contracts not yet rewritten against AOD-17/AOD-21 (OI-4) | 5 |
 | NB-6 | No CI | 1 |
 
 ## 7. Not for `master` without a separate owner approval
@@ -284,4 +291,4 @@ The **earliest** point for the first module (`cube-core` hardened) is the **exit
 
 Start with the decision package `docs/decisions/owner-approval-matrix-v1.md` (OAM-01…08; the three decisions to take first are in its section 11: OAM-08 missing sources, OAM-07 licence policy, OAM-01 direction together with OAM-03).
 
-Confirm or amend: AOD-01…19 (`owner-architecture-decisions-v1.md` section 1); the WorldGen direction (`worldgen-core-boundary.md` section 12); the gate order and the critical path above; the nearest three tasks; the status labels of the borrowed principles (`reference-comparison.md` section 2); and the open items OI-1…OI-12.
+Confirm or amend: AOD-01…24 (`owner-architecture-decisions-v1.md` sections 1 and 5); the open WorldGen items (`worldgen-core-boundary.md` section 12); the gate order and the critical path above; the nearest three tasks; the status labels of the borrowed principles (`reference-comparison.md` section 2); and the open items OI-1…OI-12.
