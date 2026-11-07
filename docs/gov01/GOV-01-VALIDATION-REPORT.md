@@ -4,8 +4,8 @@
 
 ## 1. Repository state
 
-* Source commit of the package: `74566cd975df656282d7844e98cea79a3329a18b`. Branch: `docs/architecture-roadmap-v1` (requested name `architecure_roadmap` does not exist; no branch created or switched). `git merge-base --is-ancestor 74566cd HEAD`: true (HEAD equals `74566cd`). Upstream `origin/docs/architecture-roadmap-v1` contains it.
-* HEAD at the time of the checks: `74566cd975df656282d7844e98cea79a3329a18b`.
+* **Baseline (source) commit of this validation:** `74566cd975df656282d7844e98cea79a3329a18b`. The corrective package was validated as uncommitted working-tree changes on top of this baseline and was committed afterwards as the **package commit** `5c9a5c5`; the HEAD of the repository when this correction was made is also `5c9a5c5`. Branch: `docs/architecture-roadmap-v1` (requested name `architecure_roadmap` does not exist; no branch created or switched). `git merge-base --is-ancestor 74566cd HEAD`: true (HEAD equals `74566cd`). Upstream `origin/docs/architecture-roadmap-v1` contains it.
+* The `git rev-parse HEAD` output printed when the checks ran (this is the baseline commit, not the package commit): `74566cd975df656282d7844e98cea79a3329a18b`.
 * Working tree after the pass (`git status --short`):
 
 ```

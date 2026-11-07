@@ -29,7 +29,7 @@ Choose (C) or confirm (OK) the recommendation. "Needs data" means a value that n
 | ID | Where | Question |
 |---|---|---|
 | X-1 | GOV-01 acceptance | Countersign AOD-01...24 and OAM-01/02/03/07/08 (at least AOD-18, 20, 24 now), by signed commit or an owner-written file? |
-| X-2 | GOV-02 | Adopt the status model (Proposed, Provisional, Owner-Approved, Implemented, Frozen, Rejected, Superseded) **and** rule that contract approval belongs to the Project Owner (older documents say the Integration Owner approves; which documents are amended?) |
+| X-2 | GOV-02 | Adopt the status model (Proposed, Provisional, Owner-Approved, Implemented, Frozen, Rejected, Superseded) **and** rule that contract approval belongs to the Project Owner (the Task Pack lines 6 and 710 and the audit-resolution report lines 211 and 244 attribute contract approval to the Integration Owner, Agent Specification line 69 does so partially; module acceptance by the Integration Owner is not affected; which documents are amended?) |
 | X-3 | GOV-03 | Owners for WorldGen, Networking Adapter, Server Runtime, Client Runtime, Engine Adapter, Import/Export, O-1, O-2, or a written deferral of each |
 | X-4 | GOV-05 | Approve the CI specification (after item 14) |
 

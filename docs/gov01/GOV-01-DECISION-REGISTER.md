@@ -33,19 +33,26 @@ Recorded by: <role>   (an agent never sets Owner-Approved without the source)
 
 **Rule used throughout this package.** The **Project Owner** decides and approves: architecture decisions, ACRs, contract approval states (Provisional, Owner-Approved, Rejected, Superseded), formats, licences, assignment of owners, scope. The **Integration Owner** (an agent role, "Main Agent / Integration Owner") prepares, reviews, checks conformance and consistency, maintains the registry and the ADG, records a decision *only on the Project Owner's entry*, and gives *engineering* acceptance of modules. The Integration Owner never approves a contract or a decision on the Project Owner's behalf. This is the wording of the production plan (3.1: `Owner-Approved` is assigned by the "project owner only"; `integration-and-qa-plan.md` section 2: the Integration Owner "does not approve contracts or ACRs") and of AOD-18.
 
-**Conflict in older documents (not silently rewritten; needs the owner's ruling, folded into X-2):**
+**Four kinds of authority are kept apart (corrected after the post-review: the first version mixed them).**
 
-| Document (line) | Says | Conflicts with |
+| Kind | Holder | Sources |
 |---|---|---|
-| `specifications/cube-agent-development-specification-v1.0.md` line 69 | "Only the Integration Owner may approve changes to shared public contracts." (lines 507, 520: only the Integration Owner marks a module Accepted / approves acceptance) | AOD-18 and plan 3.1 (contracts approved by the owner) |
-| `agent-tasks/geometry-editing-agent-task-pack-v1.0.md` lines 6, 710 | "Contract authority: Integration Owner"; "Integration Owner approves contracts by tier" | same |
-| `api-contracts/README.md` line 3 | "Approval is recorded by the Integration Owner in `docs/decisions/`." | compatible with "records"; ambiguous about "approval" |
-| `decisions/audit-resolution-report.md` lines 211, 244 | blocker B-4 and step 4: "Integration Owner: approve P0, then P1 contracts" | AOD-18, plan 3.1 |
-| `architecture/geometry-editing-specification-v1.0.md` line 860 | step "12. Integration Owner approves." | same |
-| `decisions/acr-004-owner-review.md` line 62 | the Integration Owner **reviews** each contract against its sources | consistent |
-| AU-1.0 (reconstructed copy) line 65 | Integration Owner "is responsible for architectural consistency" | consistent (no approval wording) |
+| Project Owner authority: decisions, ACRs, contract approval states, formats, licences, owner assignment, scope | Project Owner | AOD-18 (`owner-architecture-decisions-v1.md` line 28); plan 3.1 and 3.3 |
+| Contract approval authority (setting a contract to Owner-Approved) | Project Owner per AOD-18 and plan 3.1; **Integration Owner per some older documents** (see conflicts below) | below |
+| Module acceptance authority (a module or task is *Accepted*; engineering) | Integration Owner. **Not a conflict**: the plan keeps it (`agent-task-breakdown.md`: "Acceptance authority: Integration Owner") | Agent Development Specification line 507 ("Only Integration Owner can mark a module Accepted") and line 520 (Definition of Done: "Integration Owner approves acceptance"); Geometry Editing Specification lines 846-860 (module acceptance conditions; item 12 "Integration Owner approves") |
+| Integration Owner responsibilities | Integration Owner | Agent Development Specification 3.1 (lines 58-71): architecture consistency, shared API contracts, dependency graph, integration order, Pull Request approval, release acceptance; owns the composition root and the dependency matrix |
 
-Authority order stated in `api-contracts/README.md`: AU-1.0 > Geometry Editing Specification > Agent Development Specification > the contracts; the owner's AOD records are not in that list. **Owner ruling needed (folded into X-2, D-REG):** declare that for contracts "approve" means the Project Owner, that the Integration Owner's earlier "approval" is technical review plus engineering acceptance, and name the documents to amend; or delegate specific classes of approval to the Integration Owner explicitly. Until then no agent treats an Integration Owner statement as a contract approval.
+**Genuinely supported conflicts (these are the only ones kept; the ruling is the owner's and is folded into X-2):**
+
+| Document (line) | Says | Why it conflicts | Strength |
+|---|---|---|---|
+| `specifications/cube-agent-development-specification-v1.0.md` line 69 | "Only the Integration Owner may approve changes to shared public contracts." | The sentence is about *changes* to shared contracts; AOD-18 is about the *approval status* of contracts. It conflicts only if "changes" includes first approval; plan 3.1 does not say who approves a text change to an Owner-Approved contract (a change to a Frozen one needs an ACR and the owner) | **partial / ambiguous** |
+| `agent-tasks/geometry-editing-agent-task-pack-v1.0.md` line 6 and line 710 | "Contract authority: Integration Owner"; "Integration Owner approves contracts by tier" | Contract *approval status* is assigned to the Integration Owner | **direct** |
+| `decisions/audit-resolution-report.md` lines 211 and 244 | blocker B-4 "Integration Owner approval"; step 4 "Integration Owner: approve P0, then P1 contracts; set status to Approved and version to 1.0.0" | Same; the report is a dated historical document that predates the owner's AOD records of 2026-11-04 | **direct (historical)** |
+
+**Not conflicts (checked against the text):** `api-contracts/README.md` line 3 ("Approval is recorded by the Integration Owner in `docs/decisions/`"): compatible if read as *recording*, ambiguous in wording; `decisions/acr-004-owner-review.md` line 62 (the Integration Owner reviews); AU-1.0 line 65 (responsible for architectural consistency); Agent Specification lines 507 and 520 and Geometry Editing Specification line 860 (module acceptance, see above). The Agent Development Specification never mentions a Project Owner, so it neither grants nor denies owner authority; it predates the owner records. A possible overlap that is **not asserted as a conflict**: "release acceptance" (Agent Specification 3.1) versus the owner's acceptance of release milestones in `RELEASE_CRITERIA.md`; to be clarified together with X-2.
+
+Authority order stated in `api-contracts/README.md`: AU-1.0 > Geometry Editing Specification > Agent Development Specification > the contracts; the owner's AOD records are not in that list. **Owner ruling needed (folded into X-2, D-REG):** declare that for contract approval states "approve" means the Project Owner and that the Integration Owner reviews, validates, integrates, records and gives module acceptance; name the documents to amend (Agent Specification line 69, Task Pack lines 6 and 710; the audit-resolution lines by erratum); or delegate named classes of approval to the Integration Owner explicitly. Until then no agent treats an Integration Owner statement as a contract approval.
 
 **Change-control difference (also for the owner):** `owner-architecture-decisions-v1.md` section 4 accepts the owner's "explicit approval in chat or in a signed-off pull request" to change an AOD, while plan 3.3 says a chat instruction alone is **not** a confirmation source for a registry entry. The registry rule (3.3) is the stricter one and is used here.
 
@@ -132,7 +139,7 @@ Common fields for every item: **Status:** Proposed; no registry entry; not confi
 **Question:** How do system (generation) changes interact with revisions?
 **Sources:** `decisions/owner-approval-matrix-v1.md` OAM-10 (lines ~355-370); `acr-004-owner-review.md`; `api-contracts/revision-and-snapshot-semantics.md`.
 **Why:** C-16 (P0-alpha) must define what a commit increments; part D is the only part that touches the P0 revision contract.
-**Options (labels as in OAM-10; the label "R-A" is also used by OAM-05 for the renderer option `faces`, so registry entries must write `OAM-10/R-A`):**
+**Options (labels as in OAM-10; the label "R-A" is also used by OAM-04 for the renderer option `faces`, so registry entries must write `OAM-10/R-A`):**
 * **R-A** same asset/layer/cell revision scopes for system commits, `ActorKind::System` marks the origin. + no new token kind; uniform undo/conflict rules; least code; journal records only user commits. − asset/layer revision advances during streaming (one per streamed chunk in the spike), so a coarse revision no longer means "a user changed something"; user edits must be validated with brick/region stamps, not asset-level tokens.
 * **R-B** separate generation epoch. + user vs terrain updates distinguishable by token. − new revision kind, changes C-16 comparison rules, more state to persist.
 * **R-C** separate revision domains for generated base and user overrides. + strongest separation. − largest change to C-16, Materialiser needs its own handling, couples to the C1/C2 choice (OAM-09, deferred).

@@ -8,7 +8,7 @@
 
 | # | Remark | Verdict | Corrected in |
 |---|---|---|---|
-| CR-01 | Owner authority vs Integration Owner | **Confirmed: real conflict in older documents** | Register 0.2, F-10; X-2 |
+| CR-01 | Owner authority vs Integration Owner | **Confirmed in part:** contract-approval statements conflict; module-acceptance statements do not (corrected, see `GOV-01-POST-REVIEW-CORRECTIONS.md`) | Register 0.2, F-10; X-2 |
 | CR-02 | GOV-01 scope completeness; X-1...X-4 | **Confirmed in part:** X-1 has no home; X-2...X-4 are already tasks of G0 | Register 3, 3.1; Blockers |
 | CR-03 | OD-R6 RegionStamp | **Confirmed:** contract under-specified; also a cell/brick terminology gap | Register 0.1, item 8 |
 | CR-04 | D-T numeric policy | **Confirmed:** scope ambiguous | Register item 11 |
@@ -23,7 +23,8 @@
 
 **Evidence.**
 * Project Owner decides: AOD-18 ("contracts stay Draft until the owner separately approves them", `owner-architecture-decisions-v1.md` line 28); plan 3.1 (`Owner-Approved`: "project owner only"); `integration-and-qa-plan.md` section 2 (the Integration Owner "does not approve contracts or ACRs").
-* Older documents that attribute approval to the Integration Owner: `specifications/cube-agent-development-specification-v1.0.md` line 69 ("Only the Integration Owner may approve changes to shared public contracts"), lines 507 and 520 (acceptance); `agent-tasks/geometry-editing-agent-task-pack-v1.0.md` lines 6 and 710; `decisions/audit-resolution-report.md` lines 211 and 244; `architecture/geometry-editing-specification-v1.0.md` line 860; `api-contracts/README.md` line 3 ("Approval is recorded by the Integration Owner").
+* Older documents that attribute **contract approval** to the Integration Owner: `specifications/cube-agent-development-specification-v1.0.md` line 69 ("Only the Integration Owner may approve changes to shared public contracts"; partial, it concerns *changes*); `agent-tasks/geometry-editing-agent-task-pack-v1.0.md` lines 6 and 710 (direct); `decisions/audit-resolution-report.md` lines 211 and 244 (direct, historical). `api-contracts/README.md` line 3 ("recorded") is ambiguous but compatible.
+* **Not conflicts:** Agent Development Specification lines 507 and 520 and Geometry Editing Specification line 860 concern **module acceptance**, which the plan keeps with the Integration Owner (the first version of this review listed them as conflicting; corrected after the post-review).
 * A second inconsistency: change control of AODs accepts the owner's chat approval (`owner-architecture-decisions-v1.md` section 4); registry confirmation (plan 3.3) does not.
 **Not rewritten silently.** The Register 0.2 states the rule used in this package, lists the conflicting passages with lines, and proposes the owner's ruling (fold into X-2): either declare that for contracts "approve" means the Project Owner and the Integration Owner's role is review, conformance, recording and engineering acceptance, naming the documents to amend; or delegate named classes of approval explicitly. **The Integration Owner is given no approval power anywhere in the package** (`gov01_check.py` check).
 **Residual:** the ruling is the owner's.
