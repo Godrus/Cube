@@ -5,6 +5,7 @@
 //! own and exposes no Godot type to any other Cube crate.
 
 pub mod bridge;
+pub mod player;
 pub mod world_bridge;
 
 use std::path::Path;
@@ -404,6 +405,84 @@ impl CubeWorld {
     #[func]
     fn ground_height(&self, x: i32, z: i32) -> i32 {
         self.bridge.ground_height(x, z)
+    }
+
+    /// Hash of the content of all Ready chunks, as 16 hex digits (GDScript ints are signed 64-bit).
+    #[func]
+    fn world_hash(&self) -> GString {
+        GString::from(&format!("{:016x}", self.bridge.world_hash()))
+    }
+
+    /// Stored material at a world voxel: 0 air, 1.. material, -1 not loaded / outside the world height.
+    #[func]
+    fn voxel_at(&self, x: i32, y: i32, z: i32) -> i32 {
+        self.bridge.voxel_at(x, y, z)
+    }
+
+    /// Highest solid voxel of a column from the stored voxels (-1 none, -2 chunk not loaded).
+    #[func]
+    fn column_top(&self, x: i32, z: i32) -> i32 {
+        self.bridge.column_top(x, z)
+    }
+
+    /// Ray through the stored voxels. Returns `[hit, x, y, z, nx, ny, nz]`: `hit` is 1 with the voxel and the entered
+    /// face normal, or 0 (rest zeros) on a miss or when the ray reaches an unloaded chunk.
+    #[func]
+    fn raycast(&self, origin: Vector3, dir: Vector3, max_dist: f32) -> PackedInt32Array {
+        match self.bridge.raycast([origin.x, origin.y, origin.z], [dir.x, dir.y, dir.z], max_dist) {
+            Some(h) => PackedInt32Array::from(&[
+                1, h.voxel[0], h.voxel[1], h.voxel[2], h.normal[0], h.normal[1], h.normal[2],
+            ][..]),
+            None => PackedInt32Array::from(&[0, 0, 0, 0, 0, 0, 0][..]),
+        }
+    }
+
+    /// Removes a solid voxel; true if it changed. One undo step.
+    #[func]
+    fn remove_block(&mut self, x: i32, y: i32, z: i32) -> bool {
+        self.bridge.remove_block(x, y, z)
+    }
+
+    /// Places a block (material 4, "placed") at an air voxel; refused inside the character. True if it changed.
+    #[func]
+    fn place_block(&mut self, x: i32, y: i32, z: i32) -> bool {
+        self.bridge.place_block(x, y, z, cube_worldgen::MAT_PLACED)
+    }
+
+    /// Stands the character on column (x, z); false when that chunk is not loaded.
+    #[func]
+    fn player_spawn(&mut self, x: i32, z: i32) -> bool {
+        self.bridge.player_spawn(x, z)
+    }
+
+    /// Moves the character high above (x, z); it waits there until the chunks around are loaded, then falls.
+    #[func]
+    fn player_teleport(&mut self, x: f32, z: f32) {
+        self.bridge.player_teleport(x, z);
+    }
+
+    /// Advances the character by `dt` seconds (wanted direction in world axes, jump request).
+    #[func]
+    fn player_step(&mut self, dt: f32, mx: f32, mz: f32, jump: bool) {
+        self.bridge.player_step(dt, mx, mz, jump);
+    }
+
+    /// Feet position of the character.
+    #[func]
+    fn player_pos(&self) -> Vector3 {
+        let p = self.bridge.player_pos();
+        Vector3::new(p[0], p[1], p[2])
+    }
+
+    #[func]
+    fn player_on_ground(&self) -> bool {
+        self.bridge.player_on_ground()
+    }
+
+    /// True while the character waits for an unloaded chunk next to it.
+    #[func]
+    fn player_held(&self) -> bool {
+        self.bridge.player_held()
     }
 
     /// Chunks next to an edited border that need a face-mesh rebuild (see `take_modified` for the edited ones).

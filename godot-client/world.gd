@@ -18,6 +18,37 @@ extends Node3D
 const SEED := 12345
 const SPEED := 24.0
 const PUMP_PER_FRAME := 2
+const DEFAULT_RADIUS := 1
+
+# P-WORLD stage C: voxel picking (mouse cursor ray), editing, save file.
+const AIM_RANGE := 80.0                # how far the camera ray looks (voxels)
+const REACH := 10.0                    # how far from the character a voxel can be removed or placed (voxels)
+var aim_valid := false                 # the ray hit a voxel
+var aim_in_reach := false              # ... within REACH of the character
+var aim_voxel := Vector3i.ZERO
+var aim_normal := Vector3i.ZERO        # face that was hit; the new block goes at aim_voxel + aim_normal
+var aim_override: Variant = null       # a Vector2 screen position instead of the mouse (tests); null = the mouse
+var highlight := MeshInstance3D.new()
+var highlight_mat := StandardMaterial3D.new()
+var rmb_travel := 0.0                  # mouse travel while the right button is down: a click places, a drag orbits
+var edits_unsaved := 0
+var persist_enabled := false           # autosave on close / load on start: only the real client turns this on
+var save_path := ""
+var edit_log: Array = []               # (x, y, z, material after) of every edit by the player, for tests
+var walk_mode := true                  # stage B: a physical character (gravity, collision); false = old flying marker
+var jump_pressed := false
+# P-WORLD stage A: `--seed=<n>` and `--radius=<0..8>` (Godot user arguments after `--`), orbit camera, frame times.
+var seed_value := SEED
+var radius_value := DEFAULT_RADIUS
+var cam_yaw := 0.0                     # radians around the player, 0 = camera behind (+z) the player
+var cam_pitch := atan2(16.0, 20.0)     # radians above the horizon (default view = offset (0, 16, 20))
+var cam_dist := sqrt(16.0 * 16.0 + 20.0 * 20.0)
+var orbiting := false
+var frame_acc := 0.0                   # seconds accumulated in the current one-second window
+var frame_count := 0
+var frame_max := 0.0
+var frame_avg_ms := 0.0                # published every second: average and worst frame time of the last window
+var frame_max_ms := 0.0
 
 var world: RefCounted
 var player := Vector3(8.5, 0, 8.5)
@@ -43,8 +74,63 @@ var rust_us := 0                       # microseconds inside world.section_mesh 
 var node_us := 0                       # microseconds spent replacing Godot nodes
 
 func _ready() -> void:
+	persist_enabled = true
 	if _init_world():
+		if persist_enabled and FileAccess.file_exists(save_path) and not _has_flag("--fresh") and _load_world():
+			return
 		_stream()
+		if walk_mode:
+			_spawn_character()
+
+## `--name` among the Godot user arguments.
+func _has_flag(flag: String) -> bool:
+	return OS.get_cmdline_user_args().has(flag)
+
+func _str_arg(prefix: String) -> String:
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with(prefix):
+			return a.substr(prefix.length())
+	return ""
+
+## Loads the save file (at start: replaces the fresh world). A damaged file is kept as `<file>.bad` and the fresh
+## world is used. The character is not saved: Rust puts it above the middle of the saved centre chunk and it falls.
+func _load_world() -> bool:
+	var ok: bool = world.load(save_path)
+	if not ok:
+		var err: String = world.last_error()
+		print("WORLD load failed: %s" % err)
+		var bad := save_path + ".bad"
+		DirAccess.rename_absolute(save_path, bad)
+		hud.text = "save file unreadable (%s), kept as %s" % [err, bad.get_file()]
+		return false
+	_clear_chunks()
+	seed_value = world.seed()
+	radius_value = world.radius()
+	player = world.player_pos()
+	marker.position = player + Vector3(0, 0.9, 0)
+	_update_camera()
+	_apply_delta()
+	edits_unsaved = 0
+	print("WORLD loaded %s seed=%d radius=%d chunks=%d hash=%s" % [save_path, seed_value, radius_value, world.active_count(), world.world_hash()])
+	return true
+
+func _save_world() -> bool:
+	var ok: bool = world.save(save_path)
+	if ok:
+		edits_unsaved = 0
+	print("WORLD save ok=%s path=%s hash=%s" % [ok, save_path, world.world_hash()])
+	return ok
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST and persist_enabled and world != null:
+		_save_world()
+
+## P-WORLD stage B: the character stands on the surface at (8, 8) once its chunk is loaded.
+func _spawn_character() -> void:
+	if world.player_spawn(8, 8):
+		player = world.player_pos()
+		marker.position = player + Vector3(0, 0.9, 0)
+		_update_camera()
 
 ## Creates the Rust world and the scene; false (with an error) if the GDExtension is not loaded.
 func _init_world() -> bool:
@@ -64,10 +150,28 @@ func _init_world() -> bool:
 	var arg := _rebuild_arg()
 	if arg in ["partial", "chunk", "all"]:
 		rebuild_policy = arg
+	var s: Variant = _int_arg("--seed=")
+	if s != null:
+		seed_value = s
+	var r: Variant = _int_arg("--radius=")
+	if r != null:
+		radius_value = clampi(r, 0, 8)
 	_build_scene()
-	world.create(SEED, 1)
+	var sp := _str_arg("--save=")
+	save_path = sp if sp != "" else ProjectSettings.globalize_path("user://world.wst0")
+	world.create(seed_value, radius_value)
 	_place_player(player.x, player.z)
+	print("WORLD seed=%d radius=%d renderer=%s" % [seed_value, radius_value, renderer])
 	return true
+
+## `--name=<int>` among the Godot user arguments; null if absent or not an integer.
+func _int_arg(prefix: String):
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with(prefix):
+			var v := a.substr(prefix.length())
+			if v.is_valid_int():
+				return v.to_int()
+	return null
 
 ## `--renderer=<m>` among the Godot user arguments (after `--`); empty if absent.
 func _renderer_arg() -> String:
@@ -109,19 +213,28 @@ func _build_scene() -> void:
 	light.rotation_degrees = Vector3(-55, 35, 0)
 	add_child(light)
 	var m := BoxMesh.new()
-	m.size = Vector3(1.2, 2.4, 1.2)
+	m.size = Vector3(0.6, 1.8, 0.6)
 	var yellow := StandardMaterial3D.new()
 	yellow.albedo_color = Color(1, 0.9, 0.1)
 	m.material = yellow
 	marker.mesh = m
 	add_child(marker)
+	var hb := BoxMesh.new()
+	hb.size = Vector3(1.03, 1.03, 1.03)
+	highlight_mat.albedo_color = Color(1, 0.95, 0.2, 0.35)
+	highlight_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	highlight_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	hb.material = highlight_mat
+	highlight.mesh = hb
+	highlight.visible = false
+	add_child(highlight)
 
 	var ui := CanvasLayer.new()
 	add_child(ui)
 	hud.position = Vector2(8, 4)
 	ui.add_child(hud)
 	var row := HBoxContainer.new()
-	row.position = Vector2(0, 90)
+	row.position = Vector2(0, 118)
 	ui.add_child(row)
 	for spec in [["Fwd", "fwd"], ["Back", "back"], ["Left", "left"], ["Right", "right"]]:
 		var b := Button.new()
@@ -145,11 +258,58 @@ func _place_player(x: float, z: float) -> void:
 	player.x = x
 	player.z = z
 	player.y = world.ground_height(floori(x), floori(z)) + 1.0
-	marker.position = player + Vector3(0, 0.2, 0)
-	camera.look_at_from_position(player + Vector3(0, 16, 20), player)
+	marker.position = player + Vector3(0, 0.9, 0)
+	_update_camera()
+
+## Orbit camera: yaw and pitch around the player at distance `cam_dist` (defaults equal the old fixed offset).
+func _update_camera() -> void:
+	var off := Vector3(sin(cam_yaw) * cos(cam_pitch), sin(cam_pitch), cos(cam_yaw) * cos(cam_pitch)) * cam_dist
+	var target := player + Vector3(0, 1.0, 0)
+	camera.look_at_from_position(target + off, target)
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_E:
+		_do_place()
+	elif event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+			_do_remove()
+		elif event.button_index == MOUSE_BUTTON_MIDDLE and event.pressed:
+			_do_place()
+		elif event.button_index == MOUSE_BUTTON_RIGHT:
+			orbiting = event.pressed
+			if event.pressed:
+				rmb_travel = 0.0
+			elif rmb_travel < 6.0:
+				_do_place()                       # a right click without a drag places a block
+		elif event.pressed and event.button_index == MOUSE_BUTTON_WHEEL_UP:
+			cam_dist = maxf(6.0, cam_dist * 0.9)
+			_update_camera()
+		elif event.pressed and event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			cam_dist = minf(140.0, cam_dist * 1.1)
+			_update_camera()
+	elif event is InputEventMouseMotion and orbiting:
+		rmb_travel += event.relative.length()
+		cam_yaw -= event.relative.x * 0.005
+		cam_pitch = clampf(cam_pitch + event.relative.y * 0.005, 0.1, 1.5)
+		_update_camera()
+
+func _track_frame(delta: float) -> void:
+	frame_acc += delta
+	frame_count += 1
+	frame_max = maxf(frame_max, delta)
+	if frame_acc >= 1.0:
+		frame_avg_ms = frame_acc / frame_count * 1000.0
+		frame_max_ms = frame_max * 1000.0
+		frame_acc = 0.0
+		frame_count = 0
+		frame_max = 0.0
 
 func _process(delta: float) -> void:
 	if world == null or not auto_stream:
+		return
+	_track_frame(delta)
+	if walk_mode:
+		_walk(delta)
 		return
 	var d := Vector2.ZERO
 	if Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP) or hold["fwd"]: d.y -= 1
@@ -157,8 +317,69 @@ func _process(delta: float) -> void:
 	if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT) or hold["left"]: d.x -= 1
 	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT) or hold["right"]: d.x += 1
 	if d != Vector2.ZERO:
-		d = d.normalized() * SPEED * delta
+		d = d.normalized().rotated(-cam_yaw) * SPEED * delta      # movement is relative to the view direction
 		_place_player(player.x + d.x, player.z + d.y)
+	_stream(PUMP_PER_FRAME)
+
+## Picks the voxel under the mouse cursor (or `aim_override`): ray from the camera through the cursor, in Rust.
+func _update_aim() -> void:
+	var sp: Vector2 = aim_override if aim_override != null else get_viewport().get_mouse_position()
+	var origin := camera.project_ray_origin(sp)
+	var dir := camera.project_ray_normal(sp)
+	var r: PackedInt32Array = world.raycast(origin, dir, AIM_RANGE)
+	aim_valid = r[0] == 1
+	aim_in_reach = false
+	if aim_valid:
+		aim_voxel = Vector3i(r[1], r[2], r[3])
+		aim_normal = Vector3i(r[4], r[5], r[6])
+		var centre := Vector3(aim_voxel) + Vector3(0.5, 0.5, 0.5)
+		aim_in_reach = centre.distance_to(player + Vector3(0, 0.9, 0)) <= REACH
+		highlight.position = centre
+		highlight_mat.albedo_color = Color(1, 0.95, 0.2, 0.35) if aim_in_reach else Color(1, 0.2, 0.2, 0.30)
+	highlight.visible = aim_valid
+
+## Removes the aimed voxel; the mesh and the collision change at once (Rust reads the stored voxels).
+func _do_remove() -> bool:
+	_update_aim()
+	if not (aim_valid and aim_in_reach):
+		return false
+	var v := aim_voxel
+	if not world.remove_block(v.x, v.y, v.z):
+		return false
+	edit_log.append([v.x, v.y, v.z, 0])
+	edits_unsaved += 1
+	_apply_delta()
+	_update_aim()
+	return true
+
+## Places a block on the aimed face (next to the aimed voxel); refused inside the character or in unloaded chunks.
+func _do_place() -> bool:
+	_update_aim()
+	if not (aim_valid and aim_in_reach) or aim_normal == Vector3i.ZERO:
+		return false
+	var t := aim_voxel + aim_normal
+	if not world.place_block(t.x, t.y, t.z):
+		return false
+	edit_log.append([t.x, t.y, t.z, 4])
+	edits_unsaved += 1
+	_apply_delta()
+	_update_aim()
+	return true
+
+## Stage B frame: input -> character step in Rust -> camera -> streaming around the character.
+func _walk(delta: float) -> void:
+	var d := Vector2.ZERO
+	if Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP) or hold["fwd"]: d.y -= 1
+	if Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN) or hold["back"]: d.y += 1
+	if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT) or hold["left"]: d.x -= 1
+	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT) or hold["right"]: d.x += 1
+	d = d.normalized().rotated(-cam_yaw)            # movement is relative to the view direction
+	jump_pressed = Input.is_key_pressed(KEY_SPACE)
+	world.player_step(delta, d.x, d.y, jump_pressed)
+	player = world.player_pos()
+	marker.position = player + Vector3(0, 0.9, 0)
+	_update_camera()
+	_update_aim()
 	_stream(PUMP_PER_FRAME)
 
 ## One streaming step: tell Rust where the player is, generate a few chunks, mirror the delta.
@@ -340,7 +561,18 @@ func _update_mode_button() -> void:
 	mode_button.text = "Renderer: " + renderer
 
 func _update_hud() -> void:
-	hud.text = "seed %d   %s   active chunks %d (nodes %d)   voxels %d   drawn %d   queue %d   player (%.0f, %.0f, %.0f)   fps %d" % [world.seed(), renderer, world.active_count(), chunks.size(), world.active_voxels(), _drawn_elements(), world.queue_len(), player.x, player.y, player.z, Engine.get_frames_per_second()]
+	hud.text = "seed %d   %s   active chunks %d (nodes %d)   voxels %d   drawn %d   queue %d   player (%.0f, %.0f, %.0f)
+frame avg %.1f ms max %.1f ms   radius %d   %s\n%s   unsaved edits %d" % [world.seed(), renderer, world.active_count(), chunks.size(), world.active_voxels(), _drawn_elements(), world.queue_len(), player.x, player.y, player.z, frame_avg_ms, frame_max_ms, world.radius(), _body_state(), _aim_state(), edits_unsaved]
+
+func _aim_state() -> String:
+	if not aim_valid:
+		return "no target"
+	return "target (%d, %d, %d) face (%d, %d, %d)%s" % [aim_voxel.x, aim_voxel.y, aim_voxel.z, aim_normal.x, aim_normal.y, aim_normal.z, "" if aim_in_reach else " (out of reach)"]
+
+func _body_state() -> String:
+	if not walk_mode:
+		return "fly"
+	return "waiting for chunk" if world.player_held() else ("on ground" if world.player_on_ground() else "air")
 
 func _on_edit() -> void:
 	var n: int = world.edit_around(floori(player.x), floori(player.y) + 2, floori(player.z))
@@ -349,18 +581,18 @@ func _on_edit() -> void:
 	print("edit changed %d voxels" % n)
 
 func _on_save() -> void:
-	var ok: bool = world.save(ProjectSettings.globalize_path("user://world.wst0"))
+	var ok := _save_world()
 	hud.text = "saved" if ok else world.last_error()
-	print("save ok=%s" % ok)
 
 func _on_load() -> void:
-	var ok: bool = world.load(ProjectSettings.globalize_path("user://world.wst0"))
+	var ok: bool = world.load(save_path)
 	print("load ok=%s" % ok)
 	if not ok:
 		hud.text = world.last_error()
 		return
 	_clear_chunks()
-	player = player          # the saved centre is restored on the Rust side; the camera stays where it is
+	if walk_mode:
+		player = world.player_pos()          # Rust put the character above the saved centre chunk
 	_apply_delta()
 	_update_hud()
 
@@ -385,5 +617,11 @@ func _on_redo() -> void:
 	print("redo applied %d voxels" % n)
 
 func _on_jump() -> void:
-	_place_player(player.x + 64.0, player.z)
+	if walk_mode:
+		world.player_teleport(player.x + 64.0, player.z)      # waits in the air until the chunks there are loaded
+		player = world.player_pos()
+		marker.position = player + Vector3(0, 0.9, 0)
+		_update_camera()
+	else:
+		_place_player(player.x + 64.0, player.z)
 	print("jump to (%.0f, %.0f)" % [player.x, player.z])

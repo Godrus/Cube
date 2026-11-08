@@ -21,3 +21,12 @@ lto = "thin"
 codegen-units = 1
 panic = "abort"
 opt-level = 3
+
+# P-WORLD (experimental spike): the Godot editor binary loads the *debug* adapter library, which made world
+# generation and meshing 2-3x slower than release. Optimise only the crates on the hot path; debug assertions stay.
+[profile.dev.package.cube-core]
+opt-level = 3
+[profile.dev.package.cube-worldgen]
+opt-level = 3
+[profile.dev.package.cube-godot-adapter]
+opt-level = 3

@@ -6,6 +6,7 @@
 
 use std::path::Path;
 
+use crate::player::{self, Cell, PlayerBody, TELEPORT_HEIGHT};
 use cube_core::VoxelPos;
 use cube_worldgen::generator::TerrainGenerator;
 use cube_worldgen::state_v0;
@@ -376,10 +377,21 @@ pub struct WorldBridge {
     /// Spike-local inverse-edit journal (NOT the Editing API undo): per edit batch the voxels it changed.
     undo: Vec<EditBatch>,
     redo: Vec<EditBatch>,
+    /// P-WORLD stage B: the character body (spike-local physics, see `player.rs`).
+    body: PlayerBody,
 }
 
 /// One user edit: `(position, material before, material after)` of every voxel that changed.
 type EditBatch = Vec<(VoxelPos, u16, u16)>;
+
+/// First solid voxel hit by a ray (P-WORLD stage C).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct RayHit {
+    pub voxel: [i32; 3],
+    /// Unit vector of the face that was entered (points back towards the ray origin). `[0, 0, 0]` when the ray
+    /// starts inside a solid voxel.
+    pub normal: [i32; 3],
+}
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct LoadSummary {
@@ -387,6 +399,20 @@ pub struct LoadSummary {
     pub restored_active: usize,
     pub missing: usize,
     pub edits_restored: usize,
+}
+
+fn world_cell(w: &WorldStreamer, x: i32, y: i32, z: i32) -> Cell {
+    if y < 0 {
+        Cell::Solid
+    } else if y >= CHUNK_HEIGHT {
+        Cell::Air
+    } else {
+        match w.voxel(VoxelPos::new(x, y, z)) {
+            None => Cell::NotReady,
+            Some(0) => Cell::Air,
+            Some(_) => Cell::Solid,
+        }
+    }
 }
 
 fn floor_i32(v: f32) -> i32 {
@@ -419,7 +445,174 @@ impl WorldBridge {
             removed: Vec::new(),
             undo: Vec::new(),
             redo: Vec::new(),
+            body: PlayerBody::default(),
         }
+    }
+
+    /// Material of the stored voxel at a world position: `0` air, `1..` material, `-1` when the chunk is not
+    /// loaded or `y` is outside `0..CHUNK_HEIGHT`. Reads the stored voxels, so edits are visible.
+    pub fn voxel_at(&self, x: i32, y: i32, z: i32) -> i32 {
+        self.w
+            .voxel(VoxelPos::new(x, y, z))
+            .map_or(-1, |m| m as i32)
+    }
+
+    /// Highest solid voxel `y` of the column from the stored voxels; `-1` when the column has no solid voxel,
+    /// `-2` when its chunk is not loaded.
+    pub fn column_top(&self, x: i32, z: i32) -> i32 {
+        for y in (0..CHUNK_HEIGHT).rev() {
+            match self.w.voxel(VoxelPos::new(x, y, z)) {
+                None => return -2,
+                Some(0) => {}
+                Some(_) => return y,
+            }
+        }
+        -1
+    }
+
+    /// Collision view of the world for the body: below the world solid, above it air, unloaded chunks `NotReady`.
+    fn cell(&self, x: i32, y: i32, z: i32) -> Cell {
+        world_cell(&self.w, x, y, z)
+    }
+
+    /// Casts a ray through the stored voxels (3D DDA, Amanatides-Woo) and returns the first solid voxel within
+    /// `max_dist` and the face through which the ray entered it. `None` on a miss, when the ray reaches a chunk
+    /// that is not loaded (the unknown is not "hit" and not "air"), or when it leaves the bottom of the world.
+    pub fn raycast(&self, origin: [f32; 3], dir: [f32; 3], max_dist: f32) -> Option<RayHit> {
+        let len = (dir[0] * dir[0] + dir[1] * dir[1] + dir[2] * dir[2]).sqrt();
+        if !len.is_finite() || len <= 1e-9 || !max_dist.is_finite() || max_dist <= 0.0 || origin.iter().any(|v| !v.is_finite()) {
+            return None;
+        }
+        let d = [dir[0] / len, dir[1] / len, dir[2] / len];
+        let mut v = [floor_i32(origin[0]), floor_i32(origin[1]), floor_i32(origin[2])];
+        let mut step = [0i32; 3];
+        let mut t_max = [f32::INFINITY; 3];
+        let mut t_delta = [f32::INFINITY; 3];
+        for a in 0..3 {
+            if d[a] > 0.0 {
+                step[a] = 1;
+                t_delta[a] = 1.0 / d[a];
+                t_max[a] = ((v[a] + 1) as f32 - origin[a]) / d[a];
+            } else if d[a] < 0.0 {
+                step[a] = -1;
+                t_delta[a] = -1.0 / d[a];
+                t_max[a] = (v[a] as f32 - origin[a]) / d[a];
+            }
+        }
+        let mut normal = [0i32; 3];
+        loop {
+            match self.w.voxel(VoxelPos::new(v[0], v[1], v[2])) {
+                Some(m) if m != 0 => return Some(RayHit { voxel: v, normal }),
+                Some(_) => {}
+                None => {
+                    if v[1] >= CHUNK_HEIGHT {
+                        // above the world: air; keep going (the ray may descend into it)
+                    } else if v[1] < 0 {
+                        return None;
+                    } else {
+                        return None; // chunk not loaded
+                    }
+                }
+            }
+            let a = if t_max[0] <= t_max[1] && t_max[0] <= t_max[2] {
+                0
+            } else if t_max[1] <= t_max[2] {
+                1
+            } else {
+                2
+            };
+            if t_max[a] > max_dist {
+                return None;
+            }
+            v[a] += step[a];
+            t_max[a] += t_delta[a];
+            normal = [0, 0, 0];
+            normal[a] = -step[a];
+        }
+    }
+
+    /// Removes the solid voxel at `(x, y, z)` (Ready chunk, inside the world height); `true` if it changed.
+    pub fn remove_block(&mut self, x: i32, y: i32, z: i32) -> bool {
+        if self.voxel_at(x, y, z) <= 0 {
+            return false;
+        }
+        self.edit_voxel(x, y, z, 0)
+    }
+
+    /// Places `material` at the air voxel `(x, y, z)` (Ready chunk, inside the world height). Refused when the
+    /// voxel is not air or would overlap the character's body (it must never be enclosed by an edit).
+    pub fn place_block(&mut self, x: i32, y: i32, z: i32, material: u16) -> bool {
+        if material == 0 || self.voxel_at(x, y, z) != 0 {
+            return false;
+        }
+        let p = self.body.pos;
+        let h = player::WIDTH / 2.0;
+        let overlaps = (x as f32) < p[0] + h
+            && (x as f32 + 1.0) > p[0] - h
+            && (y as f32) < p[1] + player::HEIGHT
+            && (y as f32 + 1.0) > p[1]
+            && (z as f32) < p[2] + h
+            && (z as f32 + 1.0) > p[2] - h;
+        if overlaps {
+            return false;
+        }
+        self.edit_voxel(x, y, z, material)
+    }
+
+    /// Stands the body on top of column `(x, z)`; false (body unchanged) when that chunk is not loaded.
+    pub fn player_spawn(&mut self, x: i32, z: i32) -> bool {
+        let top = self.column_top(x, z);
+        if top == -2 {
+            return false;
+        }
+        self.body
+            .place(x as f32 + 0.5, (top + 1) as f32, z as f32 + 0.5);
+        self.body.held = false;
+        true
+    }
+
+    /// Moves the body high above `(x, z)`; it waits there (held) until the chunks around are loaded, then falls.
+    pub fn player_teleport(&mut self, x: f32, z: f32) {
+        self.body.place(x, TELEPORT_HEIGHT, z);
+        self.body.held = true;
+    }
+
+    /// Advances the body. `mx`, `mz` is the wanted horizontal direction (world axes), `jump` a jump request.
+    pub fn player_step(&mut self, dt: f32, mx: f32, mz: f32, jump: bool) {
+        let w = &self.w;
+        let cell = |x: i32, y: i32, z: i32| world_cell(w, x, y, z);
+        self.body.step(&cell, dt, mx, mz, jump);
+    }
+
+    pub fn player_pos(&self) -> [f32; 3] {
+        self.body.pos
+    }
+
+    pub fn player_on_ground(&self) -> bool {
+        self.body.on_ground
+    }
+
+    pub fn player_held(&self) -> bool {
+        self.body.held
+    }
+
+    /// True when the body's box overlaps a solid voxel (must never happen; used by tests).
+    pub fn player_inside_solid(&self) -> bool {
+        let p = self.body.pos;
+        let h = player::WIDTH / 2.0;
+        let (x0, x1) = ((p[0] - h + 1e-3).floor() as i32, (p[0] + h - 1e-3).floor() as i32);
+        let (y0, y1) = ((p[1] + 1e-3).floor() as i32, (p[1] + player::HEIGHT - 1e-3).floor() as i32);
+        let (z0, z1) = ((p[2] - h + 1e-3).floor() as i32, (p[2] + h - 1e-3).floor() as i32);
+        for y in y0..=y1 {
+            for z in z0..=z1 {
+                for x in x0..=x1 {
+                    if self.cell(x, y, z) == Cell::Solid {
+                        return true;
+                    }
+                }
+            }
+        }
+        false
     }
 
     pub fn seed(&self) -> u64 {
@@ -916,6 +1109,26 @@ impl WorldBridge {
         TerrainGenerator::height_at(self.w.seed(), x, z)
     }
 
+    /// Order-independent hash of the stored content of every Ready chunk (chunk coordinate and the
+    /// per-chunk stable hash, which includes edits). For determinism checks only; not a persisted format.
+    pub fn world_hash(&self) -> u64 {
+        let mut chunks = self.w.active_chunks();
+        chunks.sort_by_key(|c| (c.x, c.z));
+        let mut h = 0xCBF2_9CE4_8422_2325u64;
+        let mut feed = |v: u64| {
+            for b in v.to_le_bytes() {
+                h ^= b as u64;
+                h = h.wrapping_mul(0x0000_0100_0000_01B3);
+            }
+        };
+        for c in chunks {
+            feed(c.x as i64 as u64);
+            feed(c.z as i64 as u64);
+            feed(self.w.chunk_stable_hash(c).unwrap_or(0));
+        }
+        h
+    }
+
     /// Places a 3x3x3 block of `MAT_PLACED` centred on `(x, y, z)`; returns how many voxels changed.
     /// Voxels in chunks that are not Ready are skipped.
     pub fn edit_around(&mut self, x: i32, y: i32, z: i32) -> usize {
@@ -948,6 +1161,10 @@ impl WorldBridge {
         self.w = w;
         self.undo.clear();
         self.redo.clear();
+        // The body is not saved: it waits above the middle of the saved centre chunk until that chunk is loaded.
+        if let Some(c) = self.w.center() {
+            self.player_teleport(c.origin_x() as f32 + 8.5, c.origin_z() as f32 + 8.5);
+        }
         // The client clears everything on load and then takes all active chunks as newly added.
         self.added = self.w.active_chunks();
         self.removed.clear();
