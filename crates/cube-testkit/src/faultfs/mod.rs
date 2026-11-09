@@ -126,6 +126,19 @@ impl FaultFs {
         self.step()
     }
 
+    /// Shortens `path` to `len` bytes (volatile, like a write).
+    pub fn truncate(&mut self, path: &str, len: usize) -> Result<(), FsError> {
+        if self.crashed {
+            return Err(FsError::Crashed);
+        }
+        let i = *self
+            .volatile_ns
+            .get(path)
+            .ok_or_else(|| FsError::NotFound(path.to_owned()))?;
+        self.inodes[i].volatile.truncate(len);
+        self.step()
+    }
+
     /// Makes the current content of `path` durable (not its name).
     pub fn fsync(&mut self, path: &str) -> Result<(), FsError> {
         if self.crashed {

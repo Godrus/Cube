@@ -200,3 +200,14 @@ The owner recorded GOV-08 (PC-1 as the provisional baseline for PS-5) and GOV-17
 
 **G5: NOT passed** (SDF, Mesh and the T-junction criterion are open; RG-1 not passed). **G10: not evaluated.**
 
+## 15. Session 9, 2026-11-10: PERS-04 file journal and recovery guarantees
+
+| Item | IMPLEMENTED | TESTED | INTEGRATED | Notes |
+|---|---|---|---|---|
+| PERS-04 file journal (`journal.rs`) | yes | yes (`persistence_journal.rs`): round trip and reopen, gapless sequence, torn tail repaired, damage in the middle refused, sequence gap and unknown schema refused, write/fsync failure poisons the journal, oversize refused; **crash at every step** of real orchestration (3 torn-write modes) keeps every acknowledged change and replay restores it (the test fails when the fsync is removed: mutation checked); two restarts on real files; killed child process | see CI | model, real files, killed process; no device durability |
+| PERS-02, PERS-03, PERS-05 | **not started** | - | - | start-after `SPK-PERS` (ADG Part C): no durability spike report exists, so the dependency is **not** closed. PERS-08 world record is also not started |
+| TD-4 | restart idempotency, replay of changes after the last snapshot and the undecided-intent procedure are implemented and tested on real files | yes | yes (journal part after CI) | Still not closed: `resolve_pending` needs a caller that compares the restored world; no manifest ties snapshot and journal position yet |
+| CB-1 | boundary behaviours proven: crash before the Intent, after the Intent, after the Core commit but before Confirmed (retry blocked, resolved explicitly), after Confirmed; acknowledged means durable | yes (model and real files) | - | **Open:** Core commit and journal are still two separate actions. Proven: no acknowledged change is lost, no id is applied twice, an undecided outcome is refused not guessed. Not covered: crash during snapshot publication and compaction (PERS-02/03/05 do not exist yet) |
+
+Known limit: a bit-rotted **last** record cannot be told from a torn tail and is dropped on open; rot in the middle is refused.
+

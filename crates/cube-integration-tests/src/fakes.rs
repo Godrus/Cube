@@ -408,6 +408,8 @@ pub struct Options {
     pub retry_capacity: usize,
     /// Start from a restored asset view instead of the default world.
     pub restore: Option<cube_core::AssetView>,
+    /// Use this journal port (for example a file journal) instead of the in-memory fake.
+    pub journal_port: Option<Arc<dyn OperationJournal>>,
     /// Journal write batches into the Intent records (replayable journal).
     pub with_payload: bool,
     /// Use this journal (it "survives the restart") instead of a fresh one; implies a journal.
@@ -423,6 +425,7 @@ impl Default for Options {
             restore: None,
             shared_journal: None,
             with_payload: false,
+            journal_port: None,
         }
     }
 }
@@ -494,7 +497,9 @@ pub fn fixture_with(o: Options) -> Fixture {
         path: CommitPath::new(handles.user),
         registry,
         authorizer: Arc::new(CapabilityAuthorizer { edit: EDIT }),
-        journal: if wired_journal {
+        journal: if let Some(p) = o.journal_port.clone() {
+            Some(p)
+        } else if wired_journal {
             Some(journal.clone() as Arc<dyn OperationJournal>)
         } else {
             None

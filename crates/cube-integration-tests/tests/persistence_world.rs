@@ -73,6 +73,12 @@ impl Storage for Model {
     fn write(&mut self, n: &str, d: &[u8]) -> Result<(), StoreError> {
         self.0.write(n, d).map_err(e)
     }
+    fn append(&mut self, n: &str, d: &[u8]) -> Result<(), StoreError> {
+        self.0.append(n, d).map_err(e)
+    }
+    fn truncate(&mut self, n: &str, l: u64) -> Result<(), StoreError> {
+        self.0.truncate(n, l as usize).map_err(e)
+    }
     fn fsync(&mut self, n: &str) -> Result<(), StoreError> {
         self.0.fsync(n).map_err(e)
     }
@@ -263,6 +269,14 @@ impl<S: Storage> Storage for Failing<S> {
     fn write(&mut self, n: &str, d: &[u8]) -> Result<(), StoreError> {
         self.tick()?;
         self.inner.write(n, d)
+    }
+    fn append(&mut self, n: &str, d: &[u8]) -> Result<(), StoreError> {
+        self.tick()?;
+        self.inner.append(n, d)
+    }
+    fn truncate(&mut self, n: &str, l: u64) -> Result<(), StoreError> {
+        self.tick()?;
+        self.inner.truncate(n, l)
     }
     fn fsync(&mut self, n: &str) -> Result<(), StoreError> {
         self.tick()?;

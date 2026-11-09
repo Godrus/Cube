@@ -21,6 +21,10 @@ use crate::codec::{DecodeError, Limits, decode_asset, encode_asset};
 pub trait Storage {
     /// Creates or truncates `name` and writes `data` (not yet durable).
     fn write(&mut self, name: &str, data: &[u8]) -> Result<(), StoreError>;
+    /// Appends `data` to `name`, creating it if needed (not yet durable).
+    fn append(&mut self, name: &str, data: &[u8]) -> Result<(), StoreError>;
+    /// Shortens `name` to `len` bytes (not yet durable until `fsync`).
+    fn truncate(&mut self, name: &str, len: u64) -> Result<(), StoreError>;
     /// Makes the content of `name` durable.
     fn fsync(&mut self, name: &str) -> Result<(), StoreError>;
     /// Atomically renames `from` over `to`.
@@ -125,6 +129,22 @@ fn io_err(e: io::Error) -> StoreError {
 impl Storage for DirStorage {
     fn write(&mut self, name: &str, data: &[u8]) -> Result<(), StoreError> {
         std::fs::write(self.path(name)?, data).map_err(io_err)
+    }
+    fn append(&mut self, name: &str, data: &[u8]) -> Result<(), StoreError> {
+        use std::io::Write;
+        let mut f = std::fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(self.path(name)?)
+            .map_err(io_err)?;
+        f.write_all(data).map_err(io_err)
+    }
+    fn truncate(&mut self, name: &str, len: u64) -> Result<(), StoreError> {
+        let f = std::fs::OpenOptions::new()
+            .write(true)
+            .open(self.path(name)?)
+            .map_err(io_err)?;
+        f.set_len(len).map_err(io_err)
     }
     fn fsync(&mut self, name: &str) -> Result<(), StoreError> {
         // Write access is needed to flush on Windows; the file is not truncated.

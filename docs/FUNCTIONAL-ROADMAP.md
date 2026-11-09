@@ -16,7 +16,7 @@ Status words: Decision (IDEA, PROPOSED, APPROVED, DEFERRED, REJECTED), Implement
 | Editing | transactional editing through one user commit path, conflicts, rollback, authorization port, idempotent retry also after restart (rebuilt from the journal) | undo/redo (PS-7), tools (PS-6), async handles | approved architecture |
 | Geometry Backends | voxel backend (set, replace, fill, clear, copy and move with rotation, any level); faces, greedy, collision, LOD and incremental rebuild providers; conformance suite | SDF backend, mesh backend (PS-5, not started); greedy T-junctions | approved |
 | Processing | snapshots with apron, provider graph, executor, cancellation, stale-result rejection, resource budgets | none planned before PS-9 | approved |
-| Persistence | experimental checksummed codec, atomic snapshot save and load, write-ahead journal with write payload and replay of confirmed changes, crash-point harness | file journal, manifest, snapshot store, compaction (PERS-02..05); final format (GOV-10, needs RG-1) | AOD-21 approved; format not approved |
+| Persistence | experimental checksummed codec, atomic snapshot save and load, **file-backed journal with write payload (acknowledged = fsynced; torn tail repaired)**, replay of confirmed changes, restart idempotency, crash-point harness, killed-process test | manifest, snapshot store, world record, compaction (PERS-02, 03, 05, 08: blocked by the missing SPK-PERS report); final format (GOV-10, needs RG-1) | AOD-21 approved; format not approved |
 | World Generation | only the seed and generator version values | the generator itself, system materialiser | PROPOSED; owner unassigned |
 | Rendering / Client | none (derived face meshes exist as data) | client runtime, engine adapter, mesh upload, camera | PROPOSED; owners unassigned |
 | Construction Tools | none | sculpt brush, booleans (PS-6, after G4 and G5) | PROPOSED; needs product detail |
@@ -31,7 +31,7 @@ Status words: Decision (IDEA, PROPOSED, APPROVED, DEFERRED, REJECTED), Implement
 ## 2. In development and next
 
 * PS-5 remaining: SDF-01..03 and MSH-01..03 (independent of open decisions), then the T-junction criterion for greedy; G5 also needs RG-1/EXT-VA-RG1 handling (owner exception exists only for CORE-12).
-* PS-10 start: PERS-02..05 (world record, manifest, snapshot store, file journal, compaction), then crash-recovery tests and GOV-10/GOV-11.
+* PS-10: PERS-04 (file journal) is done. PERS-02 (manifest), PERS-03 (snapshot store), PERS-05 (compaction) have the start-after dependency SPK-PERS (durability spike); no spike report exists, so they wait for it. Then crash-recovery tests, GOV-10 and GOV-11.
 * Independent anytime: TD-2 (validation port needs a layer), TD-1 (observer queue, needs loom models), more backend conformance.
 
 ## 3. Blockers (owner or external)
@@ -56,9 +56,9 @@ Source of the proposal: `production/FIRST_PLAYABLE_SCOPE.md` and `FIRST_PLAYABLE
 | 3 | See the generated region | face, greedy, LOD providers (data) | renderer, mesh scheduling, chunk streaming | F-CLI-001, F-BKD-002 | screenshot or scene check in the client | NOT_STARTED |
 | 4 | Move a camera or character | collision boxes (data) | controller, camera, input | F-CLI-002, F-BKD-005 | walk and jump without falling through | NOT_STARTED |
 | 5 | Add and remove a block | editing chain end to end in tests | input, picking, client calls the chain | F-CLI-003, F-EDT-002, F-BKD-001 | the change is visible and authoritative | chain INTEGRATED, scenario NOT_STARTED |
-| 6 | Save the world | atomic snapshot save, journal with payload | file journal, manifest, UI trigger | F-PER-004 | files verified by the codec | PARTIAL (library level) |
+| 6 | Save the world | atomic snapshot save, file journal with payload | manifest, world record, UI trigger | F-PER-004 | files verified by the codec | PARTIAL (library level) |
 | 7 | Close the application | - | lifecycle handling | F-PER-004 | clean shutdown leaves a loadable world | NOT_STARTED |
-| 8 | Load the world | snapshot load, journal replay, idempotency recovery (tests) | world record, manifest, loader UI | F-PER-004 | world hash equal after load | PARTIAL (library level) |
+| 8 | Load the world | snapshot load, file-journal replay, idempotency recovery (tests, real files) | world record, manifest, loader UI | F-PER-004 | world hash equal after load | PARTIAL (library level) |
 | 9 | Changes survived | proven in tests on the model and a real directory | the same through the real app, then on a device | F-PER-004, DG-2 | hash equality after restart | PARTIAL (not on devices) |
 
 ## 5. Later RPG functions
