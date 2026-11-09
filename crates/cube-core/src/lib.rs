@@ -18,6 +18,7 @@ pub mod key;
 pub mod layer;
 pub mod material;
 pub mod operation;
+pub mod palette;
 pub mod region;
 pub mod revision;
 mod rotation;
@@ -44,6 +45,7 @@ pub use key::CellKey;
 pub use layer::{Layer, LayerData, LayerKind, PageStore};
 pub use material::MaterialIndex;
 pub use operation::{ActorKind, OperationId};
+pub use palette::{ContentId, Mapping, MaterialPalette, PaletteError};
 pub use region::Region;
 pub use revision::{
     Comparison, DerivedSlotId, Epoch, RegionStamp, ResourceId, Revision, RevisionToken,
