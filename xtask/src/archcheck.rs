@@ -290,6 +290,28 @@ pub fn scan_source(krate: &str, file: &str, text: &str) -> Vec<Violation> {
                 }
             }
         }
+        if krate == "cube-core" {
+            for pat in [
+                "std::fs",
+                "std::net",
+                "std::env",
+                "std::time",
+                "SystemTime",
+                "Instant",
+                "std::thread::sleep",
+                "rand::",
+                "getrandom",
+            ] {
+                if code.contains(pat) {
+                    report(
+                        "ARCH-CORE-IO",
+                        &format!(
+                            "cube-core has no I/O, clock, environment or randomness (found `{pat}`)"
+                        ),
+                    );
+                }
+            }
+        }
         if krate == "cube-core" && (contains_word(code, "f32") || contains_word(code, "f64")) {
             report(
                 "ARCH-FLOAT",
@@ -413,6 +435,26 @@ mod tests {
             rules(&check_graph(&with_target(json!("cfg(unix)")))),
             ["ARCH-CORE-DEPS"]
         );
+    }
+
+    #[test]
+    fn seeded_io_clock_and_randomness_in_core_are_caught() {
+        for src in [
+            "use std::fs::File;",
+            "let t = std::time::Instant::now();",
+            "let n = SystemTime::now();",
+            "use rand::Rng;",
+            "std::env::var(\"X\")",
+        ] {
+            let r = rules(&scan_source("cube-core", "src/lib.rs", src));
+            assert!(
+                !r.is_empty() && r.iter().all(|x| *x == "ARCH-CORE-IO"),
+                "{src}"
+            );
+        }
+        assert!(scan_source("cube-core", "src/lib.rs", "// std::fs in a comment").is_empty());
+        assert!(scan_source("cube-persistence", "src/lib.rs", "use std::fs::File;").is_empty());
+        assert!(scan_source("xtask", "src/main.rs", "use std::fs;").is_empty());
     }
 
     #[test]
