@@ -19,6 +19,7 @@ pub mod material;
 pub mod operation;
 pub mod region;
 pub mod revision;
+mod rotation;
 pub mod transform;
 
 pub use asset::GeometryAsset;
