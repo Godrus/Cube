@@ -100,3 +100,26 @@ Statuses are kept apart: **IMPLEMENTED**, **TESTED** (CI host), **INTEGRATED** (
 **Exit criteria checked:** contract tests and negative cases (authorization denial leaves no state, no extra rights from `LocalClient`, illegal state transitions, malformed operations); public-API snapshot regenerated for the CB-1 change; no behaviour in `cube-editing-api` beyond construction checks and table lookups (it contains only types, traits and the origin mapping); dependency boundary (`cube-editing-api -> cube-core, cube-processing`, archcheck); compatibility with Core and Processing (builds against both, uses `Snapshot`, `RevisionToken`, `WriteSet`, `AssetView`); no unresolved merge conflict markers anywhere in the tree (new archcheck rule ARCH-CONFLICT-MARKER with seeded self-tests, runs in CI). Contracts are not Frozen.
 
 **PS-3 CLOSED - G3 PASSED.**
+
+## 9. PS-4 / G4 evaluation, 2026-11-09 (DEC-088)
+
+| Member | IMPLEMENTED | TESTED | INTEGRATED | Evidence |
+|---|---|---|---|---|
+| ORCH-01 | yes (`txn.rs`) | yes: lifecycle, rollback/cancel, atomic failure, model-based random sessions | yes | `tests/orchestration_path.rs`, CI run 42630261984 on `920f632` |
+| ORCH-02 | yes (`registry.rs`) | yes: dispatch matrix (unsupported kind, missing backend, mixed types, duplicates) | yes | `orchestration_path.rs`, `backend_conformance.rs` |
+| ORCH-03 | yes (`validate.rs`) | yes: conflict matrix (a..e), exact conflicting keys, retry by OperationId, id reuse | yes | `orchestration_path.rs` |
+| ORCH-04 | yes (`dirty.rs`) | yes: sink-then-observers order, post-commit state only, isolated observer failure | yes | `orchestration_path.rs`, `orchestration_durability.rs` (order equals Core commit order under 6 writers) |
+| ORCH-05 | yes (`commit_path.rs`, `auth.rs`) | yes: authorization negatives, no extra rights, system origin refused, three-writer audit | yes | `orchestration_path.rs`, `mutation_negative.rs`; archcheck rule ARCH-USER-COMMIT-PATH with seeded self-test |
+| TEST-03a | yes (`cube-integration-tests/src/conformance/backend.rs`) | yes: reference backend and a conforming fake pass, nine broken fakes are each caught by their rule | yes | `backend_conformance.rs` |
+| TEST-10 | yes | yes: five compile-fail cases (forging a user or system handle, calling the crate-private commit, taking the handle out of the service, an observer committing) plus runtime negatives | yes | `mutation_negative.rs`, `tests/ui_mutation/*` |
+
+**Real path, not mocks of the path:** every test above runs a real Core asset, the real `OrchestrationService` and the real commit gate. Only what lies outside PS-4 is a fake: a reference backend for the voxel representation (real backends are PS-5, not G4 members), a journal with failure injection (the durable journal is PS-10, so no crash durability is claimed; the CB-1 boundary of DEC-086 is tested instead) and recording observers.
+
+**Acceptance criterion "spike `cube-editing` behaviours reproduced":** the spike code is not in the production base (ADG decision D-5). The behaviours it stood for (set/add/remove material and geometry, atomic multi-brick edits, conflict on concurrent change, rollback) are reproduced through the single user path by the tests above.
+
+**Three-writer audit:** the commit log of one asset shows `User` (only through Orchestration), `System` (`SystemCommit::materialise`) and `Recovery` (`RecoveryCommit::restore`) as distinct actors; 90 randomised requests with every origin never produce anything but `User`; a `System`-origin request is refused, not downgraded.
+
+**Known limits (not hidden):** `GeometryDelta` handed to observers carries tokens and dirty regions but no brick payloads (History/Persistence stages); one service serves one asset; the retry table is bounded (default 1024 ids); observers run inside the commit section and must not call back into the service.
+
+**PS-4 CLOSED - G4 PASSED** (all seven members merged, required CI green, real-path mutation tests and backend conformance pass, no bypass of the commit boundary).
+

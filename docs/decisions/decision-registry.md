@@ -2010,3 +2010,25 @@ affected_documents: [docs/production/ps-0-exit-checklist.md, docs/PROJECT_STATUS
 history:
   - 2026-11-09 entry created
 
+## DEC-088  PS-4 closed, gate G4 passed
+id: DEC-088
+aliases: [G4, PS-4]
+category: PROCESS
+level: TECHNICAL
+status: CONFIRMED
+statement: >
+  Gate G4 (PS-4 Editing Orchestration) is passed. All seven member tasks (ORCH-01..ORCH-05, TEST-03a, TEST-10) are merged and accepted. Evidence: required CI checks green on 920f632 (run 42630261984; the integration commit adds only documentation and the merge of dev), real-path mutation tests, backend conformance with self-checks, compile-fail boundary tests, archcheck rules ARCH-HANDLE and ARCH-USER-COMMIT-PATH, evaluation in docs/production/ps-0-exit-checklist.md section 9. No crash durability is claimed (journal is PS-10, boundary CB-1 of DEC-086).
+decided_by: AGENT_DELEGATED
+delegation_basis: DEC-001 (owner instruction: close tasks and gates on fulfilled criteria)
+decided_on: 2026-11-09
+decided_on_basis: date of this registry commit (agent decision under delegation)
+recorded_on: 2026-11-09 (this registry)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-DELEGATION (the owner may reject or amend); CI evidence as listed
+source: docs/production/ps-0-exit-checklist.md section 9
+source_availability: IN_REPOSITORY
+owner: Project Owner
+affected_documents: [docs/production/ps-0-exit-checklist.md, docs/PROJECT_STATUS.md]
+history:
+  - 2026-11-09 entry created
+
