@@ -18,6 +18,22 @@ boundary.rs: pub fn reader(&self) -> SharedAsset {
 boundary.rs: pub fn materialise(
 boundary.rs: pub fn evict(&self, layer: LayerId, level: i8, brick: BrickCoord) -> Result<bool, CommitError> {
 boundary.rs: pub fn restore(
+bounds.rs: pub enum GeometryBounds {
+bounds.rs: pub const fn from_region(region: Region) -> Self {
+bounds.rs: pub fn from_brick(level: i8, brick: BrickCoord) -> Result<Self, CoreError> {
+bounds.rs: pub fn from_brick_range(level: i8, lo: BrickCoord, hi: BrickCoord) -> Result<Self, CoreError> {
+bounds.rs: pub const fn is_empty(&self) -> bool {
+bounds.rs: pub const fn region(&self) -> Option<Region> {
+bounds.rs: pub const fn level(&self) -> Option<i8> {
+bounds.rs: pub const fn contains_voxel(&self, p: VoxelPos) -> bool {
+bounds.rs: pub fn contains(&self, other: &Self) -> bool {
+bounds.rs: pub fn union(&self, other: &Self) -> Result<Self, CoreError> {
+bounds.rs: pub fn intersection(&self, other: &Self) -> Result<Self, CoreError> {
+bounds.rs: pub fn grow(&self, by: u64) -> Result<Self, CoreError> {
+bounds.rs: pub fn translate(&self, delta: [i64; 3]) -> Result<Self, CoreError> {
+bounds.rs: pub fn to_level(&self, level: i8) -> Result<Self, CoreError> {
+bounds.rs: pub fn transform(&self, t: &GeometryTransform) -> Result<Self, CoreError> {
+bounds.rs: pub fn brick_span(&self) -> Option<(BrickCoord, BrickCoord)> {
 cell/channel.rs: pub enum ChannelId {
 cell/channel.rs: pub struct Channel {
 cell/channel.rs: pub const fn constant(value: u16) -> Self {
@@ -176,6 +192,7 @@ layer/mod.rs: pub const fn data(&self) -> &LayerData {
 layer/mod.rs: pub const fn kind(&self) -> LayerKind {
 lib.rs: pub mod asset;
 lib.rs: pub mod boundary;
+lib.rs: pub mod bounds;
 lib.rs: pub mod cell;
 lib.rs: pub mod commit;
 lib.rs: pub mod coord;
@@ -193,6 +210,7 @@ lib.rs: pub mod view;
 lib.rs: pub mod world_ids;
 lib.rs: pub use asset::GeometryAsset;
 lib.rs: pub use boundary::{AssetHost, Handles, RecoveryCommit, SystemCommit, UserCommit};
+lib.rs: pub use bounds::GeometryBounds;
 lib.rs: pub use cell::{
 lib.rs: pub use commit::{
 lib.rs: pub use coord::{BRICK_EDGE, BRICK_VOLUME, BrickCoord, LocalPos, VoxelPos};
