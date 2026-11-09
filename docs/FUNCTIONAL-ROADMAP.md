@@ -2,7 +2,7 @@
 
 Human-readable view of what Cube can do, what is being built and what is still only a plan. The complete list with stable ids is `FEATURE-REGISTRY.md` (generated from `features.json`). The technical plan, dependencies and gates stay in `production/` (ADG in `production/module-boundaries.md`); this file does not replace them and never changes them.
 
-**Last verified state:** `dev` at `f994c83` (CI green). Gates passed: G0, G1, G2 (RG-2 still mandatory), G3, G4. Open: G5 (PS-5), G10 (PS-10). RG-1 not passed.
+**Last verified state:** `dev` at `f8c5ac6`; persistence hardening on `prod/pers-hardening` (a875b08, not yet on `dev` when written). Gates passed: G0, G1, G2 (RG-2 still mandatory), G3, G4. Open: G5 (PS-5), G10 (PS-10). RG-1 not passed.
 
 **One rule above all:** integrated Rust code is *not* a player feature. Today **no feature is player available**: there is no game window, no generator and no client. Everything marked integrated is reachable only through Rust APIs and tests.
 
@@ -16,7 +16,7 @@ Status words: Decision (IDEA, PROPOSED, APPROVED, DEFERRED, REJECTED), Implement
 | Editing | transactional editing through one user commit path, conflicts, rollback, authorization port, idempotent retry also after restart (rebuilt from the journal) | undo/redo (PS-7), tools (PS-6), async handles | approved architecture |
 | Geometry Backends | voxel backend (set, replace, fill, clear, copy and move with rotation, any level); faces, greedy, collision, LOD and incremental rebuild providers; conformance suite | SDF backend, mesh backend (PS-5, not started); greedy T-junctions | approved |
 | Processing | snapshots with apron, provider graph, executor, cancellation, stale-result rejection, resource budgets | none planned before PS-9 | approved |
-| Persistence | experimental checksummed codec, atomic snapshot save and load, **file-backed journal with write payload (acknowledged = fsynced; torn tail repaired)**, replay of confirmed changes, restart idempotency, crash-point harness, killed-process test | manifest, snapshot store, world record, compaction (PERS-02, 03, 05, 08: blocked by the missing SPK-PERS report); final format (GOV-10, needs RG-1) | AOD-21 approved; format not approved |
+| Persistence | experimental checksummed codec, atomic snapshot save and load, **file-backed journal with write payload (acknowledged = fsynced, a damaged acknowledged record fails closed, a torn unacknowledged tail is dropped)**, replay of confirmed changes, restart idempotency, crash-point harness, killed-process test, **manifest, verified snapshot store, crash-safe compaction and world open/recovery (experimental, crash-tested at every step)** | world record (PERS-08), device durability (DG-2), retry history before the last compaction (L-COMP-1); final format (GOV-10, needs RG-1) | AOD-21 approved; format not approved |
 | World Generation | only the seed and generator version values | the generator itself, system materialiser | PROPOSED; owner unassigned |
 | Rendering / Client | none (derived face meshes exist as data) | client runtime, engine adapter, mesh upload, camera | PROPOSED; owners unassigned |
 | Construction Tools | none | sculpt brush, booleans (PS-6, after G4 and G5) | PROPOSED; needs product detail |
@@ -31,7 +31,7 @@ Status words: Decision (IDEA, PROPOSED, APPROVED, DEFERRED, REJECTED), Implement
 ## 2. In development and next
 
 * PS-5 remaining: SDF-01..03 and MSH-01..03 (independent of open decisions), then the T-junction criterion for greedy; G5 also needs RG-1/EXT-VA-RG1 handling (owner exception exists only for CORE-12).
-* PS-10: PERS-04 (file journal) is done. PERS-02 (manifest), PERS-03 (snapshot store), PERS-05 (compaction) have the start-after dependency SPK-PERS (durability spike); no spike report exists, so they wait for it. Then crash-recovery tests, GOV-10 and GOV-11.
+* PS-10: PERS-04, PERS-02, PERS-03, PERS-05 are implemented and tested (SPK-PERS report: `research/spk-pers-durability-report.md`). Remaining: PERS-06..09 (recovery orchestration, world record, migration), GOV-10 and GOV-11 (owner), device validation (DG-2).
 * Independent anytime: TD-2 (validation port needs a layer), TD-1 (observer queue, needs loom models), more backend conformance.
 
 ## 3. Blockers (owner or external)
@@ -56,9 +56,9 @@ Source of the proposal: `production/FIRST_PLAYABLE_SCOPE.md` and `FIRST_PLAYABLE
 | 3 | See the generated region | face, greedy, LOD providers (data) | renderer, mesh scheduling, chunk streaming | F-CLI-001, F-BKD-002 | screenshot or scene check in the client | NOT_STARTED |
 | 4 | Move a camera or character | collision boxes (data) | controller, camera, input | F-CLI-002, F-BKD-005 | walk and jump without falling through | NOT_STARTED |
 | 5 | Add and remove a block | editing chain end to end in tests | input, picking, client calls the chain | F-CLI-003, F-EDT-002, F-BKD-001 | the change is visible and authoritative | chain INTEGRATED, scenario NOT_STARTED |
-| 6 | Save the world | atomic snapshot save, file journal with payload | manifest, world record, UI trigger | F-PER-004 | files verified by the codec | PARTIAL (library level) |
+| 6 | Save the world | atomic snapshot save, file journal with payload, manifest, verified snapshot, compaction | world record, UI trigger | F-PER-004 | files verified by the codec | PARTIAL (library level) |
 | 7 | Close the application | - | lifecycle handling | F-PER-004 | clean shutdown leaves a loadable world | NOT_STARTED |
-| 8 | Load the world | snapshot load, file-journal replay, idempotency recovery (tests, real files) | world record, manifest, loader UI | F-PER-004 | world hash equal after load | PARTIAL (library level) |
+| 8 | Load the world | `open_world`: manifest, verified snapshot, journal replay, idempotency recovery (tests, real files) | world record, loader UI | F-PER-004 | world hash equal after load | PARTIAL (library level) |
 | 9 | Changes survived | proven in tests on the model and a real directory | the same through the real app, then on a device | F-PER-004, DG-2 | hash equality after restart | PARTIAL (not on devices) |
 
 ## 5. Later RPG functions

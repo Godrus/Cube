@@ -2,12 +2,12 @@
 
 Read this, then `FUNCTIONAL-ROADMAP.md`. The long procedural guide is `AGENT_HANDOFF.md`; the full plan is `production/`. State comes from the repository, tests and CI, never from chat memory.
 
-## State (verified at `dev` f994c83, CI green)
+## State (`dev` f8c5ac6 CI green; persistence hardening on `prod/pers-hardening` a875b08 until merged)
 
 * **Integration branch:** `dev`. `master` is release only and must not be changed. Work on short `prod/*` branches from the latest `dev`; merge only commits whose required CI checks are green (fast-forward push is allowed by the ruleset). No force push.
 * **Gates:** G0 to G4 passed (G2 with mandatory RG-2 revalidation). G5 and G10 open. RG-1 not passed. Evidence: `production/ps-0-exit-checklist.md` sections 6 to 14, registry entries DEC-076..DEC-090.
-* **Works (Rust level, tested, internal only):** Core (coordinates, bricks, revisions, atomic commit, views, bounds, palette), Processing (snapshots, executor, stale rejection, budgets), Editing API, Orchestration (one user commit path), voxel backend with faces/greedy/collision/LOD providers, experimental persistence codec with atomic snapshots, file-backed journal with payload (acknowledged = fsynced), replay and restart idempotency, crash-point harness.
-* **Does not exist:** SDF and mesh backends, world generator, client or renderer, any gameplay, a manifest, snapshot store and world record, compaction, a final save format. No feature is player available.
+* **Works (Rust level, tested, internal only):** Core (coordinates, bricks, revisions, atomic commit, views, bounds, palette), Processing (snapshots, executor, stale rejection, budgets), Editing API, Orchestration (one user commit path), voxel backend with faces/greedy/collision/LOD providers, experimental persistence codec with atomic snapshots, file-backed journal with payload (acknowledged = fsynced; a damaged acknowledged record fails closed through acknowledgement marks), replay and restart idempotency, crash-point harness, manifest, verified snapshot store, crash-safe compaction and `open_world` recovery (all experimental).
+* **Does not exist:** SDF and mesh backends, world generator, client or renderer, any gameplay, a world record (PERS-08), a final save format. Known limit L-COMP-1: retry history before the last compaction is not remembered. No feature is player available.
 
 ## Architecture in five lines
 
@@ -26,7 +26,7 @@ Read this, then `FUNCTIONAL-ROADMAP.md`. The long procedural guide is `AGENT_HAN
 
 ## Open work you may continue independently
 
-SDF-01..03 and MSH-01..03; the SPK-PERS durability spike (a report on a spike branch; it unblocks PERS-02, 03, 05); TD-2 (validation port needs a layer, additive API change with snapshot update); TD-1 (observer delivery queue, only with loom models); greedy T-junctions. Check ADG start and merge conditions before each task.
+SDF-01..03 and MSH-01..03; PERS-06..09; TD-2 (validation port needs a layer, additive API change with snapshot update); TD-1 (observer delivery queue, only with loom models); greedy T-junctions. Check ADG start and merge conditions before each task.
 
 ## Decisions the owner still has to make
 

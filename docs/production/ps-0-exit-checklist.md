@@ -211,3 +211,16 @@ The owner recorded GOV-08 (PC-1 as the provisional baseline for PS-5) and GOV-17
 
 Known limit: a bit-rotted **last** record cannot be told from a torn tail and is dropped on open; rot in the middle is refused.
 
+## 16. Session 10, 2026-11-10: SPK-PERS, journal hardening, PERS-02/03/05
+
+| Item | IMPLEMENTED | TESTED | INTEGRATED | Notes |
+|---|---|---|---|---|
+| SPK-PERS | yes (spike `03d1ff6`, never merged) | yes: E1..E5, CI 42719662199 | report only (`docs/research/spk-pers-durability-report.md`) | no earlier report existed; Windows observed, Linux CI assertions, mobile untested; DG-2 not answered |
+| PERS-04 hardening | yes (`9b44195`): acknowledgement marks, fail-closed open | yes: corrupt/cut/missing last acknowledged record refused with no truncation; corrupt or torn unacknowledged record dropped; mid-log damage, lost or backwards marks, foreign schema refused; crash-point exploration unchanged; CI 42720021146 | after merge to `dev` | the earlier limit "a rotted last record looks like a torn tail" is **removed** for single-file damage; undetectable if marks and journal lose the same record |
+| PERS-02 manifest | yes (`a875b08`) | yes | after merge | atomic publish, generation +1, damaged manifest is an error not "no world" |
+| PERS-03 snapshot store | yes | yes | after merge | invalid until read back and hash-checked; manifest checks size and content hash again on load |
+| PERS-05 compaction | yes | yes: `FaultFs` crash at every step in all torn modes leaves one whole generation, no acknowledged record lost, hash equals the independent model, no stray files; boundary refusals | after merge | needs exclusive access; boundary must have no open operation |
+| Recovery path | yes (`open_world`) | yes: real directory, world, operations through real Orchestration and voxel backend, journal, compaction, more operations, kill, load, replay, hash equal to an independent model run, same id answered, editing continues | after merge | |
+| TD-4 | window of idempotent retries is now "since the last compaction" (**L-COMP-1**, characterised by a test) | yes | - | **Still not closed:** `resolve_pending` caller, retry history across compaction |
+| CB-1 | crash during snapshot publication and compaction is now covered | yes | - | **Open:** commit and journal remain two actions |
+| SDF-01..03, MSH-01..03, greedy T-junctions | not started this session | - | - | G5 and G10 NOT passed |
