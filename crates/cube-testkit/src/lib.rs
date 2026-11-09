@@ -62,6 +62,73 @@ pub fn assert_deterministic<T: PartialEq + std::fmt::Debug>(mut f: impl FnMut() 
     assert_eq!(first, second, "function is not deterministic");
 }
 
+/// Golden-value harness (TEST-02): named expected values that must reproduce on every host.
+pub mod golden {
+    /// A named golden value.
+    #[derive(Debug, Clone, Copy)]
+    pub struct Golden {
+        /// Name shown on failure.
+        pub name: &'static str,
+        /// The pinned value.
+        pub expected: u128,
+    }
+
+    impl Golden {
+        /// Creates a golden value.
+        pub const fn new(name: &'static str, expected: u128) -> Self {
+            Self { name, expected }
+        }
+
+        /// Checks `actual`; on mismatch the panic message names the golden value and both numbers
+        /// (hex), so an intended algorithm change can be pinned deliberately.
+        pub fn check(&self, actual: u128) {
+            assert!(
+                actual == self.expected,
+                "golden value `{}` changed: expected {:#034x}, got {:#034x} (an intended change needs a new algorithm version)",
+                self.name,
+                self.expected,
+                actual
+            );
+        }
+    }
+
+    /// Checks several golden values at once and reports every mismatch together.
+    pub fn check_all(cases: &[(Golden, u128)]) {
+        let bad: Vec<String> = cases
+            .iter()
+            .filter(|(g, a)| g.expected != *a)
+            .map(|(g, a)| format!("{}: expected {:#034x}, got {:#034x}", g.name, g.expected, a))
+            .collect();
+        assert!(bad.is_empty(), "golden mismatches:\n{}", bad.join("\n"));
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+
+        #[test]
+        fn matching_values_pass() {
+            Golden::new("one", 1).check(1);
+            check_all(&[
+                (Golden::new("a", 5), 5),
+                (Golden::new("b", u128::MAX), u128::MAX),
+            ]);
+        }
+
+        #[test]
+        #[should_panic(expected = "golden value `x` changed")]
+        fn a_mismatch_names_the_value() {
+            Golden::new("x", 1).check(2);
+        }
+
+        #[test]
+        #[should_panic(expected = "golden mismatches")]
+        fn check_all_reports_mismatches() {
+            check_all(&[(Golden::new("a", 1), 1), (Golden::new("b", 2), 3)]);
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

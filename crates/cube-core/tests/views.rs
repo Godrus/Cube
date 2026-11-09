@@ -222,7 +222,8 @@ fn golden_hash_pins_algorithm_ch1() {
             }],
         }],
     };
-    assert_eq!(view.content_hash().value(), GOLDEN_CH1);
+    cube_testkit::golden::Golden::new("content-hash CH1 of the reference asset", GOLDEN_CH1)
+        .check(view.content_hash().value());
     assert_eq!(cube_core::ContentHash::ALGORITHM, "CH1");
 }
 

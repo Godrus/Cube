@@ -420,7 +420,7 @@ mod tests {
             (key(1, 0, -1, 2, -3), Revision::new(7)),
         ])
         .unwrap();
-        assert_eq!(s.hash(), GOLDEN_V1);
+        cube_testkit::golden::Golden::new("region stamp V1", GOLDEN_V1).check(s.hash());
     }
 
     const GOLDEN_V1: u128 = 165_256_310_144_090_171_886_825_555_616_110_280_119;
