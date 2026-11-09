@@ -353,6 +353,36 @@ impl Snapshot {
         })
     }
 
+    /// Estimated bytes kept alive by this snapshot: the size of every present payload (dense
+    /// channels 2 bytes per voxel, uniform channels 2 bytes, mesh pages their length) plus
+    /// [`crate::caps::BRICK_OVERHEAD_BYTES`] per brick. An estimate for the pin budget, not a
+    /// measurement of the allocator.
+    pub fn pinned_bytes(&self) -> u64 {
+        use cube_core::CellPayload;
+        self.cells
+            .values()
+            .map(|c| {
+                let payload = match c {
+                    CellState::Present(p) => match &**p {
+                        CellPayload::Channels(set) => set
+                            .iter()
+                            .map(|(_, ch)| {
+                                if ch.is_dense() {
+                                    2 * cube_core::BRICK_VOLUME as u64
+                                } else {
+                                    2
+                                }
+                            })
+                            .sum(),
+                        CellPayload::MeshPage(m) => m.bytes().len() as u64,
+                    },
+                    _ => 0,
+                };
+                payload + crate::caps::BRICK_OVERHEAD_BYTES
+            })
+            .sum()
+    }
+
     /// The request this snapshot satisfies.
     pub const fn request(&self) -> &SnapshotRequest {
         &self.request

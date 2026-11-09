@@ -117,7 +117,10 @@ pub trait Provider: Send + Sync {
     fn parameters_hash(&self) -> u64 {
         0
     }
-    /// Which changes of cell data invalidate the result.
+    /// Which changes of cell data invalidate the result eagerly. This only narrows what
+    /// `Executor::notify_commit` reports and cancels early; validity is always decided by the
+    /// per-brick input stamp, so a change outside the mask can still make a result stale on query
+    /// (conservative, never the other way round).
     fn consumes(&self) -> ChangeMask;
     /// Derived kinds whose results (same brick) this provider needs.
     fn depends_on(&self) -> &[DerivedKind] {
