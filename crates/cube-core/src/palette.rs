@@ -298,7 +298,7 @@ mod tests {
             "stone",
             ":stone",
             "pack_a:",
-            "Cube:stone",
+            "Pack:thing",
             "pack_a:Stone",
             "1pack_a:x",
             "cu be:x",
