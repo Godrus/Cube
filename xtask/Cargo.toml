@@ -6,5 +6,11 @@ rust-version.workspace = true
 publish.workspace = true
 description = "Repository tooling: archcheck and package checks (XT-01)"
 
+[dependencies]
+serde_json = "1"
+
+[dev-dependencies]
+cube-testkit = { path = "../crates/cube-testkit" }
+
 [lints]
 workspace = true
