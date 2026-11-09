@@ -2,7 +2,7 @@
 
 Read this, then `FUNCTIONAL-ROADMAP.md`. The long procedural guide is `AGENT_HANDOFF.md`; the full plan is `production/`. State comes from the repository, tests and CI, never from chat memory.
 
-## State (`dev` f8c5ac6 CI green; persistence hardening on `prod/pers-hardening` a875b08 until merged)
+## State (`dev` c87534e, CI green)
 
 * **Integration branch:** `dev`. `master` is release only and must not be changed. Work on short `prod/*` branches from the latest `dev`; merge only commits whose required CI checks are green (fast-forward push is allowed by the ruleset). No force push.
 * **Gates:** G0 to G4 passed (G2 with mandatory RG-2 revalidation). G5 and G10 open. RG-1 not passed. Evidence: `production/ps-0-exit-checklist.md` sections 6 to 14, registry entries DEC-076..DEC-090.
