@@ -195,6 +195,50 @@ fn contains_word(line: &str, word: &str) -> bool {
     false
 }
 
+/// Mutation-boundary rules (XT-02, invariant MB-1): which crates may name which handle type.
+const HANDLE_RULES: [(&str, &[&str]); 5] = [
+    (
+        "UserCommit",
+        &[
+            "cube-core",
+            "cube-orchestration",
+            "cube-server",
+            "cube-integration-tests",
+        ],
+    ),
+    (
+        "SystemCommit",
+        &[
+            "cube-core",
+            "cube-worldgen",
+            "cube-server",
+            "cube-integration-tests",
+        ],
+    ),
+    (
+        "RecoveryCommit",
+        &[
+            "cube-core",
+            "cube-persistence",
+            "cube-server",
+            "cube-integration-tests",
+        ],
+    ),
+    (
+        "AssetHost",
+        &["cube-core", "cube-server", "cube-integration-tests"],
+    ),
+    (
+        "into_handles",
+        &["cube-core", "cube-server", "cube-integration-tests"],
+    ),
+];
+
+/// Crates that must hold no history or commit logic of their own.
+fn is_adapter(krate: &str) -> bool {
+    matches!(krate, "cube-client" | "cube-godot-adapter")
+}
+
 /// Use-level scan of one source file. A line may carry `// archcheck:allow(RULE) reason`.
 pub fn scan_source(krate: &str, file: &str, text: &str) -> Vec<Violation> {
     let mut out = Vec::new();
@@ -225,6 +269,26 @@ pub fn scan_source(krate: &str, file: &str, text: &str) -> Vec<Violation> {
                 "ARCH-ENGINE-USE",
                 "engine types are allowed only in cube-godot-adapter (AOD-04)",
             );
+        }
+        for (name, allowed) in HANDLE_RULES {
+            if contains_word(code, name) && !allowed.contains(&krate) && !is_tool_crate(krate) {
+                report(
+                    "ARCH-HANDLE",
+                    &format!("`{name}` may only be named by {allowed:?} (mutation boundary, MB-1)"),
+                );
+            }
+        }
+        if is_adapter(krate) {
+            for pat in ["undo", "redo", "EditBatch", "commit"] {
+                if contains_word(code, pat) {
+                    report(
+                        "ARCH-ADAPTER-LOGIC",
+                        &format!(
+                            "adapters and clients hold no history or commit logic (found `{pat}`)"
+                        ),
+                    );
+                }
+            }
         }
         if krate == "cube-core" && (contains_word(code, "f32") || contains_word(code, "f64")) {
             report(
@@ -412,6 +476,69 @@ mod tests {
             .is_empty()
         );
         assert!(scan_source("cube-worldgen", "src/a.rs", "let v: f64 = 1.0;").is_empty());
+    }
+
+    #[test]
+    fn seeded_worldgen_naming_the_user_handle_is_caught() {
+        let src = "use cube_core::UserCommit;
+fn f(h: &UserCommit) {}
+";
+        assert_eq!(
+            rules(&scan_source("cube-worldgen", "src/lib.rs", src)),
+            ["ARCH-HANDLE", "ARCH-HANDLE"]
+        );
+        assert!(
+            scan_source(
+                "cube-worldgen",
+                "src/lib.rs",
+                "use cube_core::SystemCommit;"
+            )
+            .is_empty()
+        );
+        assert_eq!(
+            rules(&scan_source(
+                "cube-persistence",
+                "src/lib.rs",
+                "SystemCommit"
+            )),
+            ["ARCH-HANDLE"]
+        );
+        assert_eq!(
+            rules(&scan_source(
+                "cube-client",
+                "src/lib.rs",
+                "let h = AssetHost::new(a);"
+            )),
+            ["ARCH-HANDLE"]
+        );
+        assert!(scan_source("cube-server", "src/lib.rs", "host.into_handles()").is_empty());
+        assert!(scan_source("cube-orchestration", "src/lib.rs", "UserCommit").is_empty());
+    }
+
+    #[test]
+    fn seeded_history_or_commit_logic_in_adapters_is_caught() {
+        for pat in [
+            "fn undo() {}",
+            "let b: EditBatch;",
+            "world.commit(op, batch);",
+            "redo()",
+        ] {
+            assert_eq!(
+                rules(&scan_source("cube-godot-adapter", "src/lib.rs", pat)),
+                ["ARCH-ADAPTER-LOGIC"],
+                "{pat}"
+            );
+        }
+        assert!(
+            scan_source(
+                "cube-godot-adapter",
+                "src/lib.rs",
+                "// undo is not here
+let recommitted = 1;"
+            )
+            .is_empty()
+        );
+        assert!(scan_source("cube-history", "src/lib.rs", "fn undo() {}").is_empty());
     }
 
     // ---- randomised: the checker must agree with an independent oracle on random graphs ----
