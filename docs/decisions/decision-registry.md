@@ -2054,3 +2054,25 @@ affected_documents: [docs/production/ps-0-exit-checklist.md]
 history:
   - 2026-11-09 entry created
 
+## DEC-090  GOV-08 and GOV-17 provisional; CORE-12 integration exception from EXT-VA-RG1
+id: DEC-090
+aliases: [GOV-08, GOV-17, CORE-12, C-10, RG-1 (partly)]
+category: PROCESS
+level: TECHNICAL
+status: CONFIRMED
+statement: >
+  The owner records: (1) GOV-08: PC-1 (C-07, C-08, C-09) is accepted as the working provisional baseline for PS-5; (2) GOV-17: C-10 is approved as the minimal provisional palette contract in the scope of the implemented CORE-12 (commit a15595e: content ids, runtime indices, registration with collision diagnostics, strict and recovery resolution of saved tables); (3) CORE-12 may be integrated into dev after a check that the implementation matches the contract and after the required CI; (4) this is a limited owner-recorded alternative for the integration of CORE-12, and it is registered here as the exception from the merge condition EXT-VA-RG1 of CORE-12 in the ADG (Part C: merge-after CORE-10, EXT-VA-RG1, GOV-17, G1). The exception is for the CORE-12 merge only.
+not_decided: >
+  RG-1 is NOT passed and EXT-VA-RG1 is not supplied; RG-1 stays mandatory before the contracts concerned are Frozen and before the final save format (GOV-10). PC-1 and C-10 are not Frozen. No save format is approved. G5 is not passed by this decision (other members are open). The LayerMapping part of C-10 (layer to palette mapping and the revision wiring) is not part of CORE-12 and is not approved by this entry.
+decided_by: OWNER
+decided_on: 2026-11-09
+decided_on_basis: date of the owner's message
+recorded_on: 2026-11-09 (this registry)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner statement in chat; permitted source under DEC-002)
+source: OWNER-CHAT-2026-11-09 ('record GOV-08/GOV-17 and integrate CORE-12')
+source_availability: UNAVAILABLE in repository (session transcript only)
+owner: Project Owner
+affected_documents: [docs/api-contracts/README.md, docs/api-contracts/core-contracts.md, docs/production/ps-0-exit-checklist.md, crates/cube-core/src/palette.rs]
+history:
+  - 2026-11-09 entry created

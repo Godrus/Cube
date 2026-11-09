@@ -125,6 +125,8 @@ Field order per contract: Purpose · Model · Ownership · Lifetime · Access ·
 
 ## C-10 MaterialMapping
 
+**Status (DEC-090):** the palette part is approved as a minimal **provisional** contract and implemented by CORE-12 (`crates/cube-core/src/palette.rs`): `<namespace>:<name>` content identity, runtime `MaterialIndex` (0 = air), registration with collision diagnostics, saved tables, strict and recovery-mode resolution (unknown content is an error or a visible placeholder, never another material). Not Frozen; RG-1 stays mandatory. The `LayerMapping` part and the revision wiring below are not yet implemented or approved.
+
 - **Purpose:** Global Material Library → Asset Palette → Layer mapping (AU-1.0 §21).
 - **Model:** `PaletteEntry(LocalId → GlobalMaterialRef)`, `LayerMapping(LayerLocalId → PaletteId)`.
 - **Ownership:** Asset owns palette; Layer holds mapping. Global library is external and read-only.

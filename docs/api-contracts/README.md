@@ -87,7 +87,7 @@ Legend: **Draft** = specified in this pass, awaiting approval. **Draft+OD** = sp
 | C-07 | BrickKey | Core | Voxel, Persistence, all | core | Draft+OD | 0.1.0-draft | P0 | int width, refinement addressing |
 | C-08 | BrickStorage | Core | Processing, backends, Persistence | core | Draft+OD | 0.1.0-draft | P0 | layout, index order, compression |
 | C-09 | GeometryChannel | Core | backends, tools | core | Draft+OD | 0.1.0-draft | P0 | attribute registry, widths |
-| C-10 | MaterialMapping | Core | backends, Boolean, Sculpt | core | Draft+OD | 0.1.0-draft | P0 | global library interface |
+| C-10 | MaterialMapping | Core | backends, Boolean, Sculpt | core | **Provisional-Approved (palette part, DEC-090); Implemented (CORE-12)**; LayerMapping Draft | 0.1.0-draft | P0 | RG-1, layer mapping, global library interface |
 | C-11 | ResolutionProfile | Core | backends, Resolution | core | Draft | 0.1.0-draft | P0 | value sets |
 | C-12 | RefinementRegion | Core | backends, Resolution Agent (operations) | core | Draft+OD | 0.1.0-draft | P0 | transition algorithm |
 | C-13 | Junction | Core | Boolean, Processing | core | Draft | 0.1.0-draft | P0 | blend params |
