@@ -4,24 +4,49 @@
   "enforcement": "active",
   "conditions": {
     "ref_name": {
-      "include": ["refs/heads/dev", "refs/heads/master"],
+      "include": [
+        "refs/heads/dev",
+        "refs/heads/master"
+      ],
       "exclude": []
     }
   },
   "rules": [
-    { "type": "deletion" },
-    { "type": "non_fast_forward" },
+    {
+      "type": "deletion"
+    },
+    {
+      "type": "non_fast_forward"
+    },
     {
       "type": "required_status_checks",
       "parameters": {
         "strict_required_status_checks_policy": false,
         "required_status_checks": [
-          { "context": "fmt" },
-          { "context": "clippy" },
-          { "context": "test (ubuntu-latest)" },
-          { "context": "test (windows-latest)" },
-          { "context": "deny" },
-          { "context": "archcheck" }
+          {
+            "context": "fmt",
+            "integration_id": 15368
+          },
+          {
+            "context": "clippy",
+            "integration_id": 15368
+          },
+          {
+            "context": "test (ubuntu-latest)",
+            "integration_id": 15368
+          },
+          {
+            "context": "test (windows-latest)",
+            "integration_id": 15368
+          },
+          {
+            "context": "deny",
+            "integration_id": 15368
+          },
+          {
+            "context": "archcheck",
+            "integration_id": 15368
+          }
         ]
       }
     }

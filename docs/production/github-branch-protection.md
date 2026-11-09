@@ -12,3 +12,7 @@
 ## How it is verified afterwards
 
 The anonymous API must show `GET /repos/Godrus/Cube/branches/dev` -> `"protected": true` (same for `master`) and `GET /repos/Godrus/Cube/rulesets` -> one active ruleset. An agent re-checks this and then marks GOV-06 and XT-01 done in `ps-0-exit-checklist.md`.
+
+## Verification 2026-11-09 (after the first import)
+
+`GET /repos/Godrus/Cube/rulesets` shows the active ruleset `protect-dev-master` (id 26848724), and `GET /rules/branches/{dev,master}` shows `deletion` and `non_fast_forward` applied to both branches. **Mismatch:** `required_status_checks` is applied with an **empty list**, so no check is required. Minimal fix: Settings -> Rules -> Rulesets -> `protect-dev-master` -> Edit -> *Require status checks to pass* -> **Add checks** and select `fmt`, `clippy`, `test (ubuntu-latest)`, `test (windows-latest)`, `deny`, `archcheck` (source: GitHub Actions; they appear in the list because they have already run) -> Save. The JSON file now carries `integration_id` 15368 (GitHub Actions) so a re-import keeps the checks. The bypass list cannot be read anonymously: keep it empty and confirm it on the edit page.
