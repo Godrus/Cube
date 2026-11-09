@@ -14,3 +14,7 @@ trybuild = "1"
 
 [lints]
 workspace = true
+
+# Only compiled under `--cfg loom` (the loom model of the commit gate, TEST-05); never in normal builds.
+[target.'cfg(loom)'.dependencies]
+loom = "0.7"

@@ -121,6 +121,13 @@ pub fn check_graph(meta: &Value) -> Vec<Violation> {
             if d["kind"].as_str() == Some("dev") {
                 continue;
             }
+            // `loom` is allowed in cube-core only as a `cfg(loom)` target dependency (model checking).
+            if name == "cube-core"
+                && d["name"].as_str() == Some("loom")
+                && d["target"].as_str() == Some("cfg(loom)")
+            {
+                continue;
+            }
             let Some(dep) = d["name"].as_str() else {
                 continue;
             };
@@ -325,6 +332,23 @@ mod tests {
     fn seeded_core_external_dependency() {
         let m = meta(vec![pkg("cube-core", &[("rand", None)])]);
         assert_eq!(rules(&check_graph(&m)), ["ARCH-CORE-DEPS"]);
+    }
+
+    #[test]
+    fn loom_is_allowed_in_core_only_as_a_cfg_loom_dependency() {
+        let with_target = |t: Value| {
+            let dep = json!({ "name": "loom", "kind": null, "target": t });
+            json!({ "packages": [{ "name": "cube-core", "dependencies": [dep], "manifest_path": "x/Cargo.toml" }] })
+        };
+        assert!(check_graph(&with_target(json!("cfg(loom)"))).is_empty());
+        assert_eq!(
+            rules(&check_graph(&with_target(Value::Null))),
+            ["ARCH-CORE-DEPS"]
+        );
+        assert_eq!(
+            rules(&check_graph(&with_target(json!("cfg(unix)")))),
+            ["ARCH-CORE-DEPS"]
+        );
     }
 
     #[test]

@@ -7,7 +7,12 @@
 //! no token and produces no dirty region.
 
 use std::collections::{BTreeMap, BTreeSet};
-use std::sync::{Arc, Mutex, PoisonError, RwLock};
+use std::sync::{Arc, PoisonError};
+
+#[cfg(loom)]
+use loom::sync::{Mutex, RwLock};
+#[cfg(not(loom))]
+use std::sync::{Mutex, RwLock};
 
 use crate::asset::GeometryAsset;
 use crate::cell::{CellPayload, CellState, CellStore, ChannelId, ChannelSet};
