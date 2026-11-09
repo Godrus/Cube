@@ -11,6 +11,7 @@ cube-core = { path = "../cube-core" }
 cube-processing = { path = "../cube-processing" }
 cube-editing-api = { path = "../cube-editing-api" }
 cube-orchestration = { path = "../cube-orchestration" }
+cube-backend-voxel = { path = "../cube-backend-voxel" }
 
 [dev-dependencies]
 cube-testkit = { path = "../cube-testkit" }
