@@ -40,7 +40,19 @@ dependencies = [
 name = "cube-integration-tests"
 version = "0.0.0"
 dependencies = [
+ "cube-core",
+ "cube-processing",
  "cube-testkit",
+ "loom",
+]
+
+[[package]]
+name = "cube-processing"
+version = "0.0.0"
+dependencies = [
+ "cube-core",
+ "cube-testkit",
+ "loom",
 ]
 
 [[package]]

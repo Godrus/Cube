@@ -1,0 +1,22 @@
+[package]
+name = "cube-processing"
+version = "0.0.0"
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+description = "Geometry Processing foundation: snapshots, providers, executor, stale rejection (PS-2)"
+
+# Depends on cube-core only (ADG Part B). No async runtime: workers are plain threads.
+
+[dependencies]
+cube-core = { path = "../cube-core" }
+
+[dev-dependencies]
+cube-testkit = { path = "../cube-testkit" }
+
+[lints]
+workspace = true
+
+# Only compiled under `--cfg loom` (loom models of the slot, token and executor); never in normal builds.
+[target.'cfg(loom)'.dependencies]
+loom = "0.7"
