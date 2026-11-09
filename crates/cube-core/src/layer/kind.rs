@@ -1,5 +1,7 @@
 //! Representation tag and layer payload (contracts C-02, C-03).
 
+use crate::cell::CellStore;
+
 /// Which representation a layer holds. A closed set: a new representation needs an ACR, it is not
 /// an extension point (DEC-053 note; plan section 5.1).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -10,13 +12,6 @@ pub enum LayerKind {
     Sdf,
     /// Polygon mesh pages.
     Mesh,
-}
-
-/// Sparse store of cells for `Voxel` and `Sdf` layers. The contents (bricks, channels, cell
-/// state) arrive with CORE-03; this type exists so that the layer model is closed from the start.
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
-pub struct CellStore {
-    _private: (),
 }
 
 /// Sparse store of mesh pages for `Mesh` layers (contents arrive with a later task).

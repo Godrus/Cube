@@ -76,6 +76,18 @@ impl LocalPos {
     pub const fn z(self) -> u8 {
         self.z
     }
+
+    /// All 4096 local positions in a documented public order: `z` slowest, `x` fastest.
+    /// This order is independent of the private storage order.
+    pub fn all() -> impl Iterator<Item = LocalPos> {
+        (0u8..16)
+            .flat_map(|z| (0u8..16).flat_map(move |y| (0u8..16).map(move |x| LocalPos { x, y, z })))
+    }
+
+    /// Private storage index in `0..BRICK_VOLUME` (provisional order, not exposed outside Core).
+    pub(crate) const fn index(self) -> usize {
+        self.x as usize + 16 * (self.y as usize + 16 * self.z as usize)
+    }
 }
 
 impl VoxelPos {

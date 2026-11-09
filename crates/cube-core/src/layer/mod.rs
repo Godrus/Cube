@@ -2,7 +2,7 @@
 
 mod kind;
 
-pub use kind::{CellStore, LayerData, LayerKind, PageStore};
+pub use kind::{LayerData, LayerKind, PageStore};
 
 use crate::ids::LayerId;
 use crate::transform::GeometryTransform;
