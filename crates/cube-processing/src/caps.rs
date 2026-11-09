@@ -20,9 +20,18 @@ pub const BRICK_OVERHEAD_BYTES: u64 = 64;
 /// Limits on pinned snapshot data and task lifetime.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Caps {
-    /// Most bricks pinned by all running snapshots together.
+    /// Most bricks one snapshot may pin (checked before anything is pinned).
+    pub max_snapshot_bricks: u64,
+    /// Most estimated bytes one snapshot may pin (checked after capture).
+    pub max_snapshot_bytes: u64,
+    /// Most snapshots held at the same time.
+    pub max_active_snapshots: u64,
+    /// Most bricks pinned by all running snapshots together (per asset: one executor reads one asset).
     pub max_pinned_bricks: u64,
-    /// Most bytes (estimated from payload sizes) pinned by all running snapshots together.
+    /// Most bytes pinned by all running snapshots together. The figure is an ESTIMATE from
+    /// payload sizes (see `BRICK_OVERHEAD_BYTES`), not an allocator measurement: shared `Arc`
+    /// payloads are charged in full to every snapshot that pins them, which over-counts (safe
+    /// direction) and cannot be exact.
     pub max_pinned_bytes: u64,
     /// Longest life of a task from submission, in milliseconds on the executor's clock; the task
     /// is cancelled with `DeadlineExceeded` when it is exceeded. `None` = no limit.
@@ -33,6 +42,9 @@ impl Caps {
     /// No effective limits (hard safety limits of snapshots still apply).
     pub const fn unlimited() -> Self {
         Self {
+            max_snapshot_bricks: u64::MAX,
+            max_snapshot_bytes: u64::MAX,
+            max_active_snapshots: u64::MAX,
             max_pinned_bricks: u64::MAX,
             max_pinned_bytes: u64::MAX,
             task_ttl_ms: None,
@@ -43,6 +55,9 @@ impl Caps {
     /// short life. Not a measurement of any device (device validation is DG-1, outside PS-2).
     pub const fn synthetic_mobile() -> Self {
         Self {
+            max_snapshot_bricks: 125,
+            max_snapshot_bytes: 2 * 1024 * 1024,
+            max_active_snapshots: 2,
             max_pinned_bricks: 256,
             max_pinned_bytes: 8 * 1024 * 1024,
             task_ttl_ms: Some(5_000),
@@ -58,6 +73,8 @@ impl Default for Caps {
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 struct Used {
+    snapshots: u64,
+    peak_snapshots: u64,
     bricks: u64,
     bytes: u64,
     peak_bricks: u64,
@@ -74,6 +91,10 @@ pub struct PinBudget {
 /// Pinned amount and its high-water marks.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct PinUsage {
+    /// Snapshots held now.
+    pub snapshots: u64,
+    /// Most snapshots ever held at once.
+    pub peak_snapshots: u64,
     /// Bricks pinned now.
     pub bricks: u64,
     /// Bytes pinned now.
@@ -98,18 +119,26 @@ impl PinBudget {
         &self.caps
     }
 
-    /// `true` if a request for `bricks` could ever fit (when nothing else is pinned).
-    pub fn fits_ever(&self, bricks: u128) -> bool {
-        bricks <= u128::from(self.caps.max_pinned_bricks)
+    /// Which limit refuses a request for `bricks` even when nothing else is pinned, if any.
+    pub fn refusal(&self, bricks: u128) -> Option<LimitKind> {
+        if bricks > u128::from(self.caps.max_snapshot_bricks) {
+            Some(LimitKind::SnapshotBricks)
+        } else if bricks > u128::from(self.caps.max_pinned_bricks) {
+            Some(LimitKind::PinnedBricks)
+        } else {
+            None
+        }
     }
 
     /// Reserves `bricks` if they fit now, otherwise returns `None` (the caller waits and retries).
     pub fn try_reserve(self: &Arc<Self>, bricks: u64) -> Option<PinReservation> {
         let mut u = lock(&self.used);
         let total = u.bricks.checked_add(bricks)?;
-        if total > self.caps.max_pinned_bricks {
+        if total > self.caps.max_pinned_bricks || u.snapshots >= self.caps.max_active_snapshots {
             return None;
         }
+        u.snapshots += 1;
+        u.peak_snapshots = u.peak_snapshots.max(u.snapshots);
         u.bricks = total;
         u.peak_bricks = u.peak_bricks.max(total);
         Some(PinReservation {
@@ -123,6 +152,8 @@ impl PinBudget {
     pub fn usage(&self) -> PinUsage {
         let u = lock(&self.used);
         PinUsage {
+            snapshots: u.snapshots,
+            peak_snapshots: u.peak_snapshots,
             bricks: u.bricks,
             bytes: u.bytes,
             peak_bricks: u.peak_bricks,
@@ -144,6 +175,13 @@ impl PinReservation {
     /// Adds the measured `bytes` of the captured snapshot. Fails (adding nothing) if the byte cap
     /// would be exceeded.
     pub fn add_bytes(&mut self, bytes: u64) -> Result<(), LimitKind> {
+        if self
+            .bytes
+            .checked_add(bytes)
+            .is_none_or(|t| t > self.budget.caps.max_snapshot_bytes)
+        {
+            return Err(LimitKind::SnapshotBytes);
+        }
         let mut u = lock(&self.budget.used);
         let total = u.bytes.checked_add(bytes).ok_or(LimitKind::PinnedBytes)?;
         if total > self.budget.caps.max_pinned_bytes {
@@ -168,6 +206,7 @@ impl PinReservation {
 impl Drop for PinReservation {
     fn drop(&mut self) {
         let mut u = lock(&self.budget.used);
+        u.snapshots -= 1;
         u.bricks -= self.bricks;
         u.bytes -= self.bytes;
     }
@@ -179,6 +218,9 @@ mod tests {
 
     fn budget(bricks: u64, bytes: u64) -> Arc<PinBudget> {
         PinBudget::new(Caps {
+            max_snapshot_bricks: u64::MAX,
+            max_snapshot_bytes: u64::MAX,
+            max_active_snapshots: u64::MAX,
             max_pinned_bricks: bricks,
             max_pinned_bytes: bytes,
             task_ttl_ms: None,
@@ -225,14 +267,50 @@ mod tests {
         assert!(b.try_reserve(1).is_none());
         let mut r = b.try_reserve(0).unwrap();
         r.add_bytes(u64::MAX).unwrap();
-        assert_eq!(r.add_bytes(1), Err(LimitKind::PinnedBytes));
+        assert_eq!(r.add_bytes(1), Err(LimitKind::SnapshotBytes));
     }
 
     #[test]
-    fn fits_ever_compares_with_the_total_cap() {
+    fn refusal_names_the_limit_that_can_never_be_met() {
         let b = budget(27, 10);
-        assert!(b.fits_ever(27) && !b.fits_ever(28));
-        assert!(!b.fits_ever(u128::MAX));
+        assert_eq!(b.refusal(27), None);
+        assert_eq!(b.refusal(28), Some(LimitKind::PinnedBricks));
+        assert_eq!(b.refusal(u128::MAX), Some(LimitKind::SnapshotBricks));
+        let per = PinBudget::new(Caps {
+            max_snapshot_bricks: 5,
+            ..Caps::unlimited()
+        });
+        assert_eq!(per.refusal(6), Some(LimitKind::SnapshotBricks));
+        assert_eq!(per.refusal(5), None);
+    }
+
+    #[test]
+    fn the_number_of_active_snapshots_is_capped_and_released() {
+        let b = PinBudget::new(Caps {
+            max_active_snapshots: 2,
+            ..Caps::unlimited()
+        });
+        let r1 = b.try_reserve(1).unwrap();
+        let _r2 = b.try_reserve(1).unwrap();
+        assert!(b.try_reserve(0).is_none());
+        assert_eq!(b.usage().snapshots, 2);
+        drop(r1);
+        assert!(b.try_reserve(0).is_some());
+        assert_eq!(b.usage().peak_snapshots, 2);
+    }
+
+    #[test]
+    fn one_snapshot_cannot_exceed_its_own_byte_budget() {
+        let b = PinBudget::new(Caps {
+            max_snapshot_bytes: 100,
+            ..Caps::unlimited()
+        });
+        let mut r = b.try_reserve(1).unwrap();
+        r.add_bytes(60).unwrap();
+        assert_eq!(r.add_bytes(41), Err(LimitKind::SnapshotBytes));
+        r.add_bytes(40).unwrap();
+        let mut r2 = b.try_reserve(1).unwrap();
+        r2.add_bytes(100).unwrap();
     }
 
     #[test]

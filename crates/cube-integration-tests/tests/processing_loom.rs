@@ -219,6 +219,9 @@ fn pin_budget_never_over_commits_and_always_returns_everything() {
     use cube_processing::{Caps, PinBudget};
     model(|| {
         let budget = PinBudget::new(Caps {
+            max_snapshot_bricks: u64::MAX,
+            max_snapshot_bytes: u64::MAX,
+            max_active_snapshots: u64::MAX,
             max_pinned_bricks: 4,
             max_pinned_bytes: 100,
             task_ttl_ms: None,

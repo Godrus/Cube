@@ -40,6 +40,9 @@ fn executor(w: &World, providers: Vec<Arc<dyn Provider>>, cfg: ExecutorConfig) -
 
 fn caps(bricks: u64, bytes: u64, ttl: Option<u64>) -> Caps {
     Caps {
+        max_snapshot_bricks: u64::MAX,
+        max_snapshot_bytes: u64::MAX,
+        max_active_snapshots: u64::MAX,
         max_pinned_bricks: bricks,
         max_pinned_bytes: bytes,
         task_ttl_ms: ttl,
@@ -540,4 +543,69 @@ fn bounds_of_many_bricks_combine_exactly_and_conservatively() {
         "negative bricks extend the hull downwards exactly"
     );
     let _ = BrickCoord::new(0, 0, 0);
+}
+
+#[test]
+fn per_snapshot_and_active_snapshot_budgets_refuse_with_a_named_limit() {
+    let w = world();
+    // One snapshot of 27 bricks against a per-snapshot limit of 26: refused at submit.
+    let tight = Caps {
+        max_snapshot_bricks: 26,
+        ..Caps::unlimited()
+    };
+    let e = executor(&w, vec![SumProvider::plain(1)], cfg(tight));
+    assert_eq!(
+        e.submit(target(1, L_VOXEL, 0, 0, 0), visible())
+            .unwrap_err(),
+        ProcessingError::ResourceUnavailable(LimitKind::SnapshotBricks)
+    );
+
+    // Per-snapshot byte budget: a task whose neighbourhood is too heavy fails, diagnosably.
+    for x in 0..3 {
+        w.put_dense(L_VOXEL, bc(x, 0, 0), 1);
+    }
+    let heavy = Caps {
+        max_snapshot_bytes: 20_000,
+        ..Caps::unlimited()
+    };
+    let e = executor(&w, vec![SumProvider::plain(1)], cfg(heavy));
+    let h = e.submit(target(1, L_VOXEL, 1, 0, 0), visible()).unwrap();
+    e.run_until_idle();
+    assert_eq!(
+        h.outcome(),
+        Some(TaskOutcome::Failed(ProcessingError::ResourceUnavailable(
+            LimitKind::SnapshotBytes
+        )))
+    );
+    assert_eq!(e.pinned().snapshots, 0);
+
+    // Active snapshots: one at a time even though the executor could run more tasks.
+    let entered = Gate::new();
+    let release = Gate::new();
+    let one = Caps {
+        max_active_snapshots: 1,
+        ..Caps::unlimited()
+    };
+    let e = executor(
+        &w,
+        vec![SumProvider::paused(1, &entered, &release, true)],
+        cfg(one),
+    );
+    let h1 = e.submit(target(1, L_VOXEL, 0, 0, 0), visible()).unwrap();
+    let h2 = e.submit(target(1, L_VOXEL, 9, 0, 0), visible()).unwrap();
+    let runner = {
+        let e = e.clone();
+        std::thread::spawn(move || e.run_one())
+    };
+    entered.wait();
+    assert_eq!(e.pinned().snapshots, 1);
+    assert!(!e.run_one());
+    assert_eq!(h2.state(), TaskState::Queued);
+    release.open();
+    runner.join().unwrap();
+    assert!(e.run_one());
+    assert_eq!(h1.state(), TaskState::Completed);
+    assert_eq!(h2.state(), TaskState::Completed);
+    let u = e.pinned();
+    assert_eq!((u.snapshots, u.peak_snapshots), (0, 1));
 }

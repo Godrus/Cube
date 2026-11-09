@@ -16,6 +16,12 @@ pub enum LimitKind {
     PinnedBricks,
     /// The request needs more pinned memory than the budget allows.
     PinnedBytes,
+    /// One snapshot would pin more bricks than a single snapshot may.
+    SnapshotBricks,
+    /// One snapshot would pin more bytes than a single snapshot may.
+    SnapshotBytes,
+    /// The number of concurrently held snapshots is at its limit.
+    ActiveSnapshots,
 }
 
 /// Failure of a Processing operation. Errors are never reported as success: a failed task has the

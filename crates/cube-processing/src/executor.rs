@@ -489,10 +489,8 @@ impl Inner {
             }
         }
         let req = SnapshotRequest::for_brick(target.key, provider.apron());
-        if !self.budget.fits_ever(req.brick_count()) {
-            return Err(ProcessingError::ResourceUnavailable(
-                LimitKind::PinnedBricks,
-            ));
+        if let Some(limit) = self.budget.refusal(req.brick_count()) {
+            return Err(ProcessingError::ResourceUnavailable(limit));
         }
         let pin_bricks = u64::try_from(req.brick_count()).unwrap_or(u64::MAX);
         let waiting = s
