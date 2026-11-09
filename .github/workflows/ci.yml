@@ -46,3 +46,4 @@ jobs:
       - uses: actions/checkout@v4
       - run: cargo test -p xtask
       - run: cargo xtask archcheck
+      - run: cargo xtask features --check

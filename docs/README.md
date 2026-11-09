@@ -47,3 +47,5 @@ Documents that cite the missing sources (Geometry Editing Specification, Agent S
 | Reference comparison (Veloren, CubeWorld-Reversal, Cube) | `docs/research/reference-comparison.md` | Research record |
 | Veloren notes (read-only, GPL-3.0, no code copied) | `docs/research/veloren-notes.md` | Research record |
 | CubeWorld-Reversal notes (listings only, legal caveats) | `docs/research/cubeworld-reversal-notes.md` | Research record |
+
+**Functional view (start here for state):** [AGENT-HANDOFF.md](AGENT-HANDOFF.md), [FUNCTIONAL-ROADMAP.md](FUNCTIONAL-ROADMAP.md), [FEATURE-REGISTRY.md](FEATURE-REGISTRY.md) (generated from `features.json`).

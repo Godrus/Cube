@@ -2,6 +2,8 @@
 
 **Status:** Proposed. Read this file and then `PROJECT_STATUS.md`. State is defined by the repository and verifiable evidence, **never** by chat memory or another agent's summary.
 
+**Mandatory first step (all agents):** before any significant development read `docs/AGENT-HANDOFF.md` (short current state) and `docs/FUNCTIONAL-ROADMAP.md`. After adding, changing or finishing functionality, update the matching entries in `docs/features.json` (the generated `docs/FEATURE-REGISTRY.md` is checked in CI) in the same change.
+
 ## 0. Hard rules
 
 1. A **Proposed** document is not a decision. Only an entry in the owner's decision registry (owner-confirmed source) is a decision.
