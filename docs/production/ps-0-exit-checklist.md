@@ -94,11 +94,11 @@ Statuses are kept apart: **IMPLEMENTED**, **TESTED** (CI host), **INTEGRATED** (
 
 | Task | IMPLEMENTED | TESTED | INTEGRATED | Gate |
 |---|---|---|---|---|
-| API-01 | yes | yes (mock contract tests, validation tests) | pending CI on `prod/ps3-editing-api` | - |
-| API-02 | yes (merge allowed: G2 passed) | yes | pending | - |
-| API-03 | yes | yes | pending | - |
-| API-04 | yes | yes | pending | - |
-| API-05 | yes | yes | pending | - |
+| API-01 | yes | yes (mock contract tests, validation tests) | yes (`1f588c9`, CI 42626817723) | - |
+| API-02 | yes (merge allowed: G2 passed) | yes | yes (`1f588c9`) | - |
+| API-03 | yes | yes | yes (`1f588c9`) | - |
+| API-04 | yes | yes | yes (`1f588c9`) | - |
+| API-05 | yes | yes | yes (`1f588c9`) | - |
 | GOV-09 | n/a | n/a | n/a | **open**: owner approval; the exact remaining decisions are in `docs/production/editing-api-contract.md` |
 
 G3 closes when all six members are merged and accepted; it is blocked only by GOV-09.
