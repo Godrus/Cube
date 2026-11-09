@@ -358,6 +358,7 @@ pub struct RecordingSink {
     log: EventLog,
     /// Every batch of dirty regions, in order.
     pub batches: Mutex<Vec<Vec<DirtyRegion>>>,
+    forward: Mutex<Option<Arc<dyn DirtySink>>>,
 }
 
 impl RecordingSink {
@@ -366,7 +367,13 @@ impl RecordingSink {
         Arc::new(Self {
             log: Arc::clone(log),
             batches: Mutex::new(Vec::new()),
+            forward: Mutex::new(None),
         })
+    }
+
+    /// Also passes every batch on to `next` (for example a Processing executor).
+    pub fn forward_to(&self, next: Arc<dyn DirtySink>) {
+        *self.forward.lock().unwrap_or_else(PoisonError::into_inner) = Some(next);
     }
 }
 
@@ -380,6 +387,14 @@ impl DirtySink for RecordingSink {
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
             .push(regions.to_vec());
+        let next = self
+            .forward
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .clone();
+        if let Some(n) = next {
+            n.dirty(regions);
+        }
     }
 }
 

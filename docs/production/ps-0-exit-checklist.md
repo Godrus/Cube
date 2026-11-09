@@ -123,3 +123,25 @@ Statuses are kept apart: **IMPLEMENTED**, **TESTED** (CI host), **INTEGRATED** (
 
 **PS-4 CLOSED - G4 PASSED** (all seven members merged, required CI green, real-path mutation tests and backend conformance pass, no bypass of the commit boundary).
 
+## 10. PS-5 / G5 status, 2026-11-09 (in progress; G5 NOT passed)
+
+| Task | IMPLEMENTED | TESTED | INTEGRATED | Notes |
+|---|---|---|---|---|
+| VOX-01 | yes (`cube-backend-voxel/src/{ops,edit,params}.rs`) | yes: full chain Editing API -> Orchestration -> VoxelBackend -> Core (add, replace, remove, atomic multi-brick, brick borders, negative and extreme coordinates, micro levels, conflicts, permission denial, failed operations change nothing, unloaded bricks never guessed, other channels preserved, brute-force model for set/replace/copy/move, conformance suite) | pending CI | no direct commit: the crate returns write sets |
+| VOX-02 | yes (`faces.rs`, provisional: provider ownership O-1 open) | yes: brute-force definition equality across borders and negative space, border hidden/visible cases, unloaded neighbour flag, unloaded centre = failure, determinism | pending CI | |
+| VOX-03 | yes (`greedy.rs`, provisional) | yes: coverage equals faces exactly, seam rule (unit ring), merging and material splits, determinism for 1 and 4 workers | pending CI | **limit:** T-junctions inside a brick between interior quads and the ring are not claimed fixed; greedy is not the default renderer (needs GOV-13 and measurements) |
+| VOX-04 | yes (`sections.rs`: brick plus six face neighbours) | yes: incremental rebuild by the rule equals full rebuild over random edits; stale rejection after a Core commit through the dirty sink | pending CI | |
+| VOX-05 | **not started** | - | - | collision and LOD providers: provider ownership O-1 undecided; independent of the rest |
+| CORE-12, GOV-08, GOV-17 | **not started / owner** | - | - | C-10 needs the Voxel Architecture revalidation (external input EXT-VA-RG1); GOV-17 is an owner decision after RG-1 |
+| SDF-01..03, MSH-01..03 | **not started** | - | - | independent of the voxel work; to follow |
+
+**G5: NOT passed.** Open: VOX-05, SDF-01..03, MSH-01..03, CORE-12, GOV-08, GOV-17 (EXT-VA-RG1 is an external input of the stage).
+
+**Real now:** a user edit of voxel content works through `Editing API -> Orchestration -> Voxel Backend -> Core commit`, with derived face and greedy meshes recomputed per brick by Processing and invalidated by the commit. No crash durability is claimed (PS-10; CB-1 boundary unchanged).
+
+**Technical debt registered (not refactored without a contract):**
+
+* TD-1, observers inside the commit section: they run there so that their order equals the commit order. Moving ordinary observers out needs a per-asset ordered delivery queue (sequence numbers, a single drain, isolation kept, durable effects staying inside). A safe change must be covered by loom models of the queue; it needs no contract change but is deferred until a slow observer is a real problem.
+* TD-2, the `GeometryBackend::validate` port carries a region but no layer; the voxel backend therefore reports `validate: false`. Needs an additive port change.
+* TD-3, `TEST-04` and `PERS-01` (independent Persistence work) are not started.
+
