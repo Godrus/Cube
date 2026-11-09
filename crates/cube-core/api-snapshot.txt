@@ -203,6 +203,7 @@ lib.rs: pub mod key;
 lib.rs: pub mod layer;
 lib.rs: pub mod material;
 lib.rs: pub mod operation;
+lib.rs: pub mod palette;
 lib.rs: pub mod region;
 lib.rs: pub mod revision;
 lib.rs: pub mod transform;
@@ -221,6 +222,7 @@ lib.rs: pub use key::CellKey;
 lib.rs: pub use layer::{Layer, LayerData, LayerKind, PageStore};
 lib.rs: pub use material::MaterialIndex;
 lib.rs: pub use operation::{ActorKind, OperationId};
+lib.rs: pub use palette::{ContentId, Mapping, MaterialPalette, PaletteError};
 lib.rs: pub use region::Region;
 lib.rs: pub use revision::{
 lib.rs: pub use transform::{GeometryTransform, Rotation};
@@ -238,6 +240,28 @@ operation.rs: pub const fn sequence(self) -> u64 {
 operation.rs: pub enum ActorKind {
 operation.rs: pub const fn code(self) -> u8 {
 operation.rs: pub const fn from_code(code: u8) -> Option<Self> {
+palette.rs: pub const MAX_NAMESPACE_LEN: usize = 64;
+palette.rs: pub const MAX_NAME_LEN: usize = 128;
+palette.rs: pub enum PaletteError {
+palette.rs: pub struct ContentId(String);
+palette.rs: pub fn parse(text: &str) -> Result<Self, PaletteError> {
+palette.rs: pub fn as_str(&self) -> &str {
+palette.rs: pub fn namespace(&self) -> &str {
+palette.rs: pub struct MaterialPalette {
+palette.rs: pub fn new() -> Self {
+palette.rs: pub fn len(&self) -> usize {
+palette.rs: pub fn is_empty(&self) -> bool {
+palette.rs: pub fn register(&mut self, id: ContentId) -> Result<MaterialIndex, PaletteError> {
+palette.rs: pub fn index_of(&self, id: &ContentId) -> Option<MaterialIndex> {
+palette.rs: pub fn content_of(&self, m: MaterialIndex) -> Option<&ContentId> {
+palette.rs: pub fn is_placeholder(&self, m: MaterialIndex) -> bool {
+palette.rs: pub fn to_table(&self) -> Vec<ContentId> {
+palette.rs: pub fn from_table(table: &[ContentId]) -> Result<Self, PaletteError> {
+palette.rs: pub fn resolve_strict(&self, saved: &[ContentId]) -> Result<Mapping, PaletteError> {
+palette.rs: pub fn resolve_recovery(
+palette.rs: pub struct Mapping {
+palette.rs: pub fn translate(&self, saved: MaterialIndex) -> Option<MaterialIndex> {
+palette.rs: pub fn is_identity(&self) -> bool {
 region.rs: pub struct Region {
 region.rs: pub fn new(level: i8, min: VoxelPos, max: VoxelPos) -> Result<Self, CoreError> {
 region.rs: pub const fn level(&self) -> i8 {
