@@ -3,7 +3,7 @@
 //! This crate has no dependencies, knows nothing about any engine or game content, and contains
 //! no game rules. Implemented so far: coordinates and keys (CORE-02), the layer model (CORE-01) the cell model
 //! with sparse brick storage (CORE-03), revisions (CORE-05), operation ids (CORE-07), the commit
-//! gate (CORE-06) and the mutation boundary (CORE-08).
+//! gate (CORE-06), the mutation boundary (CORE-08) and world identity values (CORE-16).
 
 pub mod asset;
 pub mod boundary;
@@ -22,6 +22,7 @@ pub mod revision;
 mod rotation;
 pub mod transform;
 pub mod view;
+pub mod world_ids;
 
 pub use asset::GeometryAsset;
 pub use boundary::{AssetHost, Handles, RecoveryCommit, SystemCommit, UserCommit};
@@ -48,3 +49,4 @@ pub use revision::{
 };
 pub use transform::{GeometryTransform, Rotation};
 pub use view::{AssetView, CellView, ContentHash, LayerView};
+pub use world_ids::{GeneratorVersion, WorldSeed};

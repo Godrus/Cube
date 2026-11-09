@@ -190,6 +190,7 @@ lib.rs: pub mod region;
 lib.rs: pub mod revision;
 lib.rs: pub mod transform;
 lib.rs: pub mod view;
+lib.rs: pub mod world_ids;
 lib.rs: pub use asset::GeometryAsset;
 lib.rs: pub use boundary::{AssetHost, Handles, RecoveryCommit, SystemCommit, UserCommit};
 lib.rs: pub use cell::{
@@ -206,6 +207,7 @@ lib.rs: pub use region::Region;
 lib.rs: pub use revision::{
 lib.rs: pub use transform::{GeometryTransform, Rotation};
 lib.rs: pub use view::{AssetView, CellView, ContentHash, LayerView};
+lib.rs: pub use world_ids::{GeneratorVersion, WorldSeed};
 material.rs: pub struct MaterialIndex(u16);
 material.rs: pub const WIDTH_BITS: u32 = 16;
 material.rs: pub const fn from_raw(raw: u16) -> Self {
@@ -302,3 +304,13 @@ view.rs: pub const ALGORITHM: &'static str = "CH1";
 view.rs: pub const fn value(self) -> u128 {
 view.rs: pub fn content_hash(&self) -> ContentHash {
 view.rs: pub fn export_view(&self) -> AssetView {
+world_ids.rs: pub struct WorldSeed(u64);
+world_ids.rs: pub const fn new(raw: u64) -> Self {
+world_ids.rs: pub const fn raw(self) -> u64 {
+world_ids.rs: pub const fn to_le_bytes(self) -> [u8; 8] {
+world_ids.rs: pub const fn from_le_bytes(bytes: [u8; 8]) -> Self {
+world_ids.rs: pub struct GeneratorVersion(u32);
+world_ids.rs: pub const fn new(raw: u32) -> Self {
+world_ids.rs: pub const fn raw(self) -> u32 {
+world_ids.rs: pub const fn to_le_bytes(self) -> [u8; 4] {
+world_ids.rs: pub const fn from_le_bytes(bytes: [u8; 4]) -> Self {
