@@ -141,11 +141,28 @@ pub struct Checkpoint {
     pub reason: CheckpointReason,
 }
 
-/// One confirmed operation of the journal (the shape that networking replays).
+/// Phase of a journal record. A durable operation is journalled write-ahead: an `Intent` before
+/// the Core commit, then `Confirmed` (with the post tokens) after it, or `Aborted` if the commit
+/// did not happen. An `Intent` without a later record is resolved at recovery by comparing it
+/// with Core (the operation id is in Core's commit log) - Persistence defines that procedure
+/// (PS-10). Recovery never reuses an operation id.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum JournalPhase {
+    /// The operation is about to be committed.
+    Intent,
+    /// The commit happened.
+    Confirmed,
+    /// The commit did not happen.
+    Aborted,
+}
+
+/// One record of the operation journal (the shape that networking replays).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct JournalEntry {
     /// Position in the journal.
     pub seq: JournalSeq,
+    /// Phase of the record.
+    pub phase: JournalPhase,
     /// The operation.
     pub operation: OperationId,
     /// Who acted.

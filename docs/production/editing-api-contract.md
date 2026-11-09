@@ -1,6 +1,6 @@
 # Editing API: provisional implementation record (PS-3)
 
-**Status:** Provisional. `crates/cube-editing-api` implements E-02...E-07, E-09...E-12 and the storage ports as plain types and traits (contracts only, no behaviour). The contracts stay Draft until GOV-09 (owner approval); nothing here is Frozen. API changes are caught by `crates/cube-editing-api/tests/api_snapshot.rs` (regenerate with `UPDATE_API_SNAPSHOT=1`, state the change request in the commit).
+**Status:** Owner-Approved for the PS-3 scope (GOV-09, DEC-082..DEC-086); provisional parts are not Frozen. `crates/cube-editing-api` implements E-02...E-07, E-09...E-12 and the storage ports as plain types and traits (contracts only, no behaviour). The contracts stay Draft until GOV-09 (owner approval); nothing here is Frozen. API changes are caught by `crates/cube-editing-api/tests/api_snapshot.rs` (regenerate with `UPDATE_API_SNAPSHOT=1`, state the change request in the commit).
 
 ## Task coverage
 
@@ -24,12 +24,10 @@ Rust naming: the contract's `IEditingService` is `EditingService`, `IGeometryBac
 6. Payload bytes, delta encoding and serialisation are opaque (`PayloadRef`); no format is implied. (E-09 open.)
 7. The journal assigns gapless sequence numbers from 1 and has no owner yet; only its shape is fixed.
 
-## Remaining owner decisions for GOV-09 (short list)
+## Owner decisions recorded (GOV-09)
 
-1. **Approve** E-02..E-07, E-09, E-11, E-12 and the storage ports as implemented, with the seven resolutions above (or amend them).
-2. Name the owner of the **permission schema and region ACLs** (E-02): gameplay or server.
-3. Decide **grouping** of a sculpt stroke (one transaction per stroke or per dab) and whether nested transactions exist (E-04).
-4. Decide the **delta encoding** and checkpoint frequency policy (E-09, E-10), or defer them to PS-10 explicitly.
-5. Assign an owner for `OperationJournal` and decide whether observer delivery is durable before the acknowledgement (E-12).
+DEC-082 approves the contracts and the seven resolutions; DEC-083 names Server/Authorization as owner of the permission schema; DEC-084 fixes one stroke = one transaction and no nesting; DEC-085 defers delta encoding and checkpoint frequency to PS-10; DEC-086 fixes journal ownership (Persistence) and observer delivery rules.
 
-None of these blocks the code of PS-3; they block closing G3 (GOV-09).
+## Contract blocker CB-1 (journal and Core commit are not one atomic action)
+
+Core's commit and a durable journal write cannot be made atomic with the current interfaces. Safe boundary (additive API change, change request of PS-3 close): `JournalPhase` (`Intent` before the commit, `Confirmed` after, `Aborted` if the commit did not happen) on `JournalEntry`, and `EditingResult::AppliedUnconfirmed` for "applied, confirmation not durable" (never reported as success). A retry with the same `OperationId` completes the confirmation without applying twice. An `Intent` without a later record is resolved at recovery against Core's commit log; Persistence defines that procedure in PS-10. Crash durability is **not** claimed before PS-10.

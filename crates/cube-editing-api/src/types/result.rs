@@ -40,6 +40,10 @@ pub enum EditingResult {
     ResourceFailure(EditingError),
     /// Cancelled before the commit started; nothing changed.
     Cancelled,
+    /// The change WAS applied but its durable journal confirmation failed. Not a success: the
+    /// caller must retry with the same operation id, which completes the confirmation without
+    /// applying anything twice.
+    AppliedUnconfirmed(Success),
 }
 
 impl EditingResult {
@@ -48,9 +52,10 @@ impl EditingResult {
         matches!(self, Self::Success(_))
     }
 
-    /// `true` if the authoritative state is guaranteed unchanged (every variant but `Success`).
+    /// `true` if the authoritative state is guaranteed unchanged (not `Success` and not
+    /// `AppliedUnconfirmed`).
     pub const fn left_state_unchanged(&self) -> bool {
-        !self.is_success()
+        !matches!(self, Self::Success(_) | Self::AppliedUnconfirmed(_))
     }
 }
 

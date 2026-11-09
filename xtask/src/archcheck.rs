@@ -278,6 +278,15 @@ pub fn scan_source(krate: &str, file: &str, text: &str) -> Vec<Violation> {
                 );
             }
         }
+        if krate == "cube-orchestration"
+            && contains_word(code, "UserCommit")
+            && !file.ends_with("src/commit_path.rs")
+        {
+            report(
+                "ARCH-USER-COMMIT-PATH",
+                "only src/commit_path.rs of cube-orchestration may name UserCommit (single user commit path, ORCH-05)",
+            );
+        }
         if is_adapter(krate) {
             for pat in ["undo", "redo", "EditBatch", "commit"] {
                 if contains_word(code, pat) {
@@ -320,6 +329,49 @@ pub fn scan_source(krate: &str, file: &str, text: &str) -> Vec<Violation> {
         }
     }
     out
+}
+
+/// `true` if the text contains an unresolved merge conflict: a line that starts with the opening
+/// marker followed later by a line that starts with the closing marker. Lines carrying
+/// `archcheck:allow(ARCH-CONFLICT-MARKER)` are ignored so that fixtures may contain markers.
+pub fn has_conflict_markers(text: &str) -> bool {
+    let open = "<".repeat(7) + " ";
+    let close = ">".repeat(7) + " ";
+    let mut opened = false;
+    for line in text.lines() {
+        if line.contains("archcheck:allow(ARCH-CONFLICT-MARKER)") {
+            continue;
+        }
+        if line.starts_with(&open) {
+            opened = true;
+        } else if opened && line.starts_with(&close) {
+            return true;
+        }
+    }
+    false
+}
+
+fn collect_text_files(dir: &Path, out: &mut Vec<PathBuf>) {
+    let Ok(rd) = std::fs::read_dir(dir) else {
+        return;
+    };
+    for e in rd.flatten() {
+        let path = e.path();
+        let name = e.file_name().to_string_lossy().into_owned();
+        if path.is_dir() {
+            if !matches!(
+                name.as_str(),
+                "target" | ".git" | "node_modules" | "fixtures"
+            ) {
+                collect_text_files(&path, out);
+            }
+        } else if matches!(
+            path.extension().and_then(|x| x.to_str()),
+            Some("rs" | "md" | "toml" | "yml" | "yaml" | "json" | "py" | "txt" | "stderr")
+        ) {
+            out.push(path);
+        }
+    }
 }
 
 fn collect_rs(dir: &Path, out: &mut Vec<PathBuf>) {
@@ -368,6 +420,26 @@ pub fn run(root: &Path) -> Result<Vec<Violation>, String> {
                 .to_string()
                 .replace('\\', "/");
             violations.extend(scan_source(name, &rel, &text));
+        }
+    }
+    let mut text_files = Vec::new();
+    collect_text_files(root, &mut text_files);
+    text_files.sort();
+    for f in text_files {
+        let Ok(text) = std::fs::read_to_string(&f) else {
+            continue;
+        };
+        if has_conflict_markers(&text) {
+            violations.push(Violation {
+                rule: "ARCH-CONFLICT-MARKER",
+                subject: f
+                    .strip_prefix(root)
+                    .unwrap_or(&f)
+                    .display()
+                    .to_string()
+                    .replace('\\', "/"),
+                detail: "unresolved merge conflict markers".to_owned(),
+            });
         }
     }
     Ok(violations)
@@ -554,7 +626,46 @@ fn f(h: &UserCommit) {}
             ["ARCH-HANDLE"]
         );
         assert!(scan_source("cube-server", "src/lib.rs", "host.into_handles()").is_empty());
-        assert!(scan_source("cube-orchestration", "src/lib.rs", "UserCommit").is_empty());
+        assert!(scan_source("cube-orchestration", "src/commit_path.rs", "UserCommit").is_empty());
+    }
+
+    #[test]
+    fn seeded_conflict_markers_are_caught_and_ordinary_text_is_not() {
+        let open = "<".repeat(7);
+        let close = ">".repeat(7);
+        let bad = format!("a\n{open} HEAD\nmine\n=======\ntheirs\n{close} origin/dev\nb\n");
+        assert!(has_conflict_markers(&bad));
+        let fixture = format!(
+            "{open} HEAD // archcheck:allow(ARCH-CONFLICT-MARKER)\n{close} x // archcheck:allow(ARCH-CONFLICT-MARKER)\n"
+        );
+        assert!(!has_conflict_markers(&fixture));
+        // A setext heading underline and an indented marker inside code are not conflicts.
+        assert!(!has_conflict_markers("Title\n=======\ntext\n"));
+        assert!(!has_conflict_markers(&format!(
+            "    let x = \"{open} \";\n"
+        )));
+        assert!(!has_conflict_markers(&format!("{open} only an opener\n")));
+    }
+
+    #[test]
+    fn seeded_user_commit_outside_the_single_commit_path_is_caught() {
+        let src = "fn f(h: &UserCommit) {}";
+        assert_eq!(
+            rules(&scan_source(
+                "cube-orchestration",
+                "crates/cube-orchestration/src/txn.rs",
+                src
+            )),
+            ["ARCH-USER-COMMIT-PATH"]
+        );
+        assert!(
+            scan_source(
+                "cube-orchestration",
+                "crates/cube-orchestration/src/commit_path.rs",
+                src
+            )
+            .is_empty()
+        );
     }
 
     #[test]

@@ -1872,3 +1872,118 @@ owner: Project Owner
 affected_documents: [docs/production/ps-0-exit-checklist.md, docs/PROJECT_STATUS.md]
 history:
   - 2026-11-09 entry created
+
+## DEC-082  GOV-09: Editing API contracts approved (PS-3 scope)
+id: DEC-082
+aliases: [GOV-09, E-02..E-07, E-09..E-12]
+category: PROCESS
+level: TECHNICAL
+status: CONFIRMED
+statement: >
+  The owner approves the implemented Editing API interfaces E-02, E-03, E-04, E-05, E-06, E-07, E-09, E-11, E-12 and the storage ports, and E-10 as the minimal checkpoint contract the storage ports need. The seven provisional resolutions of docs/production/editing-api-contract.md are accepted as the current implementation basis: (1) backends get read-only views and return write sets; (2) operation parameters are opaque versioned data owned by the kind owners; (3) the facade is synchronous; (4) atomic commit and rollback without partial application; (5) conflicts are returned explicitly with resources and revisions, no automatic resolution; (6) delta payload and serialisation stay abstract until Persistence; (7) the journal uses a monotonic sequence of confirmed records, storage details belong to Persistence. Approval covers the PS-3 scope only.
+not_decided: >
+  No contract is Frozen. The provisional parts stay provisional. E-08 (ModifierStack) and E-13 (networking boundary) are not approved. Further checks: contract tests, API snapshot (api-snapshot.txt) and the real Orchestration path (PS-4).
+decided_by: OWNER
+decided_on: 2026-11-09
+decided_on_basis: date of the owner's message
+recorded_on: 2026-11-09 (this registry)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner statement in chat; permitted source under DEC-002, ODM-10)
+source: OWNER-CHAT-2026-11-09 (instruction 'Close GOV-09 / G3, Implement PS-4 and Continue Production Development') section 3
+source_availability: UNAVAILABLE in repository (session transcript only)
+owner: Project Owner
+affected_documents: [docs/production/editing-api-contract.md, docs/api-contracts/README.md, crates/cube-editing-api]
+history:
+  - 2026-11-09 entry created
+
+## DEC-083  Permission schema and region ACL: ownership
+id: DEC-083
+aliases: [GOV-09, E-02]
+category: PROCESS
+level: TECHNICAL
+status: CONFIRMED
+statement: >
+  The owner of the permission schema and region ACLs is Server/Authorization (applies and checks rights). Gameplay owns role, group, ownership and game policy rules; Editing Orchestration checks authorization through a port before changing the world; Core stores and changes geometry state without game logic; the Client offers permission UI but takes no authoritative decision. The schema must allow future build zones, shared editing and server permissions. For PS-4 an authorization port and a verifiable deny policy are enough; full regional permissions are not implemented. A local client gets no extra rights because of its origin.
+not_decided: >
+  The concrete permission model and region ACL implementation.
+decided_by: OWNER
+decided_on: 2026-11-09
+decided_on_basis: date of the owner's message
+recorded_on: 2026-11-09 (this registry)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner statement in chat; permitted source under DEC-002, ODM-10)
+source: OWNER-CHAT-2026-11-09 (instruction 'Close GOV-09 / G3, Implement PS-4 and Continue Production Development') section 3
+source_availability: UNAVAILABLE in repository (session transcript only)
+owner: Project Owner
+affected_documents: [crates/cube-editing-api/src/auth.rs, crates/cube-orchestration]
+history:
+  - 2026-11-09 entry created
+
+## DEC-084  Sculpt stroke is one transaction; no nested transactions in PS-4
+id: DEC-084
+aliases: [GOV-09, E-04]
+category: PROCESS
+level: TECHNICAL
+status: CONFIRMED
+statement: >
+  One completed sculpt stroke is one logical user transaction. PS-4 has no nested transactions and no partially successful commits. A long stroke may accumulate changes inside one logical operation; if resource limits force the computation to be split, that must not silently become several independent user commits. Cancelling before commit leaves the authoritative state unchanged. Undo will treat a stroke as one unit when the tool exists.
+not_decided: >
+  Streaming sculpt, partial application and distributed transactions are deferred to their stages.
+decided_by: OWNER
+decided_on: 2026-11-09
+decided_on_basis: date of the owner's message
+recorded_on: 2026-11-09 (this registry)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner statement in chat; permitted source under DEC-002, ODM-10)
+source: OWNER-CHAT-2026-11-09 (instruction 'Close GOV-09 / G3, Implement PS-4 and Continue Production Development') section 3
+source_availability: UNAVAILABLE in repository (session transcript only)
+owner: Project Owner
+affected_documents: [docs/production/editing-api-contract.md]
+history:
+  - 2026-11-09 entry created
+
+## DEC-085  Delta encoding and checkpoint frequency deferred to PS-10
+id: DEC-085
+aliases: [GOV-09, E-09, E-10, AOD-17, AOD-21]
+category: PROCESS
+level: TECHNICAL
+status: CONFIRMED
+statement: >
+  The concrete delta encoding and the checkpoint period are deferred to PS-10 Persistence. Until then the interfaces stay abstract and versioned, no binary format and no database are fixed, and no mandatory checkpoint period is introduced without measurements and crash-recovery checks. Compatible with AOD-17 and AOD-21. This is an explicit deferral, not a blocker of G3.
+not_decided: >
+  Encoding, format, period.
+decided_by: OWNER
+decided_on: 2026-11-09
+decided_on_basis: date of the owner's message
+recorded_on: 2026-11-09 (this registry)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner statement in chat; permitted source under DEC-002, ODM-10)
+source: OWNER-CHAT-2026-11-09 (instruction 'Close GOV-09 / G3, Implement PS-4 and Continue Production Development') section 3
+source_availability: UNAVAILABLE in repository (session transcript only)
+owner: Project Owner
+affected_documents: [docs/production/editing-api-contract.md]
+history:
+  - 2026-11-09 entry created
+
+## DEC-086  OperationJournal ownership and observer delivery
+id: DEC-086
+aliases: [GOV-09, E-12, OperationJournal]
+category: PROCESS
+level: TECHNICAL
+status: CONFIRMED
+statement: >
+  The durable OperationJournal is owned by Persistence. Editing Orchestration reconciles changes with the required journal records. Success is reported for an operation that requires durability only after the durable record is confirmed; a journal error never produces a false success; the state "change applied, journal lost" is not left without a defined recovery mechanism. Where interfaces cannot give the needed atomicity, it is not imitated: the minimal contract blocker is recorded and a safe boundary is implemented. Ordinary observers need not be durable before the response; losing a UI notification never loses an authoritative change; reliable subscribers need a separate replay/resync mechanism in the future. The journal is not mixed with History or UI observers. Journal sequence numbers must not lead to reuse of an OperationId after failures. File format and durable storage are PS-10.
+not_decided: >
+  Blocker recorded (CB-1): Core commit and the journal cannot be one atomic action. Safe boundary implemented in the API and Orchestration: write-ahead journal phases (Intent, then Confirmed or Aborted), the result AppliedUnconfirmed when the change is applied but its confirmation is not durable, retry by the same OperationId completing the confirmation without applying twice, and an Intent without a later record resolved at recovery by comparing with Core (Persistence defines the procedure in PS-10). Crash durability is not claimed before PS-10.
+decided_by: OWNER
+decided_on: 2026-11-09
+decided_on_basis: date of the owner's message
+recorded_on: 2026-11-09 (this registry)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner statement in chat; permitted source under DEC-002, ODM-10)
+source: OWNER-CHAT-2026-11-09 (instruction 'Close GOV-09 / G3, Implement PS-4 and Continue Production Development') section 3
+source_availability: UNAVAILABLE in repository (session transcript only)
+owner: Project Owner
+affected_documents: [docs/production/editing-api-contract.md, crates/cube-editing-api/src/storage.rs, crates/cube-editing-api/src/types/result.rs]
+history:
+  - 2026-11-09 entry created

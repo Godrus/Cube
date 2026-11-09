@@ -106,17 +106,17 @@ Legend: **Draft** = specified in this pass, awaiting approval. **Draft+OD** = sp
 | PR-07 | Dependency Graph registration | Processing | derived-data owners | processing | Draft+OD | 0.1.0-draft | P1 | provider ownership (O-1) |
 | PR-08 | Spatial Hierarchy / Bounds / BVH update | Processing | queries, collision | processing | Draft+OD | 0.1.0-draft | P1 | query API home |
 | PR-09 | Engine ports | Processing | Engine adapters | processing | Boundary | — | P3 | exact set |
-| E-02 | AuthorizationContext | Editing API (input from session layer) | Orchestration, Networking | editing | Draft+OD | 0.1.0-draft | P1 | permission model |
-| E-03 | EditingOperation | Editing API | Orchestration, Tools, History | editing | Draft+OD | 0.1.0-draft | P1 | Kind registry |
-| E-04 | EditingTransaction | Editing API | Orchestration (implements), Tools, backends, History | editing | Draft+OD | 0.1.0-draft | P1 | nested/group, async |
-| E-05 | EditingResult | Editing API | all | editing | Draft | 0.1.0-draft | P1 | — |
-| E-06 | ConflictResult | Editing API | Orchestration, Networking | editing | Draft+OD | 0.1.0-draft | P1 | merge policy |
-| E-07 | IGeometryBackend / Capabilities | Editing API | Orchestration, backends, Tools | editing | Draft+OD | 0.1.0-draft | P1 | capability vocabulary |
+| E-02 | AuthorizationContext | Editing API (input from session layer) | Orchestration, Networking | editing | **Owner-Approved (provisional parts, DEC-082); Implemented** | 0.1.0-draft | P1 | permission model |
+| E-03 | EditingOperation | Editing API | Orchestration, Tools, History | editing | **Owner-Approved (provisional parts, DEC-082); Implemented** | 0.1.0-draft | P1 | Kind registry |
+| E-04 | EditingTransaction | Editing API | Orchestration (implements), Tools, backends, History | editing | **Owner-Approved (provisional parts, DEC-082); Implemented** | 0.1.0-draft | P1 | nested/group, async |
+| E-05 | EditingResult | Editing API | all | editing | **Owner-Approved (provisional parts, DEC-082); Implemented** | 0.1.0-draft | P1 | — |
+| E-06 | ConflictResult | Editing API | Orchestration, Networking | editing | **Owner-Approved (provisional parts, DEC-082); Implemented** | 0.1.0-draft | P1 | merge policy |
+| E-07 | IGeometryBackend / Capabilities | Editing API | Orchestration, backends, Tools | editing | **Owner-Approved (provisional parts, DEC-082); Implemented** | 0.1.0-draft | P1 | capability vocabulary |
 | E-08 | ModifierStack | Editing API | Tools, evaluation | editing | Draft+OD | 0.1.0-draft | P2 | evaluation owner (O-2) |
-| E-09 | GeometryDelta | Editing API | History, Persistence | editing | Draft+OD | 0.1.0-draft | P1 | delta encoding |
-| E-10 | Checkpoint | Editing API | History, Persistence | editing | Draft+OD | 0.1.0-draft | P2 | frequency policy |
-| E-11 | IEditingService | Editing API | Tools, Composite, History, Networking | editing | Draft+OD | 0.1.0-draft | P1 | signatures |
-| E-12 | ITransactionObserver | Editing API | Orchestration (publish), History (sink) | editing | Draft+OD | 0.1.0-draft | P1 | durability ordering |
+| E-09 | GeometryDelta | Editing API | History, Persistence | editing | **Owner-Approved (provisional parts, DEC-082); Implemented** | 0.1.0-draft | P1 | delta encoding |
+| E-10 | Checkpoint | Editing API | History, Persistence | editing | **Owner-Approved (provisional parts, DEC-082); Implemented** | 0.1.0-draft | P2 | frequency policy |
+| E-11 | IEditingService | Editing API | Tools, Composite, History, Networking | editing | **Owner-Approved (provisional parts, DEC-082); Implemented** | 0.1.0-draft | P1 | signatures |
+| E-12 | ITransactionObserver | Editing API | Orchestration (publish), History (sink) | editing | **Owner-Approved (provisional parts, DEC-082); Implemented** | 0.1.0-draft | P1 | durability ordering |
 | E-13 | Networking boundary | Editing API | Networking Adapter | editing | Boundary | — | P3 | owner, protocol (O-3) |
 | — | IDeltaStore / ISnapshotStore | Editing API | History, Persistence | editing §0 | Draft | 0.1.0-draft | P2 | — |
 | P-01 | AssetManifest | Persistence | Persistence, tools | persistence | Draft+OD | 0.1.0-draft | P2 | container, format |

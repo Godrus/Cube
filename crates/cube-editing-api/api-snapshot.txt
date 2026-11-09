@@ -82,8 +82,10 @@ storage.rs: pub snapshot: SnapshotRef,
 storage.rs: pub last_delta: Option<DeltaId>,
 storage.rs: pub epoch: Epoch,
 storage.rs: pub reason: CheckpointReason,
+storage.rs: pub enum JournalPhase {
 storage.rs: pub struct JournalEntry {
 storage.rs: pub seq: JournalSeq,
+storage.rs: pub phase: JournalPhase,
 storage.rs: pub operation: OperationId,
 storage.rs: pub actor: ActorId,
 storage.rs: pub asset: AssetId,
