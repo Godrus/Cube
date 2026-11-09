@@ -2,6 +2,8 @@
 //!
 //! No external dependencies: everything here is reproducible from a seed, on every platform.
 
+pub mod faultfs;
+
 /// Small deterministic pseudo-random generator (SplitMix64). Not cryptographic.
 #[derive(Debug, Clone)]
 pub struct DetRng {

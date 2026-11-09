@@ -143,5 +143,7 @@ Statuses are kept apart: **IMPLEMENTED**, **TESTED** (CI host), **INTEGRATED** (
 
 * TD-1, observers inside the commit section: they run there so that their order equals the commit order. Moving ordinary observers out needs a per-asset ordered delivery queue (sequence numbers, a single drain, isolation kept, durable effects staying inside). A safe change must be covered by loom models of the queue; it needs no contract change but is deferred until a slow observer is a real problem.
 * TD-2, the `GeometryBackend::validate` port carries a region but no layer; the voxel backend therefore reports `validate: false`. Needs an additive port change.
-* TD-3, `TEST-04` and `PERS-01` (independent Persistence work) are not started.
+* TD-3, `PERS-01` (codec) is not started; `TEST-04` is implemented (see below).
 
+
+**TEST-04 (independent, PS-10 prerequisite):** `cube-testkit::faultfs` is a fault-injecting in-memory filesystem with a weakest-POSIX model (data volatile until `fsync`, names volatile until `fsync_dir`, atomic `rename`, torn tails) and a crash-point runner `explore` that crashes a scenario after every numbered step under three torn-write modes. Self-tests show that the textbook replace protocol survives every point and that a missing `fsync` and an in-place overwrite are each caught. It makes no claim about real platforms (DG-2). INTEGRATED with the next merge; PERS-01 and the durable journal remain PS-10 work.
