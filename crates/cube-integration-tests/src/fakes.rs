@@ -404,8 +404,10 @@ pub struct Options {
     pub backends: Vec<Arc<dyn GeometryBackend>>,
     /// Use a journal.
     pub journal: bool,
-    /// Additional dirty sink (besides the recording one).
+    /// How many committed operation ids are remembered for retry.
     pub retry_capacity: usize,
+    /// Start from a restored asset view instead of the default world.
+    pub restore: Option<cube_core::AssetView>,
 }
 
 impl Default for Options {
@@ -414,6 +416,7 @@ impl Default for Options {
             backends: vec![SimpleBackend::arc()],
             journal: false,
             retry_capacity: 1024,
+            restore: None,
         }
     }
 }
@@ -465,7 +468,10 @@ pub fn fixture_with(o: Options) -> Fixture {
             LayerData::empty(LayerKind::Mesh),
         ),
     ];
-    let host = AssetHost::new(GeometryAsset::new(AssetId::new(ASSET), layers).expect("asset"));
+    let host = match &o.restore {
+        Some(v) => AssetHost::from_view(v).expect("a valid view"),
+        None => AssetHost::new(GeometryAsset::new(AssetId::new(ASSET), layers).expect("asset")),
+    };
     let reader = host.reader();
     let handles = host.into_handles();
     let log: EventLog = Arc::default();

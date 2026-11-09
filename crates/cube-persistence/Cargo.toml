@@ -1,0 +1,17 @@
+[package]
+name = "cube-persistence"
+version = "0.0.0"
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+description = "Persistence foundation: experimental versioned codec, atomic file protocol, journal reconciliation (PS-10 start)"
+
+# Depends on Core, Processing and the Editing API only (ADG Part B). Core never depends on this.
+
+[dependencies]
+cube-core = { path = "../cube-core" }
+cube-processing = { path = "../cube-processing" }
+cube-editing-api = { path = "../cube-editing-api" }
+
+[lints]
+workspace = true

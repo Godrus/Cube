@@ -61,6 +61,7 @@ dependencies = [
  "cube-core",
  "cube-editing-api",
  "cube-orchestration",
+ "cube-persistence",
  "cube-processing",
  "cube-testkit",
  "loom",
@@ -69,6 +70,15 @@ dependencies = [
 
 [[package]]
 name = "cube-orchestration"
+version = "0.0.0"
+dependencies = [
+ "cube-core",
+ "cube-editing-api",
+ "cube-processing",
+]
+
+[[package]]
+name = "cube-persistence"
 version = "0.0.0"
 dependencies = [
  "cube-core",
