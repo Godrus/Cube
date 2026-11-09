@@ -1,0 +1,15 @@
+error[E0382]: use of moved value: `host`
+ --> tests/ui/host_is_consumed_by_handles.rs:7:19
+  |
+5 |     let host = AssetHost::new(GeometryAsset::new(AssetId::new(1), vec![]).unwrap());
+  |         ---- move occurs because `host` has type `AssetHost`, which does not implement the `Copy` trait
+6 |     let _first = host.into_handles();
+  |                       -------------- `host` moved due to this method call
+7 |     let _second = host.into_handles();
+  |                   ^^^^ value used here after move
+  |
+note: `AssetHost::into_handles` takes ownership of the receiver `self`, which moves `host`
+ --> src/boundary.rs
+  |
+  |     pub fn into_handles(self) -> Handles {
+  |                         ^^^^

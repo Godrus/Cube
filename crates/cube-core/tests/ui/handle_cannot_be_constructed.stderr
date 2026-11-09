@@ -1,0 +1,5 @@
+error[E0451]: field `shared` of struct `UserCommit` is private
+ --> tests/ui/handle_cannot_be_constructed.rs:7:32
+  |
+7 |     let _forged = UserCommit { shared: reader };
+  |                                ^^^^^^ private field

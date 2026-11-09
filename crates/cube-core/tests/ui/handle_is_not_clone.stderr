@@ -1,0 +1,5 @@
+error[E0599]: no method named `clone` found for struct `UserCommit` in the current scope
+ --> tests/ui/handle_is_not_clone.rs:7:30
+  |
+7 |     let _copy = handles.user.clone();
+  |                              ^^^^^ method not found in `UserCommit`

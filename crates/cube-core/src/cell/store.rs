@@ -10,6 +10,7 @@ use super::state::{CellPayload, CellState, LoadFailureReason};
 use crate::coord::{BrickCoord, check_level};
 use crate::error::CoreError;
 use crate::region::Region;
+use crate::revision::Revision;
 
 /// Inclusive-exclusive box of base-level (level 0) brick coordinates a layer may contain.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -49,6 +50,7 @@ enum Stored {
 pub struct CellStore {
     bounds: Option<BrickBounds>,
     cells: BTreeMap<(i8, BrickCoord), Stored>,
+    revisions: BTreeMap<(i8, BrickCoord), Revision>,
 }
 
 impl CellStore {
@@ -62,6 +64,7 @@ impl CellStore {
         Self {
             bounds: Some(bounds),
             cells: BTreeMap::new(),
+            revisions: BTreeMap::new(),
         }
     }
 
@@ -84,6 +87,26 @@ impl CellStore {
             Some(Stored::Present(p)) => CellState::Present(Arc::clone(p)),
             Some(Stored::Failed(r)) => CellState::LoadFailure(*r),
         })
+    }
+
+    /// Revision of the brick, `None` if it was never committed. A revision is never reused or lost.
+    pub fn revision(&self, level: i8, brick: BrickCoord) -> Option<Revision> {
+        self.revisions.get(&(level, brick)).copied()
+    }
+
+    /// Whether `(level, brick)` lies inside the layer bounds (always true when unbounded).
+    pub fn in_bounds(&self, level: i8, brick: BrickCoord) -> bool {
+        match &self.bounds {
+            None => true,
+            Some(b) => {
+                let shift = u32::from(level.unsigned_abs()).min(63);
+                b.contains(BrickCoord::new(
+                    brick.x >> shift,
+                    brick.y >> shift,
+                    brick.z >> shift,
+                ))
+            }
+        }
     }
 
     /// Number of stored cells (any stored state).
@@ -124,6 +147,22 @@ impl CellStore {
                 })
             })
             .map(|((_, b), s)| (*b, to_state(s)))
+    }
+
+    /// Applies one committed write with its new revision (`None` payload = known empty).
+    pub(crate) fn commit_cell(
+        &mut self,
+        level: i8,
+        brick: BrickCoord,
+        payload: Option<Arc<CellPayload>>,
+        rev: Revision,
+    ) {
+        let stored = match payload {
+            Some(p) => Stored::Present(p),
+            None => Stored::KnownEmpty,
+        };
+        self.cells.insert((level, brick), stored);
+        self.revisions.insert((level, brick), rev);
     }
 
     /// Stores a present cell (crate-private: reached through the commit boundary).

@@ -10,6 +10,7 @@ description = "Geometry Core: passive data model, coordinates and keys (PS-1)"
 
 [dev-dependencies]
 cube-testkit = { path = "../cube-testkit" }
+trybuild = "1"
 
 [lints]
 workspace = true

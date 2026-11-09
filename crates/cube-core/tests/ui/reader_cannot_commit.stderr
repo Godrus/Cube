@@ -1,0 +1,15 @@
+error[E0624]: method `commit` is private
+ --> tests/ui/reader_cannot_commit.rs:5:20
+  |
+5 |       let _ = reader.commit(ActorKind::User, OperationId::new(1, 1), &CommitBatch::default());
+  |                      ^^^^^^ private method
+  |
+ ::: src/commit.rs
+  |
+  | /     pub(crate) fn commit(
+  | |         &self,
+  | |         actor: ActorKind,
+  | |         operation: OperationId,
+  | |         batch: &CommitBatch,
+  | |     ) -> Result<CommitOutcome, CommitError> {
+  | |___________________________________________- private method defined here
