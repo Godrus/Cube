@@ -29,10 +29,44 @@ pub trait Storage {
     fn fsync(&mut self, name: &str) -> Result<(), StoreError>;
     /// Atomically renames `from` over `to`.
     fn rename(&mut self, from: &str, to: &str) -> Result<(), StoreError>;
+    /// Deletes `name` (not durable until `fsync_dir`); a missing file is not an error.
+    fn remove(&mut self, name: &str) -> Result<(), StoreError>;
     /// Makes the directory entries durable.
     fn fsync_dir(&mut self) -> Result<(), StoreError>;
     /// Reads `name`, `None` if it does not exist.
     fn read(&self, name: &str) -> Result<Option<Vec<u8>>, StoreError>;
+    /// Names of all files, ascending.
+    fn list(&self) -> Result<Vec<String>, StoreError>;
+}
+
+impl<T: Storage + ?Sized> Storage for &mut T {
+    fn write(&mut self, n: &str, d: &[u8]) -> Result<(), StoreError> {
+        (**self).write(n, d)
+    }
+    fn append(&mut self, n: &str, d: &[u8]) -> Result<(), StoreError> {
+        (**self).append(n, d)
+    }
+    fn truncate(&mut self, n: &str, l: u64) -> Result<(), StoreError> {
+        (**self).truncate(n, l)
+    }
+    fn fsync(&mut self, n: &str) -> Result<(), StoreError> {
+        (**self).fsync(n)
+    }
+    fn rename(&mut self, a: &str, b: &str) -> Result<(), StoreError> {
+        (**self).rename(a, b)
+    }
+    fn remove(&mut self, n: &str) -> Result<(), StoreError> {
+        (**self).remove(n)
+    }
+    fn fsync_dir(&mut self) -> Result<(), StoreError> {
+        (**self).fsync_dir()
+    }
+    fn read(&self, n: &str) -> Result<Option<Vec<u8>>, StoreError> {
+        (**self).read(n)
+    }
+    fn list(&self) -> Result<Vec<String>, StoreError> {
+        (**self).list()
+    }
 }
 
 /// A storage failure.
@@ -157,6 +191,13 @@ impl Storage for DirStorage {
     fn rename(&mut self, from: &str, to: &str) -> Result<(), StoreError> {
         std::fs::rename(self.path(from)?, self.path(to)?).map_err(io_err)
     }
+    fn remove(&mut self, name: &str) -> Result<(), StoreError> {
+        match std::fs::remove_file(self.path(name)?) {
+            Ok(()) => Ok(()),
+            Err(e) if e.kind() == io::ErrorKind::NotFound => Ok(()),
+            Err(e) => Err(io_err(e)),
+        }
+    }
     fn fsync_dir(&mut self) -> Result<(), StoreError> {
         #[cfg(unix)]
         {
@@ -164,6 +205,17 @@ impl Storage for DirStorage {
             d.sync_all().map_err(io_err)?;
         }
         Ok(())
+    }
+    fn list(&self) -> Result<Vec<String>, StoreError> {
+        let mut out = Vec::new();
+        for e in std::fs::read_dir(&self.root).map_err(io_err)? {
+            let e = e.map_err(io_err)?;
+            if e.file_type().map_err(io_err)?.is_file() {
+                out.push(e.file_name().to_string_lossy().into_owned());
+            }
+        }
+        out.sort();
+        Ok(out)
     }
     fn read(&self, name: &str) -> Result<Option<Vec<u8>>, StoreError> {
         match std::fs::read(self.path(name)?) {

@@ -29,6 +29,7 @@ pub const SCHEMA: u16 = 0x8001;
 const KIND_ASSET: u8 = 1;
 const KIND_JOURNAL: u8 = 2;
 const KIND_BATCH: u8 = 3;
+const KIND_MANIFEST: u8 = 4;
 const HEADER: usize = 4 + 2 + 1 + 4;
 
 /// Bounds applied to untrusted input.
@@ -632,6 +633,96 @@ pub fn decode_journal_entry(bytes: &[u8], limits: &Limits) -> Result<JournalEntr
         delta,
         members,
         payload,
+    })
+}
+
+/// The snapshot a manifest points to (EXPERIMENTAL).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SnapshotRef {
+    /// File name of the snapshot.
+    pub file: String,
+    /// Last journal sequence number whose effect the snapshot contains.
+    pub journal_seq: u64,
+    /// `CH1` content hash of the snapshot's view.
+    pub content_hash: u128,
+    /// Size of the snapshot file in bytes.
+    pub bytes: u64,
+}
+
+/// The one record that says which files make up the world (EXPERIMENTAL).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Manifest {
+    /// Increases by exactly one with every publication.
+    pub generation: u64,
+    /// Version of the generator the untouched world comes from.
+    pub generator_version: u32,
+    /// The verified snapshot, if there is one.
+    pub snapshot: Option<SnapshotRef>,
+    /// File name of the journal that continues after the snapshot.
+    pub journal: String,
+    /// Sequence number of the first record of that journal.
+    pub journal_first_seq: u64,
+}
+
+fn put_name(w: &mut W, s: &str) {
+    w.u16(s.len() as u16);
+    w.0.extend_from_slice(s.as_bytes());
+}
+
+fn get_name(r: &mut R) -> Result<String, DecodeError> {
+    let n = r.u16()? as usize;
+    if n == 0 || n > 255 {
+        return Err(DecodeError::Invalid("file name length"));
+    }
+    String::from_utf8(r.take(n)?.to_vec()).map_err(|_| DecodeError::Invalid("file name"))
+}
+
+/// Encodes a manifest.
+pub fn encode_manifest(m: &Manifest) -> Vec<u8> {
+    let mut w = W(Vec::new());
+    w.u64(m.generation);
+    w.u32(m.generator_version);
+    match &m.snapshot {
+        None => w.u8(0),
+        Some(s) => {
+            w.u8(1);
+            put_name(&mut w, &s.file);
+            w.u64(s.journal_seq);
+            w.u64((s.content_hash >> 64) as u64);
+            w.u64(s.content_hash as u64);
+            w.u64(s.bytes);
+        }
+    }
+    put_name(&mut w, &m.journal);
+    w.u64(m.journal_first_seq);
+    frame(KIND_MANIFEST, w.0)
+}
+
+/// Decodes a manifest.
+pub fn decode_manifest(bytes: &[u8], limits: &Limits) -> Result<Manifest, DecodeError> {
+    let body = unframe(bytes, KIND_MANIFEST, limits)?;
+    let mut r = R(&body);
+    let generation = r.u64()?;
+    let generator_version = r.u32()?;
+    let snapshot = match r.u8()? {
+        0 => None,
+        1 => Some(SnapshotRef {
+            file: get_name(&mut r)?,
+            journal_seq: r.u64()?,
+            content_hash: (u128::from(r.u64()?) << 64) | u128::from(r.u64()?),
+            bytes: r.u64()?,
+        }),
+        _ => return Err(DecodeError::Invalid("snapshot flag")),
+    };
+    let journal = get_name(&mut r)?;
+    let journal_first_seq = r.u64()?;
+    r.done()?;
+    Ok(Manifest {
+        generation,
+        generator_version,
+        snapshot,
+        journal,
+        journal_first_seq,
     })
 }
 

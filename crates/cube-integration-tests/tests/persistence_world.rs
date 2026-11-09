@@ -85,11 +85,17 @@ impl Storage for Model {
     fn rename(&mut self, a: &str, b: &str) -> Result<(), StoreError> {
         self.0.rename(a, b).map_err(e)
     }
+    fn remove(&mut self, n: &str) -> Result<(), StoreError> {
+        self.0.remove(n).map_err(e)
+    }
     fn fsync_dir(&mut self) -> Result<(), StoreError> {
         self.0.fsync_dir().map_err(e)
     }
     fn read(&self, n: &str) -> Result<Option<Vec<u8>>, StoreError> {
         Ok(self.0.read(n))
+    }
+    fn list(&self) -> Result<Vec<String>, StoreError> {
+        Ok(self.0.list())
     }
 }
 
@@ -286,12 +292,19 @@ impl<S: Storage> Storage for Failing<S> {
         self.tick()?;
         self.inner.rename(a, b)
     }
+    fn remove(&mut self, n: &str) -> Result<(), StoreError> {
+        self.tick()?;
+        self.inner.remove(n)
+    }
     fn fsync_dir(&mut self) -> Result<(), StoreError> {
         self.tick()?;
         self.inner.fsync_dir()
     }
     fn read(&self, n: &str) -> Result<Option<Vec<u8>>, StoreError> {
         self.inner.read(n)
+    }
+    fn list(&self) -> Result<Vec<String>, StoreError> {
+        self.inner.list()
     }
 }
 
