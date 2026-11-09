@@ -88,7 +88,8 @@ Statuses are kept apart: **IMPLEMENTED**, **TESTED** (CI host), **INTEGRATED** (
 
 **Exit criteria checked** (not only the existence of code): snapshot isolation and apron consistency (`processing_snapshot.rs`); provider DAG with deterministic order and cycle diagnostics (`graph.rs`, random-graph property test); cancellation at every state (`processing_executor.rs`, `processing_caps.rs`); stale rejection under explored interleavings (loom: slot, token, executor racing a commit; stress without violations); resource caps on the synthetic mobile budget; bounds integration (`BoundsProvider`: unknown data is a failure, never Empty); no direct Core mutation from Processing (archcheck ARCH-HANDLE and the crate graph); compliance with the provisional limits (`processing-foundation-contract.md`). Tools on the integration commit `d164d21`: `cargo fmt`, `clippy -D warnings`, `cargo test --workspace`, `cargo deny`, `cargo xtask archcheck` (all required checks green in CI run 42624528085), `docs/audit/adg_check.py --strict` PASS.
 
-<<<<<<< HEAD
+**PS-2 CLOSED - G2 PASSED** (conditional on RG-2: the provisional Processing contracts are diffed against the Geometry Processing Specification when it exists, before PR-01...PR-08 are frozen). PS-3 may start under the ADG.
+
 ## 8. PS-3 / G3 status, 2026-11-09 (in progress; G3 NOT passed)
 
 | Task | IMPLEMENTED | TESTED | INTEGRATED | Gate |
@@ -101,7 +102,3 @@ Statuses are kept apart: **IMPLEMENTED**, **TESTED** (CI host), **INTEGRATED** (
 | GOV-09 | n/a | n/a | n/a | **open**: owner approval; the exact remaining decisions are in `docs/production/editing-api-contract.md` |
 
 G3 closes when all six members are merged and accepted; it is blocked only by GOV-09.
-
-=======
-**PS-2 CLOSED - G2 PASSED** (conditional on RG-2: the provisional Processing contracts are diffed against the Geometry Processing Specification when it exists, before PR-01...PR-08 are frozen). PS-3 may start under the ADG.
->>>>>>> origin/dev
