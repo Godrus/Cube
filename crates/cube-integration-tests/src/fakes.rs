@@ -35,6 +35,8 @@ pub const L_VOXEL: u64 = 1;
 pub const L_BOUNDED: u64 = 2;
 /// A mesh layer (no backend is registered for it).
 pub const L_MESH: u64 = 3;
+/// An SDF layer, present only when [`Options::sdf_layer`] is set (it changes the asset hash).
+pub const L_SDF: u64 = 4;
 /// The asset id.
 pub const ASSET: u64 = 1;
 
@@ -412,6 +414,8 @@ pub struct Options {
     pub journal_port: Option<Arc<dyn OperationJournal>>,
     /// Journal write batches into the Intent records (replayable journal).
     pub with_payload: bool,
+    /// Add an empty SDF layer (`L_SDF`) to the default world.
+    pub sdf_layer: bool,
     /// Use this journal (it "survives the restart") instead of a fresh one; implies a journal.
     pub shared_journal: Option<Arc<FaultyJournal>>,
 }
@@ -425,6 +429,7 @@ impl Default for Options {
             restore: None,
             shared_journal: None,
             with_payload: false,
+            sdf_layer: false,
             journal_port: None,
         }
     }
@@ -460,7 +465,7 @@ pub fn fixture() -> Fixture {
 /// Builds the real path.
 pub fn fixture_with(o: Options) -> Fixture {
     let bounds = BrickBounds::new(bc(-2, -2, -2), bc(2, 2, 2)).expect("bounds");
-    let layers = vec![
+    let mut layers = vec![
         Layer::new(
             LayerId::new(L_VOXEL),
             GeometryTransform::IDENTITY,
@@ -477,6 +482,13 @@ pub fn fixture_with(o: Options) -> Fixture {
             LayerData::empty(LayerKind::Mesh),
         ),
     ];
+    if o.sdf_layer {
+        layers.push(Layer::new(
+            LayerId::new(L_SDF),
+            GeometryTransform::IDENTITY,
+            LayerData::empty(LayerKind::Sdf),
+        ));
+    }
     let host = match &o.restore {
         Some(v) => AssetHost::from_view(v).expect("a valid view"),
         None => AssetHost::new(GeometryAsset::new(AssetId::new(ASSET), layers).expect("asset")),

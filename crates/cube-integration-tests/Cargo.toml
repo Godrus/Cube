@@ -12,6 +12,7 @@ cube-processing = { path = "../cube-processing" }
 cube-editing-api = { path = "../cube-editing-api" }
 cube-orchestration = { path = "../cube-orchestration" }
 cube-backend-voxel = { path = "../cube-backend-voxel" }
+cube-backend-sdf = { path = "../cube-backend-sdf" }
 cube-persistence = { path = "../cube-persistence" }
 
 [dev-dependencies]
