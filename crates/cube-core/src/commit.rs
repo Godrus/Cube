@@ -162,6 +162,21 @@ pub struct AssetState {
 }
 
 impl AssetState {
+    /// A state with explicit revisions (restoring an exported view).
+    pub(crate) fn from_parts(
+        asset: GeometryAsset,
+        epoch: Epoch,
+        revision: Revision,
+        layer_revisions: BTreeMap<LayerId, Revision>,
+    ) -> Self {
+        Self {
+            asset,
+            epoch,
+            revision,
+            layer_revisions,
+        }
+    }
+
     fn new(asset: GeometryAsset) -> Self {
         let layer_revisions = asset
             .layers()
@@ -296,6 +311,21 @@ impl std::fmt::Debug for SharedAsset {
 }
 
 impl SharedAsset {
+    pub(crate) fn from_state(state: AssetState) -> Self {
+        let id = state.asset().id();
+        Self {
+            inner: Arc::new(Inner {
+                id,
+                state: RwLock::new(Arc::new(state)),
+                gate: Mutex::new(()),
+                log: Mutex::new(Log {
+                    total: 0,
+                    recent: std::collections::VecDeque::new(),
+                }),
+            }),
+        }
+    }
+
     pub(crate) fn new(asset: GeometryAsset) -> Self {
         let id = asset.id();
         let log = Log {

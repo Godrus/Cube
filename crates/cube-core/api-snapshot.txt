@@ -9,6 +9,7 @@ boundary.rs: pub user: UserCommit,
 boundary.rs: pub system: SystemCommit,
 boundary.rs: pub recovery: RecoveryCommit,
 boundary.rs: pub fn new(asset: GeometryAsset) -> Self {
+boundary.rs: pub fn from_view(view: &AssetView) -> Result<Self, crate::error::CoreError> {
 boundary.rs: pub fn reader(&self) -> SharedAsset {
 boundary.rs: pub fn into_handles(self) -> Handles {
 boundary.rs: pub struct $name {
@@ -50,12 +51,15 @@ cell/state.rs: pub const fn is_loaded(&self) -> bool {
 cell/state.rs: pub fn payload(&self) -> Option<&CellPayload> {
 cell/store.rs: pub struct BrickBounds {
 cell/store.rs: pub fn new(min: BrickCoord, max: BrickCoord) -> Result<Self, CoreError> {
+cell/store.rs: pub fn min(&self) -> BrickCoord {
+cell/store.rs: pub fn max(&self) -> BrickCoord {
 cell/store.rs: pub struct CellStore {
 cell/store.rs: pub fn new() -> Self {
 cell/store.rs: pub fn with_bounds(bounds: BrickBounds) -> Self {
 cell/store.rs: pub fn get(&self, level: i8, brick: BrickCoord) -> Result<CellState, CoreError> {
 cell/store.rs: pub fn revision(&self, level: i8, brick: BrickCoord) -> Option<Revision> {
 cell/store.rs: pub fn in_bounds(&self, level: i8, brick: BrickCoord) -> bool {
+cell/store.rs: pub fn bounds(&self) -> Option<BrickBounds> {
 cell/store.rs: pub fn len(&self) -> usize {
 cell/store.rs: pub fn is_empty(&self) -> bool {
 cell/store.rs: pub fn iter(&self) -> impl Iterator<Item = (i8, BrickCoord, CellState)> + '_ {
@@ -175,6 +179,7 @@ lib.rs: pub mod operation;
 lib.rs: pub mod region;
 lib.rs: pub mod revision;
 lib.rs: pub mod transform;
+lib.rs: pub mod view;
 lib.rs: pub use asset::GeometryAsset;
 lib.rs: pub use boundary::{AssetHost, Handles, RecoveryCommit, SystemCommit, UserCommit};
 lib.rs: pub use cell::{
@@ -190,6 +195,7 @@ lib.rs: pub use operation::{ActorKind, OperationId};
 lib.rs: pub use region::Region;
 lib.rs: pub use revision::{
 lib.rs: pub use transform::{GeometryTransform, Rotation};
+lib.rs: pub use view::{AssetView, CellView, ContentHash, LayerView};
 material.rs: pub struct MaterialIndex(u16);
 material.rs: pub const WIDTH_BITS: u32 = 16;
 material.rs: pub const fn from_raw(raw: u16) -> Self {
@@ -264,3 +270,25 @@ transform.rs: pub const fn new(
 transform.rs: pub const fn translation(&self) -> [i64; 3] {
 transform.rs: pub const fn rotation(&self) -> Rotation {
 transform.rs: pub const fn scale_shift(&self) -> i8 {
+view.rs: pub struct CellView {
+view.rs: pub level: i8,
+view.rs: pub brick: BrickCoord,
+view.rs: pub revision: Revision,
+view.rs: pub payload: Option<CellPayload>,
+view.rs: pub struct LayerView {
+view.rs: pub id: LayerId,
+view.rs: pub kind: LayerKind,
+view.rs: pub transform: GeometryTransform,
+view.rs: pub bounds: Option<BrickBounds>,
+view.rs: pub revision: Revision,
+view.rs: pub cells: Vec<CellView>,
+view.rs: pub struct AssetView {
+view.rs: pub id: AssetId,
+view.rs: pub epoch: Epoch,
+view.rs: pub revision: Revision,
+view.rs: pub layers: Vec<LayerView>,
+view.rs: pub struct ContentHash(u128);
+view.rs: pub const ALGORITHM: &'static str = "CH1";
+view.rs: pub const fn value(self) -> u128 {
+view.rs: pub fn content_hash(&self) -> ContentHash {
+view.rs: pub fn export_view(&self) -> AssetView {

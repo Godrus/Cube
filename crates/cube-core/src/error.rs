@@ -24,6 +24,8 @@ pub enum CoreError {
     RevisionOverflow,
     /// The same key appears twice where keys must be unique.
     DuplicateKey,
+    /// An imported view is inconsistent (cells outside bounds, cells on a mesh layer, wrong payload kind).
+    InvalidView,
 }
 
 impl fmt::Display for CoreError {
@@ -39,6 +41,7 @@ impl fmt::Display for CoreError {
             Self::InvalidTransform => f.write_str("transform parameter out of range"),
             Self::RevisionOverflow => f.write_str("revision counter overflow"),
             Self::DuplicateKey => f.write_str("duplicate key"),
+            Self::InvalidView => f.write_str("inconsistent asset view"),
             Self::DuplicateLayer(id) => write!(f, "duplicate layer id {}", id.raw()),
         }
     }

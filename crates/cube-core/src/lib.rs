@@ -21,6 +21,7 @@ pub mod region;
 pub mod revision;
 mod rotation;
 pub mod transform;
+pub mod view;
 
 pub use asset::GeometryAsset;
 pub use boundary::{AssetHost, Handles, RecoveryCommit, SystemCommit, UserCommit};
@@ -46,3 +47,4 @@ pub use revision::{
     StampAlgorithm, StampCompare,
 };
 pub use transform::{GeometryTransform, Rotation};
+pub use view::{AssetView, CellView, ContentHash, LayerView};

@@ -28,6 +28,16 @@ impl BrickBounds {
         Ok(Self { min, max })
     }
 
+    /// Inclusive lower corner (base-level bricks).
+    pub fn min(&self) -> BrickCoord {
+        self.min
+    }
+
+    /// Exclusive upper corner (base-level bricks).
+    pub fn max(&self) -> BrickCoord {
+        self.max
+    }
+
     fn contains(&self, b: BrickCoord) -> bool {
         b.x >= self.min.x
             && b.x < self.max.x
@@ -107,6 +117,11 @@ impl CellStore {
                 ))
             }
         }
+    }
+
+    /// The layer bounds, if bounded.
+    pub fn bounds(&self) -> Option<BrickBounds> {
+        self.bounds
     }
 
     /// Number of stored cells (any stored state).

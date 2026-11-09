@@ -13,6 +13,7 @@ use crate::commit::{
 use crate::coord::BrickCoord;
 use crate::ids::LayerId;
 use crate::operation::{ActorKind, OperationId};
+use crate::view::AssetView;
 
 /// Owner of a new asset; the only source of commit handles.
 #[derive(Debug)]
@@ -37,6 +38,21 @@ impl AssetHost {
         Self {
             shared: SharedAsset::new(asset),
         }
+    }
+
+    /// Restores an asset from an exported view, keeping its revisions and epoch. The commit log
+    /// starts empty: it records commits made through the handles of this host.
+    pub fn from_view(view: &AssetView) -> Result<Self, crate::error::CoreError> {
+        let (asset, revisions) = crate::view::state_parts(view)?;
+        let state = crate::commit::AssetState::from_parts(
+            asset,
+            view.epoch,
+            view.revision,
+            revisions.into_iter().collect(),
+        );
+        Ok(Self {
+            shared: SharedAsset::from_state(state),
+        })
     }
 
     /// A read-only handle (clonable, freely shareable).
