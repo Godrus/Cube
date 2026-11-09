@@ -213,3 +213,35 @@ fn executor_task_racing_a_commit_never_publishes_a_stale_result() {
         }
     });
 }
+
+#[test]
+fn pin_budget_never_over_commits_and_always_returns_everything() {
+    use cube_processing::{Caps, PinBudget};
+    model(|| {
+        let budget = PinBudget::new(Caps {
+            max_pinned_bricks: 4,
+            max_pinned_bytes: 100,
+            task_ttl_ms: None,
+        });
+        let hs: Vec<_> = (0..2)
+            .map(|_| {
+                let b = Arc::clone(&budget);
+                loom::thread::spawn(move || {
+                    let mut r = b.try_reserve(3)?;
+                    assert!(b.usage().bricks <= 4, "over-committed");
+                    let _ = r.add_bytes(60);
+                    assert!(b.usage().bytes <= 100, "byte cap exceeded");
+                    Some(())
+                })
+            })
+            .collect();
+        let wins = hs
+            .into_iter()
+            .map(|h| h.join().unwrap())
+            .filter(Option::is_some)
+            .count();
+        assert!(wins >= 1, "at least one reservation of 3 of 4 must succeed");
+        let u = budget.usage();
+        assert_eq!((u.bricks, u.bytes), (0, 0));
+    });
+}

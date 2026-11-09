@@ -10,9 +10,9 @@ use std::sync::{Arc, Condvar, Mutex};
 
 use cube_core::{
     AssetHost, AssetId, BrickBounds, BrickCoord, CellChange, CellKey, CellPayload, CellStore,
-    CellWrite, ChannelSet, CommitBatch, CommitOutcome, ExpectedRevision, GeometryAsset,
-    GeometryTransform, Layer, LayerData, LayerId, LayerKind, MaterialIndex, OperationId,
-    SharedAsset, UserCommit, WriteSet,
+    CellWrite, Channel, ChannelId, ChannelSet, CommitBatch, CommitOutcome, ExpectedRevision,
+    GeometryAsset, GeometryTransform, Layer, LayerData, LayerId, LayerKind, LocalPos,
+    MaterialIndex, OperationId, SharedAsset, UserCommit, WriteSet,
 };
 use cube_processing::{
     CancellationToken, ChangeMask, ComputeContext, DerivedKind, DerivedTarget, Payload, Provider,
@@ -129,6 +129,14 @@ impl World {
             }],
         };
         self.user.commit(self.next_op(), &batch).unwrap()
+    }
+
+    /// Writes a brick whose material channel is dense (one voxel differs): about 8 KiB pinned.
+    pub fn put_dense(&self, layer: u64, b: BrickCoord, m: u16) -> CommitOutcome {
+        let mut ch = Channel::constant(m);
+        ch.set(LocalPos::new(1, 2, 3).unwrap(), m.wrapping_add(1));
+        let set = ChannelSet::new().with(ChannelId::Material, ch);
+        self.write(layer, b, CellChange::Put(CellPayload::Channels(set)))
     }
 
     /// Marks a brick as loaded and empty.

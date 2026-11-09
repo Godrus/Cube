@@ -33,6 +33,7 @@ use std::sync::PoisonError;
 use cube_core::{DirtyRegion, SharedAsset};
 
 use crate::cancel::{CancelReason, CancellationToken, Clock};
+use crate::caps::{Caps, PinBudget, PinReservation, PinUsage};
 use crate::error::{LimitKind, ProcessingError};
 use crate::graph::DependencyGraph;
 use crate::provider::{
@@ -59,6 +60,21 @@ pub struct ExecutorConfig {
     pub max_queued: usize,
     /// Scheduling passes after which a waiting task is promoted by one class (starvation guard).
     pub aging_ticks: u64,
+    /// Limits on pinned snapshot data and task lifetime (PROC-06).
+    pub caps: Caps,
+}
+
+impl ExecutorConfig {
+    /// Small limits for the synthetic mobile budget (no device is involved).
+    pub fn synthetic_mobile() -> Self {
+        Self {
+            max_running: 2,
+            class_running_limits: [2, 2, 2, 1, 1],
+            max_queued: 256,
+            aging_ticks: 64,
+            caps: Caps::synthetic_mobile(),
+        }
+    }
 }
 
 impl Default for ExecutorConfig {
@@ -68,6 +84,7 @@ impl Default for ExecutorConfig {
             class_running_limits: [4, 4, 3, 2, 1],
             max_queued: 4096,
             aging_ticks: 64,
+            caps: Caps::unlimited(),
         }
     }
 }
@@ -99,6 +116,10 @@ struct Entry {
     priority: Priority,
     enqueued: u64,
     deps: Vec<Arc<TaskShared>>,
+    /// Bricks the snapshot of this task will pin (reserved when the task starts).
+    pin_bricks: u64,
+    /// Set when the task is picked; released when it ends, on every path.
+    reservation: Option<PinReservation>,
 }
 
 struct Sched {
@@ -116,6 +137,7 @@ struct Inner {
     graph: DependencyGraph,
     config: ExecutorConfig,
     clock: Arc<dyn Clock>,
+    budget: Arc<PinBudget>,
     slots: Mutex<BTreeMap<DerivedTarget, Arc<Slot>>>,
     sched: Mutex<Sched>,
     cv: Condvar,
@@ -147,6 +169,7 @@ impl Executor {
             inner: Arc::new(Inner {
                 asset,
                 graph,
+                budget: PinBudget::new(config.caps),
                 config,
                 clock,
                 slots: Mutex::new(BTreeMap::new()),
@@ -239,6 +262,11 @@ impl Executor {
     pub fn get(&self, target: DerivedTarget) -> Result<Option<Payload>, ProcessingError> {
         let slot = self.inner.refreshed_slot(target)?;
         Ok(slot.current().map(|p| payload_of(&p.value)))
+    }
+
+    /// Pinned snapshot data now and its high-water marks.
+    pub fn pinned(&self) -> PinUsage {
+        self.inner.budget.usage()
     }
 
     /// Queue and running counters.
@@ -460,6 +488,13 @@ impl Inner {
                 deps.push(self.submit_locked(s, dt, priority)?);
             }
         }
+        let req = SnapshotRequest::for_brick(target.key, provider.apron());
+        if !self.budget.fits_ever(req.brick_count()) {
+            return Err(ProcessingError::ResourceUnavailable(
+                LimitKind::PinnedBricks,
+            ));
+        }
+        let pin_bricks = u64::try_from(req.brick_count()).unwrap_or(u64::MAX);
         let waiting = s
             .queue
             .iter()
@@ -470,13 +505,22 @@ impl Inner {
         }
         let id = TaskId(s.next_id);
         s.next_id += 1;
-        let task = Arc::new(TaskShared::new(id, target, CancellationToken::new()));
+        let token = match self.config.caps.task_ttl_ms {
+            Some(ttl) => CancellationToken::with_deadline(
+                Arc::clone(&self.clock),
+                self.clock.now_ms().saturating_add(ttl),
+            ),
+            None => CancellationToken::new(),
+        };
+        let task = Arc::new(TaskShared::new(id, target, token));
         task.advance(TaskState::Queued);
         s.queue.push(Entry {
             task: Arc::clone(&task),
             priority,
             enqueued: s.tick,
             deps,
+            pin_bricks,
+            reservation: None,
         });
         s.active.insert(target, Arc::clone(&task));
         Ok(task)
@@ -484,6 +528,11 @@ impl Inner {
 
     /// Removes finished entries and cancels queued tasks whose dependencies did not complete.
     fn sweep(&self, s: &mut Sched) {
+        for e in &s.queue {
+            if let Some(reason) = e.task.token.reason() {
+                e.task.cancel_queued(reason);
+            }
+        }
         loop {
             let mut changed = false;
             let snapshot: Vec<(Arc<TaskShared>, Option<CancelReason>)> = s
@@ -555,8 +604,14 @@ impl Inner {
             .collect();
         candidates.sort();
         for (_, _, _, i) in candidates {
+            // Pins are reserved before the task may start; if they do not fit now the task
+            // stays queued and a smaller or later one may go first.
+            let Some(reservation) = self.budget.try_reserve(s.queue[i].pin_bricks) else {
+                continue;
+            };
             if s.queue[i].task.advance(TaskState::Running) {
-                let e = s.queue.remove(i);
+                let mut e = s.queue.remove(i);
+                e.reservation = Some(reservation);
                 s.running += 1;
                 s.running_by_class[e.priority.class.rank()] += 1;
                 return Some(e);
@@ -565,9 +620,12 @@ impl Inner {
         None
     }
 
-    fn execute(&self, entry: Entry) {
-        let outcome = self.run_task(&entry.task);
+    fn execute(&self, mut entry: Entry) {
+        let mut reservation = entry.reservation.take().expect("a started task holds pins");
+        let outcome = self.run_task(&entry.task, &mut reservation);
         entry.task.finish(outcome);
+        // Return the pins before waking waiters, so they can use them at once.
+        drop(reservation);
         let mut s = lock(&self.sched);
         s.running -= 1;
         s.running_by_class[entry.priority.class.rank()] -= 1;
@@ -582,14 +640,18 @@ impl Inner {
         self.cv.notify_all();
     }
 
-    fn run_task(&self, task: &Arc<TaskShared>) -> TaskOutcome {
-        match self.try_run_task(task) {
+    fn run_task(&self, task: &Arc<TaskShared>, pins: &mut PinReservation) -> TaskOutcome {
+        match self.try_run_task(task, pins) {
             Ok(o) => o,
             Err(e) => TaskOutcome::Failed(e),
         }
     }
 
-    fn try_run_task(&self, task: &Arc<TaskShared>) -> Result<TaskOutcome, ProcessingError> {
+    fn try_run_task(
+        &self,
+        task: &Arc<TaskShared>,
+        pins: &mut PinReservation,
+    ) -> Result<TaskOutcome, ProcessingError> {
         let target = task.target;
         let cancelled = |t: &Arc<TaskShared>| t.token.reason().map(TaskOutcome::Cancelled);
         let provider = Arc::clone(self.provider(target.kind)?);
@@ -614,6 +676,10 @@ impl Inner {
         // Snapshot.
         let req = SnapshotRequest::for_brick(target.key, provider.apron());
         let snapshot = Snapshot::capture(&self.asset, &req, None)?;
+        // Measured size against the byte cap: over the cap the task fails (it is not retried
+        // here; the owner may resubmit when other work has finished).
+        pins.add_bytes(snapshot.pinned_bytes())
+            .map_err(ProcessingError::ResourceUnavailable)?;
         let own: DependencyRevision = snapshot
             .dependency()
             .clone()

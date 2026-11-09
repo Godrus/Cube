@@ -10,11 +10,14 @@
 //! * [`task`], [`executor`]: task state machine, priorities and the executor (PROC-03).
 //! * [`cancel`]: cancellation tokens and deadlines (PROC-04).
 //! * [`slot`]: derived-data slots with stale-result rejection (PROC-05).
+//! * [`caps`], [`bounds`]: resource caps and the brick-bounds slot (PROC-06).
 //!
 //! Contracts PR-01..PR-08 are Draft; this crate implements the provisional subset TC-01
 //! (see `docs/production/processing-foundation-contract.md`).
 
+pub mod bounds;
 pub mod cancel;
+pub mod caps;
 pub mod error;
 pub mod executor;
 pub mod graph;
@@ -26,7 +29,9 @@ pub mod task;
 #[cfg(all(test, not(loom)))]
 mod testing;
 
+pub use bounds::{BOUNDS_KIND, BoundsProvider, union_all};
 pub use cancel::{CancelReason, CancellationToken, Clock, ManualClock, Registration};
+pub use caps::{BRICK_OVERHEAD_BYTES, Caps, PinBudget, PinReservation, PinUsage};
 pub use error::{ERROR_MODULE, LimitKind, ProcessingError};
 #[cfg(not(loom))]
 pub use executor::Workers;
