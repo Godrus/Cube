@@ -13,6 +13,7 @@ pub mod key;
 pub mod layer;
 pub mod material;
 pub mod region;
+pub mod revision;
 pub mod transform;
 
 pub use asset::GeometryAsset;
@@ -27,4 +28,8 @@ pub use key::CellKey;
 pub use layer::{Layer, LayerData, LayerKind, PageStore};
 pub use material::MaterialIndex;
 pub use region::Region;
+pub use revision::{
+    Comparison, DerivedSlotId, Epoch, RegionStamp, ResourceId, Revision, RevisionToken,
+    StampAlgorithm, StampCompare,
+};
 pub use transform::{GeometryTransform, Rotation};

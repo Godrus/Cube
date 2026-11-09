@@ -20,6 +20,10 @@ pub enum CoreError {
     InvalidTransform,
     /// Two layers of one asset share an id.
     DuplicateLayer(LayerId),
+    /// A revision or epoch counter reached the end of its range (critical; never wraps).
+    RevisionOverflow,
+    /// The same key appears twice where keys must be unique.
+    DuplicateKey,
 }
 
 impl fmt::Display for CoreError {
@@ -33,6 +37,8 @@ impl fmt::Display for CoreError {
             Self::InvalidLocalCoord => f.write_str("local coordinate outside 0..16"),
             Self::InvalidRegion => f.write_str("region has min greater than max"),
             Self::InvalidTransform => f.write_str("transform parameter out of range"),
+            Self::RevisionOverflow => f.write_str("revision counter overflow"),
+            Self::DuplicateKey => f.write_str("duplicate key"),
             Self::DuplicateLayer(id) => write!(f, "duplicate layer id {}", id.raw()),
         }
     }
