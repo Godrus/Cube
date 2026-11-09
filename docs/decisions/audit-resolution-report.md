@@ -107,9 +107,44 @@ These do not change an approved decision; they place contracts where AU-1.0's ow
 4. **Alternatives:** (a) whole model in Composite, with Persistence depending on Composite (adds a dependency, conflicts with "Composite persists structure through manifest"); (b) Core owns everything (violates Composite ownership).
 5. **Impact:** Persistence can store composite structure without depending on Composite. Needs owner confirmation.
 
+## ACR-004 — System-commit boundary for procedural generation
+
+**Status: PENDING** (prepared 2026-11-05 after the owner approved AOD-20; **not approved, not rejected**; AU-1.0, ACR-001/002/003 and all P0/P1 contracts are not edited). Draft contracts that elaborate it: `docs/api-contracts/worldgen-contracts.md`, `system-commit-contracts.md`, `world-persistence-contracts.md`, `server-runtime-contracts.md` (all Draft).
+
+### A. Architectural decision (already made; not decided by this ACR)
+
+AOD-20 (Approved, 2026-11-05, variant C3): procedural generation creates the base world through a separate WorldGen/System-commit boundary; it is not an ordinary Editing-API operation; user terrain changes go only through the Editing API; the server owns the authoritative world; initial generation is outside ordinary undo/redo; system generation receives an OperationId and takes part in revision/commit semantics; WorldGen never bypasses public Core ports. Approving or rejecting ACR-004 does not reopen this decision; it decides only **where and how** it is expressed in the module and layer structure.
+
+### B. Proposal: a new public Core port (needs approval)
+
+A narrow **system-commit port** next to the commit primitive (materialise, evict, restore), callable only by the WorldGen Materialiser and the persistence loader, atomic and idempotent, never exposed to the network; plus a **WorldGen module** in the layer grid that depends on Core value types and ports only. Contract draft: `system-commit-contracts.md` SC-10 and `worldgen-contracts.md`.
+
+### C. Proposal: OperationId origin (needs approval)
+
+`OperationId` (C-17) is accompanied by an origin `User | System | Recovery`; `Recovery` replays reuse the original ids; the origin is derived by the server, never supplied by a client. Draft: SC-01, SC-02. Representation (part of the id or of the request) and the id format (OD-R8) are open.
+
+### D. Open questions: revision semantics (B-6, not decided)
+
+Owner review package: `docs/decisions/acr-004-owner-review.md` (parts A to F with acceptance criteria, recommended statuses and a response sheet; ACR-004 stays Pending). The revision model is OAM-10 (`Proposed / Requires Owner Approval`; recommended: the same asset/layer scopes with `ActorKind::System`, no separate generation epoch); the Core layer model is OAM-09 (`Recommended / Requires Owner Approval`: C1 first baseline, C2 Deferred). Still open: whether a system commit advances the same revision scope as an edit or a separate generation epoch (options R-A, R-B, R-C); RevisionToken width and commit algorithm; whether `Evict` is a commit; new `ChangeType` values for generated and restored data (C-18); whether and how long system commits are audit-logged.
+
+### E. Contracts not approved
+
+The four Draft documents above (WG-01…WG-10, SC-01…SC-10, WP-01…WP-10, SR-01…SR-10); the existing P0 contracts C-16, C-17, C-18 and the commit primitive that they would extend; the Draft persistence contracts P-01…P-07 and `IDeltaStore`/`ISnapshotStore` that WP-xx would reconcile. All remain `Draft`.
+
+### F. Standard fields
+
+1. **Current approved design:** AU-1.0 (reconstructed copy, B-13) knows the Editing API as the path that changes geometry, with operation ids and revisions; its module and layer grid has no WorldGen module and no non-user actor. §3 and §5.3 keep Core independent; §23 lists the foundation types (see ACR-001).
+2. **Problem:** the decision in A cannot be expressed in the current grid: it needs a new public Core port, an operation origin and a WorldGen module with a place in the layers.
+3. **Proposed change:** B and C above; the revision effect (D) decided together with B-6.
+4. **Alternatives:** (a) system generation as Editing-API operations of a system actor (option B; rejected as the default by AOD-16); (b) direct writes into Core outside any port (option A; not for production); (c) treat it as a clarification under ACR-001 (not chosen: it adds a module and a port).
+5. **Affected modules:** Core (C-16, C-17, C-18, commit primitive), Editing API and History (exclusion rule), Persistence (what is journaled; recovery actor), WorldGen, the server runtime. **API impact:** new port and operation origin. **Data compatibility:** none (nothing implemented). **Performance:** one materialisation per chunk (spike baseline 0.009 ms per chunk commit, experimental). **Tests:** call-site audit of the three writers, history exclusion, revision tests, authority test. **Migration:** the spike's direct commits are removed when the port exists.
+6. **Related candidates, not filed:** placing the server runtime and the persistence manifest/recovery module in the AU-1.0 module grid may need a further ACR when the owner assigns owners (OI-8); it is not prepared now.
+
 ---
 
 # H. Remaining Open Decisions
+
+**Update 2026-11-05 (owner decisions AOD-20…24, `owner-architecture-decisions-v1.md` section 5):** the WorldGen/Core direction, the persistence model, the embedded-server model and the licence policy are Approved; the missing-sources handling is Conditionally Approved. None of them closes a blocker or approves a contract. ACR-004 was prepared (Pending). O-3 (networking owner and protocol), O-6 (sources) and the ACRs below remain open.
 
 ## H.1 Requiring the project owner
 
@@ -124,6 +159,7 @@ These do not change an approved decision; they place contracts where AU-1.0's ow
 | O-5 | Owner of Engine Integration Adapters | blocked also by O-0b |
 | O-6 | Add Voxel Architecture v1.0, GDD/TDD v0.3 and the Geometry Processing Specification to the repository. (Architecture Update v1.0 is now saved as `docs/decisions/architecture-update-v1.0.md`.) | cannot update or cross-check them otherwise |
 | ACR-001/002/003 | approve or reject | placement of contracts |
+| ACR-004 | approve or reject (prepared 2026-11-05, Pending) | system-commit port, system OperationId, WorldGen module |
 
 ## H.2 Technical decisions requiring evidence (AU-1.0 §24)
 
@@ -169,19 +205,19 @@ Each contract file lists its own Open items.
 
 | ID | Blocker | State | Closes when |
 |---|---|---|---|
-| B-1 | GDD/TDD v0.3, Voxel Architecture v1.0, Geometry Processing Specification absent from repository | **Open** | files added; Voxel Architecture and GDD/TDD sections then updated and cross-checked |
-| B-2 | Programming language not chosen (O-0a) | **Open** | decision recorded in `docs/decisions/` |
-| B-3 | ACR-001/002/003 undecided | **Open** | owner approves or rejects each |
+| B-1 | GDD/TDD v0.3, Voxel Architecture v1.0, Geometry Processing Specification absent from repository | **Open** (AOD-24 allows a limited temporary baseline; the documents still block final P0/P1 approval) | files added; Voxel Architecture and GDD/TDD sections then updated and cross-checked |
+| B-2 | Programming language not chosen (O-0a) | **Decided: Rust** (owner decision, `docs/decisions/owner-decision-rust-godot.md`; engine: Godot 4.x as first client only) | decision recorded; spike on branch `spike/rust-godot` |
+| B-3 | ACR-001/002/003 undecided (ACR-004 added as Pending on 2026-11-05) | **Open** | owner approves or rejects each |
 | B-4 | P0 contracts unapproved | **Open** | Integration Owner approval after B-2, B-3 |
 | B-5 | No owner for Networking, Engine Adapters, Import/Export, derived-data providers, modifier evaluation (O-1…O-5) | **Open** (not blocking Core/Processing) | owners assigned or deferred explicitly |
-| B-6 | RevisionToken width and atomic commit algorithm (OD-R1, OD-R2) | **Open** (proposal exists) | decision recorded |
+| B-6 | RevisionToken width and atomic commit algorithm (OD-R1, OD-R2); revision effect of system commits (AOD-20) | **Open** (proposal exists) | decision recorded |
 | B-7 | Tool-level contracts (BooleanPolicy, Sculpt/Brush, Resample/Refine, Composite ops, History interface) not written | **Open** (not blocking Core/Processing) | written by owners after B-4 |
 | B-8 | Core/Processing/Composite/Resolution/Editing API ownership gaps | **Closed (documented)** | owners assigned per AU-1.0 §2; reflected in all four documents |
 | B-9 | History ↔ Persistence cycle | **Open — rule documented, verifying test not implemented** (L2 port contracts E-12, `IDeltaStore`, `ISnapshotStore` also Draft) | closes only when (a) dependency-direction rule DEP-01 is recorded (done, QA Pack §1.5) **and** (b) an automated test enforcing it exists and passes (not done; needs CI/tooling, outside this docs-only revision) |
 | B-10 | Processing placed late in pipeline; Task Pack assumed existing Core | **Closed (documented)** | QA §5 and Task Pack §13 reordered |
 | B-11 | Missing contract inventory (Transform … OperationId) | **Documented, pending approval** | 45 contracts specified + 3 interface boundaries described; approval is B-4 |
 | B-12 | RevisionToken undefined | **Documented as proposal, pending approval** | formal proposal written; approval is B-6 |
-| B-13 | AU-1.0 not in repository | **Partially closed**: a reconstructed copy is stored with status Proposed/Draft; the original approved file is unavailable and the copy is not byte-verified | owner supplies original or confirms the copy |
+| B-13 | AU-1.0 not in repository | **Partially closed**: a reconstructed copy is stored with status Proposed/Draft; the original approved file is unavailable and the copy is not byte-verified (confirmed by AOD-24; the original stays preferred) | owner supplies original or confirms the copy |
 
 # L. P0 / P1 Readiness
 
