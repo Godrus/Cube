@@ -49,9 +49,21 @@ name = "cube-integration-tests"
 version = "0.0.0"
 dependencies = [
  "cube-core",
+ "cube-editing-api",
+ "cube-orchestration",
  "cube-processing",
  "cube-testkit",
  "loom",
+ "trybuild",
+]
+
+[[package]]
+name = "cube-orchestration"
+version = "0.0.0"
+dependencies = [
+ "cube-core",
+ "cube-editing-api",
+ "cube-processing",
 ]
 
 [[package]]

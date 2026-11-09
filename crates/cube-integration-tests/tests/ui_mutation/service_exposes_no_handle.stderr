@@ -1,0 +1,15 @@
+warning: unreachable statement
+ --> tests/ui_mutation/service_exposes_no_handle.rs:6:5
+  |
+5 |     let svc: OrchestrationService = todo!();
+  |                                     ------- any code following this expression is unreachable
+6 |     let _ = svc.path;
+  |     ^^^^^^^^^^^^^^^^^ unreachable statement
+  |
+  = note: `#[warn(unreachable_code)]` (part of `#[warn(unused)]`) on by default
+
+error[E0616]: field `path` of struct `OrchestrationService` is private
+ --> tests/ui_mutation/service_exposes_no_handle.rs:6:17
+  |
+6 |     let _ = svc.path;
+  |                 ^^^^ private field

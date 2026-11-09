@@ -1,0 +1,24 @@
+warning: unreachable statement
+ --> tests/ui_mutation/commit_path_is_crate_private.rs:7:5
+  |
+6 |     let path: CommitPath = todo!();
+  |                            ------- any code following this expression is unreachable
+7 |     let batch = CommitBatch::default();
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ unreachable statement
+  |
+  = note: `#[warn(unreachable_code)]` (part of `#[warn(unused)]`) on by default
+
+error[E0624]: method `commit` is private
+ --> tests/ui_mutation/commit_path_is_crate_private.rs:8:18
+  |
+8 |       let _ = path.commit(OperationId::new(1, 1), &batch);
+  |                    ^^^^^^ private method
+  |
+ ::: $WORKSPACE/crates/cube-orchestration/src/commit_path.rs
+  |
+  | /     pub(crate) fn commit(
+  | |         &self,
+  | |         operation: OperationId,
+  | |         batch: &CommitBatch,
+  | |     ) -> Result<CommitOutcome, CommitError> {
+  | |___________________________________________- private method defined here

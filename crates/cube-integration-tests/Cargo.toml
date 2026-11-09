@@ -6,10 +6,15 @@ rust-version.workspace = true
 publish.workspace = true
 description = "Cross-crate integration and conformance suites (leaf crate)"
 
-[dev-dependencies]
+[dependencies]
 cube-core = { path = "../cube-core" }
 cube-processing = { path = "../cube-processing" }
+cube-editing-api = { path = "../cube-editing-api" }
+cube-orchestration = { path = "../cube-orchestration" }
+
+[dev-dependencies]
 cube-testkit = { path = "../cube-testkit" }
+trybuild = "1"
 
 # Only compiled under `--cfg loom` (TEST-08 loom models); never in normal builds.
 [target.'cfg(loom)'.dev-dependencies]

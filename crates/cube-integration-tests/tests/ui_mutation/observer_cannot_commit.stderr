@@ -1,0 +1,5 @@
+error[E0599]: no method named `commit` found for reference `&TransactionSummary` in the current scope
+ --> tests/ui_mutation/observer_cannot_commit.rs:8:17
+  |
+8 |         summary.commit();
+  |                 ^^^^^^ method not found in `&TransactionSummary`
