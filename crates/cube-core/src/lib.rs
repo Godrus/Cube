@@ -7,6 +7,7 @@
 
 pub mod asset;
 pub mod boundary;
+pub mod bounds;
 pub mod cell;
 pub mod commit;
 pub mod coord;
@@ -26,6 +27,7 @@ pub mod world_ids;
 
 pub use asset::GeometryAsset;
 pub use boundary::{AssetHost, Handles, RecoveryCommit, SystemCommit, UserCommit};
+pub use bounds::GeometryBounds;
 pub use cell::{
     BrickBounds, CellPayload, CellState, CellStore, Channel, ChannelId, ChannelSet,
     LoadFailureReason, MeshPage,
