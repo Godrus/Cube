@@ -20,5 +20,5 @@ pub use auth::{Authorizer, CapabilityAuthorizer, DenyAll};
 pub use commit_path::CommitPath;
 pub use dirty::DirtySink;
 pub use registry::{BackendRegistry, RegistryError};
-pub use txn::{Config, OrchestrationService};
+pub use txn::{Config, OrchestrationService, RecoveryReport};
 pub use validate::{check_expected_tokens, check_write_sets, conflict_result};

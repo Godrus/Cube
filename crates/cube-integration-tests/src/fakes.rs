@@ -408,6 +408,8 @@ pub struct Options {
     pub retry_capacity: usize,
     /// Start from a restored asset view instead of the default world.
     pub restore: Option<cube_core::AssetView>,
+    /// Use this journal (it "survives the restart") instead of a fresh one; implies a journal.
+    pub shared_journal: Option<Arc<FaultyJournal>>,
 }
 
 impl Default for Options {
@@ -417,6 +419,7 @@ impl Default for Options {
             journal: false,
             retry_capacity: 1024,
             restore: None,
+            shared_journal: None,
         }
     }
 }
@@ -475,7 +478,8 @@ pub fn fixture_with(o: Options) -> Fixture {
     let reader = host.reader();
     let handles = host.into_handles();
     let log: EventLog = Arc::default();
-    let journal = Arc::new(FaultyJournal::default());
+    let wired_journal = o.journal || o.shared_journal.is_some();
+    let journal = o.shared_journal.clone().unwrap_or_default();
     let obs1 = RecordingObserver::new("o1", &log, &reader);
     let obs2 = RecordingObserver::new("o2", &log, &reader);
     let sink = RecordingSink::new(&log);
@@ -487,7 +491,7 @@ pub fn fixture_with(o: Options) -> Fixture {
         path: CommitPath::new(handles.user),
         registry,
         authorizer: Arc::new(CapabilityAuthorizer { edit: EDIT }),
-        journal: if o.journal {
+        journal: if wired_journal {
             Some(journal.clone() as Arc<dyn OperationJournal>)
         } else {
             None

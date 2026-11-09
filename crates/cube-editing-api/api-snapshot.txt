@@ -91,6 +91,7 @@ storage.rs: pub actor: ActorId,
 storage.rs: pub asset: AssetId,
 storage.rs: pub post_tokens: Vec<RevisionToken>,
 storage.rs: pub delta: Option<DeltaId>,
+storage.rs: pub members: Vec<(OperationId, u64)>,
 storage.rs: pub trait DeltaStore: Send + Sync {
 storage.rs: pub trait SnapshotStore: Send + Sync {
 storage.rs: pub trait OperationJournal: Send + Sync {
@@ -137,6 +138,7 @@ types/operation.rs: pub write_region: Region,
 types/operation.rs: pub conversion: Option<ConversionPolicy>,
 types/operation.rs: pub mode: EditMode,
 types/operation.rs: pub fn validate(&self) -> Result<(), EditingError> {
+types/operation.rs: pub fn fingerprint(&self) -> u64 {
 types/operation.rs: pub fn conversion_policy(&self) -> ConversionPolicy {
 types/result.rs: pub struct Success {
 types/result.rs: pub operation: OperationId,

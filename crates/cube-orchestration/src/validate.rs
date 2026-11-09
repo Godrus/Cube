@@ -1,6 +1,6 @@
 //! Expected-token validation, conflict results and idempotent retry by OperationId (ORCH-03).
 
-use std::collections::{HashMap, VecDeque};
+use std::collections::{HashMap, HashSet, VecDeque};
 
 use cube_core::{
     AssetState, BrickCoord, CellKey, Conflict, ExpectedRevision, LayerId, OperationId, ResourceId,
@@ -112,31 +112,45 @@ pub fn conflict_result(current: &AssetState, conflicts: &[Conflict]) -> Conflict
     }
 }
 
-/// What the retry table keeps of a committed operation.
+/// What the retry table keeps of a committed operation: a fingerprint of its content (not the
+/// content itself, so the table can also be rebuilt from the durable journal) and its result.
 #[derive(Debug, Clone)]
 pub(crate) struct Recorded {
-    pub operation: EditingOperation,
+    pub fingerprint: u64,
     pub result: EditingResult,
 }
 
-/// Results of committed operations by `OperationId`, bounded (oldest dropped first), so that a
-/// retried request never applies twice. An id is "taken" only by a commit that applied.
+/// Results of committed operations by `OperationId`, bounded, so that a retried request never
+/// applies twice.
+///
+/// Eviction is safe, not just bounded: when an entry is dropped, the highest dropped sequence of
+/// its scope is remembered (the *watermark*). An id at or below its scope's watermark that is
+/// not in the table is refused as [`Replay::Expired`], because the table can no longer tell
+/// whether it was applied. This relies on the contract that operation sequences increase per
+/// scope; a client that reuses low sequences after the window moved on is refused, never applied
+/// twice. Ids whose outcome is undecided after a recovery are *blocked* until resolved.
 #[derive(Debug)]
 pub(crate) struct RetryTable {
     capacity: usize,
     order: VecDeque<OperationId>,
     map: HashMap<OperationId, Recorded>,
+    watermark: HashMap<u64, u64>,
+    blocked: HashSet<OperationId>,
 }
 
 /// Outcome of looking an operation up.
 #[derive(Debug, Clone)]
 pub(crate) enum Replay {
-    /// Never committed: execute normally.
+    /// Never committed and not covered by the watermark: execute normally.
     Fresh,
     /// Committed earlier with identical content: answer with the recorded result.
     Same(EditingResult),
     /// The id was used for different content.
     Mismatch,
+    /// The id is older than the retry window and unknown: refused (it may have been applied).
+    Expired,
+    /// The outcome of an earlier attempt is undecided after a recovery: refused until resolved.
+    Blocked,
 }
 
 impl RetryTable {
@@ -145,37 +159,67 @@ impl RetryTable {
             capacity: capacity.max(1),
             order: VecDeque::new(),
             map: HashMap::new(),
+            watermark: HashMap::new(),
+            blocked: HashSet::new(),
         }
     }
 
     pub(crate) fn lookup(&self, op: &EditingOperation) -> Replay {
+        if self.blocked.contains(&op.id) {
+            return Replay::Blocked;
+        }
         match self.map.get(&op.id) {
-            None => Replay::Fresh,
-            Some(r) if r.operation == *op => Replay::Same(r.result.clone()),
+            Some(r) if r.fingerprint == op.fingerprint() => Replay::Same(r.result.clone()),
             Some(_) => Replay::Mismatch,
+            None => match self.watermark.get(&op.id.scope()) {
+                Some(w) if op.id.sequence() <= *w => Replay::Expired,
+                _ => Replay::Fresh,
+            },
         }
     }
 
     pub(crate) fn record(&mut self, op: EditingOperation, result: EditingResult) {
-        let id = op.id;
-        if self
+        self.record_fingerprint(op.id, op.fingerprint(), result);
+    }
+
+    pub(crate) fn record_fingerprint(
+        &mut self,
+        id: OperationId,
+        fingerprint: u64,
+        result: EditingResult,
+    ) {
+        let new = self
             .map
             .insert(
                 id,
                 Recorded {
-                    operation: op,
+                    fingerprint,
                     result,
                 },
             )
-            .is_none()
-        {
+            .is_none();
+        if new {
             self.order.push_back(id);
             while self.order.len() > self.capacity {
                 if let Some(old) = self.order.pop_front() {
                     self.map.remove(&old);
+                    let w = self.watermark.entry(old.scope()).or_insert(0);
+                    *w = (*w).max(old.sequence());
                 }
             }
         }
+    }
+
+    pub(crate) fn block(&mut self, id: OperationId) {
+        self.blocked.insert(id);
+    }
+
+    pub(crate) fn unblock(&mut self, id: OperationId) {
+        self.blocked.remove(&id);
+    }
+
+    pub(crate) fn len(&self) -> usize {
+        self.map.len()
     }
 
     pub(crate) fn result_of(&self, id: OperationId) -> Option<&EditingResult> {
@@ -269,7 +313,10 @@ mod tests {
         for i in 1..=3 {
             t.record(op(i), EditingResult::Cancelled);
         }
-        assert!(matches!(t.lookup(&op(1)), Replay::Fresh));
+        assert!(
+            matches!(t.lookup(&op(1)), Replay::Expired),
+            "a dropped id must not look fresh: it may have been applied"
+        );
         assert!(matches!(t.lookup(&op(2)), Replay::Same(_)));
         assert!(matches!(t.lookup(&op(3)), Replay::Same(_)));
         assert!(t.result_of(OperationId::new(1, 3)).is_some());

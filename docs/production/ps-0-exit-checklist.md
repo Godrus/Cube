@@ -163,3 +163,23 @@ Statuses are kept apart: **IMPLEMENTED**, **TESTED** (CI host), **INTEGRATED** (
 
 **RG-1 analysis (no new document needed):** the plan makes RG-1 an external-input gate (`EXT-VA-RG1`); it blocks the Frozen status of PC-1, CORE-12, CORE-13 approval and GOV-10. The plan has no built-in provisional alternative for RG-1, but GOV-07 shows the accepted pattern: an owner-recorded alternative. Minimal proposal for one owner sentence: *"For G5 only, PC-1 (C-07, C-08, C-09) is confirmed as the working baseline and C-10 is approved as the minimal provisional palette contract implemented by CORE-12; the Voxel Architecture revalidation (RG-1) stays mandatory before any contract is Frozen and before GOV-10; no save format is approved."* Without that sentence, GOV-08, GOV-17 and CORE-12 stay open and **G5 cannot close**; nothing was recorded on the owner's behalf.
 
+
+## 12. Session 7, 2026-11-09: TD-4, CORE-12 (provisional)
+
+| Item | IMPLEMENTED | TESTED | INTEGRATED | Notes |
+|---|---|---|---|---|
+| TD-4 (idempotency across restart) | yes: `recover_idempotency`, `resolve_pending`, bounded table with per-scope watermark, member fingerprints in journal records (additive API change, snapshot updated, codec updated) | yes (`orchestration_restart.rs`): a confirmed operation is not applied again after a restart; same id with other content refused; changes lost since the snapshot are reported and re-appliable, never falsely confirmed; an Intent without a later record is undecided, retries refused until resolved; crash between Core commit and Confirmed resolved as applied without re-applying; the table is bounded and forgotten ids are refused, not re-applied; fingerprint pinned | yes (`22d08c4`, CI 42640577990) | **Partly fixed, not closed:** see limits below |
+| CORE-12 / C-10 (palette) | yes, branch `prod/ps5-core12-palette` (`a15595e`) | yes: id validation, registration order, collision diagnostics, capacity 65535, table round trip, permuted-order mapping, strict resolution lists all unknown content, recovery placeholders keep original ids, air reserved, Core content guard still green; CI 42641169963 | **no (not merged)**: ADG merge-after GOV-17; the owner allowed development on a feature branch only | provisional; no binary format; RG-1 stays mandatory |
+| SDF-01..03, MSH-01..03 | not started | - | - | not reached in this session |
+| PERS-02..05 | not started | - | - | next after TD-4; formats stay experimental until GOV-10 |
+
+**TD-4 limits (stated, not hidden):**
+
+* The journal carries no write payload, so a change confirmed *after* the last snapshot is lost if the process dies; recovery reports it (`lost_since_snapshot`) and lets the client re-apply it, but cannot replay it. Real replay needs the batch in the journal (PERS-04/05, PS-10).
+* Deciding an undecided Intent (applied or not) is left to the caller of `resolve_pending`; the procedure that compares journal and restored world belongs to Persistence (PS-10).
+* A recovered success carries the journalled tokens but no dirty regions (they are not journalled).
+* The retry window relies on operation sequences increasing per scope; a client that reuses low sequences after the window moved is refused.
+* The journal here is a contract fake; no file durability is claimed (DG-2 and the PS-10 gates stay).
+* **CB-1 stays open:** Core commit and the journal are still not one atomic action; the write-ahead phases plus the procedures above bound the damage but do not make it crash-atomic.
+
+**RG-1 / GOV-08 / GOV-17:** the owner's permission covers developing CORE-12 provisionally, which is done on its branch. It does not close GOV-08/GOV-17 or RG-1, and the ADG merge condition of CORE-12 (GOV-17) is unchanged, so **G5 remains open** (also SDF-01..03 and MSH-01..03 are not done). Minimal owner record that would unblock the merge: *"GOV-17: C-10 is approved as the minimal provisional palette contract as implemented by CORE-12 (branch `prod/ps5-core12-palette`); GOV-08: PC-1 is confirmed as the working baseline for G5; RG-1 stays mandatory before any contract is Frozen and before GOV-10."*

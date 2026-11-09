@@ -478,6 +478,12 @@ pub fn encode_journal_entry(e: &JournalEntry) -> Vec<u8> {
             w.u64(d.0);
         }
     }
+    w.u32(e.members.len() as u32);
+    for (op, fp) in &e.members {
+        w.u64(op.scope());
+        w.u64(op.sequence());
+        w.u64(*fp);
+    }
     frame(KIND_JOURNAL, w.0)
 }
 
@@ -508,6 +514,14 @@ pub fn decode_journal_entry(bytes: &[u8], limits: &Limits) -> Result<JournalEntr
         1 => Some(DeltaId(r.u64()?)),
         _ => return Err(DecodeError::Invalid("delta flag")),
     };
+    let m = r.u32()? as usize;
+    if m > body.len() / 24 + 1 {
+        return Err(DecodeError::Invalid("member count"));
+    }
+    let mut members = Vec::with_capacity(m.min(256));
+    for _ in 0..m {
+        members.push((OperationId::new(r.u64()?, r.u64()?), r.u64()?));
+    }
     r.done()?;
     Ok(JournalEntry {
         seq,
@@ -517,6 +531,7 @@ pub fn decode_journal_entry(bytes: &[u8], limits: &Limits) -> Result<JournalEntr
         asset,
         post_tokens,
         delta,
+        members,
     })
 }
 
@@ -600,6 +615,10 @@ mod tests {
                 ),
             ],
             delta: Some(DeltaId(5)),
+            members: vec![
+                (OperationId::new(u64::MAX, 3), 77),
+                (OperationId::new(2, 4), u64::MAX),
+            ],
         }
     }
 

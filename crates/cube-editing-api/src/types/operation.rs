@@ -116,6 +116,64 @@ impl EditingOperation {
         Ok(())
     }
 
+    /// Stable 64-bit fingerprint of the operation's content (FNV-1a over an explicit field
+    /// encoding, independent of `Debug` output and of the compiler). Equal operations have equal
+    /// fingerprints; it is used to tell a retry from an operation id reused with other content.
+    /// Not cryptographic.
+    pub fn fingerprint(&self) -> u64 {
+        let mut h: u64 = 0xcbf2_9ce4_8422_2325;
+        let mut put = |b: &[u8]| {
+            for x in b {
+                h ^= u64::from(*x);
+                h = h.wrapping_mul(0x0100_0000_01b3);
+            }
+        };
+        put(&self.id.scope().to_le_bytes());
+        put(&self.id.sequence().to_le_bytes());
+        put(&self.kind.0.to_le_bytes());
+        put(&self.asset.raw().to_le_bytes());
+        put(&(self.layers.len() as u64).to_le_bytes());
+        for l in &self.layers {
+            put(&l.raw().to_le_bytes());
+        }
+        put(&[u8::from(self.parameters.schema.is_some())]);
+        put(&self.parameters.schema.map_or(0, |s| s.0).to_le_bytes());
+        put(&(self.parameters.bytes.len() as u64).to_le_bytes());
+        put(&self.parameters.bytes);
+        let region = |put: &mut dyn FnMut(&[u8]), r: &Region| {
+            put(&[r.level() as u8]);
+            for v in [
+                r.min().x,
+                r.min().y,
+                r.min().z,
+                r.max().x,
+                r.max().y,
+                r.max().z,
+            ] {
+                put(&v.to_le_bytes());
+            }
+        };
+        match &self.read_region {
+            None => put(&[0]),
+            Some(r) => {
+                put(&[1]);
+                region(&mut put, r);
+            }
+        }
+        region(&mut put, &self.write_region);
+        put(&[match self.conversion {
+            None => 0,
+            Some(ConversionPolicy::Forbid) => 1,
+            Some(ConversionPolicy::AllowLossless) => 2,
+            Some(ConversionPolicy::AllowLossy) => 3,
+        }]);
+        put(&[match self.mode {
+            EditMode::Destructive => 0,
+            EditMode::NonDestructive => 1,
+        }]);
+        h
+    }
+
     /// The conversion policy in force (`Forbid` when none is given).
     pub fn conversion_policy(&self) -> ConversionPolicy {
         self.conversion.unwrap_or(ConversionPolicy::Forbid)
