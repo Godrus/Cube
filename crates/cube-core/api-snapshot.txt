@@ -1,0 +1,266 @@
+asset.rs: pub struct GeometryAsset {
+asset.rs: pub fn new(id: AssetId, layers: Vec<Layer>) -> Result<Self, CoreError> {
+asset.rs: pub const fn id(&self) -> AssetId {
+asset.rs: pub fn layers(&self) -> &[Layer] {
+asset.rs: pub fn layer(&self, id: LayerId) -> Option<&Layer> {
+boundary.rs: pub struct AssetHost {
+boundary.rs: pub struct Handles {
+boundary.rs: pub user: UserCommit,
+boundary.rs: pub system: SystemCommit,
+boundary.rs: pub recovery: RecoveryCommit,
+boundary.rs: pub fn new(asset: GeometryAsset) -> Self {
+boundary.rs: pub fn reader(&self) -> SharedAsset {
+boundary.rs: pub fn into_handles(self) -> Handles {
+boundary.rs: pub struct $name {
+boundary.rs: pub fn commit(&self, operation: OperationId, batch: &CommitBatch) -> Result<CommitOutcome, CommitError> {
+boundary.rs: pub fn reader(&self) -> SharedAsset {
+boundary.rs: pub fn materialise(
+boundary.rs: pub fn evict(&self, layer: LayerId, level: i8, brick: BrickCoord) -> Result<bool, CommitError> {
+boundary.rs: pub fn restore(
+cell/channel.rs: pub enum ChannelId {
+cell/channel.rs: pub struct Channel {
+cell/channel.rs: pub const fn constant(value: u16) -> Self {
+cell/channel.rs: pub fn get(&self, p: LocalPos) -> u16 {
+cell/channel.rs: pub fn set(&mut self, p: LocalPos, value: u16) {
+cell/channel.rs: pub fn compact(&mut self) {
+cell/channel.rs: pub fn uniform(&self) -> Option<u16> {
+cell/channel.rs: pub fn is_dense(&self) -> bool {
+cell/channel.rs: pub struct ChannelSet {
+cell/channel.rs: pub fn new() -> Self {
+cell/channel.rs: pub fn with(mut self, id: ChannelId, channel: Channel) -> Self {
+cell/channel.rs: pub fn uniform_material(m: MaterialIndex) -> Self {
+cell/channel.rs: pub fn channel(&self, id: ChannelId) -> Option<&Channel> {
+cell/channel.rs: pub fn channel_mut(&mut self, id: ChannelId) -> Option<&mut Channel> {
+cell/channel.rs: pub fn get(&self, id: ChannelId, p: LocalPos) -> Option<u16> {
+cell/channel.rs: pub fn material(&self, p: LocalPos) -> Option<MaterialIndex> {
+cell/channel.rs: pub fn density(&self, p: LocalPos) -> Option<i16> {
+cell/channel.rs: pub fn iter(&self) -> impl Iterator<Item = (ChannelId, &Channel)> {
+cell/channel.rs: pub fn len(&self) -> usize {
+cell/channel.rs: pub fn is_empty(&self) -> bool {
+cell/mod.rs: pub use channel::{Channel, ChannelId, ChannelSet};
+cell/mod.rs: pub use state::{CellPayload, CellState, LoadFailureReason, MeshPage};
+cell/mod.rs: pub use store::{BrickBounds, CellStore};
+cell/state.rs: pub struct MeshPage {
+cell/state.rs: pub fn new(bytes: Vec<u8>) -> Self {
+cell/state.rs: pub fn bytes(&self) -> &[u8] {
+cell/state.rs: pub enum CellPayload {
+cell/state.rs: pub enum LoadFailureReason {
+cell/state.rs: pub enum CellState {
+cell/state.rs: pub const fn is_loaded(&self) -> bool {
+cell/state.rs: pub fn payload(&self) -> Option<&CellPayload> {
+cell/store.rs: pub struct BrickBounds {
+cell/store.rs: pub fn new(min: BrickCoord, max: BrickCoord) -> Result<Self, CoreError> {
+cell/store.rs: pub struct CellStore {
+cell/store.rs: pub fn new() -> Self {
+cell/store.rs: pub fn with_bounds(bounds: BrickBounds) -> Self {
+cell/store.rs: pub fn get(&self, level: i8, brick: BrickCoord) -> Result<CellState, CoreError> {
+cell/store.rs: pub fn revision(&self, level: i8, brick: BrickCoord) -> Option<Revision> {
+cell/store.rs: pub fn in_bounds(&self, level: i8, brick: BrickCoord) -> bool {
+cell/store.rs: pub fn len(&self) -> usize {
+cell/store.rs: pub fn is_empty(&self) -> bool {
+cell/store.rs: pub fn iter(&self) -> impl Iterator<Item = (i8, BrickCoord, CellState)> + '_ {
+cell/store.rs: pub fn iter_region(
+commit.rs: pub enum ExpectedRevision {
+commit.rs: pub enum CellChange {
+commit.rs: pub struct CellWrite {
+commit.rs: pub level: i8,
+commit.rs: pub brick: BrickCoord,
+commit.rs: pub expected: ExpectedRevision,
+commit.rs: pub change: CellChange,
+commit.rs: pub struct WriteSet {
+commit.rs: pub layer: LayerId,
+commit.rs: pub writes: Vec<CellWrite>,
+commit.rs: pub struct CommitBatch {
+commit.rs: pub sets: Vec<WriteSet>,
+commit.rs: pub struct Conflict {
+commit.rs: pub layer: LayerId,
+commit.rs: pub level: i8,
+commit.rs: pub brick: BrickCoord,
+commit.rs: pub expected: ExpectedRevision,
+commit.rs: pub actual: Option<Revision>,
+commit.rs: pub enum CommitError {
+commit.rs: pub struct CommitOutcome {
+commit.rs: pub changed: bool,
+commit.rs: pub asset_token: RevisionToken,
+commit.rs: pub layer_tokens: Vec<RevisionToken>,
+commit.rs: pub cell_tokens: Vec<RevisionToken>,
+commit.rs: pub dirty: Vec<DirtyRegion>,
+commit.rs: pub enum MaterialiseOutcome {
+commit.rs: pub struct AssetState {
+commit.rs: pub fn asset(&self) -> &GeometryAsset {
+commit.rs: pub fn asset_token(&self) -> RevisionToken {
+commit.rs: pub fn layer_token(&self, layer: LayerId) -> Option<RevisionToken> {
+commit.rs: pub fn cell(
+commit.rs: pub fn cell_token(
+commit.rs: pub struct CommitLogEntry {
+commit.rs: pub sequence: u64,
+commit.rs: pub actor: ActorKind,
+commit.rs: pub operation: OperationId,
+commit.rs: pub asset_token: RevisionToken,
+commit.rs: pub struct SharedAsset {
+commit.rs: pub fn id(&self) -> AssetId {
+commit.rs: pub fn snapshot(&self) -> Arc<AssetState> {
+commit.rs: pub fn commit_log(&self) -> (u64, Vec<CommitLogEntry>) {
+coord.rs: pub const BRICK_EDGE: i64 = 16;
+coord.rs: pub const BRICK_EDGE_LOG2: u32 = 4;
+coord.rs: pub const BRICK_VOLUME: usize = 4096;
+coord.rs: pub const fn check_level(level: i8) -> Result<(), CoreError> {
+coord.rs: pub struct VoxelPos {
+coord.rs: pub x: i64,
+coord.rs: pub y: i64,
+coord.rs: pub z: i64,
+coord.rs: pub struct BrickCoord {
+coord.rs: pub x: i64,
+coord.rs: pub y: i64,
+coord.rs: pub z: i64,
+coord.rs: pub struct LocalPos {
+coord.rs: pub const fn new(x: u8, y: u8, z: u8) -> Result<Self, CoreError> {
+coord.rs: pub const fn x(self) -> u8 {
+coord.rs: pub const fn y(self) -> u8 {
+coord.rs: pub const fn z(self) -> u8 {
+coord.rs: pub fn all() -> impl Iterator<Item = LocalPos> {
+coord.rs: pub const fn new(x: i64, y: i64, z: i64) -> Self {
+coord.rs: pub const fn split(self) -> (BrickCoord, LocalPos) {
+coord.rs: pub const fn brick(self) -> BrickCoord {
+coord.rs: pub fn convert_level(self, from: i8, to: i8) -> Result<Self, CoreError> {
+coord.rs: pub const fn new(x: i64, y: i64, z: i64) -> Self {
+coord.rs: pub fn origin(self) -> Result<VoxelPos, CoreError> {
+coord.rs: pub fn join(self, l: LocalPos) -> Result<VoxelPos, CoreError> {
+coord.rs: pub fn is_addressable(self) -> bool {
+dirty.rs: pub enum ChangeType {
+dirty.rs: pub struct DirtyRegion {
+dirty.rs: pub asset: AssetId,
+dirty.rs: pub layer: LayerId,
+dirty.rs: pub region: Region,
+dirty.rs: pub change: ChangeType,
+dirty.rs: pub source: RevisionToken,
+dirty.rs: pub operation: OperationId,
+dirty.rs: pub actor: ActorKind,
+error.rs: pub enum CoreError {
+ids.rs: pub struct AssetId(u64);
+ids.rs: pub struct LayerId(u64);
+ids.rs: pub const fn new(raw: u64) -> Self {
+ids.rs: pub const fn raw(self) -> u64 {
+ids.rs: pub const fn new(raw: u64) -> Self {
+ids.rs: pub const fn raw(self) -> u64 {
+key.rs: pub struct CellKey {
+key.rs: pub fn new(layer: LayerId, level: i8, brick: BrickCoord) -> Result<Self, CoreError> {
+key.rs: pub const fn layer(self) -> LayerId {
+key.rs: pub const fn level(self) -> i8 {
+key.rs: pub const fn brick(self) -> BrickCoord {
+layer/kind.rs: pub enum LayerKind {
+layer/kind.rs: pub struct PageStore {
+layer/kind.rs: pub enum LayerData {
+layer/kind.rs: pub const fn kind(&self) -> LayerKind {
+layer/kind.rs: pub fn empty(kind: LayerKind) -> Self {
+layer/mod.rs: pub use kind::{LayerData, LayerKind, PageStore};
+layer/mod.rs: pub struct Layer {
+layer/mod.rs: pub fn new(id: LayerId, transform: GeometryTransform, data: LayerData) -> Self {
+layer/mod.rs: pub const fn id(&self) -> LayerId {
+layer/mod.rs: pub const fn transform(&self) -> GeometryTransform {
+layer/mod.rs: pub const fn data(&self) -> &LayerData {
+layer/mod.rs: pub const fn kind(&self) -> LayerKind {
+lib.rs: pub mod asset;
+lib.rs: pub mod boundary;
+lib.rs: pub mod cell;
+lib.rs: pub mod commit;
+lib.rs: pub mod coord;
+lib.rs: pub mod dirty;
+lib.rs: pub mod error;
+lib.rs: pub mod ids;
+lib.rs: pub mod key;
+lib.rs: pub mod layer;
+lib.rs: pub mod material;
+lib.rs: pub mod operation;
+lib.rs: pub mod region;
+lib.rs: pub mod revision;
+lib.rs: pub mod transform;
+lib.rs: pub use asset::GeometryAsset;
+lib.rs: pub use boundary::{AssetHost, Handles, RecoveryCommit, SystemCommit, UserCommit};
+lib.rs: pub use cell::{
+lib.rs: pub use commit::{
+lib.rs: pub use coord::{BRICK_EDGE, BRICK_VOLUME, BrickCoord, LocalPos, VoxelPos};
+lib.rs: pub use dirty::{ChangeType, DirtyRegion};
+lib.rs: pub use error::CoreError;
+lib.rs: pub use ids::{AssetId, LayerId};
+lib.rs: pub use key::CellKey;
+lib.rs: pub use layer::{Layer, LayerData, LayerKind, PageStore};
+lib.rs: pub use material::MaterialIndex;
+lib.rs: pub use operation::{ActorKind, OperationId};
+lib.rs: pub use region::Region;
+lib.rs: pub use revision::{
+lib.rs: pub use transform::{GeometryTransform, Rotation};
+material.rs: pub struct MaterialIndex(u16);
+material.rs: pub const WIDTH_BITS: u32 = 16;
+material.rs: pub const fn from_raw(raw: u16) -> Self {
+material.rs: pub const fn raw(self) -> u16 {
+operation.rs: pub struct OperationId {
+operation.rs: pub const SCHEMA_VERSION: u8 = 1;
+operation.rs: pub const fn new(scope: u64, sequence: u64) -> Self {
+operation.rs: pub const fn scope(self) -> u64 {
+operation.rs: pub const fn sequence(self) -> u64 {
+operation.rs: pub enum ActorKind {
+operation.rs: pub const fn code(self) -> u8 {
+operation.rs: pub const fn from_code(code: u8) -> Option<Self> {
+region.rs: pub struct Region {
+region.rs: pub fn new(level: i8, min: VoxelPos, max: VoxelPos) -> Result<Self, CoreError> {
+region.rs: pub const fn level(&self) -> i8 {
+region.rs: pub const fn min(&self) -> VoxelPos {
+region.rs: pub const fn max(&self) -> VoxelPos {
+region.rs: pub const fn is_empty(&self) -> bool {
+region.rs: pub const fn contains(&self, p: VoxelPos) -> bool {
+region.rs: pub fn extent(&self) -> [u64; 3] {
+region.rs: pub fn intersection(&self, other: &Self) -> Result<Option<Self>, CoreError> {
+region.rs: pub fn brick_span(&self) -> Option<(BrickCoord, BrickCoord)> {
+region.rs: pub fn brick_count(&self) -> Option<u128> {
+region.rs: pub fn bricks(&self) -> Bricks {
+region.rs: pub struct Bricks {
+revision.rs: pub struct Epoch(u32);
+revision.rs: pub const INITIAL: Self = Self(0);
+revision.rs: pub const LOCAL_PREDICTION: Self = Self(u32::MAX);
+revision.rs: pub const fn new(raw: u32) -> Self {
+revision.rs: pub const fn raw(self) -> u32 {
+revision.rs: pub const fn next(self) -> Result<Self, CoreError> {
+revision.rs: pub struct Revision(u64);
+revision.rs: pub const INITIAL: Self = Self(0);
+revision.rs: pub const fn new(raw: u64) -> Self {
+revision.rs: pub const fn raw(self) -> u64 {
+revision.rs: pub const fn next(self) -> Result<Self, CoreError> {
+revision.rs: pub struct DerivedSlotId(pub u64);
+revision.rs: pub enum ResourceId {
+revision.rs: pub enum Comparison {
+revision.rs: pub struct RevisionToken {
+revision.rs: pub const fn new(resource: ResourceId, epoch: Epoch, value: Revision) -> Self {
+revision.rs: pub const fn resource(&self) -> ResourceId {
+revision.rs: pub const fn epoch(&self) -> Epoch {
+revision.rs: pub const fn value(&self) -> Revision {
+revision.rs: pub const fn bumped(self) -> Result<Self, CoreError> {
+revision.rs: pub fn compare(&self, other: &Self) -> Comparison {
+revision.rs: pub struct StampAlgorithm(u8);
+revision.rs: pub const V1: Self = Self(1);
+revision.rs: pub const fn version(self) -> u8 {
+revision.rs: pub enum StampCompare {
+revision.rs: pub struct RegionStamp {
+revision.rs: pub fn from_pairs(pairs: &[(CellKey, Revision)]) -> Result<Self, CoreError> {
+revision.rs: pub const fn algorithm(&self) -> StampAlgorithm {
+revision.rs: pub const fn count(&self) -> u64 {
+revision.rs: pub const fn hash(&self) -> u128 {
+revision.rs: pub fn compare(&self, other: &Self) -> StampCompare {
+revision.rs: pub fn same_revisions_exactly(a: &[(CellKey, Revision)], b: &[(CellKey, Revision)]) -> bool {
+rotation.rs: pub fn compose(self, other: Self) -> Self {
+rotation.rs: pub fn inverse(self) -> Self {
+rotation.rs: pub fn apply(self, v: [i64; 3]) -> Result<[i64; 3], CoreError> {
+rotation.rs: pub fn apply(&self, p: [i64; 3]) -> Result<[i64; 3], CoreError> {
+rotation.rs: pub fn compose(&self, inner: &Self) -> Result<Self, CoreError> {
+transform.rs: pub const MAX_SCALE_SHIFT: i8 = 62;
+transform.rs: pub struct Rotation(u8);
+transform.rs: pub const COUNT: u8 = 24;
+transform.rs: pub const IDENTITY: Self = Self(0);
+transform.rs: pub const fn from_index(index: u8) -> Result<Self, CoreError> {
+transform.rs: pub const fn index(self) -> u8 {
+transform.rs: pub struct GeometryTransform {
+transform.rs: pub const IDENTITY: Self = Self {
+transform.rs: pub const fn new(
+transform.rs: pub const fn translation(&self) -> [i64; 3] {
+transform.rs: pub const fn rotation(&self) -> Rotation {
+transform.rs: pub const fn scale_shift(&self) -> i8 {

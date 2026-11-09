@@ -27,7 +27,11 @@ fn current_snapshot() -> String {
     files.sort();
     let mut out = String::new();
     for f in files {
-        let rel = f.strip_prefix(&src).unwrap().to_string_lossy().replace('\\', "/");
+        let rel = f
+            .strip_prefix(&src)
+            .unwrap()
+            .to_string_lossy()
+            .replace('\\', "/");
         let text = fs::read_to_string(&f).unwrap();
         for line in text.lines() {
             let t = line.trim();
@@ -51,18 +55,36 @@ fn public_api_matches_the_committed_snapshot() {
         fs::write(&path, &now).unwrap();
         return;
     }
-    let committed = fs::read_to_string(&path).expect("api-snapshot.txt is missing; generate it with UPDATE_API_SNAPSHOT=1").replace("\r\n", "\n");
-    assert_eq!(now, committed, "public API changed: review it and regenerate api-snapshot.txt with UPDATE_API_SNAPSHOT=1");
+    let committed = fs::read_to_string(&path)
+        .expect("api-snapshot.txt is missing; generate it with UPDATE_API_SNAPSHOT=1")
+        .replace("\r\n", "\n");
+    assert_eq!(
+        now, committed,
+        "public API changed: review it and regenerate api-snapshot.txt with UPDATE_API_SNAPSHOT=1"
+    );
 }
 
 #[test]
 fn snapshot_contains_the_boundary_and_no_public_commit_primitive() {
     let s = current_snapshot();
-    for needed in ["pub struct UserCommit", "pub struct SystemCommit", "pub struct RecoveryCommit", "pub struct AssetHost"] {
-        assert!(s.contains(needed) || s.contains("handle!("), "{needed}");
+    for needed in [
+        "boundary.rs: pub struct AssetHost",
+        "boundary.rs: pub fn into_handles",
+        "boundary.rs: pub struct Handles",
+    ] {
+        assert!(s.contains(needed), "{needed}");
     }
     // The commit primitive on SharedAsset is crate-private: no `pub fn commit` may live in commit.rs.
-    assert!(!s.lines().any(|l| l.starts_with("commit.rs:") && l.contains("pub fn commit")));
-    assert!(!s.lines().any(|l| l.starts_with("commit.rs:") && l.contains("pub fn materialise")));
-    assert!(!s.lines().any(|l| l.starts_with("commit.rs:") && l.contains("pub fn evict")));
+    assert!(
+        !s.lines()
+            .any(|l| l.starts_with("commit.rs:") && l.contains("pub fn commit("))
+    );
+    assert!(
+        !s.lines()
+            .any(|l| l.starts_with("commit.rs:") && l.contains("pub fn materialise("))
+    );
+    assert!(
+        !s.lines()
+            .any(|l| l.starts_with("commit.rs:") && l.contains("pub fn evict("))
+    );
 }
