@@ -82,7 +82,7 @@ Legend: **Draft** = specified in this pass, awaiting approval. **Draft+OD** = sp
 | C-02 | GeometryLayer | Core | all | core | Draft+OD | 0.1.0-draft | P0 | collision profile schema |
 | C-03 | GeometryLayerType | Core | API, backends, tools | core | Draft+OD | 0.1.0-draft | P0 | extension registration |
 | C-04 | GeometryTransform | Core | all | core | Draft+OD | 0.1.0-draft | P0 | f32/f64, epsilon |
-| C-05 | GeometryBounds | Core | Processing (derived bounds, PR-08), backends | core | Draft+OD | 0.1.0-draft | P0 | bounds exactness |
+| C-05 | GeometryBounds | Core | Processing (derived bounds, PR-08), backends | core | **Owner-Approved (minimal, DEC-079); Implemented (CORE-15)** | 0.1.0 | P0 | OBB/sphere not included |
 | C-06 | GeometryRegion | Core | all | core | Draft+OD | 0.1.0-draft | P0 | non-AABB shapes |
 | C-07 | BrickKey | Core | Voxel, Persistence, all | core | Draft+OD | 0.1.0-draft | P0 | int width, refinement addressing |
 | C-08 | BrickStorage | Core | Processing, backends, Persistence | core | Draft+OD | 0.1.0-draft | P0 | layout, index order, compression |

@@ -1781,3 +1781,72 @@ owner: Project Owner
 affected_documents: [docs/production/processing-foundation-contract.md, docs/production/ps-0-exit-checklist.md]
 history:
   - 2026-11-09 entry created
+
+## DEC-078  GOV-07: owner-recorded alternative for the Geometry Processing Specification (PS-2)
+id: DEC-078
+aliases: [GOV-07, ODM-02, TC-01]
+category: PROCESS
+level: TECHNICAL
+status: CONFIRMED
+statement: >
+  For PS-2 the owner accepts the limited provisional Processing Foundation specification (docs/production/processing-foundation-contract.md, DEC-077) in place of the absent external Geometry Processing Specification. This is the registered owner alternative that the acceptance criterion of GOV-07 allows ('PR-01..PR-08 Owner-Approved or an owner-recorded alternative') and that the PS-2 stage description names as the way to close G2 without the specification. It applies only to the implemented scope; it records that ODM-02 is answered: a Provisional registration satisfies the condition of AOD-24 for PS-2.
+not_decided: >
+  PR-01..PR-08 are NOT Owner-Approved and NOT Frozen. Gate RG-2 stays mandatory: when the Geometry Processing Specification appears, the contracts are diffed against it and migrated or corrected before they are frozen (TC-01 expiry: the earlier of GOV-07 approval of PR-01..PR-08 and the start of M3 content work). Unverified assumptions stay marked provisional. Nothing here may contradict the confirmed Cube architecture.
+decided_by: OWNER
+decided_on: 2026-11-09
+decided_on_basis: date of the owner's message
+recorded_on: 2026-11-09 (this registry)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner statement in chat; permitted source under DEC-002)
+source: OWNER-CHAT-2026-11-09 (instruction 'Finalize PS-2 / G2 and Start PS-3 Editing API') sections 2 and 6
+source_availability: UNAVAILABLE in repository (session transcript only)
+owner: Project Owner
+affected_documents: [docs/production/processing-foundation-contract.md, docs/production/ps-0-exit-checklist.md]
+history:
+  - 2026-11-09 entry created
+
+## DEC-079  GOV-16: C-05 GeometryBounds approved (minimal contract for PS-2)
+id: DEC-079
+aliases: [GOV-16, C-05]
+category: PROCESS
+level: TECHNICAL
+status: CONFIRMED
+statement: >
+  The owner approves the minimal contract C-05 for PS-2: integer (i64) boxes compatible with VoxelPos, BrickCoord, CellKey and Region; one half-open inclusion rule [min, max); correct behaviour for negative coordinates; every overflow is an explicit error; deterministic comparison, union and intersection; an empty bound is a distinct state; unknown (not loaded, failed) data is never reported as empty or as outside the world; no global world-size limit (limits belong to operations, allocation, active regions, snapshots and server guards); invalid bounds are rejected; no game logic and no engine dependency. The implementation is CORE-15 (crates/cube-core/src/bounds.rs), checked against these principles with no material discrepancy.
+not_decided: >
+  Not extended to territory management or server permissions. Derived bounds beyond the exact world box (OBB, bounding sphere) are not part of this approval. 'Tight versus conservative' remains conservative (never shrinks).
+decided_by: OWNER
+decided_on: 2026-11-09
+decided_on_basis: date of the owner's message
+recorded_on: 2026-11-09 (this registry)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner statement in chat; permitted source under DEC-002)
+source: OWNER-CHAT-2026-11-09 (instruction 'Finalize PS-2 / G2 and Start PS-3 Editing API') section 3
+source_availability: UNAVAILABLE in repository (session transcript only)
+owner: Project Owner
+affected_documents: [docs/api-contracts/core-contracts.md, docs/api-contracts/README.md, crates/cube-core/src/bounds.rs]
+history:
+  - 2026-11-09 entry created
+
+## DEC-080  GOV-24 / OD-R4: snapshot resource budget policy for Processing
+id: DEC-080
+aliases: [GOV-24, OD-R4]
+category: PROCESS
+level: TECHNICAL
+status: CONFIRMED
+statement: >
+  The owner approves this policy. Snapshots have a bounded cost of holding resources; the limits apply to active operations, never to the size of the world. Required budgets: per snapshot, total pinned resources per asset, number of concurrently active snapshots, task/snapshot lifetime (release of stale snapshots), safe cancellation, release on completion or cancellation, and a diagnosable refusal when a budget is exceeded. Numeric values are configuration, not architecture; the tested defaults of PROC-06 are the starting values. Hard protective limits need a technical reason, must not limit the game world, must not lose data silently and must not break Processing correctness. Accounting distinguishes pinned bricks, snapshots, estimated data cost and the resources actually counted; a brick count is not claimed as a proven byte bound, and the byte figure is an explicit conservative estimate with stated accuracy limits.
+not_decided: >
+  Concrete numbers; memory policy of derived-result caches (not snapshots); device budgets (DG-1..3).
+decided_by: OWNER
+decided_on: 2026-11-09
+decided_on_basis: date of the owner's message
+recorded_on: 2026-11-09 (this registry)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner statement in chat; permitted source under DEC-002)
+source: OWNER-CHAT-2026-11-09 (instruction 'Finalize PS-2 / G2 and Start PS-3 Editing API') section 4
+source_availability: UNAVAILABLE in repository (session transcript only)
+owner: Project Owner
+affected_documents: [docs/production/processing-foundation-contract.md, crates/cube-processing/src/caps.rs]
+history:
+  - 2026-11-09 entry created

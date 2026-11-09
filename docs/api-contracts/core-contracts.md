@@ -64,6 +64,8 @@ Field order per contract: Purpose · Model · Ownership · Lifetime · Access ·
 
 ## C-05 GeometryBounds
 
+**Status (DEC-079):** Owner-Approved as the minimal PS-2 contract, Implemented by CORE-15 (`crates/cube-core/src/bounds.rs`). Decided: integer `i64` half-open boxes at one level, `Empty` as a distinct state, exact checked arithmetic (overflow is an error), conservative growth, no world-size limit; derived OBB and bounding sphere are not part of it (transforms are axis rotations, so the world box is exact). Unknown data is expressed by the cell state (`NotLoaded`, `LoadFailure`) or an error, never by `Empty`.
+
 - **Purpose:** spatial extent types and basic checks.
 - **Model:** `LocalAABB` (primary), derived `WorldAABB, OBB, BoundingSphere`, state `Empty`.
 - **Ownership:** Core defines types and synchronous ops (validity, union, intersect, transform-to-world basic). Processing computes derived bounds asynchronously and BVH.
