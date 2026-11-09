@@ -90,15 +90,13 @@ Statuses are kept apart: **IMPLEMENTED**, **TESTED** (CI host), **INTEGRATED** (
 
 **PS-2 CLOSED - G2 PASSED** (conditional on RG-2: the provisional Processing contracts are diffed against the Geometry Processing Specification when it exists, before PR-01...PR-08 are frozen). PS-3 may start under the ADG.
 
-## 8. PS-3 / G3 status, 2026-11-09 (in progress; G3 NOT passed)
+## 8. PS-3 / G3 evaluation, 2026-11-09 (DEC-087)
 
-| Task | IMPLEMENTED | TESTED | INTEGRATED | Gate |
+| Member | IMPLEMENTED | TESTED | INTEGRATED | Evidence |
 |---|---|---|---|---|
-| API-01 | yes | yes (mock contract tests, validation tests) | yes (`1f588c9`, CI 42626817723) | - |
-| API-02 | yes (merge allowed: G2 passed) | yes | yes (`1f588c9`) | - |
-| API-03 | yes | yes | yes (`1f588c9`) | - |
-| API-04 | yes | yes | yes (`1f588c9`) | - |
-| API-05 | yes | yes | yes (`1f588c9`) | - |
-| GOV-09 | n/a | n/a | n/a | **open**: owner approval; the exact remaining decisions are in `docs/production/editing-api-contract.md` |
+| API-01..API-05 | yes | yes (12 mock contract tests, validation and state-table unit tests, API snapshot) | yes | `1f588c9`, CI 42626817723; journal phases and `AppliedUnconfirmed` added at close (change request of CB-1) |
+| GOV-09 | n/a | n/a | n/a | DONE: DEC-082 (contracts, seven provisional resolutions), DEC-083 (permission schema owner), DEC-084 (stroke = one transaction), DEC-085 (delta/checkpoint deferred to PS-10), DEC-086 (journal ownership, observer delivery, blocker CB-1) |
 
-G3 closes when all six members are merged and accepted; it is blocked only by GOV-09.
+**Exit criteria checked:** contract tests and negative cases (authorization denial leaves no state, no extra rights from `LocalClient`, illegal state transitions, malformed operations); public-API snapshot regenerated for the CB-1 change; no behaviour in `cube-editing-api` beyond construction checks and table lookups (it contains only types, traits and the origin mapping); dependency boundary (`cube-editing-api -> cube-core, cube-processing`, archcheck); compatibility with Core and Processing (builds against both, uses `Snapshot`, `RevisionToken`, `WriteSet`, `AssetView`); no unresolved merge conflict markers anywhere in the tree (new archcheck rule ARCH-CONFLICT-MARKER with seeded self-tests, runs in CI). Contracts are not Frozen.
+
+**PS-3 CLOSED - G3 PASSED.**
