@@ -1,0 +1,10 @@
+[package]
+name = "cube-testkit"
+version = "0.0.0"
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+description = "Deterministic test helpers shared by Cube crates (TEST-01)"
+
+[lints]
+workspace = true
