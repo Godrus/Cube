@@ -1850,3 +1850,25 @@ owner: Project Owner
 affected_documents: [docs/production/processing-foundation-contract.md, crates/cube-processing/src/caps.rs]
 history:
   - 2026-11-09 entry created
+
+## DEC-081  PS-2 closed, gate G2 passed
+id: DEC-081
+aliases: [G2, PS-2]
+category: PROCESS
+level: TECHNICAL
+status: CONFIRMED
+statement: >
+  Gate G2 (PS-2 Processing Foundation) is passed. All twelve member tasks are merged and accepted (CORE-15, CORE-16, PROC-01..PROC-06, TEST-08, GOV-07 through the owner alternative DEC-078, GOV-16 DEC-079, GOV-24 DEC-080). Evidence: required CI checks green on the integration commit d164d21 (run 42624528085), adg_check.py --strict PASS, evaluation in docs/production/ps-0-exit-checklist.md section 7. The provisional Processing contracts remain subject to RG-2.
+decided_by: AGENT_DELEGATED
+delegation_basis: DEC-001 (owner instruction: close tasks and gates on fulfilled criteria)
+decided_on: 2026-11-09
+decided_on_basis: date of this registry commit (agent decision under delegation)
+recorded_on: 2026-11-09 (this registry)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-DELEGATION (the owner may reject or amend); CI evidence as listed
+source: docs/production/ps-0-exit-checklist.md section 7
+source_availability: IN_REPOSITORY
+owner: Project Owner
+affected_documents: [docs/production/ps-0-exit-checklist.md, docs/PROJECT_STATUS.md]
+history:
+  - 2026-11-09 entry created
