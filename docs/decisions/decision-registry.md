@@ -1736,3 +1736,25 @@ refines: [DEC-029]
 affected_documents: [docs/decisions/owner-architecture-decisions-v1.md, docs/production/ps-0-exit-checklist.md]
 history:
   - 2026-11-09 entry created
+
+## DEC-076  INT-01 record and PS-1 gate G1
+id: DEC-076
+aliases: [INT-01, G1]
+category: PROCESS
+level: TECHNICAL
+status: CONFIRMED
+statement: >
+  The Integration Owner role records, with CI evidence, that the Core slice of the P0-alpha contracts (C-01, C-02, C-03, C-04, C-06, C-16, C-17, C-18, C-19) is Implemented and that the PC-1 contracts (C-07, C-08, C-09) are Implemented under Provisional approval; no contract is Frozen. The per-contract slice and the open parts are listed in docs/api-contracts/README.md. Gate G1 (PS-1 exit criteria, production-architecture-plan section 15) is evaluated in docs/production/ps-0-exit-checklist.md section 6.
+decided_by: AGENT_DELEGATED
+delegation_basis: DEC-001 (owner instruction 2026-11-09: close tasks and gates on fulfilled criteria)
+decided_on: 2026-11-09
+decided_on_basis: date of this registry commit (agent decision under delegation)
+recorded_on: 2026-11-09 (this registry)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend). CI evidence - commits were admitted into dev by the ruleset only after the six required checks passed
+source: docs/production/agent-task-breakdown.md INT-01 row
+source_availability: IN_REPOSITORY
+owner: Project Owner
+affected_documents: [docs/api-contracts/README.md, docs/production/ps-0-exit-checklist.md]
+history:
+  - 2026-11-09 entry created

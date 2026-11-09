@@ -1,6 +1,23 @@
 # Cube — API Contracts Index (Geometry)
 
 **Status:** DRAFT 0.1. **No contract in this directory is approved.** Approval is recorded by the Integration Owner in `docs/decisions/`.
+**Implementation status (INT-01, 2026-11-09):** the Core slice of the P0-alpha contracts is **Implemented** in `crates/cube-core` (merged into `dev`, required CI checks green, contract tests in the crate); PC-1 contracts are **Implemented under Provisional approval**; **no contract is Frozen** (approval axis unchanged; see registry DEC-071 and DEC-076).
+
+| Contract | Implemented slice | Not implemented (open) |
+|---|---|---|
+| C-01 GeometryAsset | immutable asset of layers, snapshots, commit gate | junctions, composite references, metadata schema |
+| C-02 GeometryLayer | id, representation, transform, data | resolution profile, material mapping, modifier stack, collision profile |
+| C-03 GeometryLayerType | closed `LayerKind` {Voxel, Sdf, Mesh} | extension type registry (a new representation needs an ACR) |
+| C-04 GeometryTransform | integer translation, 24 rotations, power-of-two scale, exact compose/apply | negative scale in compose/apply (floor semantics), shear |
+| C-06 Region | half-open box at a level, intersection, brick span and iteration | non-box shapes (tool level) |
+| C-16 RevisionToken | tokens for asset, layer, cell, region, derived; epoch; never-wrapping `u64`; versioned `RegionStamp` | derived-slot publication protocol (Processing) |
+| C-17 OperationId | `(scope, sequence)`, `ActorKind` with stable codes and reserved `Simulation` | dedupe window (server runtime) |
+| C-18 DirtyRegion | brick-granular dirty regions with actor and operation | sub-brick granularity |
+| C-19 Result/Error | stable codes, severity, category, module; one negative test per code | `OperationId` in the error context (attached by the Editing layer) |
+| C-07 BrickKey (PC-1) | `CellKey(layer, level: i8, brick [i64; 3])`, total order | none known |
+| C-08 BrickStorage (PC-1) | sparse store, five distinct cell states, bounds, copy-on-write payloads, export/import views | `AcquirePin`, per-brick export (views are provided instead) |
+| C-09 GeometryChannel (PC-1) | Material, Density, Attribute channels as raw `u16` with Constant/Dense encodings | attribute registry, density quantisation scale |
+
 **Authority:** Architecture Update v1.0 (AU-1.0) > Geometry Editing Specification > Agent Development Specification > these contracts (Agent Spec §2).
 **Rule:** contracts are conceptual. They contain **no final language-specific signatures** (language and engine are open).
 

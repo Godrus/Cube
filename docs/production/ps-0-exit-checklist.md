@@ -56,3 +56,17 @@ Physical devices and Android emulator runs; the Geometry Processing Specificatio
 * **PS-0 complete** only when every row of section 1 is DONE with evidence and every decision of section 2 has an owner-confirmed entry.
 * **Plan approval is different from PS-0 completion:** the owner may approve this document set (the verdict READY FOR OWNER APPROVAL means the documents are internally consistent and checked) while PS-0 itself stays open until the rows above are done.
 * Current state (2026-11-09): **8 of 8 gate tasks DONE; 15 of 15 GOV-01 decisions registered (delegated); PS-0 CLOSED — G0 PASSED.** PS-1 implementation started on `prod/ps1-core-types` (CORE-01, CORE-02).
+
+## 6. PS-1 exit criteria (plan section 15), evaluation of 2026-11-09
+
+| # | Criterion | Evidence | State |
+|---|---|---|---|
+| 1 | CORE-01...CORE-11 merged; G1 members merged | `crates/cube-core` on `dev`; TEST-02 (`cube-testkit::golden`), TEST-05 (`tests/loom_gate.rs`), TEST-06 (`tests/mutation_boundary.rs`, `tests/ui/*`), XT-02 (`xtask/src/archcheck.rs`), INT-01 (DEC-076) | MET |
+| 2 | Contract tests for P0-alpha and PC-1 slices pass on the CI host | `cargo test --workspace` (130+ tests) on ubuntu and windows in the required `test` jobs | MET |
+| 3 | Property tests (atomicity, snapshot isolation, monotonic revisions, negative-coordinate symmetry), loom tests, reproducible goldens | `tests/commit.rs`, `tests/coordinates.rs`, `tests/loom_gate.rs` (CI step on ubuntu), goldens pinned in `revision.rs` and `tests/views.rs` | MET (goldens are produced by this implementation, not by an external reference) |
+| 4 | Negative tests prove the mutation boundary | 6 trybuild compile-fail cases, commit-log completeness test, archcheck seeded violations | MET |
+| 5 | Public-API snapshot published and enforced | `crates/cube-core/api-snapshot.txt`, `tests/api_snapshot.rs` | MET (text-based snapshot, not rustdoc JSON) |
+| 6 | INT-01 recorded; no WorldGen/Persistence/History/Processing/Editing task, no world identity types | DEC-076; CORE-16 not implemented | MET |
+| 7 | No `godot`, I/O, clocks or randomness in `cube-core` | archcheck rules ARCH-ENGINE-*, ARCH-CORE-DEPS, ARCH-CORE-IO with seeded self-tests; zero dependencies (loom only under `cfg(loom)`) | MET |
+
+**G1 verdict:** all seven criteria are met at the commit that carries this section; known open parts of individual contracts are listed in `docs/api-contracts/README.md` and do not belong to PS-1 scope. PS-2 may start under the rules of the ADG (task entry criteria still apply, including the Geometry Processing Specification question ODM-02).
