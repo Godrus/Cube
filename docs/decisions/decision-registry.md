@@ -1987,3 +1987,26 @@ owner: Project Owner
 affected_documents: [docs/production/editing-api-contract.md, crates/cube-editing-api/src/storage.rs, crates/cube-editing-api/src/types/result.rs]
 history:
   - 2026-11-09 entry created
+
+## DEC-087  PS-3 closed, gate G3 passed
+id: DEC-087
+aliases: [G3, PS-3]
+category: PROCESS
+level: TECHNICAL
+status: CONFIRMED
+statement: >
+  Gate G3 (PS-3 Editing API and Contracts) is passed. All six member tasks are merged and accepted (API-01..API-05 on dev, GOV-09 through DEC-082..DEC-086). Evidence: required CI checks green on the integration commit (see docs/production/ps-0-exit-checklist.md section 8), API snapshot, contract tests, archcheck including the new conflict-marker rule. The contracts are Owner-Approved for the PS-3 scope and are not Frozen.
+decided_by: AGENT_DELEGATED
+delegation_basis: DEC-001 (owner instruction: close tasks and gates on fulfilled criteria)
+decided_on: 2026-11-09
+decided_on_basis: date of this registry commit (agent decision under delegation)
+recorded_on: 2026-11-09 (this registry)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-DELEGATION (the owner may reject or amend); CI evidence as listed
+source: docs/production/ps-0-exit-checklist.md section 8
+source_availability: IN_REPOSITORY
+owner: Project Owner
+affected_documents: [docs/production/ps-0-exit-checklist.md, docs/PROJECT_STATUS.md]
+history:
+  - 2026-11-09 entry created
+
