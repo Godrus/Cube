@@ -21,9 +21,9 @@ pub use ports::{
     ValidationReport,
 };
 pub use storage::{
-    BaseProvider, BrickChange, ChangedBrick, Checkpoint, CheckpointId, CheckpointReason, DeltaId,
-    DeltaStore, GeometryDelta, JournalEntry, JournalPhase, JournalSeq, NonBrickChange,
-    NonBrickKind, OperationJournal, PayloadRef, SnapshotRef, SnapshotStore,
+    BaseProvider, BatchEncoder, BrickChange, ChangedBrick, Checkpoint, CheckpointId,
+    CheckpointReason, DeltaId, DeltaStore, GeometryDelta, JournalEntry, JournalPhase, JournalSeq,
+    NonBrickChange, NonBrickKind, OperationJournal, PayloadRef, SnapshotRef, SnapshotStore,
 };
 pub use types::{
     CommitPolicy, ConflictResult, ConflictScope, ConversionPolicy, EditMode, EditingOperation,

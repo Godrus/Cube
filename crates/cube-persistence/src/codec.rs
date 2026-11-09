@@ -14,11 +14,12 @@
 //! deterministic: equal values give equal bytes. Core knows nothing of this module.
 
 use cube_core::{
-    AssetId, AssetView, BrickBounds, BrickCoord, CellPayload, CellView, Channel, ChannelId,
-    ChannelSet, Epoch, GeometryTransform, LayerId, LayerKind, LayerView, LocalPos, MeshPage,
-    OperationId, Revision, RevisionToken, Rotation,
+    AssetId, AssetView, BrickBounds, BrickCoord, CellChange, CellPayload, CellView, CellWrite,
+    Channel, ChannelId, ChannelSet, CommitBatch, Epoch, ExpectedRevision, GeometryTransform,
+    LayerId, LayerKind, LayerView, LocalPos, MeshPage, OperationId, Revision, RevisionToken,
+    Rotation, WriteSet,
 };
-use cube_editing_api::{ActorId, DeltaId, JournalEntry, JournalPhase, JournalSeq};
+use cube_editing_api::{ActorId, BatchEncoder, DeltaId, JournalEntry, JournalPhase, JournalSeq};
 
 /// Magic bytes of every record.
 pub const MAGIC: [u8; 4] = *b"CUBP";
@@ -27,6 +28,7 @@ pub const SCHEMA: u16 = 0x8001;
 
 const KIND_ASSET: u8 = 1;
 const KIND_JOURNAL: u8 = 2;
+const KIND_BATCH: u8 = 3;
 const HEADER: usize = 4 + 2 + 1 + 4;
 
 /// Bounds applied to untrusted input.
@@ -300,38 +302,152 @@ pub fn encode_asset(v: &AssetView) -> Vec<u8> {
             w.i64(c.brick.y);
             w.i64(c.brick.z);
             w.u64(c.revision.raw());
-            match &c.payload {
-                None => w.u8(0),
-                Some(CellPayload::Channels(set)) => {
-                    w.u8(1);
-                    w.u8(set.len() as u8);
-                    for (id, ch) in set.iter() {
-                        let (t, n) = channel_tag(id);
-                        w.u8(t);
-                        w.u8(n);
-                        match ch.uniform() {
-                            Some(u) => {
-                                w.u8(1);
-                                w.u16(u);
-                            }
-                            None => {
-                                w.u8(0);
-                                for p in LocalPos::all() {
-                                    w.u16(ch.get(p));
-                                }
-                            }
+            write_payload(&mut w, &c.payload);
+        }
+    }
+    frame(KIND_ASSET, w.0)
+}
+
+fn write_payload(w: &mut W, p: &Option<CellPayload>) {
+    match p {
+        None => w.u8(0),
+        Some(CellPayload::Channels(set)) => {
+            w.u8(1);
+            w.u8(set.len() as u8);
+            for (id, ch) in set.iter() {
+                let (t, n) = channel_tag(id);
+                w.u8(t);
+                w.u8(n);
+                match ch.uniform() {
+                    Some(u) => {
+                        w.u8(1);
+                        w.u16(u);
+                    }
+                    None => {
+                        w.u8(0);
+                        for p in LocalPos::all() {
+                            w.u16(ch.get(p));
                         }
                     }
                 }
-                Some(CellPayload::MeshPage(m)) => {
-                    w.u8(2);
-                    w.u32(m.bytes().len() as u32);
-                    w.0.extend_from_slice(m.bytes());
+            }
+        }
+        Some(CellPayload::MeshPage(m)) => {
+            w.u8(2);
+            w.u32(m.bytes().len() as u32);
+            w.0.extend_from_slice(m.bytes());
+        }
+    }
+}
+
+fn read_payload(r: &mut R<'_>) -> Result<Option<CellPayload>, DecodeError> {
+    Ok(match r.u8()? {
+        0 => None,
+        1 => {
+            let n = r.u8()?;
+            let mut set = ChannelSet::new();
+            let mut last = None;
+            for _ in 0..n {
+                let (cid, ch) = read_channel(r)?;
+                if last.is_some_and(|l| l >= cid) {
+                    return Err(DecodeError::Invalid("channels out of order or repeated"));
+                }
+                last = Some(cid);
+                set = set.with(cid, ch);
+            }
+            Some(CellPayload::Channels(set))
+        }
+        2 => {
+            let len = r.u32()? as usize;
+            Some(CellPayload::MeshPage(MeshPage::new(r.take(len)?.to_vec())))
+        }
+        _ => return Err(DecodeError::Invalid("payload tag")),
+    })
+}
+
+/// Encodes a write batch (deterministic): the unit Orchestration journals ahead of a commit.
+pub fn encode_batch(b: &CommitBatch) -> Vec<u8> {
+    let mut w = W(Vec::new());
+    w.u32(b.sets.len() as u32);
+    for set in &b.sets {
+        w.u64(set.layer.raw());
+        w.u32(set.writes.len() as u32);
+        for x in &set.writes {
+            w.u8(x.level as u8);
+            w.i64(x.brick.x);
+            w.i64(x.brick.y);
+            w.i64(x.brick.z);
+            match x.expected {
+                ExpectedRevision::Absent => w.u8(0),
+                ExpectedRevision::At(r) => {
+                    w.u8(1);
+                    w.u64(r.raw());
+                }
+            }
+            match &x.change {
+                CellChange::KnownEmpty => w.u8(0),
+                CellChange::Put(p) => {
+                    w.u8(1);
+                    write_payload(&mut w, &Some(p.clone()));
                 }
             }
         }
     }
-    frame(KIND_ASSET, w.0)
+    frame(KIND_BATCH, w.0)
+}
+
+/// Decodes a write batch.
+pub fn decode_batch(bytes: &[u8], limits: &Limits) -> Result<CommitBatch, DecodeError> {
+    let body = unframe(bytes, KIND_BATCH, limits)?;
+    let mut r = R(&body);
+    let n = r.u32()? as usize;
+    if n > body.len() / 12 + 1 {
+        return Err(DecodeError::Invalid("set count"));
+    }
+    let mut sets = Vec::with_capacity(n.min(64));
+    for _ in 0..n {
+        let layer = LayerId::new(r.u64()?);
+        let m = r.u32()? as usize;
+        if m > body.len() / 30 + 1 {
+            return Err(DecodeError::Invalid("write count"));
+        }
+        let mut writes = Vec::with_capacity(m.min(1024));
+        for _ in 0..m {
+            let level = r.u8()? as i8;
+            let brick = BrickCoord::new(r.i64()?, r.i64()?, r.i64()?);
+            let expected = match r.u8()? {
+                0 => ExpectedRevision::Absent,
+                1 => ExpectedRevision::At(Revision::new(r.u64()?)),
+                _ => return Err(DecodeError::Invalid("expected flag")),
+            };
+            let change = match r.u8()? {
+                0 => CellChange::KnownEmpty,
+                1 => CellChange::Put(
+                    read_payload(&mut r)?.ok_or(DecodeError::Invalid("empty put payload"))?,
+                ),
+                _ => return Err(DecodeError::Invalid("change tag")),
+            };
+            writes.push(CellWrite {
+                level,
+                brick,
+                expected,
+                change,
+            });
+        }
+        sets.push(WriteSet { layer, writes });
+    }
+    r.done()?;
+    Ok(CommitBatch { sets })
+}
+
+/// Encoder handed to Orchestration so that its `Intent` records carry the batch.
+#[derive(Debug, Default, Clone, Copy)]
+pub struct BatchCodec;
+
+impl BatchEncoder for BatchCodec {
+    fn encode(&self, batch: &CommitBatch) -> Vec<u8> {
+        encode_batch(batch)
+    }
 }
 
 fn read_channel(r: &mut R<'_>) -> Result<(ChannelId, Channel), DecodeError> {
@@ -407,28 +523,7 @@ pub fn decode_asset(bytes: &[u8], limits: &Limits) -> Result<AssetView, DecodeEr
             let level = r.u8()? as i8;
             let brick = BrickCoord::new(r.i64()?, r.i64()?, r.i64()?);
             let crev = Revision::new(r.u64()?);
-            let payload = match r.u8()? {
-                0 => None,
-                1 => {
-                    let n = r.u8()?;
-                    let mut set = ChannelSet::new();
-                    let mut last = None;
-                    for _ in 0..n {
-                        let (cid, ch) = read_channel(&mut r)?;
-                        if last.is_some_and(|l| l >= cid) {
-                            return Err(DecodeError::Invalid("channels out of order or repeated"));
-                        }
-                        last = Some(cid);
-                        set = set.with(cid, ch);
-                    }
-                    Some(CellPayload::Channels(set))
-                }
-                2 => {
-                    let len = r.u32()? as usize;
-                    Some(CellPayload::MeshPage(MeshPage::new(r.take(len)?.to_vec())))
-                }
-                _ => return Err(DecodeError::Invalid("payload tag")),
-            };
+            let payload = read_payload(&mut r)?;
             cells.push(CellView {
                 level,
                 brick,
@@ -484,6 +579,8 @@ pub fn encode_journal_entry(e: &JournalEntry) -> Vec<u8> {
         w.u64(op.sequence());
         w.u64(*fp);
     }
+    w.u32(e.payload.len() as u32);
+    w.0.extend_from_slice(&e.payload);
     frame(KIND_JOURNAL, w.0)
 }
 
@@ -522,6 +619,8 @@ pub fn decode_journal_entry(bytes: &[u8], limits: &Limits) -> Result<JournalEntr
     for _ in 0..m {
         members.push((OperationId::new(r.u64()?, r.u64()?), r.u64()?));
     }
+    let plen = r.u32()? as usize;
+    let payload = r.take(plen)?.to_vec();
     r.done()?;
     Ok(JournalEntry {
         seq,
@@ -532,6 +631,7 @@ pub fn decode_journal_entry(bytes: &[u8], limits: &Limits) -> Result<JournalEntr
         post_tokens,
         delta,
         members,
+        payload,
     })
 }
 
@@ -619,6 +719,7 @@ mod tests {
                 (OperationId::new(u64::MAX, 3), 77),
                 (OperationId::new(2, 4), u64::MAX),
             ],
+            payload: vec![1, 2, 3, 250],
         }
     }
 

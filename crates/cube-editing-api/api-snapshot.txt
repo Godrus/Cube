@@ -92,10 +92,12 @@ storage.rs: pub asset: AssetId,
 storage.rs: pub post_tokens: Vec<RevisionToken>,
 storage.rs: pub delta: Option<DeltaId>,
 storage.rs: pub members: Vec<(OperationId, u64)>,
+storage.rs: pub payload: Vec<u8>,
 storage.rs: pub trait DeltaStore: Send + Sync {
 storage.rs: pub trait SnapshotStore: Send + Sync {
 storage.rs: pub trait OperationJournal: Send + Sync {
 storage.rs: pub trait BaseProvider: Send + Sync {
+storage.rs: pub trait BatchEncoder: Send + Sync {
 types/conflict.rs: pub enum ConflictScope {
 types/conflict.rs: pub enum Suggestion {
 types/conflict.rs: pub struct ConflictResult {

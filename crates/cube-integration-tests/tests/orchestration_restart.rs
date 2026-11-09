@@ -124,6 +124,7 @@ fn intent_only(journal: &FaultyJournal, op: &EditingOperation) {
             post_tokens: vec![],
             delta: None,
             members: vec![(op.id, op.fingerprint())],
+            payload: vec![],
         })
         .unwrap();
 }

@@ -66,6 +66,10 @@ pub struct Config {
     pub observers: Vec<Arc<dyn TransactionObserver>>,
     /// How many committed operation ids are remembered for idempotent retry.
     pub retry_capacity: usize,
+    /// Encodes write batches into `Intent` records so that confirmed changes can be replayed
+    /// after a restart; without it the journal cannot replay (changes after the last snapshot
+    /// are only reported as lost).
+    pub batch_encoder: Option<Arc<dyn cube_editing_api::BatchEncoder>>,
 }
 
 struct Staged {
@@ -138,6 +142,7 @@ pub struct OrchestrationService {
     registry: BackendRegistry,
     authorizer: Arc<dyn Authorizer>,
     journal: Option<Arc<dyn OperationJournal>>,
+    batch_encoder: Option<Arc<dyn cube_editing_api::BatchEncoder>>,
     publisher: Publisher,
     txs: Mutex<Txs>,
     retry: Mutex<RetryTable>,
@@ -201,6 +206,7 @@ impl OrchestrationService {
             registry: config.registry,
             authorizer: config.authorizer,
             journal: config.journal,
+            batch_encoder: config.batch_encoder,
             publisher: Publisher::new(config.dirty, config.observers),
             txs: Mutex::new(Txs {
                 next: 0,
@@ -261,6 +267,7 @@ impl OrchestrationService {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn journal_append(
         &self,
         phase: JournalPhase,
@@ -269,6 +276,7 @@ impl OrchestrationService {
         asset: AssetId,
         post_tokens: Vec<RevisionToken>,
         members: Vec<(OperationId, u64)>,
+        payload: Vec<u8>,
     ) -> Result<JournalSeq, EditingError> {
         let Some(j) = &self.journal else {
             return Ok(JournalSeq(0));
@@ -282,6 +290,7 @@ impl OrchestrationService {
             post_tokens,
             delta: None,
             members,
+            payload,
         })
     }
 
@@ -299,6 +308,7 @@ impl OrchestrationService {
                 p.asset,
                 p.post_tokens.clone(),
                 p.members.clone(),
+                vec![],
             ) {
                 Ok(_) => {
                     done += 1;
@@ -428,6 +438,7 @@ impl OrchestrationService {
                 asset,
                 vec![token],
                 members.clone(),
+                vec![],
             )?;
             let success = Success {
                 operation: commit_id,
@@ -450,6 +461,7 @@ impl OrchestrationService {
                 asset,
                 vec![],
                 members.clone(),
+                vec![],
             )?;
             let mut r = lock(&self.retry);
             for (m, _) in &members {
@@ -703,6 +715,9 @@ impl EditingService for OrchestrationService {
                 asset,
                 vec![],
                 members.clone(),
+                self.batch_encoder
+                    .as_ref()
+                    .map_or_else(Vec::new, |e| e.encode(&batch)),
             )
             .is_err()
         {
@@ -722,6 +737,7 @@ impl EditingService for OrchestrationService {
                     asset,
                     vec![],
                     members.clone(),
+                    vec![],
                 );
                 return self.fail(&mut tx, EditingResult::Conflict(report));
             }
@@ -733,6 +749,7 @@ impl EditingService for OrchestrationService {
                     asset,
                     vec![],
                     members.clone(),
+                    vec![],
                 );
                 return self.fail(&mut tx, core_failure(other));
             }
@@ -746,6 +763,7 @@ impl EditingService for OrchestrationService {
             asset,
             vec![outcome.asset_token],
             members.clone(),
+            vec![],
         ) {
             Ok(_) => EditingResult::Success(success.clone()),
             Err(_) => {

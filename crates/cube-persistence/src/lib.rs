@@ -9,8 +9,8 @@ pub mod recovery;
 pub mod store;
 
 pub use codec::{
-    DecodeError, Limits, SCHEMA, decode_asset, decode_journal_entry, encode_asset,
-    encode_journal_entry,
+    BatchCodec, DecodeError, Limits, SCHEMA, decode_asset, decode_batch, decode_journal_entry,
+    encode_asset, encode_batch, encode_journal_entry,
 };
-pub use recovery::{Resolution, reconcile};
+pub use recovery::{ReplayReport, Resolution, reconcile, replay_confirmed};
 pub use store::{DirStorage, LoadError, Storage, StoreError, load_asset, save_asset, save_atomic};

@@ -16,8 +16,10 @@
 
 use std::collections::{HashMap, HashSet};
 
-use cube_core::OperationId;
+use cube_core::{CommitError, OperationId, RecoveryCommit};
 use cube_editing_api::{JournalEntry, JournalPhase};
+
+use crate::codec::{Limits, decode_batch};
 
 /// What to do about one pending intent.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -64,6 +66,74 @@ pub fn reconcile(
         .collect()
 }
 
+/// What [`replay_confirmed`] did.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct ReplayReport {
+    /// Confirmed changes that the restored world lacked and that were applied again.
+    pub replayed: Vec<OperationId>,
+    /// Confirmed changes whose batch no longer applies because the restored world already has
+    /// them or has moved on (a revision expectation failed). Not an error.
+    pub already_applied_or_superseded: Vec<OperationId>,
+    /// Operations with an `Intent` and no later record: not replayed, left for the decision
+    /// of `resolve_pending`.
+    pub undecided: Vec<OperationId>,
+    /// Confirmed operations that could not be replayed (no payload, or a payload that does not
+    /// decode or apply), with the reason. Nothing is hidden: these are lost changes.
+    pub failed: Vec<(OperationId, String)>,
+}
+
+/// Replays the *confirmed* changes of a journal onto a restored world, in journal order, through
+/// the recovery writer. The batches carry the revision expectations they were committed with,
+/// so replaying is idempotent: a batch the world already contains fails its expectation and is
+/// counted, never applied twice. Only operations whose last record is `Confirmed` are replayed;
+/// an unresolved `Intent` is reported, not applied (it may never have reached Core).
+pub fn replay_confirmed(
+    entries: &[JournalEntry],
+    recovery: &RecoveryCommit,
+    limits: &Limits,
+) -> ReplayReport {
+    let mut payload: HashMap<OperationId, &[u8]> = HashMap::new();
+    let mut last: HashMap<OperationId, JournalPhase> = HashMap::new();
+    let mut order: Vec<OperationId> = Vec::new();
+    for e in entries {
+        if e.phase == JournalPhase::Intent && !e.payload.is_empty() {
+            payload.insert(e.operation, &e.payload);
+        }
+        if last.insert(e.operation, e.phase).is_none() {
+            order.push(e.operation);
+        }
+    }
+    let mut report = ReplayReport::default();
+    for id in order {
+        match last[&id] {
+            JournalPhase::Aborted => {}
+            JournalPhase::Intent => report.undecided.push(id),
+            JournalPhase::Confirmed => {
+                let Some(bytes) = payload.get(&id) else {
+                    report
+                        .failed
+                        .push((id, "no write payload in the journal".to_owned()));
+                    continue;
+                };
+                let batch = match decode_batch(bytes, limits) {
+                    Ok(b) => b,
+                    Err(e) => {
+                        report.failed.push((id, format!("payload: {e}")));
+                        continue;
+                    }
+                };
+                match recovery.restore(id, &batch) {
+                    Ok(o) if o.changed => report.replayed.push(id),
+                    Ok(_) => report.already_applied_or_superseded.push(id),
+                    Err(CommitError::Conflict(_)) => report.already_applied_or_superseded.push(id),
+                    Err(e) => report.failed.push((id, format!("commit: {e:?}"))),
+                }
+            }
+        }
+    }
+    report
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -80,6 +150,7 @@ mod tests {
             post_tokens: vec![],
             delta: None,
             members: vec![],
+            payload: vec![],
         }
     }
 

@@ -555,6 +555,7 @@ fn delta_store_and_journal_round_trip_and_the_journal_is_gapless() {
                 seq: JournalSeq(0),
                 phase: JournalPhase::Confirmed,
                 members: vec![],
+                payload: vec![],
                 operation: OperationId::new(1, n),
                 actor: ActorId(9),
                 asset: AssetId::new(1),

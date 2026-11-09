@@ -178,6 +178,10 @@ pub struct JournalEntry {
     /// (`operation`), but a retry may name any member; recovery of the idempotency table needs
     /// all of them, and the fingerprint tells a true retry from a reused id.
     pub members: Vec<(OperationId, u64)>,
+    /// Opaque encoding of the write batch, carried by `Intent` records when the service has a
+    /// [`BatchEncoder`]: it is what makes a confirmed change *replayable* after a restart.
+    /// Empty for other records. The encoding belongs to Persistence.
+    pub payload: Vec<u8>,
 }
 
 /// Durable store of deltas and their payloads (implemented by Persistence, used by History).
@@ -230,4 +234,11 @@ pub trait BaseProvider: Send + Sync {
         level: i8,
         brick: BrickCoord,
     ) -> Result<CellChange, EditingError>;
+}
+
+/// Encodes a write batch for the journal (implemented by Persistence, used by Orchestration so
+/// that Orchestration needs no dependency on Persistence).
+pub trait BatchEncoder: Send + Sync {
+    /// The opaque bytes stored in `JournalEntry::payload`.
+    fn encode(&self, batch: &cube_core::CommitBatch) -> Vec<u8>;
 }

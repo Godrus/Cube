@@ -408,6 +408,8 @@ pub struct Options {
     pub retry_capacity: usize,
     /// Start from a restored asset view instead of the default world.
     pub restore: Option<cube_core::AssetView>,
+    /// Journal write batches into the Intent records (replayable journal).
+    pub with_payload: bool,
     /// Use this journal (it "survives the restart") instead of a fresh one; implies a journal.
     pub shared_journal: Option<Arc<FaultyJournal>>,
 }
@@ -420,6 +422,7 @@ impl Default for Options {
             retry_capacity: 1024,
             restore: None,
             shared_journal: None,
+            with_payload: false,
         }
     }
 }
@@ -502,6 +505,9 @@ pub fn fixture_with(o: Options) -> Fixture {
             obs2.clone() as Arc<dyn TransactionObserver>,
         ],
         retry_capacity: o.retry_capacity,
+        batch_encoder: o.with_payload.then(|| {
+            Arc::new(cube_persistence::BatchCodec) as Arc<dyn cube_editing_api::BatchEncoder>
+        }),
     }));
     Fixture {
         svc,
