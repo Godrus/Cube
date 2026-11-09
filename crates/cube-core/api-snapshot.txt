@@ -83,6 +83,9 @@ commit.rs: pub brick: BrickCoord,
 commit.rs: pub expected: ExpectedRevision,
 commit.rs: pub actual: Option<Revision>,
 commit.rs: pub enum CommitError {
+commit.rs: pub fn code(&self) -> crate::error::ErrorCode {
+commit.rs: pub fn severity(&self) -> crate::error::Severity {
+commit.rs: pub fn category(&self) -> crate::error::ErrorCategory {
 commit.rs: pub struct CommitOutcome {
 commit.rs: pub changed: bool,
 commit.rs: pub asset_token: RevisionToken,
@@ -141,6 +144,13 @@ dirty.rs: pub source: RevisionToken,
 dirty.rs: pub operation: OperationId,
 dirty.rs: pub actor: ActorKind,
 error.rs: pub enum CoreError {
+error.rs: pub struct ErrorCode(pub u16);
+error.rs: pub enum Severity {
+error.rs: pub enum ErrorCategory {
+error.rs: pub const ERROR_MODULE: &str = "core";
+error.rs: pub const fn code(&self) -> ErrorCode {
+error.rs: pub const fn severity(&self) -> Severity {
+error.rs: pub const fn category(&self) -> ErrorCategory {
 ids.rs: pub struct AssetId(u64);
 ids.rs: pub struct LayerId(u64);
 ids.rs: pub const fn new(raw: u64) -> Self {
@@ -186,7 +196,7 @@ lib.rs: pub use cell::{
 lib.rs: pub use commit::{
 lib.rs: pub use coord::{BRICK_EDGE, BRICK_VOLUME, BrickCoord, LocalPos, VoxelPos};
 lib.rs: pub use dirty::{ChangeType, DirtyRegion};
-lib.rs: pub use error::CoreError;
+lib.rs: pub use error::{CoreError, ERROR_MODULE, ErrorCategory, ErrorCode, Severity};
 lib.rs: pub use ids::{AssetId, LayerId};
 lib.rs: pub use key::CellKey;
 lib.rs: pub use layer::{Layer, LayerData, LayerKind, PageStore};

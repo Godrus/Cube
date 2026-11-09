@@ -119,6 +119,37 @@ pub enum CommitError {
     Core(CoreError),
 }
 
+impl CommitError {
+    /// Stable code (range 2000..3000 belongs to commit errors; wrapped Core errors keep theirs).
+    pub fn code(&self) -> crate::error::ErrorCode {
+        crate::error::ErrorCode(match self {
+            Self::Conflict(_) => 2001,
+            Self::UnknownLayer(_) => 2002,
+            Self::PayloadKindMismatch(_) => 2003,
+            Self::OutsideBounds { .. } => 2004,
+            Self::DuplicateWrite { .. } => 2005,
+            Self::Core(e) => e.code().0,
+        })
+    }
+
+    /// Severity (a wrapped Core error keeps its own).
+    pub fn severity(&self) -> crate::error::Severity {
+        match self {
+            Self::Core(e) => e.severity(),
+            _ => crate::error::Severity::Error,
+        }
+    }
+
+    /// Category (a wrapped Core error keeps its own).
+    pub fn category(&self) -> crate::error::ErrorCategory {
+        match self {
+            Self::Conflict(_) => crate::error::ErrorCategory::Conflict,
+            Self::Core(e) => e.category(),
+            _ => crate::error::ErrorCategory::Validation,
+        }
+    }
+}
+
 impl From<CoreError> for CommitError {
     fn from(e: CoreError) -> Self {
         Self::Core(e)

@@ -35,7 +35,7 @@ pub use commit::{
 };
 pub use coord::{BRICK_EDGE, BRICK_VOLUME, BrickCoord, LocalPos, VoxelPos};
 pub use dirty::{ChangeType, DirtyRegion};
-pub use error::CoreError;
+pub use error::{CoreError, ERROR_MODULE, ErrorCategory, ErrorCode, Severity};
 pub use ids::{AssetId, LayerId};
 pub use key::CellKey;
 pub use layer::{Layer, LayerData, LayerKind, PageStore};

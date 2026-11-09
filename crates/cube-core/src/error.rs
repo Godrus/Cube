@@ -48,3 +48,64 @@ impl fmt::Display for CoreError {
 }
 
 impl std::error::Error for CoreError {}
+
+/// Stable numeric code of an error. Codes are never reused or renumbered (contract C-19).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct ErrorCode(pub u16);
+
+/// How serious an error is.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Severity {
+    /// An expected, recoverable failure (bad input, conflict).
+    Error,
+    /// A critical failure that must not be ignored (for example counter overflow).
+    Critical,
+}
+
+/// Broad class of an error.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ErrorCategory {
+    /// The input is invalid.
+    Validation,
+    /// The request conflicts with the current state.
+    Conflict,
+    /// A numeric or capacity limit was reached.
+    Capacity,
+}
+
+/// Name of the module that owns these codes.
+pub const ERROR_MODULE: &str = "core";
+
+impl CoreError {
+    /// Stable code (range 1000..2000 belongs to Core errors).
+    pub const fn code(&self) -> ErrorCode {
+        ErrorCode(match self {
+            Self::InvalidLevel(_) => 1001,
+            Self::Overflow => 1002,
+            Self::InvalidLocalCoord => 1003,
+            Self::InvalidRegion => 1004,
+            Self::InvalidTransform => 1005,
+            Self::DuplicateLayer(_) => 1006,
+            Self::RevisionOverflow => 1007,
+            Self::DuplicateKey => 1008,
+            Self::InvalidView => 1009,
+        })
+    }
+
+    /// Severity: only a revision overflow is critical.
+    pub const fn severity(&self) -> Severity {
+        match self {
+            Self::RevisionOverflow => Severity::Critical,
+            _ => Severity::Error,
+        }
+    }
+
+    /// Category of the error.
+    pub const fn category(&self) -> ErrorCategory {
+        match self {
+            Self::Overflow | Self::RevisionOverflow => ErrorCategory::Capacity,
+            Self::DuplicateLayer(_) | Self::DuplicateKey => ErrorCategory::Conflict,
+            _ => ErrorCategory::Validation,
+        }
+    }
+}
