@@ -2032,3 +2032,25 @@ affected_documents: [docs/production/ps-0-exit-checklist.md, docs/PROJECT_STATUS
 history:
   - 2026-11-09 entry created
 
+## DEC-089  O-1: technical owners of derived providers
+id: DEC-089
+aliases: [O-1, GOV-03 (deferral of DEC-072 resolved for derived providers)]
+category: PROCESS
+level: TECHNICAL
+status: CONFIRMED
+statement: >
+  The deferral of owner O-1 (derived data providers) recorded in DEC-072 is resolved for the needs of PS-5 by assigning technical ownership inside the existing agent roles: the Voxel Agent owns voxel mesh extraction (faces, greedy), voxel collision and voxel LOD (crates/cube-backend-voxel); the SDF Agent owns SDF-specific derived providers; the Mesh Agent owns mesh-specific derived providers; the Processing Agent owns the common scheduling, dependency graph, cancellation, caps and stale-result rejection; the Integration Owner owns the public contracts and the integration tests. This assigns technical responsibility only. It adds no game feature, no new agent management system and no new module owners for WorldGen, Networking, Server, Client, Engine Adapter, Import/Export or O-2, which stay deferred as in DEC-072.
+decided_by: AGENT_DELEGATED
+delegation_basis: DEC-001 and the owner instruction of 2026-11-09 (section 6 of 'PS-5 Completion, Persistence Foundation and First Playable World')
+decided_on: 2026-11-09
+decided_on_basis: date of this registry commit (agent decision under delegation)
+recorded_on: 2026-11-09 (this registry)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-DELEGATION (the owner may reject or amend); the roles are the ones DEC-072 already names (Core Agent, Integration Owner, Agent I) plus the backend roles of the ADG ownership column
+source: docs/production/agent-task-breakdown.md VOX-02..VOX-05 rows ('pending O-1')
+source_availability: IN_REPOSITORY
+owner: Project Owner
+affected_documents: [docs/production/ps-0-exit-checklist.md]
+history:
+  - 2026-11-09 entry created
+

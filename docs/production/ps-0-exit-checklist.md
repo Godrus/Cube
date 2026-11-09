@@ -131,7 +131,7 @@ Statuses are kept apart: **IMPLEMENTED**, **TESTED** (CI host), **INTEGRATED** (
 | VOX-02 | yes (`faces.rs`, provisional: provider ownership O-1 open) | yes: brute-force definition equality across borders and negative space, border hidden/visible cases, unloaded neighbour flag, unloaded centre = failure, determinism | yes (`bf8d244`, CI 42633356471) | |
 | VOX-03 | yes (`greedy.rs`, provisional) | yes: coverage equals faces exactly, seam rule (unit ring), merging and material splits, determinism for 1 and 4 workers | yes (`bf8d244`, CI 42633356471) | **limit:** T-junctions inside a brick between interior quads and the ring are not claimed fixed; greedy is not the default renderer (needs GOV-13 and measurements) |
 | VOX-04 | yes (`sections.rs`: brick plus six face neighbours) | yes: incremental rebuild by the rule equals full rebuild over random edits; stale rejection after a Core commit through the dirty sink | yes (`bf8d244`, CI 42633356471) | |
-| VOX-05 | **not started** | - | - | collision and LOD providers: provider ownership O-1 undecided; independent of the rest |
+| VOX-05 | yes (`collision.rs`, `lod.rs`; O-1 resolved by DEC-089) | yes: see section 11 | pending CI | |
 | CORE-12, GOV-08, GOV-17 | **not started / owner** | - | - | C-10 needs the Voxel Architecture revalidation (external input EXT-VA-RG1); GOV-17 is an owner decision after RG-1 |
 | SDF-01..03, MSH-01..03 | **not started** | - | - | independent of the voxel work; to follow |
 
@@ -147,3 +147,19 @@ Statuses are kept apart: **IMPLEMENTED**, **TESTED** (CI host), **INTEGRATED** (
 
 
 **TEST-04 (independent, PS-10 prerequisite):** `cube-testkit::faultfs` is a fault-injecting in-memory filesystem with a weakest-POSIX model (data volatile until `fsync`, names volatile until `fsync_dir`, atomic `rename`, torn tails) and a crash-point runner `explore` that crashes a scenario after every numbered step under three torn-write modes. Self-tests show that the textbook replace protocol survives every point and that a missing `fsync` and an in-place overwrite are each caught. It makes no claim about real platforms (DG-2). INTEGRATED (`bf8d244`); PERS-01 and the durable journal remain PS-10 work.
+
+## 11. Session 6, 2026-11-09: VOX-05, O-1, Persistence foundation, RG-1
+
+| Item | IMPLEMENTED | TESTED | INTEGRATED | Notes |
+|---|---|---|---|---|
+| O-1 | n/a | n/a | n/a | DEC-089 assigns technical owners inside the existing agent roles; no owner decision needed (reversible, DEC-072 deferral resolved) |
+| VOX-05 | yes | yes: collision boxes are disjoint and cover exactly the solid voxels (brute-force model, 10 seeds, border and negative space), unloaded = failure (never free space), stale after an edit and never served, LOD equals brute-force coarsening and never loses presence, Core hash unchanged, determinism for 0/1/4 workers | see CI | one coarse level per brick; mixed-resolution neighbours are PS-9 |
+| PERS-01 | yes (`cube-persistence/src/codec.rs`) | yes: round trip, deterministic bytes, CRC check value, every single-byte flip and every truncation detected, hostile counts with a valid checksum refused without allocation, schema/kind/limit checks | see CI | **experimental** schema (bit 0x8000); GOV-10 open; not a stable format |
+| Atomic snapshot files, journal reconciliation | yes (`store.rs`, `recovery.rs`) | yes: create -> edit -> save -> load -> continue on a real directory; every crash point of the model leaves a complete old or new snapshot; the explorer finds a protocol without fsync; injected failures at every step; pending write-ahead intents resolved against Core's commit log (Confirm, Abort, Undecidable) | see CI | model and real-directory evidence only; **no device durability is claimed (DG-2)** |
+| RG-1 / GOV-08 / GOV-17 / CORE-12 | not started | - | - | see below |
+| SDF-01..03, MSH-01..03 | not started | - | - | not reached in this session; independent of the open decisions |
+
+**Known gap (found while testing the save/load path):** the retry table of Orchestration lives in memory. After a restart, a client that retries an operation id applied before the restart would be applied again. Idempotency across restarts needs the durable journal (PS-10): it must be rebuilt from `Confirmed` records on start. Registered as TD-4; it does not affect single-session correctness.
+
+**RG-1 analysis (no new document needed):** the plan makes RG-1 an external-input gate (`EXT-VA-RG1`); it blocks the Frozen status of PC-1, CORE-12, CORE-13 approval and GOV-10. The plan has no built-in provisional alternative for RG-1, but GOV-07 shows the accepted pattern: an owner-recorded alternative. Minimal proposal for one owner sentence: *"For G5 only, PC-1 (C-07, C-08, C-09) is confirmed as the working baseline and C-10 is approved as the minimal provisional palette contract implemented by CORE-12; the Voxel Architecture revalidation (RG-1) stays mandatory before any contract is Frozen and before GOV-10; no save format is approved."* Without that sentence, GOV-08, GOV-17 and CORE-12 stay open and **G5 cannot close**; nothing was recorded on the owner's behalf.
+
