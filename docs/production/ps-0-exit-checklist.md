@@ -188,3 +188,15 @@ Statuses are kept apart: **IMPLEMENTED**, **TESTED** (CI host), **INTEGRATED** (
 
 The owner recorded GOV-08 (PC-1 as the provisional baseline for PS-5) and GOV-17 (C-10 palette part approved as provisional), and allowed CORE-12 to be integrated. The ADG merge condition `EXT-VA-RG1` of CORE-12 is satisfied for that one merge by the owner-recorded exception of DEC-090. **RG-1 is not passed, EXT-VA-RG1 is not supplied, G5 is not passed.** Conformance check of CORE-12 against C-10: the implemented palette part (palette entries, unresolved-reference error, width boundaries) matches; `LayerMapping` and the revision wiring are outside CORE-12 and stay Draft.
 
+## 14. Session 8 results (DEC-090 and the payload journal)
+
+| Item | IMPLEMENTED | TESTED | INTEGRATED | Notes |
+|---|---|---|---|---|
+| CORE-12 / C-10 palette part | yes | yes | **yes** (`718e29b`, CI 42642936047) | integrated under the DEC-090 exception from EXT-VA-RG1; provisional; RG-1 not passed |
+| Write payload in the journal, batch codec, `replay_confirmed` | yes (`15456e3`) | yes (`persistence_replay.rs`, CI 42643790057): confirmed changes after the last snapshot are replayed exactly (world hash equal), replay is idempotent, then `recover_idempotency` finds all operations contained; an unresolved Intent is not replayed; damaged or missing payloads are reported; records survive the codec | see the next CI run | additive API change (`JournalEntry::payload`, `BatchEncoder`), snapshot updated |
+| TD-4 | loss part now closed by replay (when the journal carries payload) | yes | see above | **still not closed:** deciding an unresolved Intent stays with `resolve_pending`; the journal is a contract fake; crash durability of real files is not proven on devices; CB-1 open |
+| SDF-01..03, MSH-01..03 | not started | - | - | next backend work |
+| PERS-02..05 (manifest, snapshot store, durable journal file) | not started | - | - | formats stay experimental until GOV-10 |
+
+**G5: NOT passed** (SDF, Mesh and the T-junction criterion are open; RG-1 not passed). **G10: not evaluated.**
+
