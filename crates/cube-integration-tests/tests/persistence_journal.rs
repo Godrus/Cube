@@ -193,10 +193,167 @@ fn a_torn_tail_is_repaired_and_damage_in_the_middle_is_refused() {
     ));
 }
 
+/// Replaces a file's durable content (a damaged disk), for negative tests.
+fn put(fs: &SharedFs, name: &str, bytes: &[u8]) {
+    let mut g = fs.0.lock().unwrap();
+    g.write(name, bytes).unwrap();
+    g.fsync(name).unwrap();
+    g.fsync_dir().unwrap();
+}
+
+fn read(fs: &SharedFs, name: &str) -> Vec<u8> {
+    fs.0.lock().unwrap().read(name).unwrap_or_default()
+}
+
+fn three() -> (SharedFs, Vec<usize>) {
+    let fs = fresh();
+    let (j, _) = open(&fs);
+    let mut ends = vec![];
+    for n in 1..=3 {
+        j.append(entry(n, JournalPhase::Intent, vec![7; 25]))
+            .unwrap();
+        ends.push(read(&fs, "journal").len());
+    }
+    (fs, ends)
+}
+
+#[test]
+fn a_damaged_last_acknowledged_record_is_never_mistaken_for_a_torn_tail() {
+    let (fs, ends) = three();
+    let good = read(&fs, "journal");
+    // Corrupt one byte inside record 3 (acknowledged: it has a mark).
+    let mut bad = good.clone();
+    bad[ends[1] + 12] ^= 0xFF;
+    put(&fs, "journal", &bad);
+    let r = FileJournal::open(fs.clone(), "journal", Limits::default());
+    assert!(
+        matches!(
+            r.err(),
+            Some(JournalOpenError::AcknowledgedLoss {
+                acknowledged: 3,
+                readable: 2
+            })
+        ),
+        "fail closed"
+    );
+    // The damaged bytes are untouched (nothing was truncated).
+    assert_eq!(read(&fs, "journal"), bad);
+    // Cut short in the middle of the acknowledged record, or missing altogether: also refused.
+    for cut in [ends[2] - 1, ends[1] + 5, ends[1]] {
+        put(&fs, "journal", &good[..cut]);
+        assert!(matches!(
+            FileJournal::open(fs.clone(), "journal", Limits::default()).err(),
+            Some(JournalOpenError::AcknowledgedLoss {
+                acknowledged: 3,
+                ..
+            })
+        ));
+        assert_eq!(read(&fs, "journal").len(), cut);
+    }
+}
+
+#[test]
+fn a_damaged_or_torn_unacknowledged_record_is_dropped_and_the_acknowledged_ones_stay() {
+    let (fs, ends) = three();
+    let good = read(&fs, "journal");
+    let marks = read(&fs, "journal.mark");
+    // The fourth record reached the disk damaged, its mark never did.
+    let probe = fresh();
+    let (p, _) = open(&probe);
+    for n in 1..=4 {
+        p.append(entry(n, JournalPhase::Intent, vec![7; 25]))
+            .unwrap();
+    }
+    let with4 = read(&probe, "journal");
+    for bad4 in [
+        with4[..with4.len() - 3].to_vec(),
+        {
+            let mut v = with4.clone();
+            let n = v.len();
+            v[n - 9] ^= 0x55;
+            v
+        },
+        {
+            let mut v = good.clone();
+            v.extend_from_slice(&[0; 20]);
+            v
+        },
+    ] {
+        put(&fs, "journal", &bad4);
+        put(&fs, "journal.mark", &marks);
+        let (j, rep) = open(&fs);
+        assert_eq!(rep.records, 3);
+        assert_eq!(rep.acknowledged, 3);
+        assert_eq!(read(&fs, "journal").len(), ends[2]);
+        assert_eq!(
+            j.append(entry(9, JournalPhase::Intent, vec![])).unwrap().0,
+            4
+        );
+    }
+    // A whole fourth record without a mark is kept (it was written, just not acknowledged).
+    put(&fs, "journal", &with4);
+    put(&fs, "journal.mark", &marks);
+    let (_, rep) = open(&fs);
+    assert_eq!(rep.records, 4);
+}
+
+#[test]
+fn damage_in_the_middle_lost_marks_and_a_foreign_schema_are_refused_not_hidden() {
+    let (fs, ends) = three();
+    let good = read(&fs, "journal");
+    let marks = read(&fs, "journal.mark");
+    // Mid-log checksum error with valid records after it.
+    let mut bad = good.clone();
+    bad[ends[0] + 12] ^= 0xFF;
+    put(&fs, "journal", &bad);
+    assert!(matches!(
+        FileJournal::open(fs.clone(), "journal", Limits::default()).err(),
+        Some(JournalOpenError::CorruptInMiddle { .. })
+    ));
+    put(&fs, "journal", &good);
+    // Marks lost: three unmarked records are refused; explicit adoption marks them.
+    put(&fs, "journal.mark", &[]);
+    assert!(matches!(
+        FileJournal::open(fs.clone(), "journal", Limits::default()).err(),
+        Some(JournalOpenError::UnmarkedRecords { unmarked: 3 })
+    ));
+    let (_, rep) =
+        FileJournal::open_adopting_unmarked(fs.clone(), "journal", 1, Limits::default()).unwrap();
+    assert_eq!((rep.records, rep.acknowledged), (3, 3));
+    assert_eq!(read(&fs, "journal.mark").len(), 3 * 16);
+    // Marks that go backwards.
+    let mut back = marks.clone();
+    let (a, b) = (back[..16].to_vec(), back[16..32].to_vec());
+    back[..16].copy_from_slice(&b);
+    back[16..32].copy_from_slice(&a);
+    put(&fs, "journal.mark", &back);
+    assert!(matches!(
+        FileJournal::open(fs.clone(), "journal", Limits::default()).err(),
+        Some(JournalOpenError::BadMarks)
+    ));
+    // A mark pointing beyond an empty journal: everything acknowledged is gone.
+    put(&fs, "journal.mark", &marks);
+    put(&fs, "journal", &[]);
+    assert!(matches!(
+        FileJournal::open(fs.clone(), "journal", Limits::default()).err(),
+        Some(JournalOpenError::AcknowledgedLoss {
+            acknowledged: 3,
+            readable: 0
+        })
+    ));
+    // A foreign schema in the first record is refused, never read as a torn tail.
+    let mut foreign = good.clone();
+    foreign[4] = 0x7F;
+    foreign[5] = 0x7F;
+    put(&fs, "journal", &foreign);
+    put(&fs, "journal.mark", &marks);
+    assert!(FileJournal::open(fs.clone(), "journal", Limits::default()).is_err());
+}
+
 #[test]
 fn a_failed_write_or_fsync_poisons_the_journal_and_nothing_is_acknowledged() {
     // Fail the n-th storage call of the first append.
-    for fail_at in 1..=3 {
+    for fail_at in 1..=6 {
         let fs = fresh();
         let counted = Counting {
             inner: fs.clone(),
