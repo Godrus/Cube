@@ -88,3 +88,16 @@ Statuses are kept apart: **IMPLEMENTED** (code exists), **TESTED** (its tests pa
 
 **G2: NOT PASSED.** Remaining conditions, exactly: GOV-07 (the specification, or an owner-recorded alternative such as the reading of ODM-02 proposed in `docs/m2-delivery-review/M2_TASK_GRAPH.md` D-6), GOV-16, GOV-24; then merge CORE-15 and PROC-06 into `dev` and re-run CI. Nothing else in PS-2 is missing. PS-3 is not started: its API-02 merges only after G2, and the Editing contracts (E-02...E-12) have no provisional registration yet.
 
+## 8. PS-3 / G3 status, 2026-11-09 (in progress; G3 NOT passed)
+
+| Task | IMPLEMENTED | TESTED | INTEGRATED | Gate |
+|---|---|---|---|---|
+| API-01 | yes | yes (mock contract tests, validation tests) | pending CI on `prod/ps3-editing-api` | - |
+| API-02 | yes (merge allowed: G2 passed) | yes | pending | - |
+| API-03 | yes | yes | pending | - |
+| API-04 | yes | yes | pending | - |
+| API-05 | yes | yes | pending | - |
+| GOV-09 | n/a | n/a | n/a | **open**: owner approval; the exact remaining decisions are in `docs/production/editing-api-contract.md` |
+
+G3 closes when all six members are merged and accepted; it is blocked only by GOV-09.
+

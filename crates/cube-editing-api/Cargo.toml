@@ -1,0 +1,16 @@
+[package]
+name = "cube-editing-api"
+version = "0.0.0"
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+description = "Editing API: public types and ports (PS-3). Contracts only, no behaviour."
+
+# Depends on Core and Processing only (ADG Part B). No async runtime.
+
+[dependencies]
+cube-core = { path = "../cube-core" }
+cube-processing = { path = "../cube-processing" }
+
+[lints]
+workspace = true

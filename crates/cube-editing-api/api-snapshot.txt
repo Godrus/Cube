@@ -1,0 +1,172 @@
+auth.rs: pub struct ActorId(pub u64);
+auth.rs: pub struct SessionId(pub u64);
+auth.rs: pub struct Capability(pub u32);
+auth.rs: pub enum Origin {
+auth.rs: pub const fn actor_kind(self) -> ActorKind {
+auth.rs: pub struct ScopedRegion {
+auth.rs: pub layer: LayerId,
+auth.rs: pub region: Region,
+auth.rs: pub struct Scope {
+auth.rs: pub assets: Vec<AssetId>,
+auth.rs: pub regions: Vec<ScopedRegion>,
+auth.rs: pub struct AuthorizationContext {
+auth.rs: pub actor: ActorId,
+auth.rs: pub session: SessionId,
+auth.rs: pub origin: Origin,
+auth.rs: pub capabilities: Vec<Capability>,
+auth.rs: pub scope: Scope,
+auth.rs: pub fn has(&self, capability: Capability) -> bool {
+auth.rs: pub const fn actor_kind(&self) -> ActorKind {
+error.rs: pub enum EditingError {
+error.rs: pub const ERROR_MODULE: &str = "editing-api";
+error.rs: pub const fn code(&self) -> ErrorCode {
+error.rs: pub const fn severity(&self) -> Severity {
+error.rs: pub const fn category(&self) -> ErrorCategory {
+lib.rs: pub mod auth;
+lib.rs: pub mod error;
+lib.rs: pub mod ports;
+lib.rs: pub mod storage;
+lib.rs: pub mod types;
+lib.rs: pub use auth::{ActorId, AuthorizationContext, Capability, Origin, Scope, ScopedRegion, SessionId};
+lib.rs: pub use error::{ERROR_MODULE, EditingError};
+lib.rs: pub use ports::{
+lib.rs: pub use storage::{
+lib.rs: pub use types::{
+ports/backend.rs: pub struct BackendCapabilities {
+ports/backend.rs: pub layer_kind: LayerKind,
+ports/backend.rs: pub kinds: BTreeSet<KindId>,
+ports/backend.rs: pub native_boolean: bool,
+ports/backend.rs: pub resample: bool,
+ports/backend.rs: pub validate: bool,
+ports/backend.rs: pub fn supports(&self, kind: KindId) -> bool {
+ports/backend.rs: pub struct ValidationReport {
+ports/backend.rs: pub invalid: Vec<CellKey>,
+ports/backend.rs: pub fn is_valid(&self) -> bool {
+ports/backend.rs: pub trait OverlayRead {
+ports/backend.rs: pub trait GeometryBackend: Send + Sync {
+ports/mod.rs: pub use backend::{BackendCapabilities, GeometryBackend, OverlayRead, ValidationReport};
+ports/mod.rs: pub use observer::TransactionObserver;
+ports/mod.rs: pub use service::EditingService;
+ports/observer.rs: pub trait TransactionObserver: Send + Sync {
+ports/service.rs: pub trait EditingService: Send + Sync {
+storage.rs: pub struct DeltaId(pub u64);
+storage.rs: pub struct CheckpointId(pub u64);
+storage.rs: pub struct PayloadRef(pub u64);
+storage.rs: pub struct JournalSeq(pub u64);
+storage.rs: pub enum BrickChange {
+storage.rs: pub struct ChangedBrick {
+storage.rs: pub key: CellKey,
+storage.rs: pub change: BrickChange,
+storage.rs: pub enum NonBrickKind {
+storage.rs: pub struct NonBrickChange {
+storage.rs: pub kind: NonBrickKind,
+storage.rs: pub before: PayloadRef,
+storage.rs: pub after: PayloadRef,
+storage.rs: pub struct GeometryDelta {
+storage.rs: pub id: DeltaId,
+storage.rs: pub operation: OperationId,
+storage.rs: pub asset: AssetId,
+storage.rs: pub layer: LayerId,
+storage.rs: pub pre_tokens: Vec<RevisionToken>,
+storage.rs: pub post_tokens: Vec<RevisionToken>,
+storage.rs: pub changed_bricks: Vec<ChangedBrick>,
+storage.rs: pub non_brick: Vec<NonBrickChange>,
+storage.rs: pub dirty: Vec<DirtyRegion>,
+storage.rs: pub enum CheckpointReason {
+storage.rs: pub enum SnapshotRef {
+storage.rs: pub struct Checkpoint {
+storage.rs: pub id: CheckpointId,
+storage.rs: pub asset_token: RevisionToken,
+storage.rs: pub layer_tokens: Vec<RevisionToken>,
+storage.rs: pub snapshot: SnapshotRef,
+storage.rs: pub last_delta: Option<DeltaId>,
+storage.rs: pub epoch: Epoch,
+storage.rs: pub reason: CheckpointReason,
+storage.rs: pub struct JournalEntry {
+storage.rs: pub seq: JournalSeq,
+storage.rs: pub operation: OperationId,
+storage.rs: pub actor: ActorId,
+storage.rs: pub asset: AssetId,
+storage.rs: pub post_tokens: Vec<RevisionToken>,
+storage.rs: pub delta: Option<DeltaId>,
+storage.rs: pub trait DeltaStore: Send + Sync {
+storage.rs: pub trait SnapshotStore: Send + Sync {
+storage.rs: pub trait OperationJournal: Send + Sync {
+storage.rs: pub trait BaseProvider: Send + Sync {
+types/conflict.rs: pub enum ConflictScope {
+types/conflict.rs: pub enum Suggestion {
+types/conflict.rs: pub struct ConflictResult {
+types/conflict.rs: pub scope: ConflictScope,
+types/conflict.rs: pub conflicting: Vec<ResourceId>,
+types/conflict.rs: pub expected: Vec<RevisionToken>,
+types/conflict.rs: pub current: Vec<RevisionToken>,
+types/conflict.rs: pub holder: Option<OperationId>,
+types/conflict.rs: pub suggestion: Suggestion,
+types/conflict.rs: pub fn tokens_pair_up(&self) -> bool {
+types/mod.rs: pub use conflict::{ConflictResult, ConflictScope, Suggestion};
+types/mod.rs: pub use operation::{
+types/mod.rs: pub use result::{EditingResult, OperationStatus, Success};
+types/mod.rs: pub use transaction::{
+types/operation.rs: pub struct KindId(pub u32);
+types/operation.rs: pub struct SchemaVersion(pub u16);
+types/operation.rs: pub mod kinds {
+types/operation.rs: pub const SET_MATERIAL: KindId = KindId(1);
+types/operation.rs: pub const ADD_GEOMETRY: KindId = KindId(2);
+types/operation.rs: pub const REMOVE_GEOMETRY: KindId = KindId(3);
+types/operation.rs: pub const TRANSFORM_GEOMETRY: KindId = KindId(4);
+types/operation.rs: pub const BOOLEAN: KindId = KindId(5);
+types/operation.rs: pub const SCULPT: KindId = KindId(6);
+types/operation.rs: pub const RESAMPLE: KindId = KindId(7);
+types/operation.rs: pub const BAKE: KindId = KindId(8);
+types/operation.rs: pub const COMPOSITE: KindId = KindId(9);
+types/operation.rs: pub struct Parameters {
+types/operation.rs: pub schema: Option<SchemaVersion>,
+types/operation.rs: pub bytes: Vec<u8>,
+types/operation.rs: pub enum ConversionPolicy {
+types/operation.rs: pub enum EditMode {
+types/operation.rs: pub struct EditingOperation {
+types/operation.rs: pub id: OperationId,
+types/operation.rs: pub kind: KindId,
+types/operation.rs: pub asset: AssetId,
+types/operation.rs: pub layers: Vec<LayerId>,
+types/operation.rs: pub parameters: Parameters,
+types/operation.rs: pub read_region: Option<Region>,
+types/operation.rs: pub write_region: Region,
+types/operation.rs: pub conversion: Option<ConversionPolicy>,
+types/operation.rs: pub mode: EditMode,
+types/operation.rs: pub fn validate(&self) -> Result<(), EditingError> {
+types/operation.rs: pub fn conversion_policy(&self) -> ConversionPolicy {
+types/result.rs: pub struct Success {
+types/result.rs: pub operation: OperationId,
+types/result.rs: pub new_tokens: Vec<RevisionToken>,
+types/result.rs: pub dirty: Vec<DirtyRegion>,
+types/result.rs: pub produced_ids: Vec<u64>,
+types/result.rs: pub delta: Option<DeltaId>,
+types/result.rs: pub enum EditingResult {
+types/result.rs: pub const fn is_success(&self) -> bool {
+types/result.rs: pub const fn left_state_unchanged(&self) -> bool {
+types/result.rs: pub enum OperationStatus {
+types/transaction.rs: pub struct TransactionId(pub u64);
+types/transaction.rs: pub enum TransactionState {
+types/transaction.rs: pub const fn is_terminal(self) -> bool {
+types/transaction.rs: pub const fn can_become(self, to: Self) -> bool {
+types/transaction.rs: pub enum CommitPolicy {
+types/transaction.rs: pub enum RollbackPolicy {
+types/transaction.rs: pub struct TransactionHandle {
+types/transaction.rs: pub id: TransactionId,
+types/transaction.rs: pub struct TransactionSpec {
+types/transaction.rs: pub asset: AssetId,
+types/transaction.rs: pub layers: Vec<LayerId>,
+types/transaction.rs: pub read_regions: Vec<Region>,
+types/transaction.rs: pub write_regions: Vec<Region>,
+types/transaction.rs: pub expected: Vec<RevisionToken>,
+types/transaction.rs: pub commit: CommitPolicy,
+types/transaction.rs: pub rollback: RollbackPolicy,
+types/transaction.rs: pub struct TransactionSummary {
+types/transaction.rs: pub transaction: TransactionId,
+types/transaction.rs: pub operations: Vec<OperationId>,
+types/transaction.rs: pub asset: AssetId,
+types/transaction.rs: pub actor: u64,
+types/transaction.rs: pub new_tokens: Vec<RevisionToken>,
+types/transaction.rs: pub dirty: Vec<DirtyRegion>,
+types/transaction.rs: pub fn new(asset: AssetId) -> Self {

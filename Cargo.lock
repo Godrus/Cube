@@ -37,6 +37,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "cube-editing-api"
+version = "0.0.0"
+dependencies = [
+ "cube-core",
+ "cube-processing",
+]
+
+[[package]]
 name = "cube-integration-tests"
 version = "0.0.0"
 dependencies = [
