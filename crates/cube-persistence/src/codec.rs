@@ -662,6 +662,13 @@ pub struct Manifest {
     pub journal: String,
     /// Sequence number of the first record of that journal.
     pub journal_first_seq: u64,
+    /// Retry floors (L-COMP-1): for each scope, the highest sequence number of a confirmed
+    /// operation that compaction has folded into the snapshot. Sorted by scope, one entry per
+    /// scope. An id at or below its scope's floor that the journal no longer shows is refused
+    /// by Orchestration, never applied again. Size is bounded by the number of scopes, not by
+    /// the number of operations. Valid only under the retry-safety requirement RS-1 (ids of a
+    /// scope are allocated by the authoritative side with strictly increasing sequences).
+    pub retry_floors: Vec<(u64, u64)>,
 }
 
 fn put_name(w: &mut W, s: &str) {
@@ -695,6 +702,11 @@ pub fn encode_manifest(m: &Manifest) -> Vec<u8> {
     }
     put_name(&mut w, &m.journal);
     w.u64(m.journal_first_seq);
+    w.u32(m.retry_floors.len() as u32);
+    for (scope, seq) in &m.retry_floors {
+        w.u64(*scope);
+        w.u64(*seq);
+    }
     frame(KIND_MANIFEST, w.0)
 }
 
@@ -716,6 +728,18 @@ pub fn decode_manifest(bytes: &[u8], limits: &Limits) -> Result<Manifest, Decode
     };
     let journal = get_name(&mut r)?;
     let journal_first_seq = r.u64()?;
+    let n = r.u32()? as usize;
+    if n > body.len() / 16 + 1 {
+        return Err(DecodeError::Invalid("floor count"));
+    }
+    let mut retry_floors: Vec<(u64, u64)> = Vec::with_capacity(n.min(1024));
+    for _ in 0..n {
+        let f = (r.u64()?, r.u64()?);
+        if retry_floors.last().is_some_and(|l| l.0 >= f.0) {
+            return Err(DecodeError::Invalid("floors not sorted by scope"));
+        }
+        retry_floors.push(f);
+    }
     r.done()?;
     Ok(Manifest {
         generation,
@@ -723,6 +747,7 @@ pub fn decode_manifest(bytes: &[u8], limits: &Limits) -> Result<Manifest, Decode
         snapshot,
         journal,
         journal_first_seq,
+        retry_floors,
     })
 }
 

@@ -210,6 +210,12 @@ impl RetryTable {
         }
     }
 
+    /// Raises the floor of `scope` to at least `seq` (persisted by compaction, L-COMP-1).
+    pub(crate) fn raise_floor(&mut self, scope: u64, seq: u64) {
+        let w = self.watermark.entry(scope).or_insert(0);
+        *w = (*w).max(seq);
+    }
+
     pub(crate) fn block(&mut self, id: OperationId) {
         self.blocked.insert(id);
     }

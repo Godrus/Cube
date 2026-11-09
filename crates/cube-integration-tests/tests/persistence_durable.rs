@@ -209,36 +209,6 @@ fn the_full_cycle_survives_a_kill_on_a_real_directory_and_matches_the_independen
 }
 
 #[test]
-fn a_retry_of_an_id_folded_into_a_snapshot_is_not_remembered_a_stated_limit() {
-    // Characterisation of limit L-COMP-1: compaction drops the journal records that carry the
-    // retry history, so the window for idempotent retries is "since the last compaction".
-    // The world stays correct (the change is already in the snapshot); only the answer to the
-    // retry is no longer the recorded one.
-    let (entries, view12) = real_records();
-    let fs = fresh();
-    let mut st = fs.clone();
-    create_world(&mut st, 1, &limits()).unwrap();
-    {
-        let w = open_world(fs.clone(), &limits()).unwrap();
-        for e in &entries[..4] {
-            w.journal.append(e.clone()).unwrap();
-        }
-    }
-    compact(&mut st, &view12, 4, &limits()).unwrap();
-    let w = open_world(fs.clone(), &limits()).unwrap();
-    let g = boot(w.snapshot.clone(), Some(Arc::new(w.journal)));
-    let rec = g.svc.recover_idempotency().unwrap();
-    assert_eq!(rec.recorded, 0, "ids 1 and 2 are folded into the snapshot");
-    let before = hash(&g);
-    assert!(g.run(vec![brick_op(2)]).is_success());
-    assert_eq!(
-        hash(&g),
-        before,
-        "re-applying identical content leaves the world as it was"
-    );
-}
-
-#[test]
 fn every_crash_point_of_a_compaction_leaves_one_whole_generation_and_loses_no_acknowledged_record()
 {
     let (entries, view12) = real_records();

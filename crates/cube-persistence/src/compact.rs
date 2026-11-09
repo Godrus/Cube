@@ -7,6 +7,8 @@
 //! 2. write the new snapshot atomically and **verify** it (read back, decode, hash);
 //! 3. write the journal tail (records after the boundary, same sequence numbers) to a new
 //!    file with its marks, and verify it by reopening;
+//!    The manifest also carries the **retry floors** (L-COMP-1): per scope the highest folded
+//!    confirmed sequence, so that a retry of a folded id is refused instead of re-applied;
 //! 4. publish the new manifest atomically (the single commit point);
 //! 5. only then delete the old snapshot and journal (garbage collection, repeatable).
 //!
@@ -52,6 +54,8 @@ pub enum WorldError {
     ManifestLost,
     /// The manifest contradicts itself (snapshot position versus journal start).
     Inconsistent,
+    /// More scopes than the bounded retry-floor table may hold.
+    TooManyScopes,
     /// The compaction boundary is outside the journal or not beyond the current snapshot.
     BadBoundary,
     /// An operation begun at or before the boundary is not closed at or before it.
@@ -71,6 +75,7 @@ impl std::fmt::Display for WorldError {
             Self::AlreadyExists => f.write_str("a world already exists"),
             Self::ManifestLost => f.write_str("world files exist but the manifest is missing"),
             Self::Inconsistent => f.write_str("manifest is inconsistent"),
+            Self::TooManyScopes => f.write_str("too many operation scopes for the retry floors"),
             Self::BadBoundary => f.write_str("compaction boundary is not inside the journal"),
             Self::PendingAtBoundary(id) => write!(f, "operation {id:?} is open at the boundary"),
             Self::VerifyFailed => f.write_str("new journal does not read back as written"),
@@ -107,6 +112,7 @@ pub fn create_world(
         snapshot: None,
         journal: journal_file(1),
         journal_first_seq: 1,
+        retry_floors: Vec::new(),
     };
     publish_manifest(s, &m, limits).map_err(WorldError::Manifest)
 }
@@ -175,6 +181,28 @@ pub struct CompactReport {
     pub removed: Vec<String>,
 }
 
+/// Most scopes the retry floors may track (bounded disk and memory cost).
+pub const MAX_RETRY_SCOPES: usize = 65_536;
+
+/// Merges the floors of confirmed operations in `folded` into `floors` (L-COMP-1).
+fn merge_floors(
+    floors: &[(u64, u64)],
+    folded: &[JournalEntry],
+) -> Result<Vec<(u64, u64)>, WorldError> {
+    let mut map: std::collections::BTreeMap<u64, u64> = floors.iter().copied().collect();
+    for e in folded.iter().filter(|e| e.phase == JournalPhase::Confirmed) {
+        let ids = e.members.iter().map(|(id, _)| *id).chain([e.operation]);
+        for id in ids {
+            let f = map.entry(id.scope()).or_insert(0);
+            *f = (*f).max(id.sequence());
+        }
+    }
+    if map.len() > MAX_RETRY_SCOPES {
+        return Err(WorldError::TooManyScopes);
+    }
+    Ok(map.into_iter().collect())
+}
+
 fn pending_at(entries: &[JournalEntry]) -> Option<OperationId> {
     let mut last: HashMap<OperationId, JournalPhase> = HashMap::new();
     let mut order = Vec::new();
@@ -213,6 +241,7 @@ pub fn compact<S: Storage + Send>(
     if let Some(id) = pending_at(&entries[..split]) {
         return Err(WorldError::PendingAtBoundary(id));
     }
+    let retry_floors = merge_floors(&m.retry_floors, &entries[..split])?;
     let snap = write_snapshot(storage, view, upto, limits).map_err(WorldError::Snapshot)?;
 
     let name = journal_file(upto + 1);
@@ -250,6 +279,7 @@ pub fn compact<S: Storage + Send>(
         snapshot: Some(snap),
         journal: name,
         journal_first_seq: upto + 1,
+        retry_floors,
     };
     publish_manifest(storage, &next, limits).map_err(WorldError::Manifest)?;
     let removed = collect_garbage(storage, &next)?;

@@ -126,3 +126,13 @@ History and Persistence therefore never import each other; both depend on this l
 - **Model of a network operation:** `OperationId, AuthorizationContext, ExpectedTokens, Payload (EditingOperation), ClientPredictionRef`; server reply: `EditingResult` + authoritative tokens + `ConfirmedJournalEntry`.
 - **Rules:** data-based sync (operations/deltas), never render meshes as truth; reconnect replay by OperationId; reconciliation per Spec §13.5.
 - **Owner:** **unassigned** (Networking Adapter has no owner in AU-1.0 §2) — audit report O-3. Protocol/transport not approved.
+
+## RS-1: retry safety of operation ids (Orchestration requirement, L-COMP-1)
+
+Status: provisional, like the editing contracts. It does **not** change the Core `OperationId` model (C-17: opaque, equality only, format open under OD-R8); it states what Orchestration needs from the *source* of ids to answer old retries safely with bounded memory and disk.
+
+* The sequences of one scope are allocated by the authoritative side and increase strictly. Arbitrary random identifiers are not assumed to be ordered.
+* Compaction persists, per scope, the highest folded confirmed sequence (the *retry floor*, in the manifest). Cost is bounded by the number of scopes (cap 65 536), not by the number of operations.
+* An id at or below its scope's floor that the journal window no longer shows is refused (`expired`), never applied again, never judged "new"; the same holds for a changed payload. A source that breaks the rule (a lower, unused sequence) is refused too: fail closed.
+* The caller restores the floors (`OrchestrationService::restore_retry_floors`) before accepting operations, then calls `recover_idempotency`.
+* If a future OD-R8 decision chooses unordered ids, this requirement must be revisited (floors would then need a per-id structure).

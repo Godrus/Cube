@@ -326,6 +326,21 @@ impl OrchestrationService {
         done
     }
 
+    /// Restores the persisted retry floors (L-COMP-1) before any operation is accepted:
+    /// `(scope, sequence)` pairs from the world's manifest. An id at or below its scope's
+    /// floor that the journal does not show is refused as expired, never applied again.
+    ///
+    /// Requirement RS-1 (retry safety, an Orchestration requirement, not a change of the Core
+    /// id model): the sequences of one scope are allocated by the authoritative side and
+    /// increase strictly. A source that violates it is refused (fail closed), never applied
+    /// twice.
+    pub fn restore_retry_floors(&self, floors: &[(u64, u64)]) {
+        let mut r = lock(&self.retry);
+        for (scope, seq) in floors {
+            r.raise_floor(*scope, *seq);
+        }
+    }
+
     /// Number of operation ids the retry table currently remembers (bounded).
     pub fn remembered(&self) -> usize {
         lock(&self.retry).len()
