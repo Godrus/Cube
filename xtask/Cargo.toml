@@ -1,0 +1,10 @@
+[package]
+name = "xtask"
+version = "0.0.0"
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+description = "Repository tooling: archcheck and package checks (XT-01)"
+
+[lints]
+workspace = true
