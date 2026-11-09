@@ -114,6 +114,21 @@ struct PendingConfirm {
     actor: ActorId,
     asset: AssetId,
     post_tokens: Vec<RevisionToken>,
+    members: Vec<(OperationId, u64)>,
+}
+
+/// What [`OrchestrationService::recover_idempotency`] found.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct RecoveryReport {
+    /// Confirmed transactions remembered again (retries are answered, never re-applied).
+    pub recorded: usize,
+    /// Confirmed transactions the restored asset does not contain: changes lost since the
+    /// snapshot. Their ids can be applied again.
+    pub lost_since_snapshot: Vec<OperationId>,
+    /// Transactions with an `Intent` and no later record: undecided, retries are refused.
+    pub blocked: Vec<OperationId>,
+    /// Aborted transactions (nothing to do).
+    pub aborted: usize,
 }
 
 /// The editing service of one asset (E-11).
@@ -127,6 +142,7 @@ pub struct OrchestrationService {
     txs: Mutex<Txs>,
     retry: Mutex<RetryTable>,
     pending: Mutex<Vec<PendingConfirm>>,
+    undecided: Mutex<HashMap<OperationId, Vec<(OperationId, u64)>>>,
     section: Mutex<()>,
     next_delta: AtomicU64,
 }
@@ -193,6 +209,7 @@ impl OrchestrationService {
             }),
             retry: Mutex::new(RetryTable::new(config.retry_capacity)),
             pending: Mutex::new(Vec::new()),
+            undecided: Mutex::new(HashMap::new()),
             section: Mutex::new(()),
             next_delta: AtomicU64::new(1),
         }
@@ -251,6 +268,7 @@ impl OrchestrationService {
         actor: ActorId,
         asset: AssetId,
         post_tokens: Vec<RevisionToken>,
+        members: Vec<(OperationId, u64)>,
     ) -> Result<JournalSeq, EditingError> {
         let Some(j) = &self.journal else {
             return Ok(JournalSeq(0));
@@ -263,6 +281,7 @@ impl OrchestrationService {
             asset,
             post_tokens,
             delta: None,
+            members,
         })
     }
 
@@ -279,6 +298,7 @@ impl OrchestrationService {
                 p.actor,
                 p.asset,
                 p.post_tokens.clone(),
+                p.members.clone(),
             ) {
                 Ok(_) => {
                     done += 1;
@@ -294,6 +314,151 @@ impl OrchestrationService {
         }
         lock(&self.pending).extend(still);
         done
+    }
+
+    /// Number of operation ids the retry table currently remembers (bounded).
+    pub fn remembered(&self) -> usize {
+        lock(&self.retry).len()
+    }
+
+    /// Rebuilds the idempotency state from the durable journal after a restart (TD-4). Call it
+    /// once, before serving, on a service whose asset was restored from a snapshot.
+    ///
+    /// * `Confirmed` records whose post tokens the restored asset already contains (same epoch,
+    ///   revision not beyond the restored one) make every member operation a known, applied
+    ///   operation: a retry gets the recorded result and nothing is applied again; a retry with
+    ///   other content is refused.
+    /// * `Confirmed` records *beyond* the restored state are changes that were lost since the
+    ///   snapshot (the journal carries no write payload yet): they are reported, not
+    ///   remembered, so a retry applies them again instead of claiming a success that the world
+    ///   does not contain.
+    /// * An `Intent` with no later record is **undecided** (it may or may not have reached
+    ///   Core): its operations are blocked, retries are refused, until
+    ///   [`OrchestrationService::resolve_pending`] decides. It is never treated as aborted just
+    ///   because memory is empty.
+    /// * `Aborted` records need nothing: the id may be retried.
+    pub fn recover_idempotency(&self) -> Result<RecoveryReport, EditingError> {
+        let Some(j) = &self.journal else {
+            return Err(EditingError::InvalidOperation("no journal configured"));
+        };
+        let mut entries = Vec::new();
+        let mut from = 1u64;
+        loop {
+            let page = j.read_from(JournalSeq(from), 1024)?;
+            let Some(last) = page.last() else { break };
+            from = last.seq.0 + 1;
+            entries.extend(page);
+        }
+        let mut order: Vec<OperationId> = Vec::new();
+        let mut last: HashMap<OperationId, JournalEntry> = HashMap::new();
+        for e in entries {
+            if last.insert(e.operation, e.clone()).is_none() {
+                order.push(e.operation);
+            }
+        }
+        let now = self.reader.snapshot().asset_token();
+        let mut report = RecoveryReport::default();
+        for id in order {
+            let e = &last[&id];
+            match e.phase {
+                JournalPhase::Aborted => report.aborted += 1,
+                JournalPhase::Intent => {
+                    let mut r = lock(&self.retry);
+                    r.block(id);
+                    for (m, _) in &e.members {
+                        r.block(*m);
+                    }
+                    drop(r);
+                    lock(&self.undecided).insert(id, e.members.clone());
+                    report.blocked.push(id);
+                }
+                JournalPhase::Confirmed => {
+                    let asset_tokens: Vec<_> = e
+                        .post_tokens
+                        .iter()
+                        .filter(|t| matches!(t.resource(), ResourceId::Asset(_)))
+                        .collect();
+                    let contained = !asset_tokens.is_empty()
+                        && !e.members.is_empty()
+                        && asset_tokens
+                            .iter()
+                            .all(|t| t.epoch() == now.epoch() && t.value() <= now.value());
+                    if contained {
+                        let success = Success {
+                            operation: id,
+                            new_tokens: e.post_tokens.clone(),
+                            dirty: vec![],
+                            produced_ids: vec![],
+                            delta: e.delta,
+                        };
+                        let mut r = lock(&self.retry);
+                        for (m, fp) in &e.members {
+                            r.record_fingerprint(*m, *fp, EditingResult::Success(success.clone()));
+                        }
+                        report.recorded += 1;
+                    } else {
+                        report.lost_since_snapshot.push(id);
+                    }
+                }
+            }
+        }
+        Ok(report)
+    }
+
+    /// Decides an operation that [`OrchestrationService::recover_idempotency`] left undecided:
+    /// `applied = true` records it as confirmed (the caller established that the restored world
+    /// contains its effect), `false` closes it as aborted so that it can be retried. The
+    /// decision is journalled.
+    pub fn resolve_pending(
+        &self,
+        commit_id: OperationId,
+        applied: bool,
+    ) -> Result<(), EditingError> {
+        let members = lock(&self.undecided)
+            .get(&commit_id)
+            .cloned()
+            .ok_or(EditingError::NotFound)?;
+        let asset = self.reader.id();
+        let token = self.reader.snapshot().asset_token();
+        if applied {
+            self.journal_append(
+                JournalPhase::Confirmed,
+                commit_id,
+                ActorId(0),
+                asset,
+                vec![token],
+                members.clone(),
+            )?;
+            let success = Success {
+                operation: commit_id,
+                new_tokens: vec![token],
+                dirty: vec![],
+                produced_ids: vec![],
+                delta: None,
+            };
+            let mut r = lock(&self.retry);
+            for (m, fp) in &members {
+                r.unblock(*m);
+                r.record_fingerprint(*m, *fp, EditingResult::Success(success.clone()));
+            }
+            r.unblock(commit_id);
+        } else {
+            self.journal_append(
+                JournalPhase::Aborted,
+                commit_id,
+                ActorId(0),
+                asset,
+                vec![],
+                members.clone(),
+            )?;
+            let mut r = lock(&self.retry);
+            for (m, _) in &members {
+                r.unblock(*m);
+            }
+            r.unblock(commit_id);
+        }
+        lock(&self.undecided).remove(&commit_id);
+        Ok(())
     }
 
     fn replayed(&self, op: &EditingOperation, recorded: EditingResult) -> EditingResult {
@@ -387,6 +552,16 @@ impl EditingService for OrchestrationService {
                 let r = self.replayed(&operation, r);
                 tx.replayed.push(r.clone());
                 return r;
+            }
+            Replay::Expired => {
+                return EditingResult::ValidationFailure(EditingError::InvalidOperation(
+                    "operation id is older than the retry window and unknown",
+                ));
+            }
+            Replay::Blocked => {
+                return EditingResult::ValidationFailure(EditingError::InvalidOperation(
+                    "outcome of an earlier attempt is undecided after recovery",
+                ));
             }
             Replay::Fresh => {}
         }
@@ -517,9 +692,18 @@ impl EditingService for OrchestrationService {
             },
         };
 
+        let members: Vec<(OperationId, u64)> =
+            tx.ops.iter().map(|o| (o.id, o.fingerprint())).collect();
         let _section = lock(&self.section);
         if self
-            .journal_append(JournalPhase::Intent, first, actor, asset, vec![])
+            .journal_append(
+                JournalPhase::Intent,
+                first,
+                actor,
+                asset,
+                vec![],
+                members.clone(),
+            )
             .is_err()
         {
             return self.fail(
@@ -531,11 +715,25 @@ impl EditingService for OrchestrationService {
             Ok(o) => o,
             Err(CommitError::Conflict(cs)) => {
                 let report = conflict_result(&self.reader.snapshot(), &cs);
-                let _ = self.journal_append(JournalPhase::Aborted, first, actor, asset, vec![]);
+                let _ = self.journal_append(
+                    JournalPhase::Aborted,
+                    first,
+                    actor,
+                    asset,
+                    vec![],
+                    members.clone(),
+                );
                 return self.fail(&mut tx, EditingResult::Conflict(report));
             }
             Err(other) => {
-                let _ = self.journal_append(JournalPhase::Aborted, first, actor, asset, vec![]);
+                let _ = self.journal_append(
+                    JournalPhase::Aborted,
+                    first,
+                    actor,
+                    asset,
+                    vec![],
+                    members.clone(),
+                );
                 return self.fail(&mut tx, core_failure(other));
             }
         };
@@ -547,6 +745,7 @@ impl EditingService for OrchestrationService {
             actor,
             asset,
             vec![outcome.asset_token],
+            members.clone(),
         ) {
             Ok(_) => EditingResult::Success(success.clone()),
             Err(_) => {
@@ -555,6 +754,7 @@ impl EditingService for OrchestrationService {
                     actor,
                     asset,
                     post_tokens: vec![outcome.asset_token],
+                    members: members.clone(),
                 });
                 EditingResult::AppliedUnconfirmed(success.clone())
             }

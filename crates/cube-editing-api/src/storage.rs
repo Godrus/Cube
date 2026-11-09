@@ -173,6 +173,11 @@ pub struct JournalEntry {
     pub post_tokens: Vec<RevisionToken>,
     /// Delta recorded for it, if any.
     pub delta: Option<DeltaId>,
+    /// Every operation the record covers, each with a stable fingerprint of its content (see
+    /// `EditingOperation::fingerprint`). A transaction commits under its first operation id
+    /// (`operation`), but a retry may name any member; recovery of the idempotency table needs
+    /// all of them, and the fingerprint tells a true retry from a reused id.
+    pub members: Vec<(OperationId, u64)>,
 }
 
 /// Durable store of deltas and their payloads (implemented by Persistence, used by History).

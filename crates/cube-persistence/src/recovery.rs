@@ -79,6 +79,7 @@ mod tests {
             asset: AssetId::new(1),
             post_tokens: vec![],
             delta: None,
+            members: vec![],
         }
     }
 
