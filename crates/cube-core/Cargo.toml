@@ -1,0 +1,15 @@
+[package]
+name = "cube-core"
+version = "0.0.0"
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+description = "Geometry Core: passive data model, coordinates and keys (PS-1)"
+
+# Zero external dependencies (DEC-068 j). Engine and content independence is enforced by `cargo xtask archcheck`.
+
+[dev-dependencies]
+cube-testkit = { path = "../cube-testkit" }
+
+[lints]
+workspace = true
