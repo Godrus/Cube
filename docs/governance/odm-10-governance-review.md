@@ -1,5 +1,7 @@
 # ODM-10 Governance Review
 
+> **Update 2026-11-09:** the owner adopted the model of this proposal in simplified form (DEC-002 in `docs/decisions/decision-registry.md`): statuses `PROPOSED/RECORDED/CONFIRMED/DEFERRED/SUPERSEDED/REJECTED`, levels `CONCEPT/TECHNICAL`, chat confirmation as a permitted source, no mandatory signatures, no second confirmation cycle. ODM-10 is closed. Where this document differs (E1/E2/E3/E5 evidence ladder, G-GOV gate, ratification batch as a gate), the registry rules win. The historical analysis is kept unchanged.
+
 **Статус:** **Proposed** (анализ агента). Документ ничего не утверждает, не закрывает ODM-10, не меняет статусов GOV-01, не меняет существующих документов. Все правила, которые он предлагает изменить, помечены **ПРЕДЛОЖЕНИЕ**.
 **Дата проверки:** 2026-11-09. Все прежние сведения о состоянии репозитория — исторические; ниже — результат повторной read-only проверки.
 

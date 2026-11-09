@@ -1,5 +1,7 @@
 # Historical Decisions Reconciliation
 
+> **Update 2026-11-09:** the owner adopted the model of this proposal in simplified form (DEC-002 in `docs/decisions/decision-registry.md`): statuses `PROPOSED/RECORDED/CONFIRMED/DEFERRED/SUPERSEDED/REJECTED`, levels `CONCEPT/TECHNICAL`, chat confirmation as a permitted source, no mandatory signatures, no second confirmation cycle. ODM-10 is closed. Where this document differs (E1/E2/E3/E5 evidence ladder, G-GOV gate, ratification batch as a gate), the registry rules win. The historical analysis is kept unchanged.
+
 **Статус:** **Proposed.** Сопоставление OCC-01…08, предложенных AOD-25/26 и других ранее принятых решений с существующими записями. Ни одна запись не объявляется подтверждённой; ни один статус GOV-01 не меняется; существующие документы не правятся. Модель статусов — `owner-approval-procedure-proposal.md` §2 (`status` + `level`).
 **Дата проверки:** 2026-11-09; HEAD `8854a44` (см. `odm-10-governance-review.md` §1).
 

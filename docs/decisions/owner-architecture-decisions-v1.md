@@ -50,7 +50,7 @@ The owner still has to decide (none is decided by this record): approval of any 
 
 ## 4. Change control
 
-An Approved Owner Decision is changed only by a new owner decision recorded in `docs/decisions/` that names the AOD id it replaces. A change needs the owner's explicit approval in chat or in a signed-off pull request; an agent may propose a change but may not apply it.
+Decisions are recorded and changed only through `docs/decisions/decision-registry.md` (rules: DEC-002; earlier wording of this section, which accepted "explicit approval in chat or in a signed-off pull request", is replaced to remove the conflict with plan 3.3). An AOD is changed by a new registry entry that names the AOD id it supersedes. An explicit owner statement in chat is an accepted source; an agent may propose a change but may not apply it as an owner decision. In the registry the AOD rows below appear as `RECORDED` (DEC-004…DEC-027) until the owner confirms them; the word "Approved" in this file is read that way.
 
 ## 5. Decision records of 2026-11-05
 

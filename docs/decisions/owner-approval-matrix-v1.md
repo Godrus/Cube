@@ -403,4 +403,4 @@ Not a decision but an action to start at once: acquire a physical Android ARM64 
 
 ## 12. Recording decisions
 
-When the owner decides, the entry is added to `owner-architecture-decisions-v1.md` (or a successor decision log) with the date, the chosen option and any amendment. Only then does the status of a matrix row change to Approved. Nothing in this file is to be read as approved, and no other document is updated automatically.
+Decisions are recorded in `docs/decisions/decision-registry.md` (rules: DEC-002). The earlier text of this section, which pointed to `owner-architecture-decisions-v1.md`, is replaced so that there is one recording process. A matrix row changes status only through a registry entry; nothing in this file is to be read as approved by itself.

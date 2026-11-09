@@ -1,5 +1,7 @@
 # Owner Approval Procedure — Proposal
 
+> **Update 2026-11-09:** the owner adopted the model of this proposal in simplified form (DEC-002 in `docs/decisions/decision-registry.md`): statuses `PROPOSED/RECORDED/CONFIRMED/DEFERRED/SUPERSEDED/REJECTED`, levels `CONCEPT/TECHNICAL`, chat confirmation as a permitted source, no mandatory signatures, no second confirmation cycle. ODM-10 is closed. Where this document differs (E1/E2/E3/E5 evidence ladder, G-GOV gate, ratification batch as a gate), the registry rules win. The historical analysis is kept unchanged.
+
 **Статус:** **Proposed.** Ничего не действует, пока владелец не примет это решение сам (ODM-10). Документ не создаёт реестр в репозитории, не меняет планы и статусы, не отключает проверок. Каждое правило, отличающееся от действующего плана, помечено **Δ** (изменение правила, требует решения владельца).
 **Обоснование и противоречия:** `odm-10-governance-review.md`.
 

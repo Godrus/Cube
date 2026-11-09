@@ -98,7 +98,14 @@ Every Provisional contract needs: (1) **basis** of the temporary decision; (2) *
 
 ### 3.3 Decision registry
 
-A single file `docs/decisions/decision-registry.md` (proposed; created by the owner's decision GOV-01/GOV-02) records every owner decision: id, date, decision, status, scope, **source of confirmation**, superseded ids. Accepted confirmation sources: (a) an owner-signed commit or pull-request approval in the repository; (b) a decision text written by the owner in the repository. **A chat instruction alone is not a confirmation source**; an agent may transcribe it as `recorded, awaiting confirmation`, and it becomes effective only when the owner countersigns by (a) or (b). *Fact:* AOD-01…24 (`owner-architecture-decisions-v1.md`) were transcribed by an agent from chat; they are therefore `recorded, awaiting owner confirmation` until countersigned (decision GOV-01 covers this).
+A single file `docs/decisions/decision-registry.md` records every decision: id, aliases, level (`CONCEPT` or `TECHNICAL`), status (`PROPOSED`, `RECORDED`, `CONFIRMED`, `DEFERRED`, `SUPERSEDED`, `REJECTED`), exact statement, dates (`decided_on`, `recorded_on`, `confirmed_on`, kept apart), source and its availability, and superseded ids. The recording rules are those of DEC-002 in that file (owner instruction of 2026-11-09, which replaced the earlier text of this section):
+
+* Accepted sources for `CONFIRMED`: an explicit owner statement in chat; a pull-request approval; an owner-written text in the repository; for `TECHNICAL` entries, an engineering decision by an agent under the owner's delegation (DEC-001), marked `AGENT_DELEGATED`. A commit under the owner's Git account is not itself a decision. **"Owner-signed" does not require a cryptographic signature**; signatures are optional unless a separate policy requires them.
+* An agent transcribing a decision from chat whose primary source cannot be verified in the repository records it as `RECORDED`, never `CONFIRMED`; it never invents a source. An agent never confirms product (`CONCEPT`) decisions on the owner's behalf.
+* A `CONCEPT` entry carries `not_decided` and never approves an algorithm, format, width, module structure, public API, implementation or stage.
+* Several decisions may be registered in one commit.
+
+*Fact (2026-11-09):* AOD-01…24 were transcribed by an agent from chat; they are `RECORDED` (DEC-004…DEC-027) until the owner confirms them (DEC-029).
 
 ## 4. P0, P0-alpha and Provisional Contracts
 

@@ -91,3 +91,7 @@ Open questions that stay open and visible: ABI of the handles (signature), wheth
 | WG-01…WG-10 | GOV-21 | WGEN-02, WGEN-03 |
 | SR-01…SR-10, protocol types | GOV-22 | NET-02, SRV-01 |
 | Freeze of PC-1 | GOV-15 (after GOV-08) | release gate G14 |
+
+## 5. Decisions registered (2026-11-09)
+
+All items of section 1 and the part A / part D principle of section 2 are decided in `docs/decisions/decision-registry.md` (engineering decisions under the owner's delegation, DEC-001; each may be amended by the owner): ACR-001 DEC-055, ACR-002 DEC-056, ACR-003 DEC-057, ACR-004 A DEC-058, OAM-10/part D DEC-059, OD-R1 DEC-060, OD-R2 DEC-061, OD-R6 DEC-062, D-R8 DEC-063, D-K DEC-064, D-T DEC-065, D-C DEC-066, D-0 DEC-067, D-E DEC-068 (project licence: DEFERRED, DEC-070), branch option DEC-069. This section records the pointer only; the registry entries hold the exact decisions.
