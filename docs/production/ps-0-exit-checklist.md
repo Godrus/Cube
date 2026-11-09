@@ -71,23 +71,24 @@ Physical devices and Android emulator runs; the Geometry Processing Specificatio
 
 **G1 verdict:** all seven criteria are met at the commit that carries this section; known open parts of individual contracts are listed in `docs/api-contracts/README.md` and do not belong to PS-1 scope. PS-2 may start under the rules of the ADG (task entry criteria still apply, including the Geometry Processing Specification question ODM-02).
 
-## 7. PS-2 / G2 status, 2026-11-09 (evaluation, not a gate decision)
+## 7. PS-2 / G2 evaluation, 2026-11-09 (DEC-081)
 
-Statuses are kept apart: **IMPLEMENTED** (code exists), **TESTED** (its tests pass on the CI host), **INTEGRATED** (on `dev` through the required checks), **GATE PASSED** (the stage gate closed).
+Statuses are kept apart: **IMPLEMENTED**, **TESTED** (CI host), **INTEGRATED** (on `dev` through the required checks), **GATE PASSED**.
 
-| Task | IMPLEMENTED | TESTED | INTEGRATED | Evidence / condition |
+| Member | IMPLEMENTED | TESTED | INTEGRATED | Evidence |
 |---|---|---|---|---|
-| CORE-16 | yes | yes | yes | `dev` b50bdd0; CI run 42619486538 |
-| PROC-01...PROC-05 | yes | yes | yes | `dev` 4436df3; CI run 42621940285 (fmt, clippy, test on ubuntu and windows, deny, archcheck) |
-| TEST-08 | yes | yes (stress on both OSes, loom models on ubuntu) | yes | `processing_concurrency.rs`, `processing_loom.rs`, loom step in `ci.yml` |
-| CORE-15 | yes (branch `prod/ps2-core-bounds`, fc4f043) | yes (CI run 42622046659) | **no** | ADG merge-after includes GOV-16 (C-05 approval), not decided |
-| PROC-06 | yes (branch `prod/ps2-processing-caps`) | yes locally; CI on the branch tip pending at the time of writing | **no** | ADG merge-after includes GOV-24 (OD-R4) and needs CORE-15 for the bounds slot |
-| GOV-07 | n/a | n/a | n/a | **open:** PR-01...PR-08 not Owner-Approved; EXT-GPS (Geometry Processing Specification) absent; DEC-077 allows implementing on TC-01 but does not approve anything |
-| GOV-16 | n/a | n/a | n/a | **open** (owner) |
-| GOV-24 | n/a | n/a | n/a | **open** (owner); caps are tunable provisional constants meanwhile |
+| CORE-16 | yes | yes | yes | `b50bdd0`, CI 42619486538 |
+| CORE-15 | yes | yes | yes | `377ad25`, CI 42624250865; C-05 approved by DEC-079 (GOV-16) |
+| PROC-01...05 | yes | yes | yes | `4436df3`, CI 42621940285 |
+| PROC-06 | yes | yes | yes | `d164d21`, CI 42624528085; OD-R4 policy DEC-080 (GOV-24); per-snapshot, per-asset, active-snapshot and lifetime budgets, named refusals |
+| TEST-08 | yes | yes | yes | stress (both OS) and loom models (ubuntu) in CI |
+| GOV-07 | n/a | n/a | n/a | DONE through the owner-recorded alternative DEC-078 (allowed by the GOV-07 acceptance text and the PS-2 stage description); PR-01...PR-08 are **not** Owner-Approved or Frozen; RG-2 stays mandatory |
+| GOV-16 | n/a | n/a | n/a | DONE, DEC-079 |
+| GOV-24 | n/a | n/a | n/a | DONE, DEC-080 |
 
-**G2: NOT PASSED.** Remaining conditions, exactly: GOV-07 (the specification, or an owner-recorded alternative such as the reading of ODM-02 proposed in `docs/m2-delivery-review/M2_TASK_GRAPH.md` D-6), GOV-16, GOV-24; then merge CORE-15 and PROC-06 into `dev` and re-run CI. Nothing else in PS-2 is missing. PS-3 is not started: its API-02 merges only after G2, and the Editing contracts (E-02...E-12) have no provisional registration yet.
+**Exit criteria checked** (not only the existence of code): snapshot isolation and apron consistency (`processing_snapshot.rs`); provider DAG with deterministic order and cycle diagnostics (`graph.rs`, random-graph property test); cancellation at every state (`processing_executor.rs`, `processing_caps.rs`); stale rejection under explored interleavings (loom: slot, token, executor racing a commit; stress without violations); resource caps on the synthetic mobile budget; bounds integration (`BoundsProvider`: unknown data is a failure, never Empty); no direct Core mutation from Processing (archcheck ARCH-HANDLE and the crate graph); compliance with the provisional limits (`processing-foundation-contract.md`). Tools on the integration commit `d164d21`: `cargo fmt`, `clippy -D warnings`, `cargo test --workspace`, `cargo deny`, `cargo xtask archcheck` (all required checks green in CI run 42624528085), `docs/audit/adg_check.py --strict` PASS.
 
+<<<<<<< HEAD
 ## 8. PS-3 / G3 status, 2026-11-09 (in progress; G3 NOT passed)
 
 | Task | IMPLEMENTED | TESTED | INTEGRATED | Gate |
@@ -101,3 +102,6 @@ Statuses are kept apart: **IMPLEMENTED** (code exists), **TESTED** (its tests pa
 
 G3 closes when all six members are merged and accepted; it is blocked only by GOV-09.
 
+=======
+**PS-2 CLOSED - G2 PASSED** (conditional on RG-2: the provisional Processing contracts are diffed against the Geometry Processing Specification when it exists, before PR-01...PR-08 are frozen). PS-3 may start under the ADG.
+>>>>>>> origin/dev
