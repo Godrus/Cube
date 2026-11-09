@@ -90,505 +90,505 @@ id: DEC-004
 aliases: [AOD-01]
 category: ARCHITECTURE
 level: TECHNICAL
-status: RECORDED
+status: CONFIRMED
 statement: >
   Language: Rust. Consequence as recorded: Core, WorldGen, Editing, Persistence, Server, protocol are Rust. No C#/C++ gameplay or core code.
-decided_by: OWNER (as transcribed by an agent)
+decided_by: OWNER
 decided_on: 2026-11-04
 decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were recorded from the owner's instruction in chat on 2026-11-04')
 recorded_on: 05d7e7e (2026-11-04)
-confirmed_on: 
-confirmation_evidence: NONE (agent transcription of a chat instruction; not yet countersigned)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
 source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-01
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
-
+  - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
 ## DEC-005  AOD-02: First client: Godot 4.x
 id: DEC-005
 aliases: [AOD-02]
 category: ARCHITECTURE
 level: TECHNICAL
-status: RECORDED
+status: CONFIRMED
 statement: >
   First client: Godot 4.x. Consequence as recorded: The first shippable client is a Godot client. No second engine is started before the replacement question (AOD-06) is explicitly opened.
-decided_by: OWNER (as transcribed by an agent)
+decided_by: OWNER
 decided_on: 2026-11-04
 decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were recorded from the owner's instruction in chat on 2026-11-04')
 recorded_on: 05d7e7e (2026-11-04)
-confirmed_on: 
-confirmation_evidence: NONE (agent transcription of a chat instruction; not yet countersigned)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
 source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-02
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
-
+  - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
 ## DEC-006  AOD-03: Integration: Rust GDExtension
 id: DEC-006
 aliases: [AOD-03]
 category: ARCHITECTURE
 level: TECHNICAL
-status: RECORDED
+status: CONFIRMED
 statement: >
   Integration: Rust GDExtension. Consequence as recorded: The only Rust-to-Godot path is a GDExtension library (godot-rust). No C# bridge, no sidecar process driven through OS calls.
-decided_by: OWNER (as transcribed by an agent)
+decided_by: OWNER
 decided_on: 2026-11-04
 decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were recorded from the owner's instruction in chat on 2026-11-04')
 recorded_on: 05d7e7e (2026-11-04)
-confirmed_on: 
-confirmation_evidence: NONE (agent transcription of a chat instruction; not yet countersigned)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
 source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-03
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
-
+  - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
 ## DEC-007  AOD-04: Geometry Core is pure Rust with no Godot dependency
 id: DEC-007
 aliases: [AOD-04]
 category: ARCHITECTURE
 level: TECHNICAL
-status: RECORDED
+status: CONFIRMED
 statement: >
   Geometry Core is pure Rust with no Godot dependency. Consequence as recorded: Core crates must build and test without Godot; no engine types in Core.
-decided_by: OWNER (as transcribed by an agent)
+decided_by: OWNER
 decided_on: 2026-11-04
 decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were recorded from the owner's instruction in chat on 2026-11-04')
 recorded_on: 05d7e7e (2026-11-04)
-confirmed_on: 
-confirmation_evidence: NONE (agent transcription of a chat instruction; not yet countersigned)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
 source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-04
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
-
+  - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
 ## DEC-008  AOD-05: Server is a separate headless Rust process using the same Core
 id: DEC-008
 aliases: [AOD-05]
 category: ARCHITECTURE
 level: TECHNICAL
-status: RECORDED
+status: CONFIRMED
 statement: >
   Server is a separate headless Rust process using the same Core. Consequence as recorded: A dedicated binary, no Godot linked, built from the same Core/Editing crates as the client runtime.
-decided_by: OWNER (as transcribed by an agent)
+decided_by: OWNER
 decided_on: 2026-11-04
 decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were recorded from the owner's instruction in chat on 2026-11-04')
 recorded_on: 05d7e7e (2026-11-04)
-confirmed_on: 
-confirmation_evidence: NONE (agent transcription of a chat instruction; not yet countersigned)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
 source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-05
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
-
+  - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
 ## DEC-009  AOD-06: Godot is a temporary, replaceable frontend
 id: DEC-009
 aliases: [AOD-06]
 category: ARCHITECTURE
 level: TECHNICAL
-status: RECORDED
+status: CONFIRMED
 statement: >
   Godot is a temporary, replaceable frontend. Consequence as recorded: Everything a frontend needs sits behind a narrow adapter; game rules, geometry, generation, persistence and protocol never live in Godot assets or scripts.
-decided_by: OWNER (as transcribed by an agent)
+decided_by: OWNER
 decided_on: 2026-11-04
 decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were recorded from the owner's instruction in chat on 2026-11-04')
 recorded_on: 05d7e7e (2026-11-04)
-confirmed_on: 
-confirmation_evidence: NONE (agent transcription of a chat instruction; not yet countersigned)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
 source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-06
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
-
+  - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
 ## DEC-010  AOD-07: GDScript: UI and glue only
 id: DEC-010
 aliases: [AOD-07]
 category: ARCHITECTURE
 level: TECHNICAL
-status: RECORDED
+status: CONFIRMED
 statement: >
   GDScript: UI and glue only. Consequence as recorded: No authoritative logic, no persistence, no generation, no networking in GDScript. Glue = mirroring Rust state into nodes, input forwarding, HUD.
-decided_by: OWNER (as transcribed by an agent)
+decided_by: OWNER
 decided_on: 2026-11-04
 decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were recorded from the owner's instruction in chat on 2026-11-04')
 recorded_on: 05d7e7e (2026-11-04)
-confirmed_on: 
-confirmation_evidence: NONE (agent transcription of a chat instruction; not yet countersigned)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
 source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-07
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
-
+  - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
 ## DEC-011  AOD-08: Android and iOS are mandatory targets
 id: DEC-011
 aliases: [AOD-08]
 category: ARCHITECTURE
 level: TECHNICAL
-status: RECORDED
+status: CONFIRMED
 statement: >
   Android and iOS are mandatory targets. Consequence as recorded: Every gate that touches runtime must state its mobile impact; mobile is not a late port.
-decided_by: OWNER (as transcribed by an agent)
+decided_by: OWNER
 decided_on: 2026-11-04
 decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were recorded from the owner's instruction in chat on 2026-11-04')
 recorded_on: 05d7e7e (2026-11-04)
-confirmed_on: 
-confirmation_evidence: NONE (agent transcription of a chat instruction; not yet countersigned)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
 source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-08
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
-
+  - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
 ## DEC-012  AOD-09: WorldGen is pure Rust and deterministic, seed-based
 id: DEC-012
 aliases: [AOD-09]
 category: ARCHITECTURE
 level: TECHNICAL
-status: RECORDED
+status: CONFIRMED
 statement: >
   WorldGen is pure Rust and deterministic, seed-based. Consequence as recorded: Generation is a pure function of (seed, generator version, coordinates); no floats in world-defining math, no global state, no time. Pinned hashes guard it.
-decided_by: OWNER (as transcribed by an agent)
+decided_by: OWNER
 decided_on: 2026-11-04
 decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were recorded from the owner's instruction in chat on 2026-11-04')
 recorded_on: 05d7e7e (2026-11-04)
-confirmed_on: 
-confirmation_evidence: NONE (agent transcription of a chat instruction; not yet countersigned)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
 source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-09
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
-
+  - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
 ## DEC-013  AOD-10: Renderer: `faces` is the reference; `greedy` is an experimental candid
 id: DEC-013
 aliases: [AOD-10]
 category: ARCHITECTURE
 level: TECHNICAL
-status: RECORDED
+status: CONFIRMED
 statement: >
   Renderer: `faces` is the reference; `greedy` is an experimental candidate until a real mobile benchmark. Consequence as recorded: `faces` is the default and the correctness oracle; `greedy` may not become the default before a physical-device comparison.
-decided_by: OWNER (as transcribed by an agent)
+decided_by: OWNER
 decided_on: 2026-11-04
 decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were recorded from the owner's instruction in chat on 2026-11-04')
 recorded_on: 05d7e7e (2026-11-04)
-confirmed_on: 
-confirmation_evidence: NONE (agent transcription of a chat instruction; not yet countersigned)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
 source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-10
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
-
+  - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
 ## DEC-014  AOD-11: An ARM64 emulator never replaces a physical device
 id: DEC-014
 aliases: [AOD-11]
 category: ARCHITECTURE
 level: TECHNICAL
-status: RECORDED
+status: CONFIRMED
 statement: >
   An ARM64 emulator never replaces a physical device. Consequence as recorded: Emulator runs may be reported as functional checks only; mobile readiness needs a physical device (Android ARM64) and an iOS device.
-decided_by: OWNER (as transcribed by an agent)
+decided_by: OWNER
 decided_on: 2026-11-04
 decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were recorded from the owner's instruction in chat on 2026-11-04')
 recorded_on: 05d7e7e (2026-11-04)
-confirmed_on: 
-confirmation_evidence: NONE (agent transcription of a chat instruction; not yet countersigned)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
 source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-11
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
-
+  - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
 ## DEC-015  AOD-12: `OS.execute` (and any child-process or shell call) is forbidden in the
 id: DEC-015
 aliases: [AOD-12]
 category: ARCHITECTURE
 level: TECHNICAL
-status: RECORDED
+status: CONFIRMED
 statement: >
   `OS.execute` (and any child-process or shell call) is forbidden in the production runtime. Consequence as recorded: No GDScript, adapter or client code may start processes, call `getprop` or shell out. Test tooling runs on the host, never inside the app.
-decided_by: OWNER (as transcribed by an agent)
+decided_by: OWNER
 decided_on: 2026-11-04
 decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were recorded from the owner's instruction in chat on 2026-11-04')
 recorded_on: 05d7e7e (2026-11-04)
-confirmed_on: 
-confirmation_evidence: NONE (agent transcription of a chat instruction; not yet countersigned)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
 source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-12
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
-
+  - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
 ## DEC-016  AOD-13: Server authority: the authoritative world state lives on the server
 id: DEC-016
 aliases: [AOD-13]
 category: ARCHITECTURE
 level: TECHNICAL
-status: RECORDED
+status: CONFIRMED
 statement: >
   Server authority: the authoritative world state lives on the server. Consequence as recorded: Any state that matters (voxels, entities, inventory, time) is decided and stored by the server; replication goes server to client.
-decided_by: OWNER (as transcribed by an agent)
+decided_by: OWNER
 decided_on: 2026-11-04
 decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were recorded from the owner's instruction in chat on 2026-11-04')
 recorded_on: 05d7e7e (2026-11-04)
-confirmed_on: 
-confirmation_evidence: NONE (agent transcription of a chat instruction; not yet countersigned)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
 source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-13
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
-
+  - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
 ## DEC-017  AOD-14: The client is never the source of truth
 id: DEC-017
 aliases: [AOD-14]
 category: ARCHITECTURE
 level: TECHNICAL
-status: RECORDED
+status: CONFIRMED
 statement: >
   The client is never the source of truth. Consequence as recorded: The client holds a cache and a prediction; it may be wrong and is corrected. No client-side save is authoritative.
-decided_by: OWNER (as transcribed by an agent)
+decided_by: OWNER
 decided_on: 2026-11-04
 decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were recorded from the owner's instruction in chat on 2026-11-04')
 recorded_on: 05d7e7e (2026-11-04)
-confirmed_on: 
-confirmation_evidence: NONE (agent transcription of a chat instruction; not yet countersigned)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
 source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-14
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
-
+  - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
 ## DEC-018  AOD-15: User changes go through the Editing API
 id: DEC-018
 aliases: [AOD-15]
 category: ARCHITECTURE
 level: TECHNICAL
-status: RECORDED
+status: CONFIRMED
 statement: >
   User changes go through the Editing API. Consequence as recorded: Every user-originated change to geometry is an operation with an operation id, validation, revision effect and history semantics.
-decided_by: OWNER (as transcribed by an agent)
+decided_by: OWNER
 decided_on: 2026-11-04
 decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were recorded from the owner's instruction in chat on 2026-11-04')
 recorded_on: 05d7e7e (2026-11-04)
-confirmed_on: 
-confirmation_evidence: NONE (agent transcription of a chat instruction; not yet countersigned)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
 source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-15
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
-
+  - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
 ## DEC-019  AOD-16: Procedural generation is a separate WorldGen/System boundary, not an o
 id: DEC-019
 aliases: [AOD-16]
 category: ARCHITECTURE
 level: TECHNICAL
-status: RECORDED
+status: CONFIRMED
 statement: >
   Procedural generation is a separate WorldGen/System boundary, not an ordinary user edit. Consequence as recorded: Generated data does not enter history, is not a user operation, and has its own revision and persistence rules.
-decided_by: OWNER (as transcribed by an agent)
+decided_by: OWNER
 decided_on: 2026-11-04
 decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were recorded from the owner's instruction in chat on 2026-11-04')
 recorded_on: 05d7e7e (2026-11-04)
-confirmed_on: 
-confirmation_evidence: NONE (agent transcription of a chat instruction; not yet countersigned)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
 source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-16
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
-
+  - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
 ## DEC-020  AOD-17: Persistence: an untouched world is stored as seed + generator version;
 id: DEC-020
 aliases: [AOD-17]
 category: ARCHITECTURE
 level: TECHNICAL
-status: RECORDED
+status: CONFIRMED
 statement: >
   Persistence: an untouched world is stored as seed + generator version; user changes as versioned deltas/journal. Consequence as recorded: The save of an untouched world is tiny and regenerated; user changes are an append-only versioned journal with snapshots/compaction as an optimisation. Generator versions must stay reproducible (or be baked) for every saved world.
-decided_by: OWNER (as transcribed by an agent)
+decided_by: OWNER
 decided_on: 2026-11-04
 decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were recorded from the owner's instruction in chat on 2026-11-04')
 recorded_on: 05d7e7e (2026-11-04)
-confirmed_on: 
-confirmation_evidence: NONE (agent transcription of a chat instruction; not yet countersigned)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
 source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-17
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
-
+  - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
 ## DEC-021  AOD-18: P0/P1 contracts stay Draft until the owner separately approves them
 id: DEC-021
 aliases: [AOD-18]
 category: ARCHITECTURE
 level: TECHNICAL
-status: RECORDED
+status: CONFIRMED
 statement: >
   P0/P1 contracts stay Draft until the owner separately approves them. Consequence as recorded: No code may claim a P0/P1 contract as Approved or Frozen. Spike implementations are experimental.
-decided_by: OWNER (as transcribed by an agent)
+decided_by: OWNER
 decided_on: 2026-11-04
 decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were recorded from the owner's instruction in chat on 2026-11-04')
 recorded_on: 05d7e7e (2026-11-04)
-confirmed_on: 
-confirmation_evidence: NONE (agent transcription of a chat instruction; not yet countersigned)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
 source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-18
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
-
+  - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
 ## DEC-022  AOD-19: AU-1.0 and ACR-001/002/003 are not rewritten automatically
 id: DEC-022
 aliases: [AOD-19]
 category: ARCHITECTURE
 level: TECHNICAL
-status: RECORDED
+status: CONFIRMED
 statement: >
   AU-1.0 and ACR-001/002/003 are not rewritten automatically. Consequence as recorded: These documents change only by explicit owner action. Where a decision here seems to touch them, the interaction is listed for the owner (section 3), not applied.
-decided_by: OWNER (as transcribed by an agent)
+decided_by: OWNER
 decided_on: 2026-11-04
 decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were recorded from the owner's instruction in chat on 2026-11-04')
 recorded_on: 05d7e7e (2026-11-04)
-confirmed_on: 
-confirmation_evidence: NONE (agent transcription of a chat instruction; not yet countersigned)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
 source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-19
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
-
+  - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
 ## DEC-023  AOD-20: WorldGen to Core: hybrid option C, realised as variant C3. System gene
 id: DEC-023
 aliases: [AOD-20, OAM-01]
 category: ARCHITECTURE
 level: TECHNICAL
-status: RECORDED
+status: CONFIRMED
 statement: >
   WorldGen to Core: hybrid option C, realised as variant C3. System generation goes through a WorldGen/System-commit boundary; user changes only through the Editing API. Details, scope and limits: section 5.1. Consequence as recorded: The server owns the authoritative world; WorldGen never bypasses the public Core/system-commit ports; initial generation is not in ordinary undo/redo; system generation gets an OperationId and takes part in revision/commit semantics.
-decided_by: OWNER (as transcribed by an agent)
+decided_by: OWNER
 decided_on: 2026-11-05
 decided_on_basis: header and section 5 of owner-architecture-decisions-v1.md (2026-11-05)
 recorded_on: 8f487ef (2026-11-05)
-confirmed_on: 
-confirmation_evidence: NONE (agent transcription of a chat instruction; not yet countersigned)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
 source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-20
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
-
+  - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
 ## DEC-024  AOD-21: Persistence: seed + GeneratorVersion for the untouched world, a durabl
 id: DEC-024
 aliases: [AOD-21, OAM-02]
 category: ARCHITECTURE
 level: TECHNICAL
-status: RECORDED
+status: CONFIRMED
 statement: >
   Persistence: seed + GeneratorVersion for the untouched world, a durable mutation journal for user changes, periodic compaction into chunk snapshots. Section 5.2. Consequence as recorded: Load order base generation, then snapshot, then journal tail; snapshots are not the only source of truth; the journal survives sudden process termination; a generator change never silently changes an existing world (pin, or explicit bake/migration).
-decided_by: OWNER (as transcribed by an agent)
+decided_by: OWNER
 decided_on: 2026-11-05
 decided_on_basis: header and section 5 of owner-architecture-decisions-v1.md (2026-11-05)
 recorded_on: 8f487ef (2026-11-05)
-confirmed_on: 
-confirmation_evidence: NONE (agent transcription of a chat instruction; not yet countersigned)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
 source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-21
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
-
+  - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
 ## DEC-025  AOD-22: Embedded and dedicated server run the same authoritative Rust server r
 id: DEC-025
 aliases: [AOD-22, OAM-03]
 category: ARCHITECTURE
 level: TECHNICAL
-status: RECORDED
+status: CONFIRMED
 statement: >
   Embedded and dedicated server run the same authoritative Rust server runtime. Section 5.3. Consequence as recorded: Single-player starts the runtime in the client process; the dedicated server starts the same runtime in its own process; no client-only authoritative mode; transport, persistence and authority boundaries are identical.
-decided_by: OWNER (as transcribed by an agent)
+decided_by: OWNER
 decided_on: 2026-11-05
 decided_on_basis: header and section 5 of owner-architecture-decisions-v1.md (2026-11-05)
 recorded_on: 8f487ef (2026-11-05)
-confirmed_on: 
-confirmation_evidence: NONE (agent transcription of a chat instruction; not yet countersigned)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
 source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-22
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
-
+  - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
 ## DEC-026  AOD-23: Licence and sources policy. Section 5.4
 id: DEC-026
 aliases: [AOD-23, OAM-07]
 category: ARCHITECTURE
 level: TECHNICAL
-status: RECORDED
+status: CONFIRMED
 statement: >
   Licence and sources policy. Section 5.4. Consequence as recorded: Veloren code/assets are not copied; GPL projects are architectural references only; CubeWorld-Reversal is research material only; nothing reverse-engineered is carried over; ideas are re-thought and implemented independently; legally sensitive cases are marked for separate review.
-decided_by: OWNER (as transcribed by an agent)
+decided_by: OWNER
 decided_on: 2026-11-05
 decided_on_basis: header and section 5 of owner-architecture-decisions-v1.md (2026-11-05)
 recorded_on: 8f487ef (2026-11-05)
-confirmed_on: 
-confirmation_evidence: NONE (agent transcription of a chat instruction; not yet countersigned)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
 source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-23
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
-
+  - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
 ## DEC-027  AOD-24: Missing sources: Conditionally Approved. Section 5.5
 id: DEC-027
 aliases: [AOD-24, OAM-08]
 category: ARCHITECTURE
 level: TECHNICAL
-status: RECORDED
+status: CONFIRMED
 statement: >
   Missing sources: Conditionally Approved. Section 5.5. Condition: Conditionally Approved; a temporary baseline never substitutes for the Geometry Processing Specification before PR-01..PR-08 are approved. Consequence as recorded: A temporary owner-approved baseline is allowed for limited parts of Geometry Core, WorldGen and the roadmap; it never substitutes the Geometry Processing Specification before PR-01…PR-08 are approved; missing documents still block final P0/P1 approval.
-decided_by: OWNER (as transcribed by an agent)
+decided_by: OWNER
 decided_on: 2026-11-05
 decided_on_basis: header and section 5 of owner-architecture-decisions-v1.md (2026-11-05)
 recorded_on: 8f487ef (2026-11-05)
-confirmed_on: 
-confirmation_evidence: NONE (agent transcription of a chat instruction; not yet countersigned)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
 source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-24
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
-
+  - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
 ## DEC-028  Rust runtime and Godot first client (spike decision)
 id: DEC-028
 aliases: [owner-decision-rust-godot, AOD-01..03 (same content)]
@@ -615,22 +615,22 @@ id: DEC-029
 aliases: [X-1 (confirmation batch)]
 category: PROCESS
 level: TECHNICAL
-status: PROPOSED
+status: CONFIRMED
 statement: >
   Owner statement needed: confirm each of DEC-004..DEC-027 (AOD-01..24) and the Rust+Godot record as written, or list amendments or rejections. Until then they stay RECORDED. GOV-02 evidence lists 'AOD-01..24 countersigned'.
-decided_by: PENDING
+decided_by: OWNER
 decided_on: UNKNOWN
 decided_on_basis: 
 recorded_on: 2026-11-09 (this registry)
-confirmed_on: 
-confirmation_evidence: NONE
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09)
 source: docs/gov01/GOV-01-DECISION-REGISTER.md item X-1; docs/production/ps-0-exit-checklist.md section 1 row 2
 source_availability: IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/production/ps-0-exit-checklist.md]
 history:
   - 2026-11-09 entry created
-
+  - 2026-11-09 done: the owner confirmed AOD-01..24 in chat (DEC-004..DEC-027, conditions in DEC-075); no further ratification step
 ## DEC-030  Built-in content as package `cube`; shared registration; controlled extension
 id: DEC-030
 aliases: [OCC-02 (part), CPR-CON-01, CPR-CON-02, CPR-CON-11, S-3, S-4, S-8 (concept)]
@@ -1709,3 +1709,30 @@ owner: Project Owner
 affected_documents: [docs/production/module-boundaries.md]
 history:
   - 2026-11-09 entry created; patch applied in the same change set
+
+## DEC-075  Conditions of the confirmation of AOD-01..24
+id: DEC-075
+aliases: [X-1 (confirmation batch), GOV-02 evidence 'AOD-01..24 countersigned']
+category: PROCESS
+level: TECHNICAL
+status: CONFIRMED
+statement: >
+  The owner confirms the architectural decisions AOD-01..24 in the wording of docs/decisions/owner-architecture-decisions-v1.md (registry entries DEC-004..DEC-027). Conditions stated by the owner: AOD-01..23 are confirmed within their original scope; AOD-24 keeps the status Conditionally Approved and all related constraints; Godot stays the first client of Cube but is not a mandatory dependency of the Rust Core; `faces` stays the correctness reference until proper comparative measurements against `greedy`; the confirmation does not automatically approve missing specifications, unverified API contracts, experimental code or test results; previously recorded open questions stay open unless separately resolved.
+not_decided:
+  - missing specifications (Voxel Architecture, Geometry Processing Specification, GDD/TDD)
+  - any API contract not otherwise approved
+  - spike code and spike results
+  - questions recorded as open in owner-architecture-decisions-v1.md section 2
+decided_by: OWNER
+decided_on: 2026-11-09
+decided_on_basis: date of the owner's message
+recorded_on: 2026-11-09 (this registry)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner message 'Cube - Final PS-0 Closure & Immediate Production Implementation', section 1; no Git signature required)
+source: owner chat message, session 2026-11-09 (transcript outside the repository)
+source_availability: UNAVAILABLE in repository (session transcript only)
+owner: Project Owner
+refines: [DEC-029]
+affected_documents: [docs/decisions/owner-architecture-decisions-v1.md, docs/production/ps-0-exit-checklist.md]
+history:
+  - 2026-11-09 entry created
