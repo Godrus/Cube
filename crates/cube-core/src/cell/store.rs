@@ -205,7 +205,6 @@ impl CellStore {
     }
 
     /// Forgets a cell: it becomes `NotLoaded` again (crate-private; used by eviction).
-    #[allow(dead_code)]
     pub(crate) fn remove(&mut self, level: i8, brick: BrickCoord) {
         self.cells.remove(&(level, brick));
     }

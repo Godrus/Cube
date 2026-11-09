@@ -29,7 +29,7 @@ pub use cell::{
 };
 pub use commit::{
     AssetState, CellChange, CellWrite, CommitBatch, CommitError, CommitLogEntry, CommitOutcome,
-    Conflict, ExpectedRevision, SharedAsset, WriteSet,
+    Conflict, ExpectedRevision, MaterialiseOutcome, SharedAsset, WriteSet,
 };
 pub use coord::{BRICK_EDGE, BRICK_VOLUME, BrickCoord, LocalPos, VoxelPos};
 pub use dirty::{ChangeType, DirtyRegion};

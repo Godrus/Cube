@@ -135,6 +135,23 @@ pub struct CommitOutcome {
     pub dirty: Vec<DirtyRegion>,
 }
 
+/// Result of a materialisation request.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum MaterialiseOutcome {
+    /// The cell was not loaded and has been written.
+    Written(CommitOutcome),
+    /// The cell was already loaded: nothing was changed.
+    AlreadyLoaded,
+}
+
+fn missing_store_error(state: &AssetState, layer: LayerId) -> CommitError {
+    if state.asset.layer(layer).is_some() {
+        CommitError::PayloadKindMismatch(layer)
+    } else {
+        CommitError::UnknownLayer(layer)
+    }
+}
+
 /// Immutable state of an asset: structure, data and all revisions.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AssetState {
@@ -178,6 +195,32 @@ impl AssetState {
         self.layer_revisions
             .get(&layer)
             .map(|r| RevisionToken::new(ResourceId::Layer(layer), self.epoch, *r))
+    }
+
+    /// The same state with `layer` data replaced by a new cell store (tokens unchanged).
+    fn with_store(&self, layer: LayerId, store: CellStore) -> Result<Self, CoreError> {
+        let layers: Vec<Layer> = self
+            .asset
+            .layers()
+            .iter()
+            .map(|l| {
+                if l.id() == layer {
+                    let data = match l.kind() {
+                        LayerKind::Sdf => LayerData::Sdf(store.clone()),
+                        _ => LayerData::Voxel(store.clone()),
+                    };
+                    Layer::new(l.id(), l.transform(), data)
+                } else {
+                    l.clone()
+                }
+            })
+            .collect();
+        Ok(Self {
+            asset: GeometryAsset::new(self.asset.id(), layers)?,
+            epoch: self.epoch,
+            revision: self.revision,
+            layer_revisions: self.layer_revisions.clone(),
+        })
     }
 
     fn store(&self, layer: LayerId) -> Option<&CellStore> {
@@ -307,6 +350,99 @@ impl SharedAsset {
             .gate
             .lock()
             .unwrap_or_else(PoisonError::into_inner);
+        self.commit_locked(actor, operation, batch)
+    }
+
+    /// System generation: writes `change` into a cell that is not loaded, and does nothing if the
+    /// cell is already loaded (so repeating it, or racing with a user edit, never overwrites data).
+    /// Atomic with respect to other commits.
+    pub(crate) fn materialise(
+        &self,
+        operation: OperationId,
+        layer: LayerId,
+        level: i8,
+        brick: BrickCoord,
+        change: CellChange,
+    ) -> Result<MaterialiseOutcome, CommitError> {
+        let _gate = self
+            .inner
+            .gate
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner);
+        let current = self.snapshot();
+        let state = current
+            .cell(layer, level, brick)
+            .ok_or_else(|| missing_store_error(&current, layer))??;
+        match state {
+            CellState::Present(_) | CellState::KnownEmpty => {
+                return Ok(MaterialiseOutcome::AlreadyLoaded);
+            }
+            CellState::OutsideBounds => {
+                return Err(CommitError::OutsideBounds {
+                    layer,
+                    level,
+                    brick,
+                });
+            }
+            CellState::NotLoaded | CellState::LoadFailure(_) => {}
+        }
+        let expected = match current.cell_token(layer, level, brick) {
+            Some(t) => ExpectedRevision::At(t.value()),
+            None => ExpectedRevision::Absent,
+        };
+        let batch = CommitBatch {
+            sets: vec![WriteSet {
+                layer,
+                writes: vec![CellWrite {
+                    level,
+                    brick,
+                    expected,
+                    change,
+                }],
+            }],
+        };
+        self.commit_locked(ActorKind::System, operation, &batch)
+            .map(MaterialiseOutcome::Written)
+    }
+
+    /// Drops a loaded cell from memory. Tokens, the commit log and the cell's revision history are
+    /// untouched (the data is not changed, only unloaded); the caller guarantees it is persisted.
+    /// Returns `false` if the cell was not loaded.
+    pub(crate) fn evict(
+        &self,
+        layer: LayerId,
+        level: i8,
+        brick: BrickCoord,
+    ) -> Result<bool, CommitError> {
+        let _gate = self
+            .inner
+            .gate
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner);
+        let current = self.snapshot();
+        let state = current
+            .cell(layer, level, brick)
+            .ok_or_else(|| missing_store_error(&current, layer))??;
+        if !state.is_loaded() {
+            return Ok(false);
+        }
+        let mut store = current.store(layer).cloned().unwrap_or_default();
+        store.remove(level, brick);
+        let next = current.with_store(layer, store)?;
+        *self
+            .inner
+            .state
+            .write()
+            .unwrap_or_else(PoisonError::into_inner) = Arc::new(next);
+        Ok(true)
+    }
+
+    fn commit_locked(
+        &self,
+        actor: ActorKind,
+        operation: OperationId,
+        batch: &CommitBatch,
+    ) -> Result<CommitOutcome, CommitError> {
         let current = self.snapshot();
         let plan = plan_commit(&current, batch)?;
         if plan.changes.is_empty() {

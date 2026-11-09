@@ -7,7 +7,11 @@
 //! [`ActorKind`] of the commit; a caller cannot choose it.
 
 use crate::asset::GeometryAsset;
-use crate::commit::{CommitBatch, CommitError, CommitOutcome, SharedAsset};
+use crate::commit::{
+    CellChange, CommitBatch, CommitError, CommitOutcome, MaterialiseOutcome, SharedAsset,
+};
+use crate::coord::BrickCoord;
+use crate::ids::LayerId;
 use crate::operation::{ActorKind, OperationId};
 
 /// Owner of a new asset; the only source of commit handles.
@@ -93,3 +97,37 @@ handle!(
     RecoveryCommit,
     ActorKind::Recovery
 );
+
+impl SystemCommit {
+    /// Writes generated content into a cell that is not loaded; does nothing if it is already
+    /// loaded (idempotent, never overwrites a user edit). Atomic with respect to other commits.
+    pub fn materialise(
+        &self,
+        operation: OperationId,
+        layer: LayerId,
+        level: i8,
+        brick: BrickCoord,
+        change: CellChange,
+    ) -> Result<MaterialiseOutcome, CommitError> {
+        self.shared
+            .materialise(operation, layer, level, brick, change)
+    }
+
+    /// Unloads a loaded cell without changing any revision; the caller guarantees the data is
+    /// persisted. Returns `false` if the cell was not loaded.
+    pub fn evict(&self, layer: LayerId, level: i8, brick: BrickCoord) -> Result<bool, CommitError> {
+        self.shared.evict(layer, level, brick)
+    }
+}
+
+impl RecoveryCommit {
+    /// Replays persisted changes under their original operation ids (a commit with the
+    /// `Recovery` actor).
+    pub fn restore(
+        &self,
+        operation: OperationId,
+        batch: &CommitBatch,
+    ) -> Result<CommitOutcome, CommitError> {
+        self.shared.commit(ActorKind::Recovery, operation, batch)
+    }
+}
