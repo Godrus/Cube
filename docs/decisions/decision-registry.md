@@ -1758,3 +1758,26 @@ owner: Project Owner
 affected_documents: [docs/api-contracts/README.md, docs/production/ps-0-exit-checklist.md]
 history:
   - 2026-11-09 entry created
+
+## DEC-077  Use of TC-01 (Provisional Processing subset) to implement PS-2
+id: DEC-077
+aliases: [TC-01, ODM-02 (partly)]
+category: PROCESS
+level: TECHNICAL
+status: CONFIRMED
+statement: >
+  The owner permits the Provisional contract TC-01 (PR-01...PR-05 subset, docs/m2-delivery-review/M2_MINIMUM_CONTRACTS.md section 3) to be used to prepare and implement PS-2 Processing Foundation: a temporary technical specification, reversible engineering decisions within the approved principles, production code and tests that rest on explicitly marked provisional contracts, spike checks of disputed technical questions, and sequential integration where the entry and merge conditions of each task allow it. The implementation record is docs/production/processing-foundation-contract.md.
+not_decided: >
+  Owner approval of PR-01...PR-08 (GOV-07); closing ODM-02 (whether a Provisional registration satisfies the condition of AOD-24); the Geometry Processing Specification (EXT-GPS); GOV-16 (C-05 approval); GOV-24 (OD-R4 snapshot lifetime and caps); closing gate G2; declaring any provisional contract Frozen; changing the product concept.
+decided_by: OWNER
+decided_on: 2026-11-09
+decided_on_basis: date of the owner's message
+recorded_on: 2026-11-09 (this registry)
+confirmed_on: 2026-11-09
+confirmation_evidence: E-CHAT (explicit owner statement in chat; permitted source under DEC-002)
+source: OWNER-CHAT-2026-11-09 (instruction 'PS-2 Processing Foundation, Provisional Track and Continuous Development') section 3
+source_availability: UNAVAILABLE in repository (session transcript only)
+owner: Project Owner
+affected_documents: [docs/production/processing-foundation-contract.md, docs/production/ps-0-exit-checklist.md]
+history:
+  - 2026-11-09 entry created
