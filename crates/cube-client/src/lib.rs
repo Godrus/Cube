@@ -16,6 +16,21 @@
 //! the report says how many bricks are in that state. A failed brick is reported and not retried
 //! until it changes or re-enters the region.
 
+pub mod buffers;
+pub mod intent;
+pub mod profile;
+
+pub use buffers::MeshBuffers;
+pub use intent::{
+    Camera, EditIntent, EditPort, FaceIndex, Hit, Intent, edit_from_camera, pick, replay,
+};
+pub use profile::{DeviceClass, ViewProfile};
+
+/// The derived kind of the baseline renderer (faces, GOV-13).
+pub const fn faces_kind() -> DerivedKind {
+    cube_backend_voxel::FACES_KIND
+}
+
 use std::collections::{BTreeMap, BTreeSet};
 use std::sync::{Arc, Mutex, PoisonError};
 

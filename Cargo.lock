@@ -28,6 +28,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4e7648175b45a9a48536d676f68d918270699102aa8dab5496df06904c914600"
 
 [[package]]
+name = "cube-app"
+version = "0.0.0"
+dependencies = [
+ "cube-backend-voxel",
+ "cube-client",
+ "cube-core",
+ "cube-orchestration",
+ "cube-persistence",
+ "cube-processing",
+ "cube-server",
+]
+
+[[package]]
 name = "cube-backend-mesh"
 version = "0.0.0"
 dependencies = [
@@ -58,6 +71,7 @@ dependencies = [
 name = "cube-client"
 version = "0.0.0"
 dependencies = [
+ "cube-backend-voxel",
  "cube-core",
  "cube-processing",
 ]
@@ -123,6 +137,19 @@ dependencies = [
  "cube-core",
  "cube-testkit",
  "loom",
+]
+
+[[package]]
+name = "cube-server"
+version = "0.0.0"
+dependencies = [
+ "cube-backend-voxel",
+ "cube-core",
+ "cube-editing-api",
+ "cube-orchestration",
+ "cube-persistence",
+ "cube-processing",
+ "cube-worldgen",
 ]
 
 [[package]]

@@ -13,6 +13,7 @@ description = "Engine-neutral client runtime skeleton: active region, derived-ge
 [dependencies]
 cube-core = { path = "../cube-core" }
 cube-processing = { path = "../cube-processing" }
+cube-backend-voxel = { path = "../cube-backend-voxel" }
 
 [lints]
 workspace = true

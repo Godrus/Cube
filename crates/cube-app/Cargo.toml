@@ -1,0 +1,23 @@
+[package]
+name = "cube-app"
+version = "0.0.0"
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+description = "Composition root of the first world: a session joins the local host and the client runtime (no engine)"
+
+# A leaf like the integration tests: it joins the authoritative local host (cube-server) with the
+# engine-neutral client (cube-client) and exposes ONE session object to an engine adapter. It holds
+# no handle, no algorithm and no engine type (DEC-092).
+
+[dependencies]
+cube-core = { path = "../cube-core" }
+cube-processing = { path = "../cube-processing" }
+cube-orchestration = { path = "../cube-orchestration" }
+cube-persistence = { path = "../cube-persistence" }
+cube-backend-voxel = { path = "../cube-backend-voxel" }
+cube-client = { path = "../cube-client" }
+cube-server = { path = "../cube-server" }
+
+[lints]
+workspace = true

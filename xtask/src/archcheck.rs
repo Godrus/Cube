@@ -71,6 +71,19 @@ pub fn allowed_edges() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
     let mut adapter: Vec<&'static str> = BASE.to_vec();
     adapter.push("cube-client");
     put("cube-godot-adapter", &adapter);
+    // Composition root of the first world (DEC-092): joins the local host and the client.
+    put(
+        "cube-app",
+        &[
+            "cube-core",
+            "cube-processing",
+            "cube-orchestration",
+            "cube-persistence",
+            "cube-backend-voxel",
+            "cube-client",
+            "cube-server",
+        ],
+    );
     put("cube-testkit", &BASE);
     put("xtask", &[]);
     let everything: Vec<&'static str> = m.keys().copied().collect();
@@ -86,6 +99,7 @@ fn lower_layer(name: &str) -> bool {
             | "cube-server"
             | "cube-client"
             | "cube-godot-adapter"
+            | "cube-app"
             | "cube-testkit"
             | "cube-integration-tests"
             | "xtask"

@@ -1,0 +1,25 @@
+[package]
+name = "cube-server"
+version = "0.0.0"
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+description = "In-process local host of one world (first world only; not the networked server)"
+
+# The authoritative side of a local world: Core asset and its handles, Orchestration, the voxel
+# backend, persistence, the generator and the Processing executor. ADG Part B allows this crate
+# every one of these edges (and none to the client). It is the ONLY place besides the integration
+# tests that holds the handles; the engine adapter and the client never do. No network, no child process, no authority over other
+# processes: it is a library that runs in the caller's process (DEC-092).
+
+[dependencies]
+cube-core = { path = "../cube-core" }
+cube-processing = { path = "../cube-processing" }
+cube-editing-api = { path = "../cube-editing-api" }
+cube-orchestration = { path = "../cube-orchestration" }
+cube-persistence = { path = "../cube-persistence" }
+cube-worldgen = { path = "../cube-worldgen" }
+cube-backend-voxel = { path = "../cube-backend-voxel" }
+
+[lints]
+workspace = true

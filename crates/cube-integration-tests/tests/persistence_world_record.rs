@@ -124,11 +124,18 @@ fn a_world_survives_a_kill_regenerates_its_base_and_continues_editing() {
     // 6-9. Life 2: load the record, regenerate the base from its seed and version, replay.
     let (loaded, w) =
         open_world_with_record(DirStorage::open(&dir).unwrap(), &limits(), &runnable).unwrap();
-    assert_eq!((loaded.seed, loaded.generator_version), (rec.seed, rec.generator_version));
+    assert_eq!(
+        (loaded.seed, loaded.generator_version),
+        (rec.seed, rec.generator_version)
+    );
     let entries = w.journal.read_from(JournalSeq(0), usize::MAX).unwrap();
     let j: Arc<dyn OperationJournal> = Arc::new(w.journal);
     let f = world_of(&loaded, j.clone());
-    assert_eq!(hash(&f), base, "the regenerated base equals the original base");
+    assert_eq!(
+        hash(&f),
+        base,
+        "the regenerated base equals the original base"
+    );
     let rep = replay_confirmed(&entries, &f.recovery, &limits());
     assert!(rep.failed.is_empty() && rep.replayed.len() == 1, "{rep:?}");
     assert_eq!(hash(&f), edited, "the Core hash equals the pre-kill world");
@@ -251,7 +258,10 @@ fn records_with_the_wrong_generator_structure_or_content_are_refused_never_adapt
     );
     // A generator this build cannot reproduce is an error, not a substitute.
     let r = open_world_with_record(fs.clone(), &limits(), &|_| false);
-    assert!(matches!(r.err(), Some(RecordError::GeneratorUnavailable(_))));
+    assert!(matches!(
+        r.err(),
+        Some(RecordError::GeneratorUnavailable(_))
+    ));
     // Record and manifest disagree about the generator: refused.
     let other = WorldRecord {
         generator_version: GeneratorVersion::new(2),
