@@ -72,7 +72,10 @@ pub fn publish_manifest(
 
 /// `true` for the names this layer owns (snapshots, journals, their marks and temporary files).
 fn owned(name: &str) -> bool {
-    name.starts_with("snap-") || name.starts_with("journal-") || name == "manifest.tmp"
+    name.starts_with("snap-")
+        || name.starts_with("journal-")
+        || name == "manifest.tmp"
+        || name == "world.record.tmp"
 }
 
 /// Removes owned files that the manifest does not name. Returns the removed names.

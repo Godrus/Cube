@@ -30,6 +30,7 @@ const KIND_ASSET: u8 = 1;
 const KIND_JOURNAL: u8 = 2;
 const KIND_BATCH: u8 = 3;
 const KIND_MANIFEST: u8 = 4;
+const KIND_WORLD_RECORD: u8 = 5;
 const HEADER: usize = 4 + 2 + 1 + 4;
 
 /// Bounds applied to untrusted input.
@@ -647,6 +648,54 @@ pub struct SnapshotRef {
     pub content_hash: u128,
     /// Size of the snapshot file in bytes.
     pub bytes: u64,
+}
+
+/// The identity of a world (EXPERIMENTAL, PERS-08): who it is, which untouched base it was
+/// generated from and where its files are named. It holds no world content (that is the
+/// generator's output plus the journal and snapshots) and is written once at creation.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct WorldRecord {
+    /// Opaque identifier of the world.
+    pub world_id: u64,
+    /// Seed of the procedural base.
+    pub seed: cube_core::WorldSeed,
+    /// Generator version that produced (and reproduces) the untouched base.
+    pub generator_version: cube_core::GeneratorVersion,
+    /// Version of the structure of the world files (this record, manifest, journal naming).
+    pub structure_version: u32,
+}
+
+/// Structure version written by this build.
+pub const STRUCTURE_VERSION: u32 = 1;
+
+/// Encodes a world record.
+pub fn encode_world_record(r: &WorldRecord) -> Vec<u8> {
+    let mut w = W(Vec::new());
+    w.u32(r.structure_version);
+    w.u64(r.world_id);
+    w.u64(r.seed.raw());
+    w.u32(r.generator_version.raw());
+    frame(KIND_WORLD_RECORD, w.0)
+}
+
+/// Decodes a world record. An unknown structure version is refused, never read as a known one.
+pub fn decode_world_record(bytes: &[u8], limits: &Limits) -> Result<WorldRecord, DecodeError> {
+    let body = unframe(bytes, KIND_WORLD_RECORD, limits)?;
+    let mut r = R(&body);
+    let structure_version = r.u32()?;
+    if structure_version != STRUCTURE_VERSION {
+        return Err(DecodeError::Invalid("unsupported world structure version"));
+    }
+    let world_id = r.u64()?;
+    let seed = cube_core::WorldSeed::new(r.u64()?);
+    let generator_version = cube_core::GeneratorVersion::new(r.u32()?);
+    r.done()?;
+    Ok(WorldRecord {
+        world_id,
+        seed,
+        generator_version,
+        structure_version,
+    })
 }
 
 /// The one record that says which files make up the world (EXPERIMENTAL).
