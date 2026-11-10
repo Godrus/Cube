@@ -103,6 +103,15 @@ impl Population {
         self.alive.values()
     }
 
+    /// A population that already knows these killed columns (from a saved game): their
+    /// creatures never spawn.
+    pub fn with_killed(killed: impl IntoIterator<Item = (i64, i64)>) -> Self {
+        Self {
+            alive: BTreeMap::new(),
+            killed: killed.into_iter().collect(),
+        }
+    }
+
     /// How many creatures exist now.
     pub fn len(&self) -> usize {
         self.alive.len()

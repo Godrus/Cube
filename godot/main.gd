@@ -7,7 +7,8 @@ extends Node3D
 ## (flying), Shift descends (flying), F switches walking / flying, V switches first / third person,
 ## 1-9 or the mouse wheel choose the hotbar slot, left click mines the block under the crosshair
 ## (it goes into the inventory), right click places the selected block (it is used up), I opens
-## the inventory (click two slots to swap them), C switches creative / survival, Esc releases the mouse. The world and the player are saved when the
+## the inventory (click two slots to swap them), C switches creative / survival, E swings the sword at
+## the nearest creature (only with --creatures), Esc releases the mouse. The world and the player are saved when the
 ## window is closed and are loaded again on the next start (same --world directory).
 ##
 ## Command line after `--`:
@@ -15,6 +16,8 @@ extends Node3D
 ##   --screenshot <png>               save one picture and quit
 ##   --edit-shots <before> <after>    picture, remove the block under the crosshair, picture
 ##   --fly                            start flying instead of walking (QA options always fly)
+##   --creatures                      switch creatures on (internal, prototype combat: slimes chase and
+##                                    hurt you, E attacks; they are a Rust-side feature, drawn here)
 ##   --world <dir> --seed <n>         world directory and seed
 ##   --yaw <rad> --pitch <rad>        extra camera turn at the start
 ##   --down <frames>                  descend for that many frames first (edit pictures from close up)
@@ -51,6 +54,13 @@ var down_frames := 0
 var start_flying := false
 var third_person := false
 var player_body: MeshInstance3D
+var creatures_on := false
+var creature_nodes := []
+var creature_prev := []
+var health_bar: ProgressBar
+var health_label: Label
+var hurt_overlay: ColorRect
+var prev_health := -1
 var hud: Label
 var objective_label: Label
 var message_label: Label
@@ -72,6 +82,8 @@ var scen_cmd = null
 var scen_events := []
 var scen_changed := 0
 var scen_edit_event = null
+var scen_hits := 0
+var scen_last_hit_pos := []
 
 
 func _ready() -> void:
@@ -115,6 +127,9 @@ func _ready() -> void:
 				_load_scenario(args[i])
 			"--fly":
 				start_flying = true
+			"--creatures":
+				OS.set_environment("CUBE_CREATURES", "1")
+				creatures_on = true
 		i += 1
 	var create := not FileAccess.file_exists(dir.path_join("manifest"))
 	if not world.open_world(dir, seed_value, create):
@@ -177,6 +192,23 @@ func _build_player_and_hud() -> void:
 	objective_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
 	objective_label.add_theme_constant_override("outline_size", 4)
 	layer.add_child(objective_label)
+	health_bar = ProgressBar.new()
+	health_bar.position = Vector2(10, 58)
+	health_bar.custom_minimum_size = Vector2(200, 16)
+	health_bar.size = Vector2(200, 16)
+	health_bar.show_percentage = false
+	health_bar.visible = false
+	layer.add_child(health_bar)
+	health_label = Label.new()
+	health_label.position = Vector2(214, 54)
+	health_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+	health_label.add_theme_constant_override("outline_size", 4)
+	layer.add_child(health_label)
+	hurt_overlay = ColorRect.new()
+	hurt_overlay.color = Color(1, 0, 0, 0)
+	hurt_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	hurt_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(hurt_overlay)
 	message_label = Label.new()
 	message_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	message_label.grow_horizontal = Control.GROW_DIRECTION_BOTH
@@ -284,9 +316,63 @@ func _fill_slot(panel: Control, item: int, count: int, creative: bool) -> void:
 	label.text = "" if (item == 0 or creative) else str(count)
 
 
+func _update_creatures_and_health(g: Dictionary) -> void:
+	# Drawing only: the creatures, their health and the player's health come from Rust.
+	var hp: int = int(g["health"])
+	var mx: int = int(g["max_health"])
+	health_bar.visible = mx > 0
+	health_bar.max_value = max(mx, 1)
+	health_bar.value = hp
+	health_label.text = "HP %d/%d" % [hp, mx] if mx > 0 else ""
+	if prev_health >= 0 and hp < prev_health:
+		hurt_overlay.color = Color(1, 0, 0, 0.35)
+	hurt_overlay.color.a = max(0.0, hurt_overlay.color.a - 1.5 * get_process_delta_time())
+	prev_health = hp
+	if not creatures_on:
+		return
+	var list: Array = world.creatures()
+	while creature_nodes.size() < list.size():
+		var n := MeshInstance3D.new()
+		var b := BoxMesh.new()
+		b.size = Vector3(0.9, 0.8, 0.9)
+		n.mesh = b
+		n.material_override = StandardMaterial3D.new()
+		var tag := Label3D.new()
+		tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		tag.position = Vector3(0, 0.9, 0)
+		tag.pixel_size = 0.01
+		tag.no_depth_test = true
+		n.add_child(tag)
+		add_child(n)
+		creature_nodes.append(n)
+		creature_prev.append(-1)
+	for i in range(creature_nodes.size()):
+		var node: MeshInstance3D = creature_nodes[i]
+		if i >= list.size():
+			node.visible = false
+			creature_prev[i] = -1
+			continue
+		var c: Dictionary = list[i]
+		node.visible = true
+		node.position = (c["pos"] as Vector3) + Vector3(0, 0.4, 0)
+		node.rotation = Vector3(0, float(c["yaw"]), 0)
+		var hit_now: bool = creature_prev[i] >= 0 and int(c["health"]) < int(creature_prev[i])
+		creature_prev[i] = int(c["health"])
+		var col := Color(0.3, 0.8, 0.35)
+		if int(c["state"]) == 2:
+			col = Color(0.9, 0.35, 0.3)
+		elif int(c["state"]) == 1:
+			col = Color(0.75, 0.85, 0.3)
+		if hit_now:
+			col = Color(1, 1, 1)
+		(node.material_override as StandardMaterial3D).albedo_color = col
+		(node.get_child(0) as Label3D).text = "%d/%d" % [int(c["health"]), int(c["max_health"])]
+
+
 func _update_player_and_hud() -> void:
 	if player_body == null:
 		return
+	_update_creatures_and_health(world.game_view())
 	var feet: Vector3 = world.player_feet()
 	player_body.visible = third_person and world.is_walking()
 	player_body.position = feet + Vector3(0, 0.9, 0)
@@ -352,6 +438,10 @@ func _input(event: InputEvent) -> void:
 			if not world.is_walking():
 				third_person = false
 				world.set_third_person(false)
+		elif event.keycode == KEY_E and creatures_on:
+			var ra: String = world.attack()
+			if ra != "ok" and ra != "none":
+				_say(ra)
 		elif event.keycode == KEY_V and world.is_walking():
 			third_person = not third_person
 			world.set_third_person(third_person)
@@ -572,6 +662,9 @@ func _load_scenario(path: String) -> void:
 	scen_steps = data["steps"]
 	scen_out = str(data["out_dir"])
 	scen_hud = bool(data.get("hud", false))
+	if bool(data.get("creatures", false)):
+		OS.set_environment("CUBE_CREATURES", "1")
+		creatures_on = true
 	scen_active = true
 
 
@@ -581,11 +674,20 @@ func _event(op: String, extra: Dictionary = {}) -> Dictionary:
 		"camera_rotation": [cam.rotation.x, cam.rotation.y, cam.rotation.z],
 		"walking": world.is_walking(), "grounded": world.is_grounded(),
 		"feet": [world.player_feet().x, world.player_feet().y, world.player_feet().z],
-		"stats": world.stream_stats(), "ms": Time.get_ticks_msec(), "game": world.game_view()}
+		"stats": world.stream_stats(), "ms": Time.get_ticks_msec(), "game": world.game_view(),
+		"creatures": _creatures_plain()}
 	for k in extra:
 		e[k] = extra[k]
 	scen_events.append(e)
 	return e
+
+
+func _creatures_plain() -> Array:
+	var out := []
+	for c in world.creatures():
+		var p: Vector3 = c["pos"]
+		out.append({"pos": [p.x, p.y, p.z], "health": c["health"], "max_health": c["max_health"], "state": c["state"]})
+	return out
 
 
 func _scenario_frame() -> void:
@@ -611,6 +713,28 @@ func _scenario_frame() -> void:
 	elif op == "turn":
 		dyaw = float(scen_cmd.get("yaw", 0.0)) / float(scen_cmd["_total"])
 		dpitch = float(scen_cmd.get("pitch", 0.0)) / float(scen_cmd["_total"])
+	elif op == "fight":
+		# QA bot: walk to the nearest creature and swing at it (what a player would do by hand).
+		var list: Array = world.creatures()
+		var feet: Vector3 = world.player_feet()
+		var best = null
+		var bd := 1e9
+		for c in list:
+			var d: float = feet.distance_to(c["pos"])
+			if d < bd and int(c["state"]) != 3:
+				bd = d
+				best = c
+		if best != null and bd < 90.0:
+			var bp: Vector3 = best["pos"]
+			var want := atan2(-(bp.x - feet.x), -(bp.z - feet.z))
+			dyaw = wrapf(want - cam.rotation.y, -PI, PI) * 0.5
+			if bd > 2.0:
+				fwd = 1
+				up = 1 if frames % 40 == 0 else 0
+			else:
+				if world.attack() == "ok":
+					scen_hits += 1
+					scen_last_hit_pos = [bp.x, bp.y, bp.z]
 	if not freeze_world:
 		var changed: int = world.frame(fwd, right, up, dyaw, dpitch, 1.0 / 60.0)
 		if changed > 0:
@@ -662,6 +786,10 @@ func _scenario_action(op: String) -> void:
 			if inventory_panel != null:
 				inventory_panel.visible = bool(scen_cmd.get("open", true))
 			_event("inventory")
+		"fight":
+			_event("fight", {"hits": scen_hits, "last_hit_pos": scen_last_hit_pos})
+		"attack":
+			_event("attack", {"result": world.attack()})
 		"mode":
 			world.set_walk(bool(scen_cmd.get("walk", true)))
 			world.set_third_person(bool(scen_cmd.get("third", false)))

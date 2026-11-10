@@ -151,7 +151,9 @@ impl PortSession {
     /// Switches creatures on (internal: the environment variable `CUBE_CREATURES=1` does it for
     /// the Godot demo; they are not a player feature before CMB-09).
     pub fn enable_creatures(&mut self) {
-        self.creatures.get_or_insert_with(Population::new);
+        let killed = self.game.killed.clone();
+        self.creatures
+            .get_or_insert_with(|| Population::with_killed(killed));
     }
 
     /// The player swings the wooden sword at the nearest creature. A hit is resolved by the
@@ -167,23 +169,24 @@ impl PortSession {
         };
         let strike = pop.player_attack(&WOODEN_SWORD, &mut self.attack_timer, feet)?;
         if strike.hit.killed {
+            // The kill and its loot are one change of one file: both reach the disk or neither.
+            self.game.killed.insert(strike.column);
             let key = loot_key(self.session.world_seed(), strike.column.0, strike.column.1);
             let name = strike.def.name;
-            match strike.def.loot.roll(key) {
-                Some(drop) => {
-                    let left = self.game.grant_loot(drop.item, drop.count);
-                    let item = crate::game::definition(drop.item).map_or("item", |d| d.name);
-                    if left > 0 {
-                        self.say(format!(
-                            "{name} defeated. Inventory full: {left} {item} lost"
-                        ));
-                    } else {
-                        self.say(format!("{name} defeated: +{} {item}", drop.count));
-                    }
-                    self.save_game();
+            let mut text = format!("{name} defeated");
+            if let Some(drop) = strike.def.loot.roll(key) {
+                let left = self.game.grant_loot(drop.item, drop.count);
+                let item = crate::game::definition(drop.item).map_or("item", |d| d.name);
+                if left > 0 {
+                    text = format!("{name} defeated. Inventory full: {left} {item} lost");
+                } else {
+                    text = format!("{name} defeated: +{} {item}", drop.count);
                 }
-                None => self.say(format!("{name} defeated")),
             }
+            if self.try_save_game().is_err() {
+                text.push_str(" (could not save)");
+            }
+            self.say(text);
         }
         Ok(strike)
     }
@@ -486,7 +489,41 @@ impl SessionPort for PortSession {
             } else {
                 String::new()
             },
+            health: self.game.health.cur(),
+            max_health: self.game.health.max(),
         }
+    }
+
+    fn attack(&mut self) -> Result<bool, String> {
+        match PortSession::attack(self) {
+            Ok(_) => Ok(true),
+            Err(AttackRefused::OnCooldown { .. }) => Err("Weapon recovering".into()),
+            Err(_) => Ok(false),
+        }
+    }
+
+    fn creatures(&self) -> Vec<cube_client::CreatureView> {
+        use crate::creature::CreatureState;
+        self.creatures
+            .as_ref()
+            .map(|p| {
+                p.creatures()
+                    .map(|c| cube_client::CreatureView {
+                        kind: 1,
+                        pos: c.pos(),
+                        yaw: c.yaw(),
+                        health: c.health().cur(),
+                        max_health: c.health().max(),
+                        state: match c.state() {
+                            CreatureState::Idle => 0,
+                            CreatureState::Chase => 1,
+                            CreatureState::Attack => 2,
+                            CreatureState::Dead => 3,
+                        },
+                    })
+                    .collect()
+            })
+            .unwrap_or_default()
     }
 
     fn select_slot(&mut self, slot: usize) {

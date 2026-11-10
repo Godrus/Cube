@@ -174,3 +174,103 @@ fn nothing_can_be_attacked_while_creatures_are_off_or_out_of_reach() {
     assert!(p.attack().is_err(), "nothing within reach of the start");
     let _ = std::fs::remove_dir_all(d);
 }
+
+#[test]
+fn a_kill_and_its_loot_survive_a_crash_and_restart_exactly_once() {
+    let (mut p, d, spot) = start("persist", true);
+    p.enable_creatures();
+    let mut column = None;
+    for _ in 0..2000 {
+        run(&mut p, 1);
+        if let Ok(st) = p.attack()
+            && st.hit.killed
+        {
+            column = Some(st.column);
+            break;
+        }
+    }
+    let column = column.expect("killed");
+    let items = |g: &cube_app::game::GameState| {
+        (1..=6u16)
+            .map(|i| (i, g.inventory.count_of(cube_app::game::ItemId(i))))
+            .filter(|(_, n)| *n > 0)
+            .collect::<Vec<_>>()
+    };
+    let before = items(p.game());
+    drop(p); // a crash: no shutdown, no final save
+    let saved = cube_app::port::load_game(&d).expect("the kill was written when it happened");
+    assert!(saved.killed.contains(&column));
+    assert_eq!(items(&saved), before, "kill and loot saved together");
+
+    // Restart on the same files.
+    let rec = WorldRecord {
+        world_id: 1,
+        seed: WorldSeed::new(7),
+        generator_version: GeneratorVersion::new(1),
+        structure_version: cube_persistence::STRUCTURE_VERSION,
+    };
+    let host =
+        Arc::new(LocalHost::open(&d, StaticArea::around_origin(&rec, FIRST_WORLD_RADIUS)).unwrap());
+    let feet = [spot[0] + 3.0, spot[1] + 1.0, spot[2]];
+    let session = Session::new(
+        host,
+        ViewProfile::of(DeviceClass::Desktop),
+        [feet[0], feet[1] + 1.6, feet[2]],
+    )
+    .unwrap();
+    session.restore_player(&PlayerState {
+        feet,
+        yaw: 0.0,
+        pitch: 0.0,
+        walking: true,
+        third_person: false,
+    });
+    let mut p2 = PortSession::with_game(session, d.clone(), saved);
+    p2.enable_creatures();
+    for _ in 0..600 {
+        run(&mut p2, 1);
+        assert!(
+            p2.attack().map_or(true, |s| s.column != column),
+            "it did not come back"
+        );
+    }
+    assert!(p2.creatures().unwrap().creatures().all(|c| {
+        let col = |v: f64| (v.floor() as i64).div_euclid(16);
+        (col(c.pos()[0]), col(c.pos()[2])) != column
+    }));
+    assert_eq!(items(p2.game()), before, "no second drop");
+    let _ = std::fs::remove_dir_all(d);
+}
+
+#[test]
+fn the_port_view_equals_the_model() {
+    let (mut p, d, _) = start("view", true);
+    assert!(SessionPort::creatures(&p).is_empty(), "off: none shown");
+    p.enable_creatures();
+    let mut attacked = false;
+    for _ in 0..2000 {
+        run(&mut p, 1);
+        let v = p.game_view();
+        assert_eq!(
+            (v.health, v.max_health),
+            (p.game().health.cur(), p.game().health.max())
+        );
+        let shown = SessionPort::creatures(&p);
+        assert_eq!(shown.len(), p.creatures().unwrap().len());
+        for (a, b) in shown.iter().zip(p.creatures().unwrap().creatures()) {
+            assert_eq!(
+                (a.pos, a.health, a.max_health),
+                (b.pos(), b.health().cur(), b.health().max())
+            );
+        }
+        if let Ok(true) = SessionPort::attack(&mut p) {
+            attacked = true;
+            break;
+        }
+    }
+    assert!(
+        attacked,
+        "a creature came into reach and the port attack hit it"
+    );
+    let _ = std::fs::remove_dir_all(d);
+}

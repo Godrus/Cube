@@ -37,3 +37,7 @@ Saves one frame and exits. `docs/screenshots/first-world.png` was made this way.
 ## What this is not
 
 Not yet a full game: no health, creatures, crafting, item drops or tools, one hard-coded objective, no textures (vertex colours by material), no player model (a plain box in third person), no sound. The world is finite (48 bricks, about 770 voxels, from the origin in every horizontal direction); bricks you edited are never unloaded. Terrain is only walkable where slopes are one voxel per step or you jump; steep hills stop you. The Godot run is not part of CI; `python tools/visual-qa/walk_smoke.py` drives the real scene (fall, walk, jump, third person, dig, walk 130 voxels, quit, continue); `--journey` walks 150 voxels out and back and checks that resident bricks and memory stay flat; `--play` mines, builds, uses the hotbar and inventory, completes the objective and restarts.
+
+## Combat (prototype, internal)
+
+`godot --path godot -- --creatures` switches creatures on: slimes spawn near you, chase and hurt you, `E` swings the sword. Scripted check in real Godot: `python tools/visual-qa/walk_smoke.py --combat`. A fresh checkout or git worktree needs one import run first (`godot --headless --path godot --import`); the smoke runner does it by itself. Without that cache the scene shows a frozen picture because the native extension is not loaded.

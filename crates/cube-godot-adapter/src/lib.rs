@@ -29,6 +29,7 @@ pub fn material_colour(m: u16) -> [f32; 3] {
         3 => [0.25, 0.60, 0.20],
         4 => [0.85, 0.80, 0.55],
         5 => [0.80, 0.25, 0.20],
+        6 => [0.30, 0.85, 0.40],
         _ => [0.80, 0.20, 0.80],
     }
 }
@@ -261,7 +262,50 @@ impl CubeWorld {
         );
         d.set("objective_done", g.objective_done);
         d.set("message", &GString::from(g.message.as_str()).to_variant());
+        d.set("health", i64::from(g.health));
+        d.set("max_health", i64::from(g.max_health));
         d
+    }
+
+    /// Swings the weapon at the nearest creature in reach. Returns "ok" (hit), "none" (nothing
+    /// in reach) or the reason it was refused.
+    #[func]
+    fn attack(&mut self) -> GString {
+        let r = self.session.as_mut().map_or(Ok(false), |s| s.attack());
+        GString::from(
+            match r {
+                Ok(true) => "ok".to_owned(),
+                Ok(false) => "none".to_owned(),
+                Err(e) => e,
+            }
+            .as_str(),
+        )
+    }
+
+    /// The creatures near the player: an array of dictionaries with `kind`, `pos` (`Vector3`,
+    /// feet), `yaw`, `health`, `max_health` and `state` (0 idle, 1 chase, 2 attack, 3 dead).
+    #[func]
+    fn creatures(&self) -> Array<VarDictionary> {
+        let mut out = Array::new();
+        for c in self
+            .session
+            .as_ref()
+            .map(|s| s.creatures())
+            .unwrap_or_default()
+        {
+            let mut d = VarDictionary::new();
+            d.set("kind", i64::from(c.kind));
+            d.set(
+                "pos",
+                Vector3::new(c.pos[0] as f32, c.pos[1] as f32, c.pos[2] as f32),
+            );
+            d.set("yaw", c.yaw);
+            d.set("health", i64::from(c.health));
+            d.set("max_health", i64::from(c.max_health));
+            d.set("state", i64::from(c.state));
+            out.push(&d);
+        }
+        out
     }
 
     /// Selects a hotbar slot.

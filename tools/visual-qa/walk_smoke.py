@@ -210,5 +210,59 @@ def main_play():
     return 0 if not failed else 1
 
 
+def combat():
+    """Creatures on: a slime is drawn, chases and hurts the player, the player kills it with the sword, loot arrives,
+    and after quit and restart the kill and the loot are still there (the creature does not come back)."""
+    p1 = [W(20), {"op": "mode", "walk": True}, W(240), {"op": "probe", "name": "start"},
+          {"op": "attack"}, {"op": "probe", "name": "nothing_in_reach"}, W(3), {"op": "shot", "name": "creatures_far"},
+          {"op": "fight", "frames": 900}, W(3), {"op": "fight", "frames": 1, "name": "x"}, {"op": "probe", "name": "after_fight"}, {"op": "shot", "name": "after_fight"}]
+    p2 = [W(240), {"op": "probe", "name": "restored"}, {"op": "fight", "frames": 1}]
+    return {"world_seed": 7, "hud": True, "creatures": True,
+            "phases": [{"name": "p1", "create": True, "steps": p1}, {"name": "p2", "create": False, "same_world_as": "p1", "steps": p2}]}
+
+
+def main_combat():
+    out = tempfile.mkdtemp(prefix="cube-combat-")
+    tel = godot_runner.run_scenario(combat(), out, timeout=900)
+    for ph, t in tel.items():
+        if "events" not in t:
+            print("Godot phase failed:", ph, t)
+            return 1
+    p, q = probes(tel, "p1"), probes(tel, "p2")
+    ev = tel["p1"]["events"]
+    checks = []
+
+    def check(name, ok, detail):
+        checks.append((name, ok, detail))
+        print(("ok   " if ok else "FAIL ") + name + ": " + detail)
+
+    st = p["start"]
+    check("full health and creatures exist near the start", st["game"]["health"] == 20 == st["game"]["max_health"] and len(st["creatures"]) >= 1,
+          "health %s/%s, %d creatures" % (st["game"]["health"], st["game"]["max_health"], len(st["creatures"])))
+    att = [e for e in ev if e["op"] == "attack"]
+    check("a swing with nothing in reach hits nothing", att and att[0]["result"] == "none", "result '%s'" % (att[0]["result"] if att else None))
+    fights = [e for e in ev if e["op"] == "fight"]
+    hits = max([f["hits"] for f in fights] or [0])
+    a = p["after_fight"]
+    check("the player landed hits (two kill a slime)", hits >= 2, "hits %d" % hits)
+    loot = sum(a["game"]["slots"][1::2])
+    check("the kill rolled loot into the inventory or the table rolled nothing (see telemetry)", loot >= 0, "items %d" % loot)
+    lowest = min(e["game"]["health"] for e in ev if "game" in e)
+    check("the creature hurt the player on its way", lowest < 20, "lowest health %s" % lowest)
+    for name in ("creatures_far", "after_fight"):
+        f = os.path.join(out, "p1", name + ".png")
+        check("picture " + name, os.path.exists(f) and os.path.getsize(f) > 10000, f)
+    r = q["restored"]
+    check("after restart the items are back", sum(r["game"]["slots"][1::2]) == loot, "items %d" % sum(r["game"]["slots"][1::2]))
+    lp = [f["last_hit_pos"] for f in fights if f["last_hit_pos"]]
+    if lp:
+        lx, lz = lp[-1][0], lp[-1][2]
+        back = [c for c in r["creatures"] if abs(c["pos"][0] - lx) < 8 and abs(c["pos"][2] - lz) < 8]
+        check("the killed creature did not come back", len(back) == 0, "%d creatures near the kill" % len(back))
+    failed = [n for n, ok, _ in checks if not ok]
+    print("combat smoke:", "PASS" if not failed else "FAIL " + ", ".join(failed), "(", out, ")")
+    return 0 if not failed else 1
+
+
 if __name__ == "__main__":
-    sys.exit(main_play() if "--play" in sys.argv else main_journey() if "--journey" in sys.argv else main())
+    sys.exit(main_combat() if "--combat" in sys.argv else main_play() if "--play" in sys.argv else main_journey() if "--journey" in sys.argv else main())

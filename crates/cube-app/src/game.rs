@@ -342,6 +342,9 @@ pub struct GameState {
     /// The player's health (prototype maximum, see `combat`). Files without a `health` line
     /// (written before combat existed) load with full health.
     pub health: crate::combat::Health,
+    /// Columns whose creature the player killed (it does not come back, and its loot was given
+    /// in the same file write, so a kill and its loot are saved together or not at all).
+    pub killed: std::collections::BTreeSet<(i64, i64)>,
 }
 
 impl Default for GameState {
@@ -352,6 +355,7 @@ impl Default for GameState {
             objective: Objective::SHELTER,
             pending: None,
             health: crate::combat::Health::full(crate::combat::PLAYER_MAX_HEALTH),
+            killed: std::collections::BTreeSet::new(),
         }
     }
 }
@@ -497,6 +501,9 @@ impl GameState {
             o.placed
         );
         s += &format!("health {} {}\n", self.health.cur(), self.health.max());
+        for (cx, cz) in &self.killed {
+            s += &format!("kill {cx} {cz}\n");
+        }
         match self.pending {
             Some(PendingEdit {
                 seq,
@@ -564,6 +571,13 @@ impl GameState {
                         placed,
                     };
                     objective = true;
+                }
+                "kill" => {
+                    let cx: i64 = it.next()?.parse().ok()?;
+                    let cz: i64 = it.next()?.parse().ok()?;
+                    if it.next().is_some() || !st.killed.insert((cx, cz)) {
+                        return None;
+                    }
                 }
                 "health" => {
                     if health_seen {
@@ -840,6 +854,38 @@ mod tests {
             GameState::decode(&text),
             Some(h),
             "the new item saves and loads"
+        );
+    }
+
+    #[test]
+    fn kills_are_saved_with_the_state_and_damage_is_detected() {
+        let mut g = GameState::default();
+        g.killed.insert((3, -2));
+        g.killed.insert((-7, 9));
+        g.grant_loot(ItemId(6), 2);
+        let text = g.encode();
+        assert_eq!(GameState::decode(&text), Some(g));
+        assert!(
+            GameState::decode(&format!(
+                "{text}kill 3 -2
+"
+            ))
+            .is_none(),
+            "twice"
+        );
+        assert!(
+            GameState::decode(&format!(
+                "{text}kill 3
+"
+            ))
+            .is_none()
+        );
+        assert!(
+            GameState::decode(&format!(
+                "{text}kill 3 4 5
+"
+            ))
+            .is_none()
         );
     }
 

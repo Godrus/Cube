@@ -17,6 +17,16 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
 GODOT_DEFAULT = r"D:\Downloads\Projects\Engine\Godot_v4.2.2-stable_mono_win64\Godot_v4.2.2-stable_mono_win64_console.exe"
 
 
+def ensure_imported(exe):
+    """A fresh checkout (or a new git worktree) has no godot/.godot cache, so Godot does not know
+    the native extension and every scene runs with a placeholder instead of CubeWorld (a frozen
+    picture, errors like "Nonexistent function 'frame' in base 'Node'"). One import run fixes it."""
+    cache = os.path.join(ROOT, "godot", ".godot", "extension_list.cfg")
+    if not os.path.exists(cache):
+        subprocess.run([exe, "--headless", "--path", os.path.join(ROOT, "godot"), "--import"],
+                       capture_output=True, text=True, timeout=300)
+
+
 def godot_exe():
     exe = os.environ.get("GODOT_BIN", GODOT_DEFAULT)
     return exe if os.path.exists(exe) else None
@@ -38,6 +48,7 @@ def run_scenario(scen, out_dir, timeout=180, extra_engine_args=(), memory_log=No
     exe = godot_exe()
     if exe is None:
         return {p["name"]: {"error": "Godot binary not found (set GODOT_BIN)"} for p in scen["phases"]}
+    ensure_imported(exe)
     result, worlds = {}, {}
     for ph in scen["phases"]:
         name = ph["name"]
@@ -49,7 +60,7 @@ def run_scenario(scen, out_dir, timeout=180, extra_engine_args=(), memory_log=No
         worlds[name] = wdir
         spec = os.path.join(pdir, "scenario.json")
         with open(spec, "w", encoding="utf-8") as f:
-            json.dump({"out_dir": pdir.replace("\\", "/"), "steps": ph["steps"], "hud": bool(scen.get("hud", False))}, f)
+            json.dump({"out_dir": pdir.replace("\\", "/"), "steps": ph["steps"], "hud": bool(scen.get("hud", False)), "creatures": bool(scen.get("creatures", False))}, f)
         for stale in ("telemetry.json",):
             if os.path.exists(os.path.join(pdir, stale)):
                 os.remove(os.path.join(pdir, stale))

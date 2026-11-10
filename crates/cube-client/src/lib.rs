@@ -29,7 +29,8 @@ pub use intent::{
 };
 pub use profile::{DeviceClass, ViewProfile};
 pub use session::{
-    CellKeyExt, Controls, FrameOut, GameView, Pose, SessionPort, SessionStats, TargetInfo,
+    CellKeyExt, Controls, CreatureView, FrameOut, GameView, Pose, SessionPort, SessionStats,
+    TargetInfo,
 };
 pub use walk::{EYE_HEIGHT, WalkInput, Walker};
 

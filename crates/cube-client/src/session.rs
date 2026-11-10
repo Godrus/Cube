@@ -114,6 +114,27 @@ pub struct GameView {
     pub objective_done: bool,
     /// A short message for the player (empty when none).
     pub message: String,
+    /// Player health now (0 together with `max_health` 0: no health is shown).
+    pub health: u32,
+    /// Player maximum health.
+    pub max_health: u32,
+}
+
+/// A creature as the player sees it (data only; the engine draws it).
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub struct CreatureView {
+    /// Kind (1 = slime).
+    pub kind: u16,
+    /// Feet position.
+    pub pos: [f64; 3],
+    /// Facing, radians around the vertical axis (0 looks along -Z).
+    pub yaw: f32,
+    /// Health.
+    pub health: u32,
+    /// Maximum health.
+    pub max_health: u32,
+    /// 0 idle, 1 chase, 2 attack, 3 dead.
+    pub state: u8,
 }
 
 /// The surface an adapter sees of a world.
@@ -164,6 +185,15 @@ pub trait SessionPort: Send {
     /// Hotbar, inventory and objective.
     fn game_view(&self) -> GameView {
         GameView::default()
+    }
+    /// The player swings the weapon at the nearest creature in reach. `Ok(true)` it hit,
+    /// `Ok(false)` nothing was in reach, `Err(reason)` refused (the weapon is recovering).
+    fn attack(&mut self) -> Result<bool, String> {
+        Ok(false)
+    }
+    /// The creatures near the player.
+    fn creatures(&self) -> Vec<CreatureView> {
+        Vec::new()
     }
     /// Selects a hotbar slot.
     fn select_slot(&mut self, _slot: usize) {}
