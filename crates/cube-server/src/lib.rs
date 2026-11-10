@@ -23,7 +23,7 @@ use std::path::Path;
 use std::sync::{Arc, Mutex, PoisonError};
 
 use cube_backend_voxel::{FacesProvider, VoxelBackend, add, remove};
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use cube_core::{
     AssetHost, AssetId, BrickCoord, DirtyRegion, GeometryAsset, GeometryTransform, Layer,
@@ -31,7 +31,8 @@ use cube_core::{
 };
 use cube_editing_api::{
     ActorId, AuthorizationContext, Capability, EditMode, EditingOperation, EditingResult,
-    EditingService, JournalSeq, OperationJournal, Origin, Scope, SessionId, TransactionSpec, kinds,
+    EditingService, JournalPhase, JournalSeq, OperationJournal, Origin, Scope, SessionId,
+    TransactionSpec, kinds,
 };
 use cube_orchestration::{
     BackendRegistry, CapabilityAuthorizer, CommitPath, Config, DirtySink, OrchestrationService,
@@ -161,6 +162,10 @@ pub struct LocalHost {
     next_seq: Mutex<u64>,
     system: SystemCommit,
     streamed: Mutex<Streamed>,
+    /// Sequences of player operations whose last journal record was `Confirmed` when the world
+    /// was opened (used to reconcile state that lives outside the journal, see
+    /// [`LocalHost::edit_confirmed_at_open`]).
+    confirmed_at_open: HashSet<u64>,
 }
 
 /// Bricks resident in Core (generated or edited), the bricks the player has edited, and the next
@@ -328,6 +333,25 @@ impl LocalHost {
             )
             .max()
             .map_or(1, |m| m + 1);
+        // The last journal phase of every player operation: only a `Confirmed` one changed the
+        // world (an `Intent` without a decision is not replayed, see `replay_confirmed`).
+        let mut last: HashMap<OperationId, JournalPhase> = HashMap::new();
+        for e in &entries {
+            last.insert(e.operation, e.phase);
+        }
+        let mut confirmed_at_open: HashSet<u64> = HashSet::new();
+        for e in &entries {
+            if e.phase == JournalPhase::Confirmed && last.get(&e.operation) == Some(&e.phase) {
+                confirmed_at_open.extend(
+                    e.members
+                        .iter()
+                        .map(|(id, _)| *id)
+                        .chain([e.operation])
+                        .filter(|id| id.scope() == PLAYER_SCOPE)
+                        .map(|id| id.sequence()),
+                );
+            }
+        }
         Ok(Self {
             record,
             area,
@@ -338,7 +362,28 @@ impl LocalHost {
             next_seq: Mutex::new(next_seq),
             system: handles.system,
             streamed: Mutex::new(streamed),
+            confirmed_at_open,
         })
+    }
+
+    /// `true` if the player operation with this sequence was confirmed in the journal when this
+    /// world was opened, i.e. the change is part of the restored world. A game that keeps state
+    /// outside the journal (the inventory) writes its intent first and asks this after a restart
+    /// to learn whether the world change happened. An operation that was only started (an
+    /// `Intent` without decision), aborted or never begun is not confirmed. Operations committed
+    /// by this very session are not listed: ask after a restart only.
+    pub fn edit_confirmed_at_open(&self, seq: u64) -> bool {
+        self.confirmed_at_open.contains(&seq)
+    }
+
+    /// Takes the next player operation sequence for an edit that will be submitted with
+    /// [`LocalHost::submit_edit_reserved`]. A sequence that is never used leaves a gap, which
+    /// the retry rules allow (only strictly increasing is required).
+    pub fn reserve_edit_seq(&self) -> u64 {
+        let mut n = lock(&self.next_seq);
+        let s = *n;
+        *n += 1;
+        s
     }
 
     /// Generates (into Core, by the system-commit port) the bricks of the cube of `radius` around
@@ -494,6 +539,15 @@ impl LocalHost {
     /// Applies an edit request through the Editing API and Orchestration (the single user
     /// commit path). `Ok` means the change is committed and journalled.
     pub fn submit_edit(&self, edit: EditRequest) -> Result<(), HostError> {
+        let seq = self.reserve_edit_seq();
+        self.submit_edit_reserved(edit, seq)
+    }
+
+    /// Like [`LocalHost::submit_edit`] under a sequence taken earlier with
+    /// [`LocalHost::reserve_edit_seq`], so that the caller can record the operation id before the
+    /// change is made. Submitting the same sequence again is an idempotent retry: the world is
+    /// changed at most once.
+    pub fn submit_edit_reserved(&self, edit: EditRequest, seq: u64) -> Result<(), HostError> {
         let (voxel, kind, parameters) = match edit {
             EditRequest::Place { voxel, material } if material != 0 => {
                 (voxel, kinds::ADD_GEOMETRY, add(material))
@@ -517,12 +571,6 @@ impl LocalHost {
             VoxelPos::new(end(voxel[0])?, end(voxel[1])?, end(voxel[2])?),
         )
         .map_err(|e| edit_err(&e))?;
-        let seq = {
-            let mut n = lock(&self.next_seq);
-            let s = *n;
-            *n += 1;
-            s
-        };
         let op = EditingOperation {
             id: OperationId::new(PLAYER_SCOPE, seq),
             kind,

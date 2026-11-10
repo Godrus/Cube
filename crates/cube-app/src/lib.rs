@@ -369,6 +369,34 @@ impl Session {
             .map_err(HostError::Edit)
     }
 
+    /// Takes the operation sequence of the next edit, so that its id can be recorded (by the
+    /// game state) before the world changes.
+    pub fn reserve_edit_seq(&self) -> u64 {
+        self.host.reserve_edit_seq()
+    }
+
+    /// Removes the block in `voxel` under a sequence from [`Session::reserve_edit_seq`].
+    pub fn remove_voxel_reserved(&self, voxel: [i64; 3], seq: u64) -> Result<(), HostError> {
+        self.host
+            .submit_edit_reserved(EditRequest::Remove { voxel }, seq)
+    }
+
+    /// Places `material` in `voxel` under a sequence from [`Session::reserve_edit_seq`]; `Ok(false)`
+    /// (nothing submitted) if it would fill the player's body.
+    pub fn place_voxel_reserved(
+        &self,
+        voxel: [i64; 3],
+        material: u16,
+        seq: u64,
+    ) -> Result<bool, HostError> {
+        if self.body_overlaps(voxel) {
+            return Ok(false);
+        }
+        self.host
+            .submit_edit_reserved(EditRequest::Place { voxel, material }, seq)
+            .map(|()| true)
+    }
+
     /// Places `material` in `voxel`; refused (`Ok(false)`) if it would fill the player's body.
     pub fn place_voxel(&self, voxel: [i64; 3], material: u16) -> Result<bool, HostError> {
         if self.body_overlaps(voxel) {

@@ -12,7 +12,7 @@ use cube_core::{CellKey, GeneratorVersion, WorldSeed};
 use cube_persistence::{STRUCTURE_VERSION, WorldRecord};
 use cube_server::{LocalHost, StaticArea};
 
-use crate::game::{GameState, ITEMS, Mode, SLOTS};
+use crate::game::{GameState, ITEMS, Mode, Reconciled, SLOTS};
 use crate::{PlayerState, REACH, Session};
 
 /// Radius of the static bounded area of the first world, in bricks.
@@ -88,10 +88,16 @@ pub fn load_player(dir: &Path) -> Option<PlayerState> {
     decode_player(&std::fs::read_to_string(dir.join(PLAYER_FILE)).ok()?)
 }
 
-/// Writes the game state next to the world (temporary file, then rename).
+/// Writes the game state next to the world: temporary file, flushed to the device, then renamed
+/// over the old one, so a crash leaves the old or the new file, never a mixture. (No directory
+/// sync: no claim about power loss on a device, DG-2.)
 pub fn save_game(dir: &Path, g: &GameState) -> std::io::Result<()> {
+    use std::io::Write;
     let tmp = dir.join(format!("{GAME_FILE}.tmp"));
-    std::fs::write(&tmp, g.encode())?;
+    let mut f = std::fs::File::create(&tmp)?;
+    f.write_all(g.encode().as_bytes())?;
+    f.sync_all()?;
+    drop(f);
     std::fs::rename(&tmp, dir.join(GAME_FILE))
 }
 
@@ -135,6 +141,11 @@ impl PortSession {
 
     fn save_game(&self) {
         let _ = save_game(&self.dir, &self.game);
+    }
+
+    /// Saves the game file and tells whether that worked (needed before a world edit).
+    fn try_save_game(&self) -> std::io::Result<()> {
+        save_game(&self.dir, &self.game)
     }
 
     fn say(&mut self, text: impl Into<String>) {
@@ -261,15 +272,29 @@ impl SessionPort for PortSession {
             self.say("Inventory full");
             return Err("Inventory full".into());
         }
-        self.session
-            .remove_voxel(t.voxel)
-            .map_err(|e| e.to_string())?;
-        // The world change is committed; only now does the inventory follow.
-        if let Some(m) = self.game.on_mined(t.material) {
-            self.say(m);
+        // 1. the intent reaches the game file; 2. the world changes; 3. the effect and the cleared
+        // intent reach the file in one write. A crash anywhere is settled at the next start.
+        let seq = self.session.reserve_edit_seq();
+        self.game.begin_mined(seq, t.material);
+        if let Err(e) = self.try_save_game() {
+            self.game.abandon_pending();
+            self.say("Could not save the game: nothing changed");
+            return Err(format!("game state not saved: {e}"));
         }
-        self.save_game();
-        Ok(true)
+        match self.session.remove_voxel_reserved(t.voxel, seq) {
+            Ok(()) => {
+                if let Some(m) = self.game.finish_pending() {
+                    self.say(m);
+                }
+                self.save_game();
+                Ok(true)
+            }
+            Err(e) => {
+                self.game.abandon_pending();
+                self.save_game();
+                Err(e.to_string())
+            }
+        }
     }
 
     fn place(&mut self) -> Result<bool, String> {
@@ -280,19 +305,36 @@ impl SessionPort for PortSession {
             self.say("Nothing to place in the selected slot");
             return Err("Nothing to place".into());
         };
-        match self.session.place_voxel(t.front, material) {
+        if self.session.body_overlaps(t.front) {
+            self.say("You are standing there");
+            return Err("You are standing there".into());
+        }
+        let seq = self.session.reserve_edit_seq();
+        self.game.begin_placed(seq);
+        if let Err(e) = self.try_save_game() {
+            self.game.abandon_pending();
+            self.say("Could not save the game: nothing changed");
+            return Err(format!("game state not saved: {e}"));
+        }
+        match self.session.place_voxel_reserved(t.front, material, seq) {
             Ok(true) => {
-                if let Some(m) = self.game.on_placed() {
+                if let Some(m) = self.game.finish_pending() {
                     self.say(m);
                 }
                 self.save_game();
                 Ok(true)
             }
             Ok(false) => {
+                self.game.abandon_pending();
+                self.save_game();
                 self.say("You are standing there");
                 Err("You are standing there".into())
             }
-            Err(e) => Err(e.to_string()),
+            Err(e) => {
+                self.game.abandon_pending();
+                self.save_game();
+                Err(e.to_string())
+            }
         }
     }
 
@@ -390,7 +432,12 @@ pub fn open_first_world(
             session.restore_player(&saved);
         }
     }
-    let game = if create { None } else { load_game(dir) }.unwrap_or_default();
+    let mut game = if create { None } else { load_game(dir) }.unwrap_or_default();
+    // An edit that was under way when the game stopped is settled against the journal now,
+    // before anything new happens, and the result is saved at once.
+    if game.reconcile(|seq| session.host().edit_confirmed_at_open(seq)) != Reconciled::Nothing {
+        let _ = save_game(dir, &game);
+    }
     Ok(Box::new(PortSession::with_game(
         session,
         dir.to_path_buf(),

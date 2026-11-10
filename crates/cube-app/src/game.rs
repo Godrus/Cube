@@ -9,10 +9,14 @@
 //!   would not fit), placing one needs and consumes one item of the selected slot;
 //! * creative: the hotbar offers every material without limit and nothing is consumed;
 //! * order of effects: the world change is committed first, the inventory follows only after a
-//!   confirmed commit, so a refused or failed edit never costs or creates an item. The inventory
-//!   file is written right after, but a crash between the journal write and that file can leave
-//!   one placed block still counted in the inventory (the journal and the inventory file are not
-//!   one transaction; this prototype does not pretend they are).
+//!   confirmed commit, so a refused or failed edit never costs or creates an item. The journal and
+//!   the game file are two stores and cannot be one atomic action, so they are **reconciled**
+//!   instead: before the world is changed, the game file records a write-ahead intent (the
+//!   operation sequence and the effect); the effect is applied and the intent cleared in one file
+//!   write after the commit; after a restart an intent that is still there is settled against the
+//!   journal (confirmed: apply the effect once; not confirmed: drop it). See
+//!   [`GameState::reconcile`]. Limits: the game file is written with a flushed temporary file and
+//!   a rename, with no directory sync and no device durability claim (DG-2).
 
 /// Slots in the hotbar (the first slots of the inventory).
 pub const HOTBAR: usize = 9;
@@ -281,6 +285,40 @@ impl Objective {
     }
 }
 
+/// What a world edit that is under way will do to the game state once the world confirms it.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PendingKind {
+    /// A block of this material is being mined: one item is added on confirmation.
+    Mined {
+        /// The material of the block.
+        material: u16,
+    },
+    /// A block is being placed from the selected slot: one item is used on confirmation.
+    Placed,
+}
+
+/// The write-ahead intent of one world edit: recorded in the game file **before** the world is
+/// changed and cleared in the same file write that applies its effect, so the two stores can be
+/// reconciled after a crash at any point (see [`GameState::reconcile`]).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PendingEdit {
+    /// The sequence of the operation id the edit is submitted under.
+    pub seq: u64,
+    /// The effect to apply if the world confirmed it.
+    pub kind: PendingKind,
+}
+
+/// What [`GameState::reconcile`] found.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Reconciled {
+    /// No edit was under way.
+    Nothing,
+    /// The world had the change and the game state lacked its effect: the effect was applied.
+    Applied,
+    /// The world never got the change: the intent was dropped, the game state is unchanged.
+    Dropped,
+}
+
 /// Everything a save keeps of the player's game state.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct GameState {
@@ -290,6 +328,8 @@ pub struct GameState {
     pub mode: Mode,
     /// The objective.
     pub objective: Objective,
+    /// An edit that was started and not yet finished (normally `None`).
+    pub pending: Option<PendingEdit>,
 }
 
 impl Default for GameState {
@@ -298,6 +338,7 @@ impl Default for GameState {
             inventory: Inventory::new(),
             mode: Mode::Survival,
             objective: Objective::SHELTER,
+            pending: None,
         }
     }
 }
@@ -356,6 +397,56 @@ impl GameState {
         (!was && self.objective.done()).then(|| "Objective complete: shelter built!".to_owned())
     }
 
+    /// Records that a block of `material` is about to be mined under operation `seq`. Save the
+    /// state before the world is changed.
+    pub fn begin_mined(&mut self, seq: u64, material: u16) {
+        self.pending = Some(PendingEdit {
+            seq,
+            kind: PendingKind::Mined { material },
+        });
+    }
+
+    /// Records that a block is about to be placed under operation `seq`. Save the state before
+    /// the world is changed.
+    pub fn begin_placed(&mut self, seq: u64) {
+        self.pending = Some(PendingEdit {
+            seq,
+            kind: PendingKind::Placed,
+        });
+    }
+
+    /// The edit did not happen (the world refused it): forget the intent, change nothing else.
+    pub fn abandon_pending(&mut self) {
+        self.pending = None;
+    }
+
+    /// The world confirmed the edit: apply its effect and clear the intent in one step (they are
+    /// saved together). Returns the objective message, if any.
+    pub fn finish_pending(&mut self) -> Option<String> {
+        match self.pending.take()?.kind {
+            PendingKind::Mined { material } => self.on_mined(material),
+            PendingKind::Placed => self.on_placed(),
+        }
+    }
+
+    /// After a restart: settles an edit that was under way when the game stopped. `confirmed`
+    /// says whether the world has the operation with that sequence. Confirmed: the effect is
+    /// applied exactly once (the intent is cleared with it, so asking again changes nothing).
+    /// Not confirmed: the world never changed, so only the intent is dropped. Save the state
+    /// afterwards.
+    pub fn reconcile(&mut self, confirmed: impl Fn(u64) -> bool) -> Reconciled {
+        let Some(p) = self.pending else {
+            return Reconciled::Nothing;
+        };
+        if confirmed(p.seq) {
+            self.finish_pending();
+            Reconciled::Applied
+        } else {
+            self.pending = None;
+            Reconciled::Dropped
+        }
+    }
+
     /// Text form (one `key value...` line each, version first).
     pub fn encode(&self) -> String {
         let mut s = String::from("cube-game 1\n");
@@ -382,6 +473,17 @@ impl GameState {
             o.mined,
             o.placed
         );
+        match self.pending {
+            Some(PendingEdit {
+                seq,
+                kind: PendingKind::Mined { material },
+            }) => s += &format!("pending {seq} mined {material}\n"),
+            Some(PendingEdit {
+                seq,
+                kind: PendingKind::Placed,
+            }) => s += &format!("pending {seq} placed\n"),
+            None => {}
+        }
         s
     }
 
@@ -438,6 +540,25 @@ impl GameState {
                         placed,
                     };
                     objective = true;
+                }
+                "pending" => {
+                    if st.pending.is_some() {
+                        return None;
+                    }
+                    let seq: u64 = it.next()?.parse().ok()?;
+                    let kind = match it.next()? {
+                        "mined" => {
+                            let material: u16 = it.next()?.parse().ok()?;
+                            definition(ItemId(material))?;
+                            PendingKind::Mined { material }
+                        }
+                        "placed" => PendingKind::Placed,
+                        _ => return None,
+                    };
+                    if it.next().is_some() {
+                        return None;
+                    }
+                    st.pending = Some(PendingEdit { seq, kind });
                 }
                 _ => return None,
             }
@@ -579,6 +700,70 @@ mod tests {
             g.on_mined(2).is_none() && g.on_placed().is_none(),
             "no second announcement"
         );
+    }
+
+    #[test]
+    fn an_intent_that_the_world_confirmed_is_applied_exactly_once() {
+        let mut g = GameState::default();
+        g.begin_mined(7, 2);
+        assert_eq!(g.inventory.count_of(ItemId(2)), 0, "nothing yet");
+        let text = g.encode();
+        let mut after = GameState::decode(&text).expect("the intent survives the file");
+        assert_eq!(after.reconcile(|s| s == 7), Reconciled::Applied);
+        assert_eq!(after.inventory.count_of(ItemId(2)), 1);
+        assert_eq!(after.objective.mined, 1);
+        assert!(after.pending.is_none());
+        // Settling again (a second restart before anything else happened) changes nothing.
+        let saved_again = GameState::decode(&after.encode()).unwrap();
+        let mut twice = saved_again.clone();
+        assert_eq!(twice.reconcile(|_| true), Reconciled::Nothing);
+        assert_eq!(twice, saved_again);
+    }
+
+    #[test]
+    fn an_intent_the_world_never_got_is_dropped_without_a_trace() {
+        let mut g = GameState::default();
+        g.inventory.add(ItemId(1), 3);
+        g.begin_placed(9);
+        let before = GameState {
+            pending: None,
+            ..g.clone()
+        };
+        assert_eq!(g.reconcile(|_| false), Reconciled::Dropped);
+        assert_eq!(g, before, "no item was used, no objective progress");
+    }
+
+    #[test]
+    fn a_placed_intent_uses_one_item_only_when_confirmed() {
+        let mut g = GameState::default();
+        g.inventory.add(ItemId(1), 2);
+        g.begin_placed(4);
+        assert_eq!(g.inventory.count_of(ItemId(1)), 2);
+        assert_eq!(g.reconcile(|s| s == 4), Reconciled::Applied);
+        assert_eq!(g.inventory.count_of(ItemId(1)), 1);
+        assert_eq!(g.objective.placed, 1);
+    }
+
+    #[test]
+    fn a_refused_edit_abandons_the_intent_and_costs_nothing() {
+        let mut g = GameState::default();
+        g.inventory.add(ItemId(1), 2);
+        let before = g.clone();
+        g.begin_placed(1);
+        g.abandon_pending();
+        assert_eq!(g, before);
+    }
+
+    #[test]
+    fn a_damaged_intent_line_means_a_damaged_file() {
+        let mut g = GameState::default();
+        g.begin_mined(3, 1);
+        let text = g.encode();
+        assert!(GameState::decode(&text).is_some());
+        assert!(GameState::decode(&text.replace("mined 1", "mined 77")).is_none());
+        assert!(GameState::decode(&text.replace("pending 3", "pending x")).is_none());
+        assert!(GameState::decode(&format!("{text}pending 4 placed\n")).is_none());
+        assert!(GameState::decode(&text.replace("mined 1", "mined 1 9")).is_none());
     }
 
     #[test]
