@@ -12,6 +12,7 @@
 //! Bricks are never unloaded and the world has a finite edge (`WORLD_LIMIT_BRICKS`).
 
 pub mod combat;
+pub mod creature;
 pub mod game;
 pub mod port;
 

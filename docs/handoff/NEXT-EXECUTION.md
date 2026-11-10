@@ -6,7 +6,7 @@
 
 * Epic **E-M1** (persistent world and gameplay integrity), see `docs/roadmap/WORK-PACKAGES.md`.
 * **M1-A2** inventory/world reconciliation: **TESTED and INTEGRATED into `origin/dev`** (commits `e47a35b`, docs `6ff18b3`; CI run 42857847038 green). Player-visible: DEMO_AVAILABLE, but the Godot smoke was not re-run after the change.
-* **CMB-01..03 TESTED** (branch `prod/combat-core`, feature F-GPL-004): `combat.rs` health, damage, respawn, one melee weapon, attack resolution; health saved in `game.state`. Not player visible. Next, one task: **CMB-04** (one hostile creature definition and state machine: idle, chase, attack, dead, using the walker's collision query), then CMB-05, CMB-06. In parallel an independent agent may take **M1-A1** (spike first) or **WGN2-01**.
+* **CMB-01..03 TESTED** (branch `prod/combat-core`, feature F-GPL-004): `combat.rs` health, damage, respawn, one melee weapon, attack resolution; health saved in `game.state`. Not player visible. **CMB-04 TESTED** (feature F-CRT-001, `creature.rs`: Slime, Idle/Chase/Attack/Dead on the player's Walker body). Next, one task: **CMB-05** (deterministic spawn of creatures in loaded bricks from seed + brick, despawn when far, bounded count; session owns a creature list and ticks it), then CMB-06 (loot). In parallel an independent agent may take **M1-A1** (spike first) or **WGN2-01**.
 
 ## Priority and dependencies
 
