@@ -72,6 +72,19 @@ pub struct SpawnArea {
     pub max: usize,
 }
 
+/// What a player's attack did to a creature.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Strike {
+    /// The hit.
+    pub hit: Hit,
+    /// Where the creature stood.
+    pub at: [f64; 3],
+    /// The column it lived in (its identity, and part of the loot roll key).
+    pub column: (i64, i64),
+    /// Its kind.
+    pub def: &'static crate::creature::CreatureDef,
+}
+
 /// What one tick of the population did.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct TickReport {
@@ -164,14 +177,15 @@ impl Population {
     }
 
     /// The player attacks the nearest creature (resolved by the combat rules). A kill removes
-    /// the creature for this session and is returned with its position (loot is CMB-06).
+    /// the creature for this session; the [`Strike`] says where it lived and what it was, so the
+    /// caller can roll its loot.
     /// `Err(OutOfReach)` if none is in reach or there are no creatures.
     pub fn player_attack(
         &mut self,
         weapon: &WeaponDef,
         timer: &mut AttackTimer,
         player_feet: [f64; 3],
-    ) -> Result<(Hit, [f64; 3]), AttackRefused> {
+    ) -> Result<Strike, AttackRefused> {
         let nearest = self
             .alive
             .iter()
@@ -184,12 +198,17 @@ impl Population {
             return Err(AttackRefused::OutOfReach);
         };
         let hit = c.receive_attack(weapon, timer, dist)?;
-        let at = c.pos();
+        let (at, def) = (c.pos(), c.def());
         if hit.killed {
             self.alive.remove(&key);
             self.killed.insert(key);
         }
-        Ok((hit, at))
+        Ok(Strike {
+            hit,
+            at,
+            column: key,
+            def,
+        })
     }
 }
 
@@ -348,8 +367,8 @@ mod tests {
         let mut timer = AttackTimer::new();
         let mut kills = 0;
         for _ in 0..40 {
-            if let Ok((h, _)) = p.player_attack(&WOODEN_SWORD, &mut timer, target) {
-                kills += u32::from(h.killed);
+            if let Ok(st) = p.player_attack(&WOODEN_SWORD, &mut timer, target) {
+                kills += u32::from(st.hit.killed);
             }
             for _ in 0..WOODEN_SWORD.cooldown_ticks {
                 timer.tick();

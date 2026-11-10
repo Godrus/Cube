@@ -12,8 +12,10 @@ use cube_core::{CellKey, GeneratorVersion, WorldSeed};
 use cube_persistence::{STRUCTURE_VERSION, WorldRecord};
 use cube_server::{LocalHost, StaticArea};
 
+use crate::combat::{AttackRefused, AttackTimer, WOODEN_SWORD};
 use crate::creature::TICK;
-use crate::game::{GameState, ITEMS, Mode, Reconciled, SLOTS};
+use crate::game::{BLOCK_ITEMS, GameState, ITEMS, Mode, Reconciled, SLOTS};
+use crate::loot::loot_key;
 use crate::spawn::{Population, SpawnArea};
 use crate::{PlayerState, REACH, Session};
 
@@ -120,6 +122,8 @@ pub struct PortSession {
     /// player cannot fight back before CMB-09).
     creatures: Option<Population>,
     creature_time: f32,
+    attack_timer: AttackTimer,
+    attack_time: f32,
 }
 
 impl PortSession {
@@ -139,6 +143,8 @@ impl PortSession {
             message_left: 0.0,
             creatures: None,
             creature_time: 0.0,
+            attack_timer: AttackTimer::new(),
+            attack_time: 0.0,
         }
     }
 
@@ -146,6 +152,40 @@ impl PortSession {
     /// the Godot demo; they are not a player feature before CMB-09).
     pub fn enable_creatures(&mut self) {
         self.creatures.get_or_insert_with(Population::new);
+    }
+
+    /// The player swings the wooden sword at the nearest creature. A hit is resolved by the
+    /// combat rules (cooldown, reach). A kill rolls the creature's loot (a pure function of the
+    /// world seed and the creature's column) and puts it into the inventory; loot that does not
+    /// fit is lost and the player is told. Internal until CMB-09 gives it an input.
+    pub fn attack(&mut self) -> Result<crate::spawn::Strike, AttackRefused> {
+        let Some(feet) = self.session.player_feet() else {
+            return Err(AttackRefused::OutOfReach);
+        };
+        let Some(pop) = self.creatures.as_mut() else {
+            return Err(AttackRefused::OutOfReach);
+        };
+        let strike = pop.player_attack(&WOODEN_SWORD, &mut self.attack_timer, feet)?;
+        if strike.hit.killed {
+            let key = loot_key(self.session.world_seed(), strike.column.0, strike.column.1);
+            let name = strike.def.name;
+            match strike.def.loot.roll(key) {
+                Some(drop) => {
+                    let left = self.game.grant_loot(drop.item, drop.count);
+                    let item = crate::game::definition(drop.item).map_or("item", |d| d.name);
+                    if left > 0 {
+                        self.say(format!(
+                            "{name} defeated. Inventory full: {left} {item} lost"
+                        ));
+                    } else {
+                        self.say(format!("{name} defeated: +{} {item}", drop.count));
+                    }
+                    self.save_game();
+                }
+                None => self.say(format!("{name} defeated")),
+            }
+        }
+        Ok(strike)
     }
 
     /// The creatures, if switched on (tests, and later the view).
@@ -258,6 +298,11 @@ impl SessionPort for PortSession {
             ));
         }
         let f = self.session.frame(&intents).map_err(|e| e.to_string())?;
+        self.attack_time = (self.attack_time + c.dt).min(5.0 * TICK);
+        while self.attack_time >= TICK {
+            self.attack_time -= TICK;
+            self.attack_timer.tick();
+        }
         self.run_creatures(c.dt);
         Ok(FrameOut {
             upsert: f.upsert,
@@ -413,7 +458,7 @@ impl SessionPort for PortSession {
         let slots = if creative {
             (0..SLOTS)
                 .map(|i| {
-                    if i < ITEMS.len() {
+                    if i < BLOCK_ITEMS {
                         (ITEMS[i].id.0, 0)
                     } else {
                         (0, 0)

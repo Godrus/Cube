@@ -39,40 +39,49 @@ pub struct ItemDefinition {
     /// Largest stack.
     pub max_stack: u32,
     /// Material placed when used.
-    pub places: u16,
+    pub places: Option<u16>,
 }
 
+/// How many of the items are blocks (the first ones): creative mode offers exactly these.
+pub const BLOCK_ITEMS: usize = 5;
+
 /// All items of the prototype.
-pub const ITEMS: [ItemDefinition; 5] = [
+pub const ITEMS: [ItemDefinition; 6] = [
     ItemDefinition {
         id: ItemId(1),
         name: "Stone",
         max_stack: MAX_STACK,
-        places: 1,
+        places: Some(1),
     },
     ItemDefinition {
         id: ItemId(2),
         name: "Dirt",
         max_stack: MAX_STACK,
-        places: 2,
+        places: Some(2),
     },
     ItemDefinition {
         id: ItemId(3),
         name: "Grass",
         max_stack: MAX_STACK,
-        places: 3,
+        places: Some(3),
     },
     ItemDefinition {
         id: ItemId(4),
         name: "Sand",
         max_stack: MAX_STACK,
-        places: 4,
+        places: Some(4),
     },
     ItemDefinition {
         id: ItemId(5),
         name: "Red brick",
         max_stack: MAX_STACK,
-        places: 5,
+        places: Some(5),
+    },
+    ItemDefinition {
+        id: ItemId(6),
+        name: "Slime gel",
+        max_stack: MAX_STACK,
+        places: None,
     },
 ];
 
@@ -364,13 +373,13 @@ impl GameState {
         match self.mode {
             Mode::Creative => {
                 let i = self.inventory.selected();
-                (i < ITEMS.len()).then(|| ITEMS[i].places)
+                (i < BLOCK_ITEMS).then(|| ITEMS[i].places).flatten()
             }
             Mode::Survival => self
                 .inventory
                 .selected_item()
                 .and_then(definition)
-                .map(|d| d.places),
+                .and_then(|d| d.places),
         }
     }
 
@@ -399,6 +408,16 @@ impl GameState {
         let was = self.objective.done();
         self.objective.placed += 1;
         (!was && self.objective.done()).then(|| "Objective complete: shelter built!".to_owned())
+    }
+
+    /// Puts loot into the inventory (survival only: creative creates and consumes nothing).
+    /// Returns how many items did not fit; they are **lost** in this prototype (there are no item
+    /// entities on the ground yet), and the caller must say so to the player.
+    pub fn grant_loot(&mut self, item: ItemId, count: u32) -> u32 {
+        if self.mode == Mode::Creative {
+            return 0;
+        }
+        self.inventory.add(item, count)
     }
 
     /// Records that a block of `material` is about to be mined under operation `seq`. Save the
@@ -566,7 +585,7 @@ impl GameState {
                     let kind = match it.next()? {
                         "mined" => {
                             let material: u16 = it.next()?.parse().ok()?;
-                            definition(ItemId(material))?;
+                            definition(ItemId(material))?.places?;
                             PendingKind::Mined { material }
                         }
                         "placed" => PendingKind::Placed,
@@ -789,6 +808,39 @@ mod tests {
         assert!(GameState::decode(&text.replace("health 13 20", "health 21 20")).is_none());
         assert!(GameState::decode(&text.replace("health 13 20", "health 13 0")).is_none());
         assert!(GameState::decode(&format!("{text}health 1 2\n")).is_none());
+    }
+
+    #[test]
+    fn loot_goes_to_the_inventory_in_survival_and_never_in_creative() {
+        let mut g = GameState::default();
+        assert_eq!(g.grant_loot(ItemId(6), 2), 0);
+        assert_eq!(g.inventory.count_of(ItemId(6)), 2);
+        let mut c = GameState {
+            mode: Mode::Creative,
+            ..GameState::default()
+        };
+        assert_eq!(c.grant_loot(ItemId(6), 2), 0);
+        assert_eq!(
+            c.inventory.count_of(ItemId(6)),
+            0,
+            "creative creates nothing"
+        );
+    }
+
+    #[test]
+    fn loot_that_does_not_fit_is_reported_and_a_non_block_item_cannot_be_placed() {
+        let mut g = GameState::default();
+        g.inventory.add(ItemId(2), SLOTS as u32 * MAX_STACK);
+        assert_eq!(g.grant_loot(ItemId(6), 3), 3, "full: all three left over");
+        let mut h = GameState::default();
+        h.inventory.add(ItemId(6), 1);
+        assert_eq!(h.selected_material(), None, "gel is not a block");
+        let text = h.encode();
+        assert_eq!(
+            GameState::decode(&text),
+            Some(h),
+            "the new item saves and loads"
+        );
     }
 
     #[test]

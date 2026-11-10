@@ -12,6 +12,7 @@
 use cube_client::{FaceIndex, WalkInput, Walker};
 
 use crate::combat::{AttackRefused, AttackTimer, Health, Hit, WeaponDef, attack};
+use crate::loot::{LootTable, SLIME_LOOT};
 
 /// Length of one tick in seconds.
 pub const TICK: f32 = 1.0 / 60.0;
@@ -27,6 +28,8 @@ pub struct CreatureDef {
     pub sight_milli: u32,
     /// How it hits (damage, reach, cooldown).
     pub weapon: WeaponDef,
+    /// What it drops when killed.
+    pub loot: LootTable,
 }
 
 /// The first hostile creature of the prototype.
@@ -40,6 +43,7 @@ pub const SLIME: CreatureDef = CreatureDef {
         reach_milli: 1_600,
         cooldown_ticks: 60,
     },
+    loot: SLIME_LOOT,
 };
 
 /// What the creature is doing.

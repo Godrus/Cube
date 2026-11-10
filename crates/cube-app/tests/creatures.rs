@@ -122,3 +122,55 @@ fn the_population_stays_bounded_and_off_the_safe_columns() {
     }
     let _ = std::fs::remove_dir_all(d);
 }
+
+/// Lets a creature come to the player and kills it. Returns the column it lived in and the
+/// inventory afterwards (item id, count of each kind).
+fn kill_one(tag: &str) -> ((i64, i64), Vec<(u16, u32)>, String) {
+    let (mut p, d, _) = start(tag, true);
+    p.enable_creatures();
+    let mut kills = 0;
+    let mut column = (0, 0);
+    for _ in 0..2000 {
+        run(&mut p, 1);
+        if let Ok(st) = p.attack()
+            && st.hit.killed
+        {
+            kills += 1;
+            column = st.column;
+            break;
+        }
+    }
+    assert_eq!(kills, 1, "the creature came, was hit twice and died");
+    let inv = (1..=6u16)
+        .map(|i| (i, p.game().inventory.count_of(cube_app::game::ItemId(i))))
+        .filter(|(_, n)| *n > 0)
+        .collect::<Vec<_>>();
+    let msg = p.game_view().message;
+    let _ = std::fs::remove_dir_all(d);
+    (column, inv, msg)
+}
+
+#[test]
+fn a_kill_drops_exactly_what_the_seeded_roll_says_and_it_is_the_same_every_time() {
+    let (col, inv, msg) = kill_one("loot-a");
+    let expected = cube_app::loot::SLIME_LOOT.roll(cube_app::loot::loot_key(7, col.0, col.1));
+    match expected {
+        Some(drop) => {
+            assert_eq!(inv, vec![(drop.item.0, drop.count)], "{msg}");
+            assert!(msg.contains("defeated"));
+        }
+        None => assert!(inv.is_empty(), "nothing was rolled: {inv:?}"),
+    }
+    let (col2, inv2, _) = kill_one("loot-b");
+    assert_eq!((col, inv), (col2, inv2), "same world, same kill, same drop");
+}
+
+#[test]
+fn nothing_can_be_attacked_while_creatures_are_off_or_out_of_reach() {
+    let (mut p, d, _) = start("noatk", false);
+    assert!(p.attack().is_err(), "off");
+    p.enable_creatures();
+    run(&mut p, 120);
+    assert!(p.attack().is_err(), "nothing within reach of the start");
+    let _ = std::fs::remove_dir_all(d);
+}

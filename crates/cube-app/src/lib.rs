@@ -14,6 +14,7 @@
 pub mod combat;
 pub mod creature;
 pub mod game;
+pub mod loot;
 pub mod port;
 pub mod spawn;
 
