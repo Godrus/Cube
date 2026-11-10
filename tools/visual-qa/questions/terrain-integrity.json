@@ -1,0 +1,32 @@
+{
+  "name": "terrain-integrity",
+  "description": "One screenshot: holes, odd surfaces and wrong colours. Visual judgment only: geometry invariants (T-junctions, topology) are proven by the Rust tests, not here.",
+  "images": ["screenshot"],
+  "questions": {
+    "hole_in_terrain": {
+      "type": "noul",
+      "instructions": "Is there a hole in the terrain surface in `screenshot`, a place where ground is missing and the background shows through?",
+      "expect": false
+    },
+    "hole_location": {
+      "type": "box",
+      "instructions": "Where is the hole in the terrain surface in `screenshot`?",
+      "only_if": "hole_in_terrain"
+    },
+    "streaks_or_slivers": {
+      "type": "noul",
+      "instructions": "Are there thin diagonal streaks or slivers in `screenshot` that do not look like flat square block faces?",
+      "expect": false
+    },
+    "grass_on_top": {
+      "type": "noul",
+      "instructions": "Is green grass visible on the top surfaces of the terrain in `screenshot`?",
+      "expect": true
+    },
+    "placeholder_colour": {
+      "type": "noul",
+      "instructions": "Is any part of the terrain in `screenshot` bright magenta or purple?",
+      "expect": false
+    }
+  }
+}

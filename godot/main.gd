@@ -5,6 +5,7 @@ extends Node3D
 ## Controls: click to capture the mouse, WASD move, Space / Shift up and down, mouse looks,
 ## left click removes the block under the crosshair, right click places a block, Esc releases the mouse.
 ## Command line after `--`: --smoke (headless self check), --screenshot <path> (save a picture and quit),
+## --edit-shots <before.png> <after.png> (picture, remove the block under the crosshair, picture),
 ## --world <dir> (world directory), --seed <n>.
 
 @onready var world = $World
@@ -13,6 +14,8 @@ extends Node3D
 var look := Vector2.ZERO
 var smoke := false
 var shot_path := ""
+var before_path := ""
+var after_path := ""
 var frames := 0
 var edited := false
 var base_bricks := 0
@@ -30,6 +33,10 @@ func _ready() -> void:
 			"--screenshot":
 				i += 1
 				shot_path = args[i]
+			"--edit-shots":
+				before_path = args[i + 1]
+				after_path = args[i + 2]
+				i += 2
 			"--world":
 				i += 1
 				dir = args[i]
@@ -70,6 +77,8 @@ func _process(delta: float) -> void:
 	frames += 1
 	if smoke:
 		_smoke_step()
+	elif before_path != "":
+		_edit_shots_step()
 	elif shot_path != "":
 		_screenshot_step()
 
@@ -95,5 +104,17 @@ func _screenshot_step() -> void:
 		var img := get_viewport().get_texture().get_image()
 		img.save_png(shot_path)
 		print("CUBE screenshot saved: ", shot_path, " bricks=", world.brick_count())
+		world.close()
+		get_tree().quit(0)
+
+
+func _edit_shots_step() -> void:
+	if frames == 40:
+		get_viewport().get_texture().get_image().save_png(before_path)
+	elif frames == 41:
+		print("CUBE edit hit = ", world.edit(0))
+	elif frames == 70:
+		get_viewport().get_texture().get_image().save_png(after_path)
+		print("CUBE edit shots saved: ", before_path, " ", after_path)
 		world.close()
 		get_tree().quit(0)

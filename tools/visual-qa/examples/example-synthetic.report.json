@@ -1,0 +1,51 @@
+{
+  "questionnaire": "scene-smoke",
+  "model": "jev-1.14.0",
+  "images": {
+    "screenshot": "fixtures/good-1.png"
+  },
+  "when": "2026-11-10T02:26:07+00:00",
+  "mode": "mock response (no network)",
+  "verdict": "PASS",
+  "results": [
+    {
+      "question": "voxel_ground_visible",
+      "p": 0.97,
+      "expect": true,
+      "result": "pass"
+    },
+    {
+      "question": "frame_is_one_flat_colour",
+      "p": 0.02,
+      "expect": false,
+      "result": "pass"
+    },
+    {
+      "question": "large_hole_in_ground",
+      "p": 0.05,
+      "expect": false,
+      "result": "pass"
+    },
+    {
+      "question": "tears_in_terrain",
+      "p": 0.1,
+      "expect": false,
+      "result": "pass"
+    },
+    {
+      "question": "scene_kind",
+      "choice": "voxel_landscape_with_ground",
+      "probabilities": {
+        "voxel_landscape_with_ground": 0.93,
+        "other_scene": 0.07
+      },
+      "expect": "voxel_landscape_with_ground",
+      "result": "pass"
+    }
+  ],
+  "note": "",
+  "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0
+  }
+}

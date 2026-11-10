@@ -4,7 +4,7 @@
 
 Three separate dimensions: **Decision** (IDEA, PROPOSED, APPROVED, DEFERRED, REJECTED), **Implementation** (NOT_STARTED, IN_PROGRESS, IMPLEMENTED, TESTED, INTEGRATED) and **Player availability** (NOT_AVAILABLE, INTERNAL_ONLY, DEMO_AVAILABLE, PLAYER_AVAILABLE). *Blocked* is a flag with blocker ids, not a status. Integrated code is not a player feature. Ids are stable and never reused.
 
-**54 features.** Integrated: 40. Player available: 0. Approved: 42. Proposed: 12. Blocked: 14.
+**55 features.** Integrated: 40. Player available: 0. Approved: 43. Proposed: 12. Blocked: 15.
 
 ## Geometry Core
 
@@ -138,5 +138,6 @@ Three separate dimensions: **Decision** (IDEA, PROPOSED, APPROVED, DEFERRED, REJ
 | ID | Feature | Decision | Implementation | Player | Prio | Depends | Gates | Evidence | Blockers | Verified |
 |---|---|---|---|---|---|---|---|---|---|---|
 | F-PLT-001 | **Architecture and quality checks in CI**: fmt, clippy, tests on Linux and Windows, loom, cargo-deny, archcheck with mutation-boundary and conflict-marker rules, API snapshots. Acceptance: Required checks block integration into dev. | APPROVED | INTEGRATED | INTERNAL_ONLY | P0 |  | PS-0; G0 | .github/workflows/ci.yml; DEC-073 | - | `f994c83` |
+| F-QA-001 | **Visual QA of Godot screenshots with TypeSafe Jev (experimental tool)**: A standard-library Python tool (tools/visual-qa) that sends a Godot screenshot, or a before and after pair, with typed questions (Noul, Choice, gated Box) to TypeSafe Jev 1.14 and produces a PASS, WARN, FAIL or UNKNOWN report in JSON and Markdown. Dry run by default; a live call needs an explicit flag and TYPESAFE_API_KEY. TypeSafe takes no part in generation, rendering or the game loop; geometry invariants stay in the Rust tests. Approved scope: owner message of 2026-11-10 (Visual QA integration). Acceptance: Offline tests pass: request building (unique references, parts, no secrets, no image bytes in stored requests), documented image limits, the truth table (PASS, WARN, FAIL, UNKNOWN, gated Box), a dry run that sends nothing, a clear error without a key, API failures reported as UNKNOWN. NO live request has been made, so accuracy is unmeasured. External dependency: the TypeSafe API, whose image support is an experimental preview. | APPROVED | TESTED | INTERNAL_ONLY | P2 | F-ADP-001 |  | branch prod/visual-qa; tools/visual-qa/README.md; tools/visual-qa/test_visual_qa.py (21 offline tests) | Live accuracy unmeasured: needs TYPESAFE_API_KEY and an explicit live run; TypeSafe image support is experimental | `96da469` |
 | F-PLT-002 | **Mobile device validation**: Memory, determinism, durability and release checks on physical devices. Acceptance: Device gates pass on a physical device matrix; CI-host results are never device measurements. | APPROVED | NOT_STARTED | NOT_AVAILABLE | P1 | F-CLI-001 | DG-1; DG-2; DG-3 |  | EXT-DEV (physical devices) | `f994c83` |
 

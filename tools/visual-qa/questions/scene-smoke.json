@@ -1,0 +1,38 @@
+{
+  "name": "scene-smoke",
+  "description": "One Godot screenshot of the first world: is it a plausible voxel landscape, not empty, black or torn?",
+  "images": ["screenshot"],
+  "questions": {
+    "voxel_ground_visible": {
+      "type": "noul",
+      "instructions": "Is a ground surface built from blocky, cube-shaped voxels visible in `screenshot`?",
+      "expect": true
+    },
+    "frame_is_one_flat_colour": {
+      "type": "noul",
+      "instructions": "Is `screenshot` almost entirely a single flat colour, for example completely black?",
+      "expect": false
+    },
+    "large_hole_in_ground": {
+      "type": "noul",
+      "instructions": "Is there a large area in `screenshot` where ground should be but only the plain background or sky shows?",
+      "expect": false
+    },
+    "tears_in_terrain": {
+      "type": "noul",
+      "instructions": "Are there sharp gaps or cracks cutting through the terrain in `screenshot`?",
+      "expect": false
+    },
+    "scene_kind": {
+      "type": "choice",
+      "instructions": "What does `screenshot` show?",
+      "criteria": {
+        "voxel_landscape_with_ground": "A landscape with a blocky green and brown ground surface and sky above it",
+        "empty_or_black_frame": "A blank frame, completely black or one flat colour",
+        "sky_without_ground": "Only sky or background colour with no ground surface at all",
+        "other_scene": "Anything else"
+      },
+      "expect": "voxel_landscape_with_ground"
+    }
+  }
+}

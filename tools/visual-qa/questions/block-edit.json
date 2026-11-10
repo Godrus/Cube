@@ -1,0 +1,32 @@
+{
+  "name": "block-edit",
+  "description": "Two screenshots from the same camera pose, before and after REMOVING the block under the crosshair. Comparing two images is weaker than judging one (docs: keep questions simple); treat results as experimental. The exact voxel is known to the test scenario, not to this tool.",
+  "images": ["before", "after"],
+  "questions": {
+    "different_view": {
+      "type": "noul",
+      "instructions": "Does `after` show a different viewpoint or a different landscape than `before`, not only a small change?",
+      "expect": false
+    },
+    "notch_in_after": {
+      "type": "noul",
+      "instructions": "Does `after` have a notch or pit in the ground near the centre of the image that `before` does not have?",
+      "expect": true
+    },
+    "notch_in_before": {
+      "type": "noul",
+      "instructions": "Does `before` have a notch or pit in the ground near the centre of the image?",
+      "expect": false
+    },
+    "notch_location": {
+      "type": "box",
+      "instructions": "Where is the notch or pit near the centre of `after`?",
+      "only_if": "notch_in_after"
+    },
+    "large_change_far_from_centre": {
+      "type": "noul",
+      "instructions": "Besides the centre, are there large differences between `before` and `after` near the edges of the image?",
+      "expect": false
+    }
+  }
+}

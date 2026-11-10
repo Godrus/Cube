@@ -1,0 +1,22 @@
+{
+  "good-1.png": {
+    "expect": "PASS",
+    "why": "screenshot of the first world, seed 7"
+  },
+  "good-2.png": {
+    "expect": "PASS",
+    "why": "screenshot of a second world, seed 11"
+  },
+  "black.png": {
+    "expect": "FAIL",
+    "why": "completely black frame"
+  },
+  "no-terrain.png": {
+    "expect": "FAIL",
+    "why": "sky gradient only, no ground"
+  },
+  "missing-chunk.png": {
+    "expect": "FAIL",
+    "why": "good-1 with a large rectangle of ground replaced by sky colour"
+  }
+}
