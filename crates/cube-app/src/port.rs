@@ -496,6 +496,16 @@ impl SessionPort for PortSession {
         }
     }
 
+    fn qa_teleport(&mut self, eye: [f64; 3], yaw: f32, pitch: f32) {
+        self.session.restore_player(&PlayerState {
+            feet: [eye[0], eye[1] - cube_client::EYE_HEIGHT, eye[2]],
+            yaw,
+            pitch,
+            walking: false,
+            third_person: false,
+        });
+    }
+
     fn ground_height(&self, x: i64, z: i64) -> i64 {
         self.session.ground_height(x, z)
     }

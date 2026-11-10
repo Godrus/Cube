@@ -374,5 +374,53 @@ def main_world():
     return 0 if not failed else 1
 
 
+def caves_scenario():
+    """Seed 7, generator version 3: a shaft open to the sky at (98, -7, -70) and a coal voxel at (0, -54, -23) that a
+    cave exposes (pinned by worldgen_v3.rs). The camera is put there by a QA-only teleport; mining the coal is the
+    ordinary game action."""
+    steps = [W(20), {"op": "mode", "walk": False},
+             {"op": "teleport", "x": 98.5, "y": 14.0, "z": -69.5, "yaw": 0.0, "pitch": -1.3}, W(200), {"op": "probe", "name": "above"}, {"op": "shot", "name": "mouth_from_above"},
+             {"op": "teleport", "x": 98.5, "y": -8.4, "z": -69.5, "yaw": 0.0, "pitch": -0.2}, W(200), {"op": "probe", "name": "in_shaft"}, {"op": "shot", "name": "in_shaft"},
+             {"op": "teleport", "x": 0.5, "y": -53.4, "z": -23.5, "yaw": 3.14159265, "pitch": 0.0}, W(240), {"op": "probe", "name": "coal_seen"}, {"op": "shot", "name": "coal_wall"},
+             {"op": "mine"}, W(30), {"op": "probe", "name": "coal_mined"}]
+    return {"world_seed": 7, "hud": True, "phases": [{"name": "p1", "create": True, "steps": steps}]}
+
+
+def main_caves():
+    out = tempfile.mkdtemp(prefix="cube-caves-")
+    t0 = time.time()
+    tel = godot_runner.run_scenario(caves_scenario(), out, timeout=300)
+    if "events" not in tel["p1"]:
+        print("FAIL godot:", tel["p1"].get("error", tel["p1"]))
+        return 1
+    p = probes(tel, "p1")
+    ev = tel["p1"]["events"]
+    checks = []
+
+    def check(name, ok, detail):
+        checks.append((name, ok, detail))
+        print(("ok   " if ok else "FAIL ") + name + ": " + detail)
+
+    a, s_, c = p["above"], p["in_shaft"], p["coal_seen"]
+    check("the camera really is below the surface in the shaft and in the cave", s_["camera_position"][1] < -7 and c["camera_position"][1] < -40,
+          "shaft y %.1f, cave y %.1f" % (s_["camera_position"][1], c["camera_position"][1]))
+    check("the world was streamed in at both places (bricks around the camera)", s_["bricks"] > 100 and c["bricks"] > 100, "%d and %d bricks in the scene" % (s_["bricks"], c["bricks"]))
+    check("the crosshair is on the coal wall of the cave", c["target_material"] == 11, "target material %s (11 = coal ore)" % c["target_material"])
+    mined = [e for e in ev if e["op"] == "mine"]
+    check("mining the coal works and the inventory gets coal ore (item 11)", bool(mined) and mined[0]["result"] == "ok" and 11 in p["coal_mined"]["game"]["slots"][0::2],
+          "result '%s', slots %s" % (mined[0]["result"] if mined else None, [x for x in p["coal_mined"]["game"]["slots"][:6]]))
+    means = {}
+    for name in ("mouth_from_above", "in_shaft", "coal_wall"):
+        f = os.path.join(out, "p1", name + ".png")
+        check("picture " + name, os.path.exists(f) and os.path.getsize(f) > 10000, f)
+        means[name] = mean_rgb(f) if os.path.exists(f) else [0, 0, 0]
+        print("     mean colour %-17s %s" % (name, [round(v) for v in means[name]]))
+    r, g, b = means["coal_wall"]
+    check("the cave picture is rock, not sky or grass (grey-brown, not blue, not green)", b < r + 25 and g < r + 25 and max(r, g, b) < 200, "mean %s" % [round(v) for v in means["coal_wall"]])
+    failed = [x for x, ok, _ in checks if not ok]
+    print("caves smoke: %s (%.0f s, %s)" % ("PASS" if not failed else "FAIL " + ", ".join(failed), time.time() - t0, out))
+    return 0 if not failed else 1
+
+
 if __name__ == "__main__":
-    sys.exit(main_world() if "--world" in sys.argv else main_combat() if "--combat" in sys.argv else main_play() if "--play" in sys.argv else main_journey() if "--journey" in sys.argv else main())
+    sys.exit(main_caves() if "--caves" in sys.argv else main_world() if "--world" in sys.argv else main_combat() if "--combat" in sys.argv else main_play() if "--play" in sys.argv else main_journey() if "--journey" in sys.argv else main())

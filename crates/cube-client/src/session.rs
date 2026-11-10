@@ -191,6 +191,9 @@ pub trait SessionPort: Send {
     fn attack(&mut self) -> Result<bool, String> {
         Ok(false)
     }
+    /// QA only (scenario runs): puts the free camera at `eye` looking along `yaw` and `pitch`.
+    /// A normal game never calls it.
+    fn qa_teleport(&mut self, _eye: [f64; 3], _yaw: f32, _pitch: f32) {}
     /// Ground height of the voxel column `(x, z)` (0 when the world cannot say).
     fn ground_height(&self, _x: i64, _z: i64) -> i64 {
         0

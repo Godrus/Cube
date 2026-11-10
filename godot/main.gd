@@ -685,7 +685,7 @@ func _event(op: String, extra: Dictionary = {}) -> Dictionary:
 		"walking": world.is_walking(), "grounded": world.is_grounded(),
 		"feet": [world.player_feet().x, world.player_feet().y, world.player_feet().z],
 		"stats": world.stream_stats(), "ms": Time.get_ticks_msec(), "game": world.game_view(),
-		"creatures": _creatures_plain(), "nodes": _nodes_plain(), "hp_label": "" if health_label == null else health_label.text, "hp_bar": 0 if health_bar == null else health_bar.value}
+		"creatures": _creatures_plain(), "target_material": int(world.target_info().get("material", -1)), "nodes": _nodes_plain(), "hp_label": "" if health_label == null else health_label.text, "hp_bar": 0 if health_bar == null else health_bar.value}
 	for k in extra:
 		e[k] = extra[k]
 	scen_events.append(e)
@@ -877,6 +877,11 @@ func _scenario_action(op: String) -> void:
 			if inventory_panel != null:
 				inventory_panel.visible = bool(scen_cmd.get("open", true))
 			_event("inventory")
+		"teleport":
+			world.qa_teleport(float(scen_cmd["x"]), float(scen_cmd["y"]), float(scen_cmd["z"]), float(scen_cmd.get("yaw", 0.0)), float(scen_cmd.get("pitch", 0.0)))
+			cam.position = world.camera_position()
+			cam.rotation = world.camera_rotation()
+			_event("teleport")
 		"fight":
 			_event("fight", {"hits": scen_hits, "last_hit_pos": scen_last_hit_pos, "result": fight_result if fight_result != "" else "timeout", "trace": fight_trace, "states": fight_states, "frames_used": frames - fight_start_frame + 1})
 		"attack":

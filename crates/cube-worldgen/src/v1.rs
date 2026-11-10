@@ -18,7 +18,7 @@ const MAX_AMP: i64 = 53;
 /// Surface depth from which the material is stone.
 const STONE_DEPTH: i64 = 4;
 
-fn mix(mut z: u64) -> u64 {
+pub(crate) fn mix(mut z: u64) -> u64 {
     z = (z ^ (z >> 30)).wrapping_mul(0xbf58_476d_1ce4_e5b9);
     z = (z ^ (z >> 27)).wrapping_mul(0x94d0_49bb_1331_11eb);
     z ^ (z >> 31)
@@ -33,7 +33,7 @@ fn lattice(seed: u64, octave: u64, ix: i64, iz: i64) -> i128 {
 }
 
 /// Smoothstep of `t` in `0..=65536`, result in `0..=65536`.
-fn smooth(t: i128) -> i128 {
+pub(crate) fn smooth(t: i128) -> i128 {
     (t * t * (3 * 65_536 - 2 * t)).div_euclid(65_536 * 65_536)
 }
 

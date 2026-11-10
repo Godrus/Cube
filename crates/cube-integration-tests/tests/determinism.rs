@@ -200,13 +200,14 @@ fn there_is_no_size_limit_inside_the_range_and_errors_are_stable_outside() {
 fn versions_are_registered_unknown_versions_are_errors_and_cost_is_bounded() {
     assert_eq!(
         current_version(),
-        GeneratorVersion::new(2),
+        GeneratorVersion::new(3),
         "new worlds use the newest"
     );
-    assert_eq!(registry().len(), 2);
+    assert_eq!(registry().len(), 3);
     assert_eq!(registry()[0].algorithm, "terrain-v1");
     assert_eq!(registry()[1].algorithm, "terrain-v2");
-    let unknown = GeneratorVersion::new(3);
+    assert_eq!(registry()[2].algorithm, "terrain-v3");
+    let unknown = GeneratorVersion::new(4);
     let e = generate_brick(SEED, unknown, BrickCoord::new(0, 0, 0)).unwrap_err();
     assert_eq!(e, GenError::GeneratorVersionUnknown(unknown));
     assert_eq!(e.code(), 5001);

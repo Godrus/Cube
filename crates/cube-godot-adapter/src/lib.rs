@@ -284,6 +284,14 @@ impl CubeWorld {
         d
     }
 
+    /// QA only (scenario runs): puts the free camera at `(x, y, z)` looking along `yaw`, `pitch`.
+    #[func]
+    fn qa_teleport(&mut self, x: f64, y: f64, z: f64, yaw: f64, pitch: f64) {
+        if let Some(s) = self.session.as_mut() {
+            s.qa_teleport([x, y, z], yaw as f32, pitch as f32);
+        }
+    }
+
     /// Ground height of the voxel column `(x, z)` (for QA scenarios that follow the terrain).
     #[func]
     fn ground_height(&self, x: i64, z: i64) -> i64 {

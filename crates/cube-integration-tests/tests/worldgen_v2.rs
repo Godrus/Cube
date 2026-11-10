@@ -203,7 +203,7 @@ fn version_one_worlds_are_untouched_and_the_version_is_explicit() {
     let h1 = generate_brick(SEED, one, b).unwrap().hash(SEED, one);
     assert_ne!(h1, hash_of(SEED, b));
     assert_eq!(
-        generate_brick(SEED, GeneratorVersion::new(3), b).unwrap_err(),
-        GenError::GeneratorVersionUnknown(GeneratorVersion::new(3))
+        generate_brick(SEED, GeneratorVersion::new(4), b).unwrap_err(),
+        GenError::GeneratorVersionUnknown(GeneratorVersion::new(4))
     );
 }

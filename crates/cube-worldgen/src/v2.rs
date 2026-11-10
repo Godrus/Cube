@@ -72,7 +72,7 @@ pub fn height(seed: WorldSeed, x: i64, z: i64) -> i64 {
 }
 
 /// `(height, biome)` of a column, computing the climate once.
-fn column(seed: u64, x: i64, z: i64) -> (i64, Biome) {
+pub(crate) fn column(seed: u64, x: i64, z: i64) -> (i64, Biome) {
     let (t, m) = climate(seed, x, z);
     let cold = clamp(-t - 6_000, 0, 12_000);
     let dry_hot = clamp(t - 6_000, 0, 12_000).min(clamp(-m, 0, 12_000));
@@ -89,7 +89,7 @@ fn column(seed: u64, x: i64, z: i64) -> (i64, Biome) {
     (h, biome_of(seed, x, z, t, m))
 }
 
-fn material_at(biome: Biome, depth: i64) -> u16 {
+pub(crate) fn surface_material(biome: Biome, depth: i64) -> u16 {
     match (biome, depth) {
         (Biome::Desert, 0..=3) => materials::SAND,
         (Biome::Tundra, 0) => materials::SNOW,
@@ -104,7 +104,7 @@ fn material_at(biome: Biome, depth: i64) -> u16 {
 /// Material of one voxel.
 pub fn material(seed: WorldSeed, x: i64, y: i64, z: i64) -> u16 {
     let (h, b) = column(seed.raw(), x, z);
-    if y > h { 0 } else { material_at(b, h - y) }
+    if y > h { 0 } else { surface_material(b, h - y) }
 }
 
 /// Content of the brick whose origin is `(ox, oy, oz)`.
@@ -122,7 +122,7 @@ pub fn brick(seed: WorldSeed, ox: i64, oy: i64, oz: i64) -> BrickContent {
             for ly in 0..16u8 {
                 let y = oy + i64::from(ly);
                 let i = usize::from(lx) + 16 * (usize::from(ly) + 16 * usize::from(lz));
-                d[i] = if y > h { 0 } else { material_at(b, h - y) };
+                d[i] = if y > h { 0 } else { surface_material(b, h - y) };
             }
         }
     }
