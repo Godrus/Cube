@@ -1,0 +1,20 @@
+{
+  "frozen_for": "evaluation split, run once",
+  "thresholds": {
+    "yes": 0.7,
+    "no": 0.3
+  },
+  "model": "jev-1.14.0",
+  "calibration_outcome": "9 of 12 calibration items answered, 3 HTTP 529 (not retried); no question or threshold changed after calibration (the data were too thin: gap_in_ground scores of good and defective pictures overlapped, 0.30-0.63 vs 0.60-0.85)",
+  "sha256": {
+    "questions/v2\\block-edit.json": "2c68ed4243c2f0ff8cb4c56a84157df693ceadaa58432780e0ccf3e0ee49cf34",
+    "questions/v2\\scene-smoke.json": "6a736cdf9a5770e94d3d2f26a4c928e57f35d9c3660c11aa62e3b647cb7be0ed",
+    "questions/v2\\terrain-integrity.json": "4434079f428171bf854dd5dfab614a8c4440612b664af1cee011bd40f99529ec",
+    "fixtures-v2/manifest.json": "f50f492383019747c6a1e104894b236c1494656bb8a267e3c851594451fbc1fc",
+    "cube_visual_qa.py": "8e79d1294a39c1fbc3dfd420453a6278e72694c3ed5623ecb6600aed33f62e26",
+    "report_v2.py": "584b984fb7dea0ef103e8a1c53c770fc86974f6642e0e517038dd7e7c084bc62",
+    "analyze_v2.py": "b31169f34ca29a79ff560f0a81e8a035eda0fbec2638d660c6c4c8d59e4ff08f",
+    "deterministic.py": "04d611790ac431a5af54999722f786876d7bcb4c7e3bb7c8fcc2e2aebdee3597"
+  },
+  "questionnaire_bundle_sha256": "66b62b766d97d7753a5ed70eba244260cb683a8eae7895eb2f69bbcf54e16132"
+}

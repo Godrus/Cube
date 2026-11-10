@@ -1,0 +1,23 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "block_missing_in_after": {
+      "type": "noul",
+      "noul": 0.16
+    },
+    "notch_box": {
+      "type": "box",
+      "box": {
+        "top": 0.46,
+        "bottom": 0.55,
+        "left": 0.67,
+        "right": 0.68
+      },
+      "confidence": 0.02
+    }
+  },
+  "usage": {
+    "input_tokens": 5163,
+    "output_tokens": 41
+  }
+}
