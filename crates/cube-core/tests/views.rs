@@ -251,12 +251,23 @@ fn invalid_views_are_rejected() {
         AssetHost::from_view(&outside).err(),
         Some(CoreError::InvalidView)
     );
+    // A known-empty page is valid on a mesh layer (since MSH-01); voxel content is not.
+    let mut empty_page = base.clone();
+    empty_page.layers[2].cells.push(CellView {
+        level: 0,
+        brick: BrickCoord::new(0, 0, 0),
+        revision: Revision::new(1),
+        payload: None,
+    });
+    assert!(AssetHost::from_view(&empty_page).is_ok());
     let mut on_mesh = base.clone();
     on_mesh.layers[2].cells.push(CellView {
         level: 0,
         brick: BrickCoord::new(0, 0, 0),
         revision: Revision::new(1),
-        payload: None,
+        payload: Some(CellPayload::Channels(
+            cube_core::ChannelSet::uniform_material(cube_core::MaterialIndex::from_raw(1)),
+        )),
     });
     assert_eq!(
         AssetHost::from_view(&on_mesh).err(),

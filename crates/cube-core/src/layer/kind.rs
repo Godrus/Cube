@@ -14,10 +14,24 @@ pub enum LayerKind {
     Mesh,
 }
 
-/// Sparse store of mesh pages for `Mesh` layers (contents arrive with a later task).
+/// Sparse store of mesh pages for `Mesh` layers: the same keyed, revisioned and bounded store as
+/// voxel and SDF cells, whose payloads must be [`crate::CellPayload::MeshPage`] (the commit gate
+/// refuses anything else). Core stores the page bytes opaquely.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct PageStore {
-    _private: (),
+    cells: CellStore,
+}
+
+impl PageStore {
+    /// A page store over `cells`.
+    pub fn new(cells: CellStore) -> Self {
+        Self { cells }
+    }
+
+    /// The underlying keyed store.
+    pub fn cells(&self) -> &CellStore {
+        &self.cells
+    }
 }
 
 /// Payload of a layer: one variant per representation. No voxel-only type appears in the layer API.

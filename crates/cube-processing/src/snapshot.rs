@@ -271,8 +271,7 @@ fn check_layer(state: &AssetState, layer: LayerId) -> Result<(), ProcessingError
     match state.asset().layer(layer) {
         None => Err(ProcessingError::UnknownLayer(layer)),
         Some(l) => match l.data() {
-            LayerData::Voxel(_) | LayerData::Sdf(_) => Ok(()),
-            LayerData::Mesh(_) => Err(ProcessingError::UnsupportedLayer(layer)),
+            LayerData::Voxel(_) | LayerData::Sdf(_) | LayerData::Mesh(_) => Ok(()),
         },
     }
 }

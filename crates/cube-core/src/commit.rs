@@ -20,7 +20,7 @@ use crate::coord::{BrickCoord, VoxelPos, check_level};
 use crate::dirty::{ChangeType, DirtyRegion};
 use crate::error::CoreError;
 use crate::ids::{AssetId, LayerId};
-use crate::layer::{Layer, LayerData, LayerKind};
+use crate::layer::{Layer, LayerData, LayerKind, PageStore};
 use crate::operation::{ActorKind, OperationId};
 use crate::region::Region;
 use crate::revision::{Epoch, ResourceId, Revision, RevisionToken};
@@ -258,7 +258,8 @@ impl AssetState {
                 if l.id() == layer {
                     let data = match l.kind() {
                         LayerKind::Sdf => LayerData::Sdf(store.clone()),
-                        _ => LayerData::Voxel(store.clone()),
+                        LayerKind::Mesh => LayerData::Mesh(PageStore::new(store.clone())),
+                        LayerKind::Voxel => LayerData::Voxel(store.clone()),
                     };
                     Layer::new(l.id(), l.transform(), data)
                 } else {
@@ -277,7 +278,7 @@ impl AssetState {
     fn store(&self, layer: LayerId) -> Option<&CellStore> {
         match self.asset.layer(layer)?.data() {
             LayerData::Voxel(s) | LayerData::Sdf(s) => Some(s),
-            LayerData::Mesh(_) => None,
+            LayerData::Mesh(p) => Some(p.cells()),
         }
     }
 
@@ -572,9 +573,9 @@ fn plan_commit(state: &AssetState, batch: &CommitBatch) -> Result<Plan, CommitEr
             .asset
             .layer(set.layer)
             .ok_or(CommitError::UnknownLayer(set.layer))?;
-        let store = match layer.data() {
-            LayerData::Voxel(s) | LayerData::Sdf(s) => s,
-            LayerData::Mesh(_) => return Err(CommitError::PayloadKindMismatch(set.layer)),
+        let (store, is_mesh) = match layer.data() {
+            LayerData::Voxel(s) | LayerData::Sdf(s) => (s, false),
+            LayerData::Mesh(p) => (p.cells(), true),
         };
         for w in &set.writes {
             check_level(w.level)?;
@@ -592,7 +593,9 @@ fn plan_commit(state: &AssetState, batch: &CommitBatch) -> Result<Plan, CommitEr
                     brick: w.brick,
                 });
             }
-            if let CellChange::Put(CellPayload::MeshPage(_)) = &w.change {
+            // A mesh layer holds mesh pages and nothing else; the other layers never hold pages.
+            if matches!(&w.change, CellChange::Put(p) if matches!(p, CellPayload::MeshPage(_)) != is_mesh)
+            {
                 return Err(CommitError::PayloadKindMismatch(set.layer));
             }
             let actual = store.revision(w.level, w.brick);
@@ -722,7 +725,8 @@ fn apply_plan(
             Some(store) => {
                 let data = match l.kind() {
                     LayerKind::Sdf => LayerData::Sdf(store),
-                    _ => LayerData::Voxel(store),
+                    LayerKind::Mesh => LayerData::Mesh(PageStore::new(store)),
+                    LayerKind::Voxel => LayerData::Voxel(store),
                 };
                 Layer::new(l.id(), l.transform(), data)
             }

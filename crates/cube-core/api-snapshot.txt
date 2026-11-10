@@ -180,6 +180,8 @@ key.rs: pub const fn level(self) -> i8 {
 key.rs: pub const fn brick(self) -> BrickCoord {
 layer/kind.rs: pub enum LayerKind {
 layer/kind.rs: pub struct PageStore {
+layer/kind.rs: pub fn new(cells: CellStore) -> Self {
+layer/kind.rs: pub fn cells(&self) -> &CellStore {
 layer/kind.rs: pub enum LayerData {
 layer/kind.rs: pub const fn kind(&self) -> LayerKind {
 layer/kind.rs: pub fn empty(kind: LayerKind) -> Self {

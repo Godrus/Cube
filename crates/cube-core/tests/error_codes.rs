@@ -123,6 +123,20 @@ fn commit_error_codes_are_pinned_and_wrap_core_codes() {
             }],
         }],
     };
+    // Voxel content into a mesh layer is a payload mismatch (mesh layers hold mesh pages only).
+    let voxels_into_mesh = CommitBatch {
+        sets: vec![WriteSet {
+            layer: LayerId::new(3),
+            writes: vec![CellWrite {
+                level: 0,
+                brick: BrickCoord::new(0, 0, 0),
+                expected: cube_core::ExpectedRevision::Absent,
+                change: CellChange::Put(cube_core::CellPayload::Channels(
+                    cube_core::ChannelSet::uniform_material(cube_core::MaterialIndex::from_raw(1)),
+                )),
+            }],
+        }],
+    };
     let op = OperationId::new(1, 1);
     let absent = cube_core::ExpectedRevision::Absent;
     user.commit(op, &w(1, 0, 0, absent)).unwrap();
@@ -138,7 +152,7 @@ fn commit_error_codes_are_pinned_and_wrap_core_codes() {
             ErrorCategory::Validation,
         ),
         (
-            user.commit(op, &w(3, 0, 0, absent)).unwrap_err(),
+            user.commit(op, &voxels_into_mesh).unwrap_err(),
             2003,
             ErrorCategory::Validation,
         ),

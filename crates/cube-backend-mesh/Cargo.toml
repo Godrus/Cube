@@ -1,0 +1,18 @@
+[package]
+name = "cube-backend-mesh"
+version = "0.0.0"
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+description = "Polygon mesh geometry backend, validation and derived providers (PS-5)"
+
+# Depends on Core, Processing and the Editing API only (ADG Part B). It never commits: it
+# returns write sets and Orchestration commits them. It has nothing to do with any renderer.
+
+[dependencies]
+cube-core = { path = "../cube-core" }
+cube-processing = { path = "../cube-processing" }
+cube-editing-api = { path = "../cube-editing-api" }
+
+[lints]
+workspace = true

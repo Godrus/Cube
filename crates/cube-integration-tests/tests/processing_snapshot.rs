@@ -169,9 +169,12 @@ fn unknown_and_unsupported_layers_and_oversized_requests_fail_cleanly() {
         Snapshot::capture(&w.reader, &req(99, (0, 0, 0), (0, 0, 0), 0), None),
         Err(ProcessingError::UnknownLayer(_))
     ));
+    // Mesh layers have a page store since MSH-01: capturing one works and reports the page as
+    // not loaded, like any other absent cell.
+    let m = Snapshot::capture(&w.reader, &req(L_MESH, (0, 0, 0), (0, 0, 0), 0), None).unwrap();
     assert!(matches!(
-        Snapshot::capture(&w.reader, &req(L_MESH, (0, 0, 0), (0, 0, 0), 0), None),
-        Err(ProcessingError::UnsupportedLayer(_))
+        m.cell(cube_core::BrickCoord::new(0, 0, 0)),
+        Ok(cube_core::CellState::NotLoaded)
     ));
     let big = req(L_VOXEL, (0, 0, 0), (9, 9, 9), 0);
     assert_eq!(

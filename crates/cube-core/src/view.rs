@@ -15,7 +15,7 @@ use crate::commit::AssetState;
 use crate::coord::{BrickCoord, LocalPos, check_level};
 use crate::error::CoreError;
 use crate::ids::{AssetId, LayerId};
-use crate::layer::{Layer, LayerData, LayerKind};
+use crate::layer::{Layer, LayerData, LayerKind, PageStore};
 use crate::revision::{Epoch, Revision};
 use crate::transform::GeometryTransform;
 
@@ -191,7 +191,7 @@ impl AssetState {
             .map(|l| {
                 let (store, bounds): (Option<&CellStore>, _) = match l.data() {
                     LayerData::Voxel(s) | LayerData::Sdf(s) => (Some(s), s.bounds()),
-                    LayerData::Mesh(_) => (None, None),
+                    LayerData::Mesh(p) => (Some(p.cells()), p.cells().bounds()),
                 };
                 let cells = store
                     .map(|s| {
@@ -241,42 +241,38 @@ pub(crate) fn state_parts(
     let mut layers = Vec::new();
     let mut revisions = Vec::new();
     for l in &view.layers {
-        let data = match l.kind {
-            LayerKind::Mesh => {
-                if !l.cells.is_empty() {
+        let kind = l.kind;
+        let data = {
+            let mut store = match l.bounds {
+                Some(b) => CellStore::with_bounds(b),
+                None => CellStore::new(),
+            };
+            let mut seen = std::collections::BTreeSet::new();
+            for c in &l.cells {
+                check_level(c.level)?;
+                if !seen.insert((c.level, c.brick)) {
+                    return Err(CoreError::DuplicateKey);
+                }
+                if !store.in_bounds(c.level, c.brick) {
                     return Err(CoreError::InvalidView);
                 }
-                LayerData::empty(LayerKind::Mesh)
+                // Mesh layers hold mesh pages only; the other layers never hold pages.
+                if c.payload.as_ref().is_some_and(|p| {
+                    matches!(p, CellPayload::MeshPage(_)) != (kind == LayerKind::Mesh)
+                }) {
+                    return Err(CoreError::InvalidView);
+                }
+                store.commit_cell(
+                    c.level,
+                    c.brick,
+                    c.payload.clone().map(std::sync::Arc::new),
+                    c.revision,
+                );
             }
-            kind => {
-                let mut store = match l.bounds {
-                    Some(b) => CellStore::with_bounds(b),
-                    None => CellStore::new(),
-                };
-                let mut seen = std::collections::BTreeSet::new();
-                for c in &l.cells {
-                    check_level(c.level)?;
-                    if !seen.insert((c.level, c.brick)) {
-                        return Err(CoreError::DuplicateKey);
-                    }
-                    if !store.in_bounds(c.level, c.brick) {
-                        return Err(CoreError::InvalidView);
-                    }
-                    if let Some(CellPayload::MeshPage(_)) = &c.payload {
-                        return Err(CoreError::InvalidView);
-                    }
-                    store.commit_cell(
-                        c.level,
-                        c.brick,
-                        c.payload.clone().map(std::sync::Arc::new),
-                        c.revision,
-                    );
-                }
-                if kind == LayerKind::Sdf {
-                    LayerData::Sdf(store)
-                } else {
-                    LayerData::Voxel(store)
-                }
+            match kind {
+                LayerKind::Sdf => LayerData::Sdf(store),
+                LayerKind::Mesh => LayerData::Mesh(PageStore::new(store)),
+                LayerKind::Voxel => LayerData::Voxel(store),
             }
         };
         layers.push(Layer::new(l.id, l.transform, data));
