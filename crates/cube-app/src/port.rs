@@ -12,7 +12,9 @@ use cube_core::{CellKey, GeneratorVersion, WorldSeed};
 use cube_persistence::{STRUCTURE_VERSION, WorldRecord};
 use cube_server::{LocalHost, StaticArea};
 
+use crate::creature::TICK;
 use crate::game::{GameState, ITEMS, Mode, Reconciled, SLOTS};
+use crate::spawn::{Population, SpawnArea};
 use crate::{PlayerState, REACH, Session};
 
 /// Radius of the static bounded area of the first world, in bricks.
@@ -114,6 +116,10 @@ pub struct PortSession {
     game: GameState,
     message: String,
     message_left: f32,
+    /// Creatures near the player; `None` while creatures are switched off (the default: the
+    /// player cannot fight back before CMB-09).
+    creatures: Option<Population>,
+    creature_time: f32,
 }
 
 impl PortSession {
@@ -131,6 +137,69 @@ impl PortSession {
             game,
             message: String::new(),
             message_left: 0.0,
+            creatures: None,
+            creature_time: 0.0,
+        }
+    }
+
+    /// Switches creatures on (internal: the environment variable `CUBE_CREATURES=1` does it for
+    /// the Godot demo; they are not a player feature before CMB-09).
+    pub fn enable_creatures(&mut self) {
+        self.creatures.get_or_insert_with(Population::new);
+    }
+
+    /// The creatures, if switched on (tests, and later the view).
+    pub fn creatures(&self) -> Option<&Population> {
+        self.creatures.as_ref()
+    }
+
+    /// Spawns, despawns and advances the creatures for the time `dt` (fixed ticks, a bounded
+    /// number per frame). The player's health follows the creatures' hits; at zero the player
+    /// is told and respawns with full health where they stand (prototype rule).
+    fn run_creatures(&mut self, dt: f32) {
+        let Some(pop) = self.creatures.as_mut() else {
+            return;
+        };
+        let Some(feet) = self.session.player_feet() else {
+            return;
+        };
+        let (cx, cz) = (
+            (feet[0].floor() as i64).div_euclid(16),
+            (feet[2].floor() as i64).div_euclid(16),
+        );
+        let limit = cube_server::WORLD_LIMIT_BRICKS;
+        pop.update(
+            self.session.world_seed(),
+            SpawnArea {
+                centre: (cx, cz),
+                spawn_radius: 4,
+                despawn_radius: 6,
+                max: 8,
+            },
+            |x, z| x.abs() <= limit && z.abs() <= limit,
+            |x, z| self.session.ground_height(x, z),
+        );
+        self.creature_time = (self.creature_time + dt).min(5.0 * TICK);
+        let mut died = false;
+        while self.creature_time >= TICK {
+            self.creature_time -= TICK;
+            let health = &mut self.game.health;
+            let ran = self.session.with_faces_near(feet, |faces, brick| {
+                let covers = |p: [f64; 3]| {
+                    let b = |v: f64| (v.floor() as i64).div_euclid(16);
+                    (b(p[0]) - brick.x).abs() <= 1
+                        && (b(p[1]) - brick.y).abs() <= 1
+                        && (b(p[2]) - brick.z).abs() <= 1
+                };
+                pop.tick(faces, covers, feet, health)
+            });
+            if ran.is_some() && self.game.health.is_dead() {
+                died = true;
+                self.game.health.revive();
+            }
+        }
+        if died {
+            self.say("You died and got up again");
         }
     }
 
@@ -189,6 +258,7 @@ impl SessionPort for PortSession {
             ));
         }
         let f = self.session.frame(&intents).map_err(|e| e.to_string())?;
+        self.run_creatures(c.dt);
         Ok(FrameOut {
             upsert: f.upsert,
             remove: f.remove,
@@ -438,9 +508,9 @@ pub fn open_first_world(
     if game.reconcile(|seq| session.host().edit_confirmed_at_open(seq)) != Reconciled::Nothing {
         let _ = save_game(dir, &game);
     }
-    Ok(Box::new(PortSession::with_game(
-        session,
-        dir.to_path_buf(),
-        game,
-    )))
+    let mut port = PortSession::with_game(session, dir.to_path_buf(), game);
+    if std::env::var_os("CUBE_CREATURES").is_some_and(|v| v == "1") {
+        port.enable_creatures();
+    }
+    Ok(Box::new(port))
 }

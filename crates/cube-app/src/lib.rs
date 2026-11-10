@@ -15,6 +15,7 @@ pub mod combat;
 pub mod creature;
 pub mod game;
 pub mod port;
+pub mod spawn;
 
 use std::sync::{Arc, Mutex, PoisonError};
 
@@ -358,6 +359,27 @@ impl Session {
                 distance: d,
             })
         })
+    }
+
+    /// Runs `f` on the collision data around `feet` and the brick it was built for; `None` while
+    /// the player's own brick has no faces yet. Creatures in the bricks next to that brick may be
+    /// advanced against this data (it holds the 3 x 3 x 3 bricks around it).
+    pub fn with_faces_near<R>(
+        &self,
+        feet: [f64; 3],
+        f: impl FnOnce(&FaceIndex, BrickCoord) -> R,
+    ) -> Option<R> {
+        self.with_near(feet, |n| n.ready.then(|| f(&n.index, n.brick)))
+    }
+
+    /// The seed of the world (the spawn rule depends on it).
+    pub fn world_seed(&self) -> u64 {
+        self.host.record().seed.raw()
+    }
+
+    /// Ground height of the voxel column `(x, z)`.
+    pub fn ground_height(&self, x: i64, z: i64) -> i64 {
+        self.host.surface_height(x, z)
     }
 
     /// `true` if a block in `voxel` would intersect the walking player's body.
