@@ -19,6 +19,10 @@ extends Node3D
 ##                                    controlled way: missing_brick, hidden_area, wrong_material,
 ##                                    partial_load (the world stops delivering batches after one
 ##                                    frame), stale (with --edit-shots: no update after the edit)
+##   --scenario <json>                QA only (Visual QA v3): run a scripted list of steps (wait, move,
+##                                    turn, shot, edit, probe, fault, freeze, occlude) with a fixed
+##                                    time step, save pictures and write telemetry.json next to them.
+##                                    Never active in a normal game start.
 
 @onready var world = $World
 @onready var cam: Camera3D = $Camera3D
@@ -39,6 +43,14 @@ var freeze_world := false
 var fault_bbox = null
 var edit_hit := false
 var down_frames := 0
+var scen_active := false
+var scen_steps := []
+var scen_out := ""
+var scen_i := 0
+var scen_cmd = null
+var scen_events := []
+var scen_changed := 0
+var scen_edit_event = null
 
 
 func _ready() -> void:
@@ -77,6 +89,9 @@ func _ready() -> void:
 			"--fault":
 				i += 1
 				fault = args[i]
+			"--scenario":
+				i += 1
+				_load_scenario(args[i])
 		i += 1
 	var create := not FileAccess.file_exists(dir.path_join("manifest"))
 	if not world.open_world(dir, seed_value, create):
@@ -101,6 +116,9 @@ func _input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
+	if scen_active:
+		_scenario_frame()
+		return
 	frames += 1
 	if frames == 1:
 		look += init_look
@@ -263,3 +281,128 @@ func _write_truth(kind: String) -> void:
 	var f := FileAccess.open(truth_path, FileAccess.WRITE)
 	f.store_string(JSON.stringify(t, "  "))
 	f.close()
+
+
+## ---- Visual QA v3 scenario runner (QA only; inert unless --scenario is given) ----
+
+func _load_scenario(path: String) -> void:
+	var f := FileAccess.open(path, FileAccess.READ)
+	if f == null:
+		push_error("cannot read scenario " + path)
+		get_tree().quit(2)
+		return
+	var data = JSON.parse_string(f.get_as_text())
+	f.close()
+	scen_steps = data["steps"]
+	scen_out = str(data["out_dir"])
+	scen_active = true
+
+
+func _event(op: String, extra: Dictionary = {}) -> Dictionary:
+	var e := {"op": op, "frame": frames, "bricks": world.brick_count(),
+		"camera_position": [cam.position.x, cam.position.y, cam.position.z],
+		"camera_rotation": [cam.rotation.x, cam.rotation.y, cam.rotation.z]}
+	for k in extra:
+		e[k] = extra[k]
+	scen_events.append(e)
+	return e
+
+
+func _scenario_frame() -> void:
+	frames += 1
+	if scen_cmd == null:
+		if scen_i >= scen_steps.size():
+			_scenario_finish(0)
+			return
+		scen_cmd = scen_steps[scen_i].duplicate()
+		scen_i += 1
+		scen_cmd["_left"] = int(scen_cmd.get("frames", 1))
+		scen_cmd["_total"] = scen_cmd["_left"]
+	var op: String = scen_cmd["op"]
+	var fwd := 0
+	var right := 0
+	var up := 0
+	var dyaw := 0.0
+	var dpitch := 0.0
+	if op == "move":
+		fwd = int(scen_cmd.get("fwd", 0))
+		right = int(scen_cmd.get("right", 0))
+		up = int(scen_cmd.get("up", 0))
+	elif op == "turn":
+		dyaw = float(scen_cmd.get("yaw", 0.0)) / float(scen_cmd["_total"])
+		dpitch = float(scen_cmd.get("pitch", 0.0)) / float(scen_cmd["_total"])
+	if not freeze_world:
+		var changed: int = world.frame(fwd, right, up, dyaw, dpitch, 1.0 / 60.0)
+		if changed > 0:
+			scen_changed += changed
+			if scen_edit_event != null:
+				scen_edit_event["bricks_changed"] = int(scen_edit_event.get("bricks_changed", 0)) + changed
+	cam.position = world.camera_position()
+	cam.rotation = world.camera_rotation()
+	scen_cmd["_left"] -= 1
+	if scen_cmd["_left"] > 0:
+		return
+	_scenario_action(op)
+	scen_cmd = null
+
+
+func _scenario_action(op: String) -> void:
+	match op:
+		"shot":
+			var path: String = scen_out.path_join(str(scen_cmd["name"]) + ".png")
+			get_viewport().get_texture().get_image().save_png(path)
+			scen_edit_event = null
+			_event("shot", {"name": scen_cmd["name"], "file": path})
+		"probe":
+			_event("probe", {"name": scen_cmd.get("name", "")})
+		"edit":
+			var hit: bool = world.edit(int(scen_cmd.get("material", 0)))
+			scen_edit_event = _event("edit", {"hit": hit, "material": int(scen_cmd.get("material", 0)), "bricks_changed": 0})
+		"fault":
+			fault = str(scen_cmd["kind"])
+			_apply_scene_fault()
+			_event("fault", {"kind": fault, "bbox": fault_bbox})
+		"freeze":
+			freeze_world = true
+			_event("freeze")
+		"occlude":
+			_occlude(scen_cmd)
+			_event("occlude", {"kind": scen_cmd.get("kind", "panel")})
+
+
+func _occlude(c: Dictionary) -> void:
+	var col: Array = c.get("color", [0.1, 0.1, 0.1, 1.0])
+	var color := Color(col[0], col[1], col[2], col[3])
+	if str(c.get("kind", "panel")) == "object":
+		# an opaque box right in front of the camera (a stray 3D object)
+		var m := MeshInstance3D.new()
+		var b := BoxMesh.new()
+		b.size = Vector3(float(c.get("w", 1.2)), float(c.get("h", 0.8)), 0.2)
+		m.mesh = b
+		var mat := StandardMaterial3D.new()
+		mat.albedo_color = color
+		m.material_override = mat
+		cam.add_child(m)
+		m.position = Vector3(0, 0, -float(c.get("distance", 1.5)))
+	else:
+		var layer := CanvasLayer.new()
+		var r := ColorRect.new()
+		var size := get_viewport().get_visible_rect().size
+		var rect: Array = c["rect"]
+		r.position = Vector2(rect[0] * size.x, rect[1] * size.y)
+		r.size = Vector2((rect[2] - rect[0]) * size.x, (rect[3] - rect[1]) * size.y)
+		r.color = color
+		layer.add_child(r)
+		add_child(layer)
+
+
+func _scenario_finish(code: int) -> void:
+	var size := get_viewport().get_visible_rect().size
+	var t := {"viewport": [size.x, size.y], "frames": frames, "bricks_final": world.brick_count(),
+		"changed_total": scen_changed, "events": scen_events}
+	var f := FileAccess.open(scen_out.path_join("telemetry.json"), FileAccess.WRITE)
+	f.store_string(JSON.stringify(t, "  "))
+	f.close()
+	print("CUBE scenario done: events=", scen_events.size(), " bricks=", world.brick_count())
+	world.close()
+	get_tree().quit(code)

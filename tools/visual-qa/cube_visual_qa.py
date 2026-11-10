@@ -523,9 +523,12 @@ def main(argv=None):
     s2.add_argument("--out", default=os.path.join(HERE, "reports"))
     s2.add_argument("--live", action="store_true")
     s2.add_argument("--max-requests", type=int, default=2)
+    s3 = sub.add_parser("suite", help="v3: generate scenarios, run them in Godot, check, batch TypeSafe questions, report")
+    import suite as _suite
+    _suite.add_arguments(s3)
     args = p.parse_args(argv)
     try:
-        return {"check": cmd_check, "fixtures": cmd_fixtures, "v2": cmd_v2}[args.cmd](args)
+        return {"check": cmd_check, "fixtures": cmd_fixtures, "v2": cmd_v2, "suite": _suite.run_suite}[args.cmd](args)
     except QAError as e:
         print(f"error: {e}", file=sys.stderr)
         return 2

@@ -1,0 +1,1243 @@
+{
+ "run_id": "runA",
+ "when": "2026-11-10T14:16:15+00:00",
+ "templates_hash": "53acf98b3d55772d",
+ "mode": "adaptive",
+ "transport": "MOCK (no network, answers come from the scenarios' own expectations)",
+ "plan": {
+  "mode": "adaptive",
+  "scenarios_with_questions": 7,
+  "requests": 1,
+  "images": 7,
+  "questions": 7,
+  "est_input_tokens": 20018,
+  "est_cost_usd": 0.00084,
+  "largest_request_tokens": 20018,
+  "scenarios_per_request": [
+   7
+  ],
+  "not_sent": 13,
+  "error": null
+ },
+ "counts": {
+  "generated": 20,
+  "executed": 20,
+  "not_executed": 0,
+  "needs_typesafe": 7,
+  "routed": 7
+ },
+ "api": {
+  "sent": 1,
+  "reused": 0,
+  "skipped": 0,
+  "deferred": 0,
+  "errors": 0,
+  "error_kinds": [],
+  "input_tokens": 20330
+ },
+ "unsupported_requested": [],
+ "by_category": {
+  "CAMERA": {
+   "n": 6,
+   "PASS": 6,
+   "WARN": 0,
+   "FAIL": 0,
+   "UNKNOWN": 0,
+   "SKIPPED": 0
+  },
+  "WORLD": {
+   "n": 6,
+   "PASS": 6,
+   "WARN": 0,
+   "FAIL": 0,
+   "UNKNOWN": 0,
+   "SKIPPED": 0
+  },
+  "EDITING": {
+   "n": 4,
+   "PASS": 4,
+   "WARN": 0,
+   "FAIL": 0,
+   "UNKNOWN": 0,
+   "SKIPPED": 0
+  },
+  "OCCLUSION": {
+   "n": 4,
+   "PASS": 4,
+   "WARN": 0,
+   "FAIL": 0,
+   "UNKNOWN": 0,
+   "SKIPPED": 0
+  }
+ },
+ "scenarios": [
+  {
+   "id": "CAMERA-001",
+   "category": "CAMERA",
+   "template": "cam_top",
+   "injected_fault": null,
+   "deterministic": "PASS",
+   "typesafe": "SKIPPED",
+   "final": "PASS",
+   "fingerprint": "b690ce37f8da",
+   "world_seed": 6324,
+   "gen_seed": 7,
+   "expected": {
+    "pitch_delta": -0.8,
+    "pitch_tolerance": 0.03,
+    "climbed": true,
+    "sky_fraction_max": 0.05,
+    "shot": "p1:top"
+   },
+   "pictures": [
+    "scenarios/CAMERA-001/p1/top.png"
+   ],
+   "checks": {
+    "executed": {
+     "status": "pass",
+     "detail": "1 Godot run(s) finished with telemetry"
+    },
+    "frame_not_black": {
+     "status": "pass",
+     "detail": "black 0.000"
+    },
+    "frame_not_flat": {
+     "status": "pass",
+     "detail": "dominant colour 0.592"
+    },
+    "sky_fraction": {
+     "status": "pass",
+     "detail": "sky 0.000, expected 0.0..0.05"
+    },
+    "camera_pitch": {
+     "status": "pass",
+     "detail": "pitch changed by -0.800 rad, commanded -0.800 (tolerance 0.03)"
+    },
+    "camera_climbed": {
+     "status": "pass",
+     "detail": "height changed by +4.00"
+    }
+   },
+   "metrics": {
+    "frame": {
+     "width": 1280,
+     "height": 720,
+     "black_fraction": 0.0,
+     "dominant_colour_fraction": 0.59189453125,
+     "distinct_colours": 21
+    },
+    "sky_fraction": 0.0
+   },
+   "godot_error": null,
+   "typesafe_questions": null,
+   "typesafe_reason": "covered by deterministic checks (use --compare or --force-typesafe to ask anyway)",
+   "reproduce": "python cube_visual_qa.py suite --from-file reports/suite/runA\\scenarios.json --only CAMERA-001"
+  },
+  {
+   "id": "CAMERA-002",
+   "category": "CAMERA",
+   "template": "cam_up",
+   "injected_fault": null,
+   "deterministic": "PASS",
+   "typesafe": "SKIPPED",
+   "final": "PASS",
+   "fingerprint": "6afd0410cbc3",
+   "world_seed": 9628,
+   "gen_seed": 7,
+   "expected": {
+    "pitch_delta": 1.7,
+    "pitch_tolerance": 0.03,
+    "sky_fraction_min": 0.9,
+    "shot": "p1:up"
+   },
+   "pictures": [
+    "scenarios/CAMERA-002/p1/up.png"
+   ],
+   "checks": {
+    "executed": {
+     "status": "pass",
+     "detail": "1 Godot run(s) finished with telemetry"
+    },
+    "frame_not_black": {
+     "status": "pass",
+     "detail": "black 0.000"
+    },
+    "sky_fraction": {
+     "status": "pass",
+     "detail": "sky 1.000, expected 0.9..1.0"
+    },
+    "camera_pitch": {
+     "status": "pass",
+     "detail": "pitch changed by +1.700 rad, commanded +1.700 (tolerance 0.03)"
+    }
+   },
+   "metrics": {
+    "frame": {
+     "width": 1280,
+     "height": 720,
+     "black_fraction": 0.0,
+     "dominant_colour_fraction": 0.7211100260416666,
+     "distinct_colours": 8
+    },
+    "sky_fraction": 1.0
+   },
+   "godot_error": null,
+   "typesafe_questions": null,
+   "typesafe_reason": "covered by deterministic checks (use --compare or --force-typesafe to ask anyway)",
+   "reproduce": "python cube_visual_qa.py suite --from-file reports/suite/runA\\scenarios.json --only CAMERA-002"
+  },
+  {
+   "id": "CAMERA-003",
+   "category": "CAMERA",
+   "template": "cam_horizontal",
+   "injected_fault": null,
+   "deterministic": "PASS",
+   "typesafe": "SKIPPED",
+   "final": "PASS",
+   "fingerprint": "4dacb108f5e7",
+   "world_seed": 1271,
+   "gen_seed": 7,
+   "expected": {
+    "pitch_delta": 0.6,
+    "pitch_tolerance": 0.03,
+    "sky_fraction_min": 0.02,
+    "sky_fraction_max": 0.98,
+    "shot": "p1:level"
+   },
+   "pictures": [
+    "scenarios/CAMERA-003/p1/level.png"
+   ],
+   "checks": {
+    "executed": {
+     "status": "pass",
+     "detail": "1 Godot run(s) finished with telemetry"
+    },
+    "frame_not_black": {
+     "status": "pass",
+     "detail": "black 0.000"
+    },
+    "sky_fraction": {
+     "status": "pass",
+     "detail": "sky 0.507, expected 0.02..0.98"
+    },
+    "camera_pitch": {
+     "status": "pass",
+     "detail": "pitch changed by +0.600 rad, commanded +0.600 (tolerance 0.03)"
+    }
+   },
+   "metrics": {
+    "frame": {
+     "width": 1280,
+     "height": 720,
+     "black_fraction": 0.0,
+     "dominant_colour_fraction": 0.19345703125,
+     "distinct_colours": 131
+    },
+    "sky_fraction": 0.5072
+   },
+   "godot_error": null,
+   "typesafe_questions": null,
+   "typesafe_reason": "covered by deterministic checks (use --compare or --force-typesafe to ask anyway)",
+   "reproduce": "python cube_visual_qa.py suite --from-file reports/suite/runA\\scenarios.json --only CAMERA-003"
+  },
+  {
+   "id": "CAMERA-004",
+   "category": "CAMERA",
+   "template": "cam_angled",
+   "injected_fault": null,
+   "deterministic": "PASS",
+   "typesafe": "SKIPPED",
+   "final": "PASS",
+   "fingerprint": "efddb26e1128",
+   "world_seed": 2682,
+   "gen_seed": 7,
+   "expected": {
+    "yaw_delta": 1.071,
+    "pitch_delta": -0.2,
+    "pitch_tolerance": 0.03,
+    "yaw_tolerance": 0.03,
+    "shot": "p1:angled"
+   },
+   "pictures": [
+    "scenarios/CAMERA-004/p1/angled.png"
+   ],
+   "checks": {
+    "executed": {
+     "status": "pass",
+     "detail": "1 Godot run(s) finished with telemetry"
+    },
+    "frame_not_black": {
+     "status": "pass",
+     "detail": "black 0.000"
+    },
+    "frame_not_flat": {
+     "status": "pass",
+     "detail": "dominant colour 0.326"
+    },
+    "camera_pitch": {
+     "status": "pass",
+     "detail": "pitch changed by -0.200 rad, commanded -0.200 (tolerance 0.03)"
+    },
+    "camera_yaw": {
+     "status": "pass",
+     "detail": "yaw changed by +1.071 rad, commanded +1.071 (tolerance 0.03)"
+    }
+   },
+   "metrics": {
+    "frame": {
+     "width": 1280,
+     "height": 720,
+     "black_fraction": 0.0,
+     "dominant_colour_fraction": 0.3257107204861111,
+     "distinct_colours": 31
+    }
+   },
+   "godot_error": null,
+   "typesafe_questions": null,
+   "typesafe_reason": "covered by deterministic checks (use --compare or --force-typesafe to ask anyway)",
+   "reproduce": "python cube_visual_qa.py suite --from-file reports/suite/runA\\scenarios.json --only CAMERA-004"
+  },
+  {
+   "id": "CAMERA-005",
+   "category": "CAMERA",
+   "template": "cam_rotate",
+   "injected_fault": null,
+   "deterministic": "PASS",
+   "typesafe": "SKIPPED",
+   "final": "PASS",
+   "fingerprint": "216245d3fa64",
+   "world_seed": 5298,
+   "gen_seed": 7,
+   "expected": {
+    "yaw_delta": 3.1416,
+    "yaw_tolerance": 0.03,
+    "position_unchanged": true,
+    "same_view_as": null
+   },
+   "pictures": [
+    "scenarios/CAMERA-005/p1/before.png",
+    "scenarios/CAMERA-005/p1/after.png"
+   ],
+   "checks": {
+    "executed": {
+     "status": "pass",
+     "detail": "1 Godot run(s) finished with telemetry"
+    },
+    "camera_yaw": {
+     "status": "pass",
+     "detail": "yaw changed by -3.142 rad, commanded -3.142 (tolerance 0.03)"
+    },
+    "camera_position_unchanged": {
+     "status": "pass",
+     "detail": "largest coordinate change 0.00000"
+    }
+   },
+   "metrics": {},
+   "godot_error": null,
+   "typesafe_questions": null,
+   "typesafe_reason": "no TypeSafe question defined for this scenario",
+   "reproduce": "python cube_visual_qa.py suite --from-file reports/suite/runA\\scenarios.json --only CAMERA-005"
+  },
+  {
+   "id": "CAMERA-006",
+   "category": "CAMERA",
+   "template": "cam_move",
+   "injected_fault": null,
+   "deterministic": "PASS",
+   "typesafe": "SKIPPED",
+   "final": "PASS",
+   "fingerprint": "401f75420bcb",
+   "world_seed": 1231,
+   "gen_seed": 7,
+   "expected": {
+    "moved_along_heading": true,
+    "shot": "p1:moved"
+   },
+   "pictures": [
+    "scenarios/CAMERA-006/p1/moved.png"
+   ],
+   "checks": {
+    "executed": {
+     "status": "pass",
+     "detail": "1 Godot run(s) finished with telemetry"
+    },
+    "frame_not_black": {
+     "status": "pass",
+     "detail": "black 0.000"
+    },
+    "frame_not_flat": {
+     "status": "pass",
+     "detail": "dominant colour 0.254"
+    },
+    "moved_along_heading": {
+     "status": "pass",
+     "detail": "moved 6.60 horizontally, alignment with the heading 1.00"
+    }
+   },
+   "metrics": {
+    "frame": {
+     "width": 1280,
+     "height": 720,
+     "black_fraction": 0.0,
+     "dominant_colour_fraction": 0.25372178819444446,
+     "distinct_colours": 26
+    }
+   },
+   "godot_error": null,
+   "typesafe_questions": null,
+   "typesafe_reason": "no TypeSafe question defined for this scenario",
+   "reproduce": "python cube_visual_qa.py suite --from-file reports/suite/runA\\scenarios.json --only CAMERA-006"
+  },
+  {
+   "id": "WORLD-007",
+   "category": "WORLD",
+   "template": "world_view",
+   "injected_fault": null,
+   "deterministic": "PASS",
+   "typesafe": "SKIPPED",
+   "final": "PASS",
+   "fingerprint": "170086972be7",
+   "world_seed": 4613,
+   "gen_seed": 7,
+   "expected": {
+    "bricks_min": 1,
+    "shot": "p1:view"
+   },
+   "pictures": [
+    "scenarios/WORLD-007/p1/view.png"
+   ],
+   "checks": {
+    "executed": {
+     "status": "pass",
+     "detail": "1 Godot run(s) finished with telemetry"
+    },
+    "bricks_loaded": {
+     "status": "pass",
+     "detail": "70 bricks in the scene (need >= 1)"
+    },
+    "frame_not_black": {
+     "status": "pass",
+     "detail": "black 0.000"
+    },
+    "frame_not_flat": {
+     "status": "pass",
+     "detail": "dominant colour 0.314"
+    }
+   },
+   "metrics": {
+    "frame": {
+     "width": 1280,
+     "height": 720,
+     "black_fraction": 0.0,
+     "dominant_colour_fraction": 0.313818359375,
+     "distinct_colours": 101
+    }
+   },
+   "godot_error": null,
+   "typesafe_questions": null,
+   "typesafe_reason": "covered by deterministic checks (use --compare or --force-typesafe to ask anyway)",
+   "reproduce": "python cube_visual_qa.py suite --from-file reports/suite/runA\\scenarios.json --only WORLD-007"
+  },
+  {
+   "id": "WORLD-008",
+   "category": "WORLD",
+   "template": "world_missing_brick",
+   "injected_fault": "missing_brick",
+   "deterministic": "PASS",
+   "typesafe": "PASS",
+   "final": "PASS",
+   "fingerprint": "41e47e23b1f7",
+   "world_seed": 3122,
+   "gen_seed": 7,
+   "expected": {
+    "bricks_min": 1,
+    "fault_visible": [
+     "p1:ref",
+     "p1:shot"
+    ],
+    "shot": "p1:shot"
+   },
+   "pictures": [
+    "scenarios/WORLD-008/p1/ref.png",
+    "scenarios/WORLD-008/p1/shot.png"
+   ],
+   "checks": {
+    "executed": {
+     "status": "pass",
+     "detail": "1 Godot run(s) finished with telemetry"
+    },
+    "bricks_loaded": {
+     "status": "pass",
+     "detail": "82 bricks in the scene (need >= 1)"
+    },
+    "frame_not_black": {
+     "status": "pass",
+     "detail": "black 0.000"
+    },
+    "frame_not_flat": {
+     "status": "pass",
+     "detail": "dominant colour 0.280"
+    },
+    "injected_fault_visible": {
+     "status": "pass",
+     "detail": "the injected fault changed 0.0157 of the frame"
+    }
+   },
+   "metrics": {
+    "frame": {
+     "width": 1280,
+     "height": 720,
+     "black_fraction": 0.0,
+     "dominant_colour_fraction": 0.27993706597222223,
+     "distinct_colours": 110
+    },
+    "fault_changed_fraction": 0.01565
+   },
+   "godot_error": null,
+   "typesafe_questions": [
+    {
+     "qid": "Q-TERR-GAP-001",
+     "question": "world_008__q_terr_gap_001",
+     "expect": true,
+     "version": 1,
+     "calibration": "v2 wording, frozen (terrain-integrity-v2 gap_in_ground); v2 evaluation: fired on 4 of 4 missing/hidden areas, healthy pictures sat at 0.51-0.60 (unsure)",
+     "result": "pass",
+     "answer": 0.9
+    }
+   ],
+   "typesafe_reason": null,
+   "reproduce": "python cube_visual_qa.py suite --from-file reports/suite/runA\\scenarios.json --only WORLD-008"
+  },
+  {
+   "id": "WORLD-009",
+   "category": "WORLD",
+   "template": "world_hidden_area",
+   "injected_fault": "hidden_area",
+   "deterministic": "PASS",
+   "typesafe": "PASS",
+   "final": "PASS",
+   "fingerprint": "fd5798ca5a89",
+   "world_seed": 8868,
+   "gen_seed": 7,
+   "expected": {
+    "bricks_min": 1,
+    "fault_visible": [
+     "p1:ref",
+     "p1:shot"
+    ],
+    "shot": "p1:shot"
+   },
+   "pictures": [
+    "scenarios/WORLD-009/p1/ref.png",
+    "scenarios/WORLD-009/p1/shot.png"
+   ],
+   "checks": {
+    "executed": {
+     "status": "pass",
+     "detail": "1 Godot run(s) finished with telemetry"
+    },
+    "bricks_loaded": {
+     "status": "pass",
+     "detail": "69 bricks in the scene (need >= 1)"
+    },
+    "frame_not_black": {
+     "status": "pass",
+     "detail": "black 0.000"
+    },
+    "frame_not_flat": {
+     "status": "pass",
+     "detail": "dominant colour 0.488"
+    },
+    "injected_fault_visible": {
+     "status": "pass",
+     "detail": "the injected fault changed 0.7899 of the frame"
+    }
+   },
+   "metrics": {
+    "frame": {
+     "width": 1280,
+     "height": 720,
+     "black_fraction": 0.0,
+     "dominant_colour_fraction": 0.48783637152777776,
+     "distinct_colours": 93
+    },
+    "fault_changed_fraction": 0.78985
+   },
+   "godot_error": null,
+   "typesafe_questions": [
+    {
+     "qid": "Q-TERR-GAP-001",
+     "question": "world_009__q_terr_gap_001",
+     "expect": true,
+     "version": 1,
+     "calibration": "v2 wording, frozen (terrain-integrity-v2 gap_in_ground); v2 evaluation: fired on 4 of 4 missing/hidden areas, healthy pictures sat at 0.51-0.60 (unsure)",
+     "result": "pass",
+     "answer": 0.9
+    }
+   ],
+   "typesafe_reason": null,
+   "reproduce": "python cube_visual_qa.py suite --from-file reports/suite/runA\\scenarios.json --only WORLD-009"
+  },
+  {
+   "id": "WORLD-010",
+   "category": "WORLD",
+   "template": "world_wrong_material",
+   "injected_fault": "wrong_material",
+   "deterministic": "PASS",
+   "typesafe": "PASS",
+   "final": "PASS",
+   "fingerprint": "df1f0193c244",
+   "world_seed": 8969,
+   "gen_seed": 7,
+   "expected": {
+    "bricks_min": 1,
+    "fault_visible": [
+     "p1:ref",
+     "p1:shot"
+    ],
+    "shot": "p1:shot"
+   },
+   "pictures": [
+    "scenarios/WORLD-010/p1/ref.png",
+    "scenarios/WORLD-010/p1/shot.png"
+   ],
+   "checks": {
+    "executed": {
+     "status": "pass",
+     "detail": "1 Godot run(s) finished with telemetry"
+    },
+    "bricks_loaded": {
+     "status": "pass",
+     "detail": "77 bricks in the scene (need >= 1)"
+    },
+    "frame_not_black": {
+     "status": "pass",
+     "detail": "black 0.000"
+    },
+    "frame_not_flat": {
+     "status": "pass",
+     "detail": "dominant colour 0.325"
+    },
+    "injected_fault_visible": {
+     "status": "pass",
+     "detail": "the injected fault changed 0.0162 of the frame"
+    }
+   },
+   "metrics": {
+    "frame": {
+     "width": 1280,
+     "height": 720,
+     "black_fraction": 0.0,
+     "dominant_colour_fraction": 0.32510308159722223,
+     "distinct_colours": 100
+    },
+    "fault_changed_fraction": 0.01621
+   },
+   "godot_error": null,
+   "typesafe_questions": [
+    {
+     "qid": "Q-MAT-PATCH-001",
+     "question": "world_010__q_mat_patch_001",
+     "expect": true,
+     "version": 1,
+     "calibration": "v2 wording, frozen (off_palette_patch); v2 evaluation: 2 of 2 wrong materials fired, 6 of 6 clean pictures answered no",
+     "result": "pass",
+     "answer": 0.9
+    }
+   ],
+   "typesafe_reason": null,
+   "reproduce": "python cube_visual_qa.py suite --from-file reports/suite/runA\\scenarios.json --only WORLD-010"
+  },
+  {
+   "id": "WORLD-011",
+   "category": "WORLD",
+   "template": "world_partial_load",
+   "injected_fault": "partial_load",
+   "deterministic": "PASS",
+   "typesafe": "SKIPPED",
+   "final": "PASS",
+   "fingerprint": "021fb37e7149",
+   "world_seed": 6836,
+   "gen_seed": 7,
+   "expected": {
+    "partial_detected": {
+     "reference": "p1",
+     "partial": "p2",
+     "ratio_below": 0.95
+    }
+   },
+   "pictures": [
+    "scenarios/WORLD-011/p1/full.png",
+    "scenarios/WORLD-011/p2/partial.png"
+   ],
+   "checks": {
+    "executed": {
+     "status": "pass",
+     "detail": "2 Godot run(s) finished with telemetry"
+    },
+    "partial_load_detected": {
+     "status": "pass",
+     "detail": "15 of 80 bricks loaded (0.19); the detector fires below 0.95"
+    }
+   },
+   "metrics": {},
+   "godot_error": null,
+   "typesafe_questions": null,
+   "typesafe_reason": "no TypeSafe question defined for this scenario",
+   "reproduce": "python cube_visual_qa.py suite --from-file reports/suite/runA\\scenarios.json --only WORLD-011"
+  },
+  {
+   "id": "WORLD-012",
+   "category": "WORLD",
+   "template": "world_restore",
+   "injected_fault": null,
+   "deterministic": "PASS",
+   "typesafe": "SKIPPED",
+   "final": "PASS",
+   "fingerprint": "70d6a5ffe128",
+   "world_seed": 7417,
+   "gen_seed": 7,
+   "expected": {
+    "restored_equal": {
+     "a": "p1:view",
+     "b": "p2:view"
+    },
+    "pixel_diff_max": 0.001
+   },
+   "pictures": [
+    "scenarios/WORLD-012/p1/view.png",
+    "scenarios/WORLD-012/p2/view.png"
+   ],
+   "checks": {
+    "executed": {
+     "status": "pass",
+     "detail": "2 Godot run(s) finished with telemetry"
+    },
+    "restore_bricks_equal": {
+     "status": "pass",
+     "detail": "76 bricks before, 76 after reopening"
+    },
+    "restore_picture_equal": {
+     "status": "pass",
+     "detail": "0.00000 of the pixels differ after reopening the world (limit 0.001)"
+    }
+   },
+   "metrics": {},
+   "godot_error": null,
+   "typesafe_questions": null,
+   "typesafe_reason": "covered by deterministic checks (use --compare or --force-typesafe to ask anyway)",
+   "reproduce": "python cube_visual_qa.py suite --from-file reports/suite/runA\\scenarios.json --only WORLD-012"
+  },
+  {
+   "id": "EDITING-013",
+   "category": "EDITING",
+   "template": "edit_remove",
+   "injected_fault": null,
+   "deterministic": "PASS",
+   "typesafe": "SKIPPED",
+   "final": "PASS",
+   "fingerprint": "350f36240f40",
+   "world_seed": 9849,
+   "gen_seed": 7,
+   "expected": {
+    "edits_hit": 1,
+    "bricks_changed_min": 1,
+    "before": "p1:before",
+    "after": "p1:after"
+   },
+   "pictures": [
+    "scenarios/EDITING-013/p1/before.png",
+    "scenarios/EDITING-013/p1/after.png"
+   ],
+   "checks": {
+    "executed": {
+     "status": "pass",
+     "detail": "1 Godot run(s) finished with telemetry"
+    },
+    "edits_applied": {
+     "status": "pass",
+     "detail": "1 of 1 edits hit a block, expected 1"
+    },
+    "render_batches_updated": {
+     "status": "pass",
+     "detail": "27 brick batches rebuilt after the edits"
+    },
+    "picture_changed_after_edit": {
+     "status": "pass",
+     "detail": "0.00198 of the pixels changed"
+    }
+   },
+   "metrics": {
+    "edit_changed_fraction": 0.00198
+   },
+   "godot_error": null,
+   "typesafe_questions": null,
+   "typesafe_reason": "covered by deterministic checks (use --compare or --force-typesafe to ask anyway)",
+   "reproduce": "python cube_visual_qa.py suite --from-file reports/suite/runA\\scenarios.json --only EDITING-013"
+  },
+  {
+   "id": "EDITING-014",
+   "category": "EDITING",
+   "template": "edit_place",
+   "injected_fault": null,
+   "deterministic": "PASS",
+   "typesafe": "SKIPPED",
+   "final": "PASS",
+   "fingerprint": "c8b1b1a6a387",
+   "world_seed": 7173,
+   "gen_seed": 7,
+   "expected": {
+    "edits_hit": 1,
+    "bricks_changed_min": 1,
+    "before": "p1:before",
+    "after": "p1:after"
+   },
+   "pictures": [
+    "scenarios/EDITING-014/p1/before.png",
+    "scenarios/EDITING-014/p1/after.png"
+   ],
+   "checks": {
+    "executed": {
+     "status": "pass",
+     "detail": "1 Godot run(s) finished with telemetry"
+    },
+    "edits_applied": {
+     "status": "pass",
+     "detail": "1 of 1 edits hit a block, expected 1"
+    },
+    "render_batches_updated": {
+     "status": "pass",
+     "detail": "27 brick batches rebuilt after the edits"
+    },
+    "picture_changed_after_edit": {
+     "status": "pass",
+     "detail": "0.00135 of the pixels changed"
+    }
+   },
+   "metrics": {
+    "edit_changed_fraction": 0.00135
+   },
+   "godot_error": null,
+   "typesafe_questions": null,
+   "typesafe_reason": "no TypeSafe question defined for this scenario",
+   "reproduce": "python cube_visual_qa.py suite --from-file reports/suite/runA\\scenarios.json --only EDITING-014"
+  },
+  {
+   "id": "EDITING-015",
+   "category": "EDITING",
+   "template": "edit_series",
+   "injected_fault": null,
+   "deterministic": "PASS",
+   "typesafe": "SKIPPED",
+   "final": "PASS",
+   "fingerprint": "fca096994d2f",
+   "world_seed": 6985,
+   "gen_seed": 7,
+   "expected": {
+    "edits_hit": 4,
+    "bricks_changed_min": 1,
+    "before": "p1:before",
+    "after": "p1:after"
+   },
+   "pictures": [
+    "scenarios/EDITING-015/p1/before.png",
+    "scenarios/EDITING-015/p1/after.png"
+   ],
+   "checks": {
+    "executed": {
+     "status": "pass",
+     "detail": "1 Godot run(s) finished with telemetry"
+    },
+    "edits_applied": {
+     "status": "pass",
+     "detail": "4 of 4 edits hit a block, expected 4"
+    },
+    "render_batches_updated": {
+     "status": "pass",
+     "detail": "108 brick batches rebuilt after the edits"
+    },
+    "picture_changed_after_edit": {
+     "status": "pass",
+     "detail": "0.23161 of the pixels changed"
+    }
+   },
+   "metrics": {
+    "edit_changed_fraction": 0.23161
+   },
+   "godot_error": null,
+   "typesafe_questions": null,
+   "typesafe_reason": "no TypeSafe question defined for this scenario",
+   "reproduce": "python cube_visual_qa.py suite --from-file reports/suite/runA\\scenarios.json --only EDITING-015"
+  },
+  {
+   "id": "EDITING-016",
+   "category": "EDITING",
+   "template": "edit_persist",
+   "injected_fault": null,
+   "deterministic": "PASS",
+   "typesafe": "SKIPPED",
+   "final": "PASS",
+   "fingerprint": "533b7db41101",
+   "world_seed": 6138,
+   "gen_seed": 7,
+   "expected": {
+    "edits_hit": 5,
+    "bricks_changed_min": 1,
+    "before": "p1:before",
+    "after": "p1:after",
+    "persisted": {
+     "after": "p1:after",
+     "reloaded": "p2:reloaded",
+     "pixel_diff_max": 0.001
+    }
+   },
+   "pictures": [
+    "scenarios/EDITING-016/p1/before.png",
+    "scenarios/EDITING-016/p1/after.png",
+    "scenarios/EDITING-016/p2/reloaded.png"
+   ],
+   "checks": {
+    "executed": {
+     "status": "pass",
+     "detail": "2 Godot run(s) finished with telemetry"
+    },
+    "edits_applied": {
+     "status": "pass",
+     "detail": "5 of 5 edits hit a block, expected 5"
+    },
+    "render_batches_updated": {
+     "status": "pass",
+     "detail": "135 brick batches rebuilt after the edits"
+    },
+    "picture_changed_after_edit": {
+     "status": "pass",
+     "detail": "0.27116 of the pixels changed"
+    },
+    "edit_persisted": {
+     "status": "pass",
+     "detail": "0.00000 of the pixels differ between the edited and the reloaded world"
+    }
+   },
+   "metrics": {
+    "edit_changed_fraction": 0.27116
+   },
+   "godot_error": null,
+   "typesafe_questions": null,
+   "typesafe_reason": "no TypeSafe question defined for this scenario",
+   "reproduce": "python cube_visual_qa.py suite --from-file reports/suite/runA\\scenarios.json --only EDITING-016"
+  },
+  {
+   "id": "OCCLUSION-017",
+   "category": "OCCLUSION",
+   "template": "occ_panel_opaque",
+   "injected_fault": "occluder_panel",
+   "deterministic": "PASS",
+   "typesafe": "PASS",
+   "final": "PASS",
+   "fingerprint": "927461acb1af",
+   "world_seed": 5765,
+   "gen_seed": 7,
+   "expected": {
+    "bricks_min": 1,
+    "fault_visible": [
+     "p1:ref",
+     "p1:shot"
+    ],
+    "shot": "p1:shot",
+    "centre_flat_info": true
+   },
+   "pictures": [
+    "scenarios/OCCLUSION-017/p1/ref.png",
+    "scenarios/OCCLUSION-017/p1/shot.png"
+   ],
+   "checks": {
+    "executed": {
+     "status": "pass",
+     "detail": "1 Godot run(s) finished with telemetry"
+    },
+    "bricks_loaded": {
+     "status": "pass",
+     "detail": "74 bricks in the scene (need >= 1)"
+    },
+    "frame_not_black": {
+     "status": "pass",
+     "detail": "black 0.000"
+    },
+    "frame_not_flat": {
+     "status": "pass",
+     "detail": "dominant colour 0.417"
+    },
+    "injected_fault_visible": {
+     "status": "pass",
+     "detail": "the injected fault changed 0.4152 of the frame"
+    },
+    "centre_flat_fraction": {
+     "status": "info",
+     "detail": "1.00 of the central region is one colour (information only: flat ground gives high values too)"
+    }
+   },
+   "metrics": {
+    "frame": {
+     "width": 1280,
+     "height": 720,
+     "black_fraction": 0.0,
+     "dominant_colour_fraction": 0.4165310329861111,
+     "distinct_colours": 82
+    },
+    "fault_changed_fraction": 0.41518,
+    "centre_dominant_fraction": 1.0
+   },
+   "godot_error": null,
+   "typesafe_questions": [
+    {
+     "qid": "Q-OCC-CENTER-001",
+     "question": "occlusion_017__q_occ_center_001",
+     "expect": true,
+     "version": 1,
+     "calibration": "NEW, uncalibrated: not measured on any picture yet",
+     "result": "pass",
+     "answer": 0.9
+    }
+   ],
+   "typesafe_reason": null,
+   "reproduce": "python cube_visual_qa.py suite --from-file reports/suite/runA\\scenarios.json --only OCCLUSION-017"
+  },
+  {
+   "id": "OCCLUSION-018",
+   "category": "OCCLUSION",
+   "template": "occ_panel_translucent",
+   "injected_fault": "occluder_panel",
+   "deterministic": "PASS",
+   "typesafe": "PASS",
+   "final": "PASS",
+   "fingerprint": "f79b662afdc7",
+   "world_seed": 2429,
+   "gen_seed": 7,
+   "expected": {
+    "bricks_min": 1,
+    "fault_visible": [
+     "p1:ref",
+     "p1:shot"
+    ],
+    "shot": "p1:shot",
+    "centre_flat_info": true
+   },
+   "pictures": [
+    "scenarios/OCCLUSION-018/p1/ref.png",
+    "scenarios/OCCLUSION-018/p1/shot.png"
+   ],
+   "checks": {
+    "executed": {
+     "status": "pass",
+     "detail": "1 Godot run(s) finished with telemetry"
+    },
+    "bricks_loaded": {
+     "status": "pass",
+     "detail": "82 bricks in the scene (need >= 1)"
+    },
+    "frame_not_black": {
+     "status": "pass",
+     "detail": "black 0.000"
+    },
+    "frame_not_flat": {
+     "status": "pass",
+     "detail": "dominant colour 0.198"
+    },
+    "injected_fault_visible": {
+     "status": "pass",
+     "detail": "the injected fault changed 0.4152 of the frame"
+    },
+    "centre_flat_fraction": {
+     "status": "info",
+     "detail": "0.53 of the central region is one colour (information only: flat ground gives high values too)"
+    }
+   },
+   "metrics": {
+    "frame": {
+     "width": 1280,
+     "height": 720,
+     "black_fraction": 0.0,
+     "dominant_colour_fraction": 0.19820421006944444,
+     "distinct_colours": 111
+    },
+    "fault_changed_fraction": 0.41518,
+    "centre_dominant_fraction": 0.528
+   },
+   "godot_error": null,
+   "typesafe_questions": [
+    {
+     "qid": "Q-OCC-CENTER-001",
+     "question": "occlusion_018__q_occ_center_001",
+     "expect": true,
+     "version": 1,
+     "calibration": "NEW, uncalibrated: not measured on any picture yet",
+     "result": "pass",
+     "answer": 0.9
+    }
+   ],
+   "typesafe_reason": null,
+   "reproduce": "python cube_visual_qa.py suite --from-file reports/suite/runA\\scenarios.json --only OCCLUSION-018"
+  },
+  {
+   "id": "OCCLUSION-019",
+   "category": "OCCLUSION",
+   "template": "occ_object_in_front",
+   "injected_fault": "occluder_object",
+   "deterministic": "PASS",
+   "typesafe": "PASS",
+   "final": "PASS",
+   "fingerprint": "133853c2990c",
+   "world_seed": 5106,
+   "gen_seed": 7,
+   "expected": {
+    "bricks_min": 1,
+    "fault_visible": [
+     "p1:ref",
+     "p1:shot"
+    ],
+    "shot": "p1:shot",
+    "centre_flat_info": true
+   },
+   "pictures": [
+    "scenarios/OCCLUSION-019/p1/ref.png",
+    "scenarios/OCCLUSION-019/p1/shot.png"
+   ],
+   "checks": {
+    "executed": {
+     "status": "pass",
+     "detail": "1 Godot run(s) finished with telemetry"
+    },
+    "bricks_loaded": {
+     "status": "pass",
+     "detail": "82 bricks in the scene (need >= 1)"
+    },
+    "frame_not_black": {
+     "status": "pass",
+     "detail": "black 0.000"
+    },
+    "frame_not_flat": {
+     "status": "pass",
+     "detail": "dominant colour 0.317"
+    },
+    "injected_fault_visible": {
+     "status": "pass",
+     "detail": "the injected fault changed 0.3170 of the frame"
+    },
+    "centre_flat_fraction": {
+     "status": "info",
+     "detail": "1.00 of the central region is one colour (information only: flat ground gives high values too)"
+    }
+   },
+   "metrics": {
+    "frame": {
+     "width": 1280,
+     "height": 720,
+     "black_fraction": 0.0,
+     "dominant_colour_fraction": 0.3169704861111111,
+     "distinct_colours": 105
+    },
+    "fault_changed_fraction": 0.31697,
+    "centre_dominant_fraction": 1.0
+   },
+   "godot_error": null,
+   "typesafe_questions": [
+    {
+     "qid": "Q-OCC-CENTER-001",
+     "question": "occlusion_019__q_occ_center_001",
+     "expect": true,
+     "version": 1,
+     "calibration": "NEW, uncalibrated: not measured on any picture yet",
+     "result": "pass",
+     "answer": 0.9
+    }
+   ],
+   "typesafe_reason": null,
+   "reproduce": "python cube_visual_qa.py suite --from-file reports/suite/runA\\scenarios.json --only OCCLUSION-019"
+  },
+  {
+   "id": "OCCLUSION-020",
+   "category": "OCCLUSION",
+   "template": "occ_hud_corner",
+   "injected_fault": null,
+   "deterministic": "PASS",
+   "typesafe": "PASS",
+   "final": "PASS",
+   "fingerprint": "4786ccc07b87",
+   "world_seed": 1645,
+   "gen_seed": 7,
+   "expected": {
+    "bricks_min": 1,
+    "fault_visible": null,
+    "shot": "p1:shot",
+    "centre_flat_info": true
+   },
+   "pictures": [
+    "scenarios/OCCLUSION-020/p1/ref.png",
+    "scenarios/OCCLUSION-020/p1/shot.png"
+   ],
+   "checks": {
+    "executed": {
+     "status": "pass",
+     "detail": "1 Godot run(s) finished with telemetry"
+    },
+    "bricks_loaded": {
+     "status": "pass",
+     "detail": "79 bricks in the scene (need >= 1)"
+    },
+    "frame_not_black": {
+     "status": "pass",
+     "detail": "black 0.000"
+    },
+    "frame_not_flat": {
+     "status": "pass",
+     "detail": "dominant colour 0.375"
+    },
+    "centre_flat_fraction": {
+     "status": "info",
+     "detail": "0.83 of the central region is one colour (information only: flat ground gives high values too)"
+    }
+   },
+   "metrics": {
+    "frame": {
+     "width": 1280,
+     "height": 720,
+     "black_fraction": 0.0,
+     "dominant_colour_fraction": 0.37494032118055554,
+     "distinct_colours": 59
+    },
+    "centre_dominant_fraction": 0.834
+   },
+   "godot_error": null,
+   "typesafe_questions": [
+    {
+     "qid": "Q-OCC-CENTER-001",
+     "question": "occlusion_020__q_occ_center_001",
+     "expect": false,
+     "version": 1,
+     "calibration": "NEW, uncalibrated: not measured on any picture yet",
+     "result": "pass",
+     "answer": 0.09999999999999998
+    }
+   ],
+   "typesafe_reason": null,
+   "reproduce": "python cube_visual_qa.py suite --from-file reports/suite/runA\\scenarios.json --only OCCLUSION-020"
+  }
+ ],
+ "requests": [
+  {
+   "index": 0,
+   "request_key": "cb62d502869276706de0",
+   "scenarios": [
+    "WORLD-008",
+    "WORLD-009",
+    "WORLD-010",
+    "OCCLUSION-017",
+    "OCCLUSION-018",
+    "OCCLUSION-019",
+    "OCCLUSION-020"
+   ],
+   "est_tokens": 20018,
+   "status": "ok"
+  }
+ ]
+}

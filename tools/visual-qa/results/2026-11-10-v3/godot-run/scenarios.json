@@ -1,0 +1,1750 @@
+[
+ {
+  "id": "CAMERA-001",
+  "category": "CAMERA",
+  "template": "cam_top",
+  "generator_version": "3.0.0",
+  "gen_seed": 7,
+  "index": 0,
+  "world_seed": 6324,
+  "intensity": 2,
+  "camera": "top",
+  "injected_fault": null,
+  "needs_visual": false,
+  "operation": null,
+  "phases": [
+   {
+    "name": "p1",
+    "create": true,
+    "steps": [
+     {
+      "op": "wait",
+      "frames": 45
+     },
+     {
+      "op": "probe",
+      "name": "start"
+     },
+     {
+      "op": "move",
+      "fwd": 0,
+      "right": 0,
+      "up": 1,
+      "frames": 20
+     },
+     {
+      "op": "turn",
+      "yaw": 0.0,
+      "pitch": -0.8,
+      "frames": 8
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "top"
+     }
+    ]
+   }
+  ],
+  "expected": {
+   "pitch_delta": -0.8,
+   "pitch_tolerance": 0.03,
+   "climbed": true,
+   "sky_fraction_max": 0.05,
+   "shot": "p1:top"
+  },
+  "typesafe": {
+   "role": "confirm",
+   "questions": [
+    {
+     "qid": "Q-CAM-TOP-001",
+     "expect": true,
+     "slots": {
+      "shot": "p1:top"
+     }
+    }
+   ]
+  },
+  "fingerprint": "b690ce37f8da"
+ },
+ {
+  "id": "CAMERA-002",
+  "category": "CAMERA",
+  "template": "cam_up",
+  "generator_version": "3.0.0",
+  "gen_seed": 7,
+  "index": 1,
+  "world_seed": 9628,
+  "intensity": 2,
+  "camera": "up",
+  "injected_fault": null,
+  "needs_visual": false,
+  "operation": null,
+  "phases": [
+   {
+    "name": "p1",
+    "create": true,
+    "steps": [
+     {
+      "op": "wait",
+      "frames": 45
+     },
+     {
+      "op": "probe",
+      "name": "start"
+     },
+     {
+      "op": "turn",
+      "yaw": 0.0,
+      "pitch": 1.7,
+      "frames": 10
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "up"
+     }
+    ]
+   }
+  ],
+  "expected": {
+   "pitch_delta": 1.7,
+   "pitch_tolerance": 0.03,
+   "sky_fraction_min": 0.9,
+   "shot": "p1:up"
+  },
+  "typesafe": {
+   "role": "confirm",
+   "questions": [
+    {
+     "qid": "Q-CAM-SKY-001",
+     "expect": true,
+     "slots": {
+      "shot": "p1:up"
+     }
+    }
+   ]
+  },
+  "fingerprint": "6afd0410cbc3"
+ },
+ {
+  "id": "CAMERA-003",
+  "category": "CAMERA",
+  "template": "cam_horizontal",
+  "generator_version": "3.0.0",
+  "gen_seed": 7,
+  "index": 2,
+  "world_seed": 1271,
+  "intensity": 2,
+  "camera": "horizontal",
+  "injected_fault": null,
+  "needs_visual": false,
+  "operation": null,
+  "phases": [
+   {
+    "name": "p1",
+    "create": true,
+    "steps": [
+     {
+      "op": "wait",
+      "frames": 45
+     },
+     {
+      "op": "probe",
+      "name": "start"
+     },
+     {
+      "op": "turn",
+      "yaw": 0.0,
+      "pitch": 0.6,
+      "frames": 8
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "level"
+     }
+    ]
+   }
+  ],
+  "expected": {
+   "pitch_delta": 0.6,
+   "pitch_tolerance": 0.03,
+   "sky_fraction_min": 0.02,
+   "sky_fraction_max": 0.98,
+   "shot": "p1:level"
+  },
+  "typesafe": {
+   "role": "confirm",
+   "questions": [
+    {
+     "qid": "Q-CAM-SKY-001",
+     "expect": true,
+     "slots": {
+      "shot": "p1:level"
+     }
+    }
+   ]
+  },
+  "fingerprint": "4dacb108f5e7"
+ },
+ {
+  "id": "CAMERA-004",
+  "category": "CAMERA",
+  "template": "cam_angled",
+  "generator_version": "3.0.0",
+  "gen_seed": 7,
+  "index": 3,
+  "world_seed": 2682,
+  "intensity": 2,
+  "camera": "angled",
+  "injected_fault": null,
+  "needs_visual": false,
+  "operation": null,
+  "phases": [
+   {
+    "name": "p1",
+    "create": true,
+    "steps": [
+     {
+      "op": "wait",
+      "frames": 45
+     },
+     {
+      "op": "probe",
+      "name": "start"
+     },
+     {
+      "op": "turn",
+      "yaw": 1.071,
+      "pitch": -0.2,
+      "frames": 10
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "angled"
+     }
+    ]
+   }
+  ],
+  "expected": {
+   "yaw_delta": 1.071,
+   "pitch_delta": -0.2,
+   "pitch_tolerance": 0.03,
+   "yaw_tolerance": 0.03,
+   "shot": "p1:angled"
+  },
+  "typesafe": {
+   "role": "confirm",
+   "questions": [
+    {
+     "qid": "Q-TERR-VISIBLE-001",
+     "expect": true,
+     "slots": {
+      "shot": "p1:angled"
+     }
+    }
+   ]
+  },
+  "fingerprint": "efddb26e1128"
+ },
+ {
+  "id": "CAMERA-005",
+  "category": "CAMERA",
+  "template": "cam_rotate",
+  "generator_version": "3.0.0",
+  "gen_seed": 7,
+  "index": 4,
+  "world_seed": 5298,
+  "intensity": 2,
+  "camera": "rotate_180",
+  "injected_fault": null,
+  "needs_visual": false,
+  "operation": null,
+  "phases": [
+   {
+    "name": "p1",
+    "create": true,
+    "steps": [
+     {
+      "op": "wait",
+      "frames": 45
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "before"
+     },
+     {
+      "op": "probe",
+      "name": "start"
+     },
+     {
+      "op": "turn",
+      "yaw": 3.1416,
+      "pitch": 0.0,
+      "frames": 24
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "after"
+     }
+    ]
+   }
+  ],
+  "expected": {
+   "yaw_delta": 3.1416,
+   "yaw_tolerance": 0.03,
+   "position_unchanged": true,
+   "same_view_as": null
+  },
+  "typesafe": {
+   "role": "none",
+   "questions": []
+  },
+  "fingerprint": "216245d3fa64"
+ },
+ {
+  "id": "CAMERA-006",
+  "category": "CAMERA",
+  "template": "cam_move",
+  "generator_version": "3.0.0",
+  "gen_seed": 7,
+  "index": 5,
+  "world_seed": 1231,
+  "intensity": 2,
+  "camera": "move_forward",
+  "injected_fault": null,
+  "needs_visual": false,
+  "operation": null,
+  "phases": [
+   {
+    "name": "p1",
+    "create": true,
+    "steps": [
+     {
+      "op": "wait",
+      "frames": 45
+     },
+     {
+      "op": "probe",
+      "name": "start"
+     },
+     {
+      "op": "move",
+      "fwd": 1,
+      "right": 0,
+      "up": 0,
+      "frames": 40
+     },
+     {
+      "op": "wait",
+      "frames": 2
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "moved"
+     }
+    ]
+   }
+  ],
+  "expected": {
+   "moved_along_heading": true,
+   "shot": "p1:moved"
+  },
+  "typesafe": {
+   "role": "none",
+   "questions": []
+  },
+  "fingerprint": "401f75420bcb"
+ },
+ {
+  "id": "WORLD-007",
+  "category": "WORLD",
+  "template": "world_view",
+  "generator_version": "3.0.0",
+  "gen_seed": 7,
+  "index": 6,
+  "world_seed": 4613,
+  "intensity": 2,
+  "camera": "default",
+  "injected_fault": null,
+  "needs_visual": false,
+  "operation": null,
+  "phases": [
+   {
+    "name": "p1",
+    "create": true,
+    "steps": [
+     {
+      "op": "wait",
+      "frames": 60
+     },
+     {
+      "op": "turn",
+      "yaw": -0.043,
+      "pitch": 0.006,
+      "frames": 5
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "view"
+     }
+    ]
+   }
+  ],
+  "expected": {
+   "bricks_min": 1,
+   "shot": "p1:view"
+  },
+  "typesafe": {
+   "role": "confirm",
+   "questions": [
+    {
+     "qid": "Q-TERR-VISIBLE-001",
+     "expect": true,
+     "slots": {
+      "shot": "p1:view"
+     }
+    },
+    {
+     "qid": "Q-SCENE-KIND-001",
+     "expect": "block_landscape",
+     "slots": {
+      "shot": "p1:view"
+     }
+    }
+   ]
+  },
+  "fingerprint": "170086972be7"
+ },
+ {
+  "id": "WORLD-008",
+  "category": "WORLD",
+  "template": "world_missing_brick",
+  "generator_version": "3.0.0",
+  "gen_seed": 7,
+  "index": 7,
+  "world_seed": 3122,
+  "intensity": 2,
+  "camera": "default",
+  "injected_fault": "missing_brick",
+  "needs_visual": true,
+  "operation": null,
+  "phases": [
+   {
+    "name": "p1",
+    "create": true,
+    "steps": [
+     {
+      "op": "wait",
+      "frames": 45
+     },
+     {
+      "op": "turn",
+      "yaw": 0.075,
+      "pitch": 0.028,
+      "frames": 5
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "ref"
+     },
+     {
+      "op": "wait",
+      "frames": 2
+     },
+     {
+      "op": "fault",
+      "kind": "missing_brick"
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "shot"
+     }
+    ]
+   }
+  ],
+  "expected": {
+   "bricks_min": 1,
+   "fault_visible": [
+    "p1:ref",
+    "p1:shot"
+   ],
+   "shot": "p1:shot"
+  },
+  "typesafe": {
+   "role": "primary",
+   "questions": [
+    {
+     "qid": "Q-TERR-GAP-001",
+     "expect": true,
+     "slots": {
+      "shot": "p1:shot"
+     }
+    }
+   ]
+  },
+  "fingerprint": "41e47e23b1f7"
+ },
+ {
+  "id": "WORLD-009",
+  "category": "WORLD",
+  "template": "world_hidden_area",
+  "generator_version": "3.0.0",
+  "gen_seed": 7,
+  "index": 8,
+  "world_seed": 8868,
+  "intensity": 2,
+  "camera": "default",
+  "injected_fault": "hidden_area",
+  "needs_visual": true,
+  "operation": null,
+  "phases": [
+   {
+    "name": "p1",
+    "create": true,
+    "steps": [
+     {
+      "op": "wait",
+      "frames": 45
+     },
+     {
+      "op": "turn",
+      "yaw": 0.198,
+      "pitch": -0.061,
+      "frames": 5
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "ref"
+     },
+     {
+      "op": "wait",
+      "frames": 2
+     },
+     {
+      "op": "fault",
+      "kind": "hidden_area"
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "shot"
+     }
+    ]
+   }
+  ],
+  "expected": {
+   "bricks_min": 1,
+   "fault_visible": [
+    "p1:ref",
+    "p1:shot"
+   ],
+   "shot": "p1:shot"
+  },
+  "typesafe": {
+   "role": "primary",
+   "questions": [
+    {
+     "qid": "Q-TERR-GAP-001",
+     "expect": true,
+     "slots": {
+      "shot": "p1:shot"
+     }
+    }
+   ]
+  },
+  "fingerprint": "fd5798ca5a89"
+ },
+ {
+  "id": "WORLD-010",
+  "category": "WORLD",
+  "template": "world_wrong_material",
+  "generator_version": "3.0.0",
+  "gen_seed": 7,
+  "index": 9,
+  "world_seed": 8969,
+  "intensity": 2,
+  "camera": "default",
+  "injected_fault": "wrong_material",
+  "needs_visual": true,
+  "operation": null,
+  "phases": [
+   {
+    "name": "p1",
+    "create": true,
+    "steps": [
+     {
+      "op": "wait",
+      "frames": 45
+     },
+     {
+      "op": "turn",
+      "yaw": 0.518,
+      "pitch": -0.071,
+      "frames": 5
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "ref"
+     },
+     {
+      "op": "wait",
+      "frames": 2
+     },
+     {
+      "op": "fault",
+      "kind": "wrong_material"
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "shot"
+     }
+    ]
+   }
+  ],
+  "expected": {
+   "bricks_min": 1,
+   "fault_visible": [
+    "p1:ref",
+    "p1:shot"
+   ],
+   "shot": "p1:shot"
+  },
+  "typesafe": {
+   "role": "primary",
+   "questions": [
+    {
+     "qid": "Q-MAT-PATCH-001",
+     "expect": true,
+     "slots": {
+      "shot": "p1:shot"
+     }
+    }
+   ]
+  },
+  "fingerprint": "df1f0193c244"
+ },
+ {
+  "id": "WORLD-011",
+  "category": "WORLD",
+  "template": "world_partial_load",
+  "generator_version": "3.0.0",
+  "gen_seed": 7,
+  "index": 10,
+  "world_seed": 6836,
+  "intensity": 2,
+  "camera": "default",
+  "injected_fault": "partial_load",
+  "needs_visual": false,
+  "operation": null,
+  "phases": [
+   {
+    "name": "p1",
+    "create": true,
+    "steps": [
+     {
+      "op": "wait",
+      "frames": 45
+     },
+     {
+      "op": "turn",
+      "yaw": -0.3,
+      "pitch": -0.06,
+      "frames": 5
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "full"
+     }
+    ]
+   },
+   {
+    "name": "p2",
+    "create": true,
+    "steps": [
+     {
+      "op": "freeze"
+     },
+     {
+      "op": "wait",
+      "frames": 20
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "partial"
+     }
+    ]
+   }
+  ],
+  "expected": {
+   "partial_detected": {
+    "reference": "p1",
+    "partial": "p2",
+    "ratio_below": 0.95
+   }
+  },
+  "typesafe": {
+   "role": "none",
+   "questions": []
+  },
+  "fingerprint": "021fb37e7149"
+ },
+ {
+  "id": "WORLD-012",
+  "category": "WORLD",
+  "template": "world_restore",
+  "generator_version": "3.0.0",
+  "gen_seed": 7,
+  "index": 11,
+  "world_seed": 7417,
+  "intensity": 2,
+  "camera": "default",
+  "injected_fault": null,
+  "needs_visual": false,
+  "operation": null,
+  "phases": [
+   {
+    "name": "p1",
+    "create": true,
+    "steps": [
+     {
+      "op": "wait",
+      "frames": 45
+     },
+     {
+      "op": "turn",
+      "yaw": -0.707,
+      "pitch": 0.068,
+      "frames": 5
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "view"
+     }
+    ]
+   },
+   {
+    "name": "p2",
+    "create": false,
+    "same_world_as": "p1",
+    "steps": [
+     {
+      "op": "wait",
+      "frames": 45
+     },
+     {
+      "op": "turn",
+      "yaw": -0.707,
+      "pitch": 0.068,
+      "frames": 5
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "view"
+     }
+    ]
+   }
+  ],
+  "expected": {
+   "restored_equal": {
+    "a": "p1:view",
+    "b": "p2:view"
+   },
+   "pixel_diff_max": 0.001
+  },
+  "typesafe": {
+   "role": "confirm",
+   "questions": [
+    {
+     "qid": "Q-TERR-VISIBLE-001",
+     "expect": true,
+     "slots": {
+      "shot": "p2:view"
+     }
+    }
+   ]
+  },
+  "fingerprint": "70d6a5ffe128"
+ },
+ {
+  "id": "EDITING-013",
+  "category": "EDITING",
+  "template": "edit_remove",
+  "generator_version": "3.0.0",
+  "gen_seed": 7,
+  "index": 12,
+  "world_seed": 9849,
+  "intensity": 2,
+  "camera": "close",
+  "injected_fault": null,
+  "needs_visual": false,
+  "operation": "remove",
+  "phases": [
+   {
+    "name": "p1",
+    "create": true,
+    "steps": [
+     {
+      "op": "wait",
+      "frames": 45
+     },
+     {
+      "op": "turn",
+      "yaw": 0.0,
+      "pitch": -0.5,
+      "frames": 5
+     },
+     {
+      "op": "move",
+      "fwd": 0,
+      "right": 0,
+      "up": -1,
+      "frames": 20
+     },
+     {
+      "op": "wait",
+      "frames": 10
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "before"
+     },
+     {
+      "op": "edit",
+      "material": 0
+     },
+     {
+      "op": "wait",
+      "frames": 20
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "after"
+     }
+    ]
+   }
+  ],
+  "expected": {
+   "edits_hit": 1,
+   "bricks_changed_min": 1,
+   "before": "p1:before",
+   "after": "p1:after"
+  },
+  "typesafe": {
+   "role": "confirm",
+   "questions": [
+    {
+     "qid": "Q-EDIT-MISSING-001",
+     "expect": true,
+     "slots": {
+      "before": "p1:before",
+      "after": "p1:after"
+     }
+    }
+   ]
+  },
+  "fingerprint": "350f36240f40"
+ },
+ {
+  "id": "EDITING-014",
+  "category": "EDITING",
+  "template": "edit_place",
+  "generator_version": "3.0.0",
+  "gen_seed": 7,
+  "index": 13,
+  "world_seed": 7173,
+  "intensity": 2,
+  "camera": "close",
+  "injected_fault": null,
+  "needs_visual": false,
+  "operation": "place",
+  "phases": [
+   {
+    "name": "p1",
+    "create": true,
+    "steps": [
+     {
+      "op": "wait",
+      "frames": 45
+     },
+     {
+      "op": "turn",
+      "yaw": 0.0,
+      "pitch": -0.5,
+      "frames": 5
+     },
+     {
+      "op": "move",
+      "fwd": 0,
+      "right": 0,
+      "up": -1,
+      "frames": 20
+     },
+     {
+      "op": "wait",
+      "frames": 10
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "before"
+     },
+     {
+      "op": "edit",
+      "material": 5
+     },
+     {
+      "op": "wait",
+      "frames": 20
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "after"
+     }
+    ]
+   }
+  ],
+  "expected": {
+   "edits_hit": 1,
+   "bricks_changed_min": 1,
+   "before": "p1:before",
+   "after": "p1:after"
+  },
+  "typesafe": {
+   "role": "none",
+   "questions": []
+  },
+  "fingerprint": "c8b1b1a6a387"
+ },
+ {
+  "id": "EDITING-015",
+  "category": "EDITING",
+  "template": "edit_series",
+  "generator_version": "3.0.0",
+  "gen_seed": 7,
+  "index": 14,
+  "world_seed": 6985,
+  "intensity": 2,
+  "camera": "close",
+  "injected_fault": null,
+  "needs_visual": false,
+  "operation": "remove_series",
+  "phases": [
+   {
+    "name": "p1",
+    "create": true,
+    "steps": [
+     {
+      "op": "wait",
+      "frames": 45
+     },
+     {
+      "op": "turn",
+      "yaw": 0.0,
+      "pitch": -0.5,
+      "frames": 5
+     },
+     {
+      "op": "move",
+      "fwd": 0,
+      "right": 0,
+      "up": -1,
+      "frames": 20
+     },
+     {
+      "op": "wait",
+      "frames": 10
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "before"
+     },
+     {
+      "op": "edit",
+      "material": 0
+     },
+     {
+      "op": "wait",
+      "frames": 8
+     },
+     {
+      "op": "turn",
+      "yaw": 0.06,
+      "pitch": 0.0,
+      "frames": 2
+     },
+     {
+      "op": "edit",
+      "material": 0
+     },
+     {
+      "op": "wait",
+      "frames": 8
+     },
+     {
+      "op": "turn",
+      "yaw": 0.06,
+      "pitch": 0.0,
+      "frames": 2
+     },
+     {
+      "op": "edit",
+      "material": 0
+     },
+     {
+      "op": "wait",
+      "frames": 8
+     },
+     {
+      "op": "turn",
+      "yaw": 0.06,
+      "pitch": 0.0,
+      "frames": 2
+     },
+     {
+      "op": "edit",
+      "material": 0
+     },
+     {
+      "op": "wait",
+      "frames": 8
+     },
+     {
+      "op": "turn",
+      "yaw": 0.06,
+      "pitch": 0.0,
+      "frames": 2
+     },
+     {
+      "op": "wait",
+      "frames": 12
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "after"
+     }
+    ]
+   }
+  ],
+  "expected": {
+   "edits_hit": 4,
+   "bricks_changed_min": 1,
+   "before": "p1:before",
+   "after": "p1:after"
+  },
+  "typesafe": {
+   "role": "none",
+   "questions": []
+  },
+  "fingerprint": "fca096994d2f"
+ },
+ {
+  "id": "EDITING-016",
+  "category": "EDITING",
+  "template": "edit_persist",
+  "generator_version": "3.0.0",
+  "gen_seed": 7,
+  "index": 15,
+  "world_seed": 6138,
+  "intensity": 2,
+  "camera": "close",
+  "injected_fault": null,
+  "needs_visual": false,
+  "operation": "remove_series_then_reload",
+  "phases": [
+   {
+    "name": "p1",
+    "create": true,
+    "steps": [
+     {
+      "op": "wait",
+      "frames": 45
+     },
+     {
+      "op": "turn",
+      "yaw": 0.0,
+      "pitch": -0.5,
+      "frames": 5
+     },
+     {
+      "op": "move",
+      "fwd": 0,
+      "right": 0,
+      "up": -1,
+      "frames": 20
+     },
+     {
+      "op": "wait",
+      "frames": 10
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "before"
+     },
+     {
+      "op": "edit",
+      "material": 0
+     },
+     {
+      "op": "wait",
+      "frames": 8
+     },
+     {
+      "op": "turn",
+      "yaw": 0.06,
+      "pitch": 0.0,
+      "frames": 2
+     },
+     {
+      "op": "edit",
+      "material": 0
+     },
+     {
+      "op": "wait",
+      "frames": 8
+     },
+     {
+      "op": "turn",
+      "yaw": 0.06,
+      "pitch": 0.0,
+      "frames": 2
+     },
+     {
+      "op": "edit",
+      "material": 0
+     },
+     {
+      "op": "wait",
+      "frames": 8
+     },
+     {
+      "op": "turn",
+      "yaw": 0.06,
+      "pitch": 0.0,
+      "frames": 2
+     },
+     {
+      "op": "edit",
+      "material": 0
+     },
+     {
+      "op": "wait",
+      "frames": 8
+     },
+     {
+      "op": "turn",
+      "yaw": 0.06,
+      "pitch": 0.0,
+      "frames": 2
+     },
+     {
+      "op": "edit",
+      "material": 0
+     },
+     {
+      "op": "wait",
+      "frames": 8
+     },
+     {
+      "op": "turn",
+      "yaw": 0.06,
+      "pitch": 0.0,
+      "frames": 2
+     },
+     {
+      "op": "wait",
+      "frames": 12
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "after"
+     }
+    ]
+   },
+   {
+    "name": "p2",
+    "create": false,
+    "same_world_as": "p1",
+    "steps": [
+     {
+      "op": "wait",
+      "frames": 45
+     },
+     {
+      "op": "turn",
+      "yaw": 0.0,
+      "pitch": -0.5,
+      "frames": 5
+     },
+     {
+      "op": "move",
+      "fwd": 0,
+      "right": 0,
+      "up": -1,
+      "frames": 20
+     },
+     {
+      "op": "wait",
+      "frames": 10
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "wait",
+      "frames": 1
+     },
+     {
+      "op": "wait",
+      "frames": 8
+     },
+     {
+      "op": "turn",
+      "yaw": 0.06,
+      "pitch": 0.0,
+      "frames": 2
+     },
+     {
+      "op": "wait",
+      "frames": 1
+     },
+     {
+      "op": "wait",
+      "frames": 8
+     },
+     {
+      "op": "turn",
+      "yaw": 0.06,
+      "pitch": 0.0,
+      "frames": 2
+     },
+     {
+      "op": "wait",
+      "frames": 1
+     },
+     {
+      "op": "wait",
+      "frames": 8
+     },
+     {
+      "op": "turn",
+      "yaw": 0.06,
+      "pitch": 0.0,
+      "frames": 2
+     },
+     {
+      "op": "wait",
+      "frames": 1
+     },
+     {
+      "op": "wait",
+      "frames": 8
+     },
+     {
+      "op": "turn",
+      "yaw": 0.06,
+      "pitch": 0.0,
+      "frames": 2
+     },
+     {
+      "op": "wait",
+      "frames": 1
+     },
+     {
+      "op": "wait",
+      "frames": 8
+     },
+     {
+      "op": "turn",
+      "yaw": 0.06,
+      "pitch": 0.0,
+      "frames": 2
+     },
+     {
+      "op": "wait",
+      "frames": 12
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "reloaded"
+     }
+    ]
+   }
+  ],
+  "expected": {
+   "edits_hit": 5,
+   "bricks_changed_min": 1,
+   "before": "p1:before",
+   "after": "p1:after",
+   "persisted": {
+    "after": "p1:after",
+    "reloaded": "p2:reloaded",
+    "pixel_diff_max": 0.001
+   }
+  },
+  "typesafe": {
+   "role": "none",
+   "questions": []
+  },
+  "fingerprint": "533b7db41101"
+ },
+ {
+  "id": "OCCLUSION-017",
+  "category": "OCCLUSION",
+  "template": "occ_panel_opaque",
+  "generator_version": "3.0.0",
+  "gen_seed": 7,
+  "index": 16,
+  "world_seed": 5765,
+  "intensity": 2,
+  "camera": "default",
+  "injected_fault": "occluder_panel",
+  "needs_visual": true,
+  "operation": null,
+  "phases": [
+   {
+    "name": "p1",
+    "create": true,
+    "steps": [
+     {
+      "op": "wait",
+      "frames": 45
+     },
+     {
+      "op": "turn",
+      "yaw": 0.209,
+      "pitch": -0.068,
+      "frames": 5
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "ref"
+     },
+     {
+      "op": "occlude",
+      "kind": "panel",
+      "color": [
+       0.08,
+       0.08,
+       0.08,
+       1.0
+      ],
+      "rect": [
+       0.14,
+       0.21200000000000002,
+       0.86,
+       0.788
+      ]
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "shot"
+     }
+    ]
+   }
+  ],
+  "expected": {
+   "bricks_min": 1,
+   "fault_visible": [
+    "p1:ref",
+    "p1:shot"
+   ],
+   "shot": "p1:shot",
+   "centre_flat_info": true
+  },
+  "typesafe": {
+   "role": "primary",
+   "questions": [
+    {
+     "qid": "Q-OCC-CENTER-001",
+     "expect": true,
+     "slots": {
+      "shot": "p1:shot"
+     }
+    }
+   ]
+  },
+  "fingerprint": "927461acb1af"
+ },
+ {
+  "id": "OCCLUSION-018",
+  "category": "OCCLUSION",
+  "template": "occ_panel_translucent",
+  "generator_version": "3.0.0",
+  "gen_seed": 7,
+  "index": 17,
+  "world_seed": 2429,
+  "intensity": 2,
+  "camera": "default",
+  "injected_fault": "occluder_panel",
+  "needs_visual": true,
+  "operation": null,
+  "phases": [
+   {
+    "name": "p1",
+    "create": true,
+    "steps": [
+     {
+      "op": "wait",
+      "frames": 45
+     },
+     {
+      "op": "turn",
+      "yaw": -0.037,
+      "pitch": -0.023,
+      "frames": 5
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "ref"
+     },
+     {
+      "op": "occlude",
+      "kind": "panel",
+      "color": [
+       0.5,
+       0.5,
+       0.5,
+       0.45
+      ],
+      "rect": [
+       0.14,
+       0.21200000000000002,
+       0.86,
+       0.788
+      ]
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "shot"
+     }
+    ]
+   }
+  ],
+  "expected": {
+   "bricks_min": 1,
+   "fault_visible": [
+    "p1:ref",
+    "p1:shot"
+   ],
+   "shot": "p1:shot",
+   "centre_flat_info": true
+  },
+  "typesafe": {
+   "role": "primary",
+   "questions": [
+    {
+     "qid": "Q-OCC-CENTER-001",
+     "expect": true,
+     "slots": {
+      "shot": "p1:shot"
+     }
+    }
+   ]
+  },
+  "fingerprint": "f79b662afdc7"
+ },
+ {
+  "id": "OCCLUSION-019",
+  "category": "OCCLUSION",
+  "template": "occ_object_in_front",
+  "generator_version": "3.0.0",
+  "gen_seed": 7,
+  "index": 18,
+  "world_seed": 5106,
+  "intensity": 2,
+  "camera": "default",
+  "injected_fault": "occluder_object",
+  "needs_visual": true,
+  "operation": null,
+  "phases": [
+   {
+    "name": "p1",
+    "create": true,
+    "steps": [
+     {
+      "op": "wait",
+      "frames": 45
+     },
+     {
+      "op": "turn",
+      "yaw": -0.14,
+      "pitch": 0.064,
+      "frames": 5
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "ref"
+     },
+     {
+      "op": "occlude",
+      "kind": "object",
+      "color": [
+       0.8,
+       0.2,
+       0.6,
+       1.0
+      ],
+      "w": 2.0,
+      "h": 1.2999999999999998,
+      "distance": 1.5
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "shot"
+     }
+    ]
+   }
+  ],
+  "expected": {
+   "bricks_min": 1,
+   "fault_visible": [
+    "p1:ref",
+    "p1:shot"
+   ],
+   "shot": "p1:shot",
+   "centre_flat_info": true
+  },
+  "typesafe": {
+   "role": "primary",
+   "questions": [
+    {
+     "qid": "Q-OCC-CENTER-001",
+     "expect": true,
+     "slots": {
+      "shot": "p1:shot"
+     }
+    }
+   ]
+  },
+  "fingerprint": "133853c2990c"
+ },
+ {
+  "id": "OCCLUSION-020",
+  "category": "OCCLUSION",
+  "template": "occ_hud_corner",
+  "generator_version": "3.0.0",
+  "gen_seed": 7,
+  "index": 19,
+  "world_seed": 1645,
+  "intensity": 2,
+  "camera": "default",
+  "injected_fault": null,
+  "needs_visual": true,
+  "operation": null,
+  "phases": [
+   {
+    "name": "p1",
+    "create": true,
+    "steps": [
+     {
+      "op": "wait",
+      "frames": 45
+     },
+     {
+      "op": "turn",
+      "yaw": -0.047,
+      "pitch": -0.085,
+      "frames": 5
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "ref"
+     },
+     {
+      "op": "occlude",
+      "kind": "panel",
+      "color": [
+       0.1,
+       0.1,
+       0.1,
+       1.0
+      ],
+      "rect": [
+       0.02,
+       0.02,
+       0.2,
+       0.1
+      ]
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "wait",
+      "frames": 3
+     },
+     {
+      "op": "shot",
+      "name": "shot"
+     }
+    ]
+   }
+  ],
+  "expected": {
+   "bricks_min": 1,
+   "fault_visible": null,
+   "shot": "p1:shot",
+   "centre_flat_info": true
+  },
+  "typesafe": {
+   "role": "primary",
+   "questions": [
+    {
+     "qid": "Q-OCC-CENTER-001",
+     "expect": false,
+     "slots": {
+      "shot": "p1:shot"
+     }
+    }
+   ]
+  },
+  "fingerprint": "4786ccc07b87"
+ }
+]

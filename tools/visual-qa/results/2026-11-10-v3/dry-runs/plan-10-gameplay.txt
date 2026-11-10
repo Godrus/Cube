@@ -1,0 +1,9 @@
+## Plans for 10 scenarios (estimates; nothing sent)
+
+| mode | scenarios asked | requests | images | questions | est. input tokens | est. cost USD | largest request (tokens) | note |
+|---|---|---|---|---|---|---|---|---|
+| single | 6 | 1 | 7 | 6 | 19,903 | 0.00084 | 19,903 |  |
+| batch | 6 | 1 | 7 | 6 | 19,903 | 0.00084 | 19,903 |  |
+| adaptive | 1 | 1 | 1 | 1 | 2,964 | 0.00012 | 2,964 |  |
+
+scenarios generated: 10; executed in Godot: 0 (plan only); needing TypeSafe (visual-only): 1

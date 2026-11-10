@@ -1,0 +1,9 @@
+## Plans for 100 scenarios (estimates; nothing sent)
+
+| mode | scenarios asked | requests | images | questions | est. input tokens | est. cost USD | largest request (tokens) | note |
+|---|---|---|---|---|---|---|---|---|
+| single | 70 | 0 | 0 | 0 | 0 | 0.0 | 0 | SINGLE does not fit: 70 scenarios, 75 images, about 213185 input tokens against a planning |
+| batch | 70 | 10 | 75 | 75 | 214,385 | 0.009 | 25,594 |  |
+| adaptive | 35 | 5 | 35 | 35 | 100,090 | 0.0042 | 22,862 |  |
+
+scenarios generated: 100; executed in Godot: 0 (plan only); needing TypeSafe (visual-only): 35

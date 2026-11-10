@@ -51,6 +51,8 @@ The truth table lives in code: each question has an `expect` value that is **nev
 
 ## v2
 
+v3 (scenario generator, Godot runner, batching): `V3.md`; command `python cube_visual_qa.py suite --generate N --seed S [--profile ...] [--mode adaptive] [--live]`; tests `python -m unittest test_suite_v3`.
+
 Results: `V2-RESULTS.md` (calibration and evaluation, per-part verdicts). Design: `V2.md`: questionnaires `questions/v2/`, fixtures `fixtures-v2/` (real Godot pictures with controlled faults, `make_godot_fixtures.py`, labels fixed by `label_fixtures.py` before any request), deterministic checks (`deterministic.py`), `python cube_visual_qa.py v2 --split calibration|evaluation [--live]` (dry run by default) and `python analyze_v2.py <split>`.
 
 ## Status
