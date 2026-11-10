@@ -178,6 +178,7 @@ class Runs(unittest.TestCase):
         env = {k: v for k, v in os.environ.items() if k != "TYPESAFE_API_KEY"}
         err = io.StringIO()
         with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(qa, "send") as send, \
+                mock.patch.object(qa, "load_dotenv"), \
                 contextlib.redirect_stderr(err), tempfile.TemporaryDirectory() as out:
             code = qa.main(["check", "scene-smoke", "screenshot=" + os.path.join(FIX, "good-1.png"),
                             "--live", "--out", out])
