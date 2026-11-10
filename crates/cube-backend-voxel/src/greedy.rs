@@ -316,7 +316,8 @@ pub fn mesh_t_junctions(m: &TriMesh) -> usize {
 pub fn triangulate(quads: &[Quad]) -> TriMesh {
     let all: std::collections::BTreeSet<[i64; 3]> = quads.iter().flat_map(corners).collect();
     let mut positions: std::collections::BTreeSet<[i64; 3]> = Default::default();
-    let mut raw: Vec<(Vec<[i64; 3]>, Option<[i64; 3]>, Dir, u16)> = Vec::new();
+    type Polygon = (Vec<[i64; 3]>, Option<[i64; 3]>, Dir, u16);
+    let mut raw: Vec<Polygon> = Vec::new();
     for q in quads {
         let c = corners(q).map(|p| p.map(|v| 2 * v));
         // Boundary ring in (u, v) counter-clockwise order, with the foreign vertices.
