@@ -6,7 +6,7 @@
 
 * Epic **E-M1** (persistent world and gameplay integrity), see `docs/roadmap/WORK-PACKAGES.md`.
 * **M1-A2** inventory/world reconciliation: **TESTED and INTEGRATED into `origin/dev`** (commits `e47a35b`, docs `6ff18b3`; CI run 42857847038 green). Player-visible: DEMO_AVAILABLE, but the Godot smoke was not re-run after the change.
-* Next, one task: **CMB-01** (health, damage event, death and respawn as a pure Rust module `crates/cube-app/src/combat.rs`), then CMB-02, CMB-03. In parallel an independent agent may take **M1-A1** (spike first) or **WGN2-01**.
+* **CMB-01..03 TESTED** (branch `prod/combat-core`, feature F-GPL-004): `combat.rs` health, damage, respawn, one melee weapon, attack resolution; health saved in `game.state`. Not player visible. Next, one task: **CMB-04** (one hostile creature definition and state machine: idle, chase, attack, dead, using the walker's collision query), then CMB-05, CMB-06. In parallel an independent agent may take **M1-A1** (spike first) or **WGN2-01**.
 
 ## Priority and dependencies
 
@@ -23,7 +23,7 @@ cd ../Cube-combat
 cargo test -p cube-app --test reconcile      # proves the base is green
 ```
 
-CMB-01 acceptance: a `Health` value (`cur`, `max`) and a `Damage` event in `crates/cube-app/src/combat.rs`, no engine types; damage clamps at zero, death is reported once, respawn restores health and position by a stated rule, integer overflow cannot happen (checked or saturating, tested at the limits), unit tests in the module. Not integrated into Godot yet; mark registry entries NOT_STARTED/IN_PROGRESS honestly until CMB-08..10.
+(Done, kept for reference) CMB-01 acceptance: a `Health` value (`cur`, `max`) and a `Damage` event in `crates/cube-app/src/combat.rs`, no engine types; damage clamps at zero, death is reported once, respawn restores health and position by a stated rule, integer overflow cannot happen (checked or saturating, tested at the limits), unit tests in the module. Not integrated into Godot yet; mark registry entries NOT_STARTED/IN_PROGRESS honestly until CMB-08..10.
 
 ## Tests and how to run the game
 

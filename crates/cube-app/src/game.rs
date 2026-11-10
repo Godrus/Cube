@@ -330,6 +330,9 @@ pub struct GameState {
     pub objective: Objective,
     /// An edit that was started and not yet finished (normally `None`).
     pub pending: Option<PendingEdit>,
+    /// The player's health (prototype maximum, see `combat`). Files without a `health` line
+    /// (written before combat existed) load with full health.
+    pub health: crate::combat::Health,
 }
 
 impl Default for GameState {
@@ -339,6 +342,7 @@ impl Default for GameState {
             mode: Mode::Survival,
             objective: Objective::SHELTER,
             pending: None,
+            health: crate::combat::Health::full(crate::combat::PLAYER_MAX_HEALTH),
         }
     }
 }
@@ -473,6 +477,7 @@ impl GameState {
             o.mined,
             o.placed
         );
+        s += &format!("health {} {}\n", self.health.cur(), self.health.max());
         match self.pending {
             Some(PendingEdit {
                 seq,
@@ -494,7 +499,7 @@ impl GameState {
             return None;
         }
         let mut st = GameState::default();
-        let (mut mode, mut objective) = (false, false);
+        let (mut mode, mut objective, mut health_seen) = (false, false, false);
         for l in lines {
             let mut it = l.split_whitespace();
             match it.next()? {
@@ -540,6 +545,18 @@ impl GameState {
                         placed,
                     };
                     objective = true;
+                }
+                "health" => {
+                    if health_seen {
+                        return None;
+                    }
+                    let cur: u32 = it.next()?.parse().ok()?;
+                    let max: u32 = it.next()?.parse().ok()?;
+                    if it.next().is_some() {
+                        return None;
+                    }
+                    st.health = crate::combat::Health::from_parts(cur, max)?;
+                    health_seen = true;
                 }
                 "pending" => {
                     if st.pending.is_some() {
@@ -752,6 +769,26 @@ mod tests {
         g.begin_placed(1);
         g.abandon_pending();
         assert_eq!(g, before);
+    }
+
+    #[test]
+    fn health_is_saved_and_old_files_load_with_full_health() {
+        let mut g = GameState::default();
+        g.health.damage(7);
+        let text = g.encode();
+        let back = GameState::decode(&text).unwrap();
+        assert_eq!(back.health.cur(), 13);
+        assert_eq!(back, g);
+        let old: String = text
+            .lines()
+            .filter(|l| !l.starts_with("health"))
+            .map(|l| format!("{l}\n"))
+            .collect();
+        let loaded = GameState::decode(&old).expect("a file from before combat");
+        assert_eq!(loaded.health.cur(), crate::combat::PLAYER_MAX_HEALTH);
+        assert!(GameState::decode(&text.replace("health 13 20", "health 21 20")).is_none());
+        assert!(GameState::decode(&text.replace("health 13 20", "health 13 0")).is_none());
+        assert!(GameState::decode(&format!("{text}health 1 2\n")).is_none());
     }
 
     #[test]

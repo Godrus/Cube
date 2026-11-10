@@ -11,6 +11,7 @@
 //! decided with a real neighbour), a few per frame; until they exist the region stays where it is.
 //! Bricks are never unloaded and the world has a finite edge (`WORLD_LIMIT_BRICKS`).
 
+pub mod combat;
 pub mod game;
 pub mod port;
 
