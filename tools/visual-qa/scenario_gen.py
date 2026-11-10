@@ -18,9 +18,9 @@ GENERATOR_VERSION = "3.0.0"
 CATEGORIES = {"camera": "CAMERA", "terrain": "WORLD", "world": "WORLD", "editing": "EDITING", "occlusion": "OCCLUSION"}
 # What the current client/Godot adapter cannot do (no API for it); nothing is generated for these.
 UNSUPPORTED = {
-    "collision": "no collision or physics query exists in the client API (the camera is a free camera)",
-    "camera_penetration": "needs collision queries; a screenshot cannot prove it",
-    "move_to_obstacle / move_along_wall": "needs collision queries",
+    "collision": "no collision observation API in the adapter (walking-player collision exists and is tested in Rust; observing it from Godot is only planned: docs/GODOT-OBSERVATION-PLAN.md)",
+    "camera_penetration": "needs a collision observation query (planned); a screenshot cannot prove it",
+    "move_to_obstacle / move_along_wall": "needs a collision observation query (planned)",
     "bottom_view_of_overhangs": "WorldGen produces no overhangs; 'camera looking up' sees sky only",
     "edit_on_brick_boundary": "the adapter does not expose brick coordinates or a raycast hit position",
     "core_hash": "no state hash is exposed by the adapter",
