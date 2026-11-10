@@ -303,13 +303,31 @@ def run_one(questionnaire, files, model, live, key, out_dir, label, mock=None):
     return run
 
 
+def load_dotenv(path=None):
+    """Reads KEY=VALUE lines from tools/visual-qa/.env into the environment. A variable that is
+    already set in the environment wins; empty values are ignored; nothing is ever printed."""
+    path = path or os.path.join(HERE, ".env")
+    if not os.path.exists(path):
+        return
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            k, v = line.split("=", 1)
+            k, v = k.strip(), v.strip().strip('"').strip("'")
+            if k and v and k not in os.environ:
+                os.environ[k] = v
+
+
 def require_live(args):
     if not args.live:
         return None
+    load_dotenv()
     key = os.environ.get("TYPESAFE_API_KEY")
     if not key:
-        raise QAError("--live needs the TYPESAFE_API_KEY environment variable (it is not set); "
-                      "nothing was sent")
+        raise QAError("--live needs TYPESAFE_API_KEY (environment or tools/visual-qa/.env); "
+                      "it is not set, nothing was sent")
     return key
 
 

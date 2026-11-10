@@ -15,7 +15,9 @@ python cube_visual_qa.py check block-edit before=fixtures/edit-before.png after=
 python cube_visual_qa.py fixtures
 
 # 2. Live (explicit): needs TYPESAFE_API_KEY in the environment, one request per image.
-#    PowerShell:  $env:TYPESAFE_API_KEY = "<your key>"      (set it yourself; never paste it in chat or a file)
+#    Key: put it after TYPESAFE_API_KEY= in tools/visual-qa/.env (git-ignored; copy .env.example if missing),
+#    or set it in the shell: $env:TYPESAFE_API_KEY = "<your key>". The environment wins over the file.
+#    Paste it yourself; never in chat or a tracked file.
 python cube_visual_qa.py check scene-smoke screenshot=fixtures/good-1.png --live
 python cube_visual_qa.py fixtures --live --max-requests 5
 

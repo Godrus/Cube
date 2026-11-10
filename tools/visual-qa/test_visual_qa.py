@@ -185,6 +185,19 @@ class Runs(unittest.TestCase):
         send.assert_not_called()
         self.assertIn("TYPESAFE_API_KEY", err.getvalue())
 
+    def test_dotenv_fills_a_missing_variable_but_never_overrides_the_environment(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, ".env")
+            with open(path, "w", encoding="utf-8") as f:
+                f.write("# c" + chr(10) + 'TYPESAFE_API_KEY="from-file"' + chr(10) + "OTHER=" + chr(10))
+            with mock.patch.dict(os.environ, {}, clear=True):
+                qa.load_dotenv(path)
+                self.assertEqual(os.environ["TYPESAFE_API_KEY"], "from-file")
+                self.assertNotIn("OTHER", os.environ, "empty values are ignored")
+            with mock.patch.dict(os.environ, {"TYPESAFE_API_KEY": "from-env"}, clear=True):
+                qa.load_dotenv(path)
+                self.assertEqual(os.environ["TYPESAFE_API_KEY"], "from-env")
+
     def test_an_api_failure_is_unknown_and_the_key_never_reaches_a_file(self):
         secret = "sk-test-SECRET-123"
         with tempfile.TemporaryDirectory() as out, \
