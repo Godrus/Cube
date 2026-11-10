@@ -1,0 +1,13 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "world_009__q_terr_gap_001": {
+      "type": "noul",
+      "noul": 0.42
+    }
+  },
+  "usage": {
+    "input_tokens": 2732,
+    "output_tokens": 33
+  }
+}

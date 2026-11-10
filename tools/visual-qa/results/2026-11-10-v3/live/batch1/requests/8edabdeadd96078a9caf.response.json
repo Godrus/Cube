@@ -1,0 +1,13 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "occlusion_019__q_occ_center_001": {
+      "type": "noul",
+      "noul": 0.97
+    }
+  },
+  "usage": {
+    "input_tokens": 2740,
+    "output_tokens": 34
+  }
+}

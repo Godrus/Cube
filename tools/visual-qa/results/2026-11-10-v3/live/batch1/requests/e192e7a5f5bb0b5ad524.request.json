@@ -1,0 +1,31 @@
+{
+  "endpoint": "https://api.typesafe.ai/v1/systemone",
+  "headers": {
+    "TypeSafe-Danger-Zone-Images": "true",
+    "Authorization": "Bearer <redacted>"
+  },
+  "request": {
+    "model": "jev-1.14.0",
+    "state": {
+      "world_010_p1_shot": "cubeqa-world_010_p1_shot-aacf810e94d9"
+    },
+    "assets": {
+      "cubeqa-world_010_p1_shot-aacf810e94d9": {
+        "type": "image",
+        "part": "image-world_010_p1_shot"
+      }
+    },
+    "questions": {
+      "world_010__q_mat_patch_001": {
+        "type": "noul",
+        "instructions": "Is there a block-shaped patch on the ground in `world_010_p1_shot` whose colour is clearly neither green, brown nor grey?"
+      }
+    }
+  },
+  "parts": {
+    "image-world_010_p1_shot": {
+      "bytes": 161314,
+      "sha256": "7241058a8898381603e2242a2566efdc03cbeaa54135656883acadb3b6e837a6"
+    }
+  }
+}

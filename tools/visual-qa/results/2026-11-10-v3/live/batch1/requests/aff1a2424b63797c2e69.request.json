@@ -1,0 +1,31 @@
+{
+  "endpoint": "https://api.typesafe.ai/v1/systemone",
+  "headers": {
+    "TypeSafe-Danger-Zone-Images": "true",
+    "Authorization": "Bearer <redacted>"
+  },
+  "request": {
+    "model": "jev-1.14.0",
+    "state": {
+      "world_009_p1_shot": "cubeqa-world_009_p1_shot-2253da2e61a4"
+    },
+    "assets": {
+      "cubeqa-world_009_p1_shot-2253da2e61a4": {
+        "type": "image",
+        "part": "image-world_009_p1_shot"
+      }
+    },
+    "questions": {
+      "world_009__q_terr_gap_001": {
+        "type": "noul",
+        "instructions": "Is there an area in `world_009_p1_shot` where plain dark background shows through, with ground visible around it on at least two sides?"
+      }
+    }
+  },
+  "parts": {
+    "image-world_009_p1_shot": {
+      "bytes": 111175,
+      "sha256": "cd3fe0fd8e71225fa31c7c2ed575f1272720aa8fc0fb1fe741907fbe31700193"
+    }
+  }
+}

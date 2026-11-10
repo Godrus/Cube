@@ -1,0 +1,31 @@
+{
+  "endpoint": "https://api.typesafe.ai/v1/systemone",
+  "headers": {
+    "TypeSafe-Danger-Zone-Images": "true",
+    "Authorization": "Bearer <redacted>"
+  },
+  "request": {
+    "model": "jev-1.14.0",
+    "state": {
+      "occlusion_020_p1_shot": "cubeqa-occlusion_020_p1_shot-a162e4b2093f"
+    },
+    "assets": {
+      "cubeqa-occlusion_020_p1_shot-a162e4b2093f": {
+        "type": "image",
+        "part": "image-occlusion_020_p1_shot"
+      }
+    },
+    "questions": {
+      "occlusion_020__q_occ_center_001": {
+        "type": "noul",
+        "instructions": "Does a flat shape that is not part of the landscape cover the middle of `occlusion_020_p1_shot`, so that the ground behind it cannot be seen?"
+      }
+    }
+  },
+  "parts": {
+    "image-occlusion_020_p1_shot": {
+      "bytes": 129794,
+      "sha256": "aabd1e07f6103d83706eb6ac7442dc046ce8f45697f47cd4be2cdfebf1d68eab"
+    }
+  }
+}

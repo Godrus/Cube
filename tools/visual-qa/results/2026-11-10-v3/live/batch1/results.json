@@ -1,0 +1,636 @@
+{
+ "run_id": "live-batch1",
+ "when": "2026-11-10T14:26:59+00:00",
+ "templates_hash": "53acf98b3d55772d",
+ "mode": "batch",
+ "transport": "LIVE",
+ "plan": {
+  "mode": "batch",
+  "scenarios_with_questions": 7,
+  "requests": 7,
+  "images": 7,
+  "questions": 7,
+  "est_input_tokens": 20738,
+  "est_cost_usd": 0.00087,
+  "largest_request_tokens": 2964,
+  "scenarios_per_request": [
+   1,
+   1,
+   1,
+   1,
+   1,
+   1,
+   1
+  ],
+  "not_sent": 0,
+  "error": null
+ },
+ "counts": {
+  "generated": 7,
+  "executed": 7,
+  "not_executed": 0,
+  "needs_typesafe": 7,
+  "routed": 7
+ },
+ "api": {
+  "sent": 7,
+  "reused": 0,
+  "skipped": 0,
+  "deferred": 0,
+  "errors": 0,
+  "error_kinds": [],
+  "input_tokens": 19153
+ },
+ "unsupported_requested": [],
+ "by_category": {
+  "WORLD": {
+   "n": 3,
+   "PASS": 2,
+   "WARN": 0,
+   "FAIL": 0,
+   "UNKNOWN": 1,
+   "SKIPPED": 0
+  },
+  "OCCLUSION": {
+   "n": 4,
+   "PASS": 4,
+   "WARN": 0,
+   "FAIL": 0,
+   "UNKNOWN": 0,
+   "SKIPPED": 0
+  }
+ },
+ "scenarios": [
+  {
+   "id": "WORLD-008",
+   "category": "WORLD",
+   "template": "world_missing_brick",
+   "injected_fault": "missing_brick",
+   "deterministic": "PASS",
+   "typesafe": "PASS",
+   "final": "PASS",
+   "fingerprint": "41e47e23b1f7",
+   "world_seed": 3122,
+   "gen_seed": 7,
+   "expected": {
+    "bricks_min": 1,
+    "fault_visible": [
+     "p1:ref",
+     "p1:shot"
+    ],
+    "shot": "p1:shot"
+   },
+   "pictures": [
+    "../runA/scenarios/WORLD-008/p1/ref.png",
+    "../runA/scenarios/WORLD-008/p1/shot.png"
+   ],
+   "checks": {
+    "executed": {
+     "status": "pass",
+     "detail": "1 Godot run(s) finished with telemetry"
+    },
+    "bricks_loaded": {
+     "status": "pass",
+     "detail": "82 bricks in the scene (need >= 1)"
+    },
+    "frame_not_black": {
+     "status": "pass",
+     "detail": "black 0.000"
+    },
+    "frame_not_flat": {
+     "status": "pass",
+     "detail": "dominant colour 0.280"
+    },
+    "injected_fault_visible": {
+     "status": "pass",
+     "detail": "the injected fault changed 0.0157 of the frame"
+    }
+   },
+   "metrics": {
+    "frame": {
+     "width": 1280,
+     "height": 720,
+     "black_fraction": 0.0,
+     "dominant_colour_fraction": 0.27993706597222223,
+     "distinct_colours": 110
+    },
+    "fault_changed_fraction": 0.01565
+   },
+   "godot_error": null,
+   "typesafe_questions": [
+    {
+     "qid": "Q-TERR-GAP-001",
+     "question": "world_008__q_terr_gap_001",
+     "expect": true,
+     "version": 1,
+     "calibration": "v2 wording, frozen (terrain-integrity-v2 gap_in_ground); v2 evaluation: fired on 4 of 4 missing/hidden areas, healthy pictures sat at 0.51-0.60 (unsure)",
+     "result": "pass",
+     "answer": 0.9
+    }
+   ],
+   "typesafe_reason": null,
+   "reproduce": "python cube_visual_qa.py suite --from-file reports/suite/live-batch1\\scenarios.json --only WORLD-008"
+  },
+  {
+   "id": "WORLD-009",
+   "category": "WORLD",
+   "template": "world_hidden_area",
+   "injected_fault": "hidden_area",
+   "deterministic": "PASS",
+   "typesafe": "UNKNOWN",
+   "final": "UNKNOWN",
+   "fingerprint": "fd5798ca5a89",
+   "world_seed": 8868,
+   "gen_seed": 7,
+   "expected": {
+    "bricks_min": 1,
+    "fault_visible": [
+     "p1:ref",
+     "p1:shot"
+    ],
+    "shot": "p1:shot"
+   },
+   "pictures": [
+    "../runA/scenarios/WORLD-009/p1/ref.png",
+    "../runA/scenarios/WORLD-009/p1/shot.png"
+   ],
+   "checks": {
+    "executed": {
+     "status": "pass",
+     "detail": "1 Godot run(s) finished with telemetry"
+    },
+    "bricks_loaded": {
+     "status": "pass",
+     "detail": "69 bricks in the scene (need >= 1)"
+    },
+    "frame_not_black": {
+     "status": "pass",
+     "detail": "black 0.000"
+    },
+    "frame_not_flat": {
+     "status": "pass",
+     "detail": "dominant colour 0.488"
+    },
+    "injected_fault_visible": {
+     "status": "pass",
+     "detail": "the injected fault changed 0.7899 of the frame"
+    }
+   },
+   "metrics": {
+    "frame": {
+     "width": 1280,
+     "height": 720,
+     "black_fraction": 0.0,
+     "dominant_colour_fraction": 0.48783637152777776,
+     "distinct_colours": 93
+    },
+    "fault_changed_fraction": 0.78985
+   },
+   "godot_error": null,
+   "typesafe_questions": [
+    {
+     "qid": "Q-TERR-GAP-001",
+     "question": "world_009__q_terr_gap_001",
+     "expect": true,
+     "version": 1,
+     "calibration": "v2 wording, frozen (terrain-integrity-v2 gap_in_ground); v2 evaluation: fired on 4 of 4 missing/hidden areas, healthy pictures sat at 0.51-0.60 (unsure)",
+     "result": "unsure",
+     "answer": 0.42
+    }
+   ],
+   "typesafe_reason": null,
+   "reproduce": "python cube_visual_qa.py suite --from-file reports/suite/live-batch1\\scenarios.json --only WORLD-009"
+  },
+  {
+   "id": "WORLD-010",
+   "category": "WORLD",
+   "template": "world_wrong_material",
+   "injected_fault": "wrong_material",
+   "deterministic": "PASS",
+   "typesafe": "PASS",
+   "final": "PASS",
+   "fingerprint": "df1f0193c244",
+   "world_seed": 8969,
+   "gen_seed": 7,
+   "expected": {
+    "bricks_min": 1,
+    "fault_visible": [
+     "p1:ref",
+     "p1:shot"
+    ],
+    "shot": "p1:shot"
+   },
+   "pictures": [
+    "../runA/scenarios/WORLD-010/p1/ref.png",
+    "../runA/scenarios/WORLD-010/p1/shot.png"
+   ],
+   "checks": {
+    "executed": {
+     "status": "pass",
+     "detail": "1 Godot run(s) finished with telemetry"
+    },
+    "bricks_loaded": {
+     "status": "pass",
+     "detail": "77 bricks in the scene (need >= 1)"
+    },
+    "frame_not_black": {
+     "status": "pass",
+     "detail": "black 0.000"
+    },
+    "frame_not_flat": {
+     "status": "pass",
+     "detail": "dominant colour 0.325"
+    },
+    "injected_fault_visible": {
+     "status": "pass",
+     "detail": "the injected fault changed 0.0162 of the frame"
+    }
+   },
+   "metrics": {
+    "frame": {
+     "width": 1280,
+     "height": 720,
+     "black_fraction": 0.0,
+     "dominant_colour_fraction": 0.32510308159722223,
+     "distinct_colours": 100
+    },
+    "fault_changed_fraction": 0.01621
+   },
+   "godot_error": null,
+   "typesafe_questions": [
+    {
+     "qid": "Q-MAT-PATCH-001",
+     "question": "world_010__q_mat_patch_001",
+     "expect": true,
+     "version": 1,
+     "calibration": "v2 wording, frozen (off_palette_patch); v2 evaluation: 2 of 2 wrong materials fired, 6 of 6 clean pictures answered no",
+     "result": "pass",
+     "answer": 0.95
+    }
+   ],
+   "typesafe_reason": null,
+   "reproduce": "python cube_visual_qa.py suite --from-file reports/suite/live-batch1\\scenarios.json --only WORLD-010"
+  },
+  {
+   "id": "OCCLUSION-017",
+   "category": "OCCLUSION",
+   "template": "occ_panel_opaque",
+   "injected_fault": "occluder_panel",
+   "deterministic": "PASS",
+   "typesafe": "PASS",
+   "final": "PASS",
+   "fingerprint": "927461acb1af",
+   "world_seed": 5765,
+   "gen_seed": 7,
+   "expected": {
+    "bricks_min": 1,
+    "fault_visible": [
+     "p1:ref",
+     "p1:shot"
+    ],
+    "shot": "p1:shot",
+    "centre_flat_info": true
+   },
+   "pictures": [
+    "../runA/scenarios/OCCLUSION-017/p1/ref.png",
+    "../runA/scenarios/OCCLUSION-017/p1/shot.png"
+   ],
+   "checks": {
+    "executed": {
+     "status": "pass",
+     "detail": "1 Godot run(s) finished with telemetry"
+    },
+    "bricks_loaded": {
+     "status": "pass",
+     "detail": "74 bricks in the scene (need >= 1)"
+    },
+    "frame_not_black": {
+     "status": "pass",
+     "detail": "black 0.000"
+    },
+    "frame_not_flat": {
+     "status": "pass",
+     "detail": "dominant colour 0.417"
+    },
+    "injected_fault_visible": {
+     "status": "pass",
+     "detail": "the injected fault changed 0.4152 of the frame"
+    },
+    "centre_flat_fraction": {
+     "status": "info",
+     "detail": "1.00 of the central region is one colour (information only: flat ground gives high values too)"
+    }
+   },
+   "metrics": {
+    "frame": {
+     "width": 1280,
+     "height": 720,
+     "black_fraction": 0.0,
+     "dominant_colour_fraction": 0.4165310329861111,
+     "distinct_colours": 82
+    },
+    "fault_changed_fraction": 0.41518,
+    "centre_dominant_fraction": 1.0
+   },
+   "godot_error": null,
+   "typesafe_questions": [
+    {
+     "qid": "Q-OCC-CENTER-001",
+     "question": "occlusion_017__q_occ_center_001",
+     "expect": true,
+     "version": 1,
+     "calibration": "NEW, uncalibrated: not measured on any picture yet",
+     "result": "pass",
+     "answer": 0.93
+    }
+   ],
+   "typesafe_reason": null,
+   "reproduce": "python cube_visual_qa.py suite --from-file reports/suite/live-batch1\\scenarios.json --only OCCLUSION-017"
+  },
+  {
+   "id": "OCCLUSION-018",
+   "category": "OCCLUSION",
+   "template": "occ_panel_translucent",
+   "injected_fault": "occluder_panel",
+   "deterministic": "PASS",
+   "typesafe": "PASS",
+   "final": "PASS",
+   "fingerprint": "f79b662afdc7",
+   "world_seed": 2429,
+   "gen_seed": 7,
+   "expected": {
+    "bricks_min": 1,
+    "fault_visible": [
+     "p1:ref",
+     "p1:shot"
+    ],
+    "shot": "p1:shot",
+    "centre_flat_info": true
+   },
+   "pictures": [
+    "../runA/scenarios/OCCLUSION-018/p1/ref.png",
+    "../runA/scenarios/OCCLUSION-018/p1/shot.png"
+   ],
+   "checks": {
+    "executed": {
+     "status": "pass",
+     "detail": "1 Godot run(s) finished with telemetry"
+    },
+    "bricks_loaded": {
+     "status": "pass",
+     "detail": "82 bricks in the scene (need >= 1)"
+    },
+    "frame_not_black": {
+     "status": "pass",
+     "detail": "black 0.000"
+    },
+    "frame_not_flat": {
+     "status": "pass",
+     "detail": "dominant colour 0.198"
+    },
+    "injected_fault_visible": {
+     "status": "pass",
+     "detail": "the injected fault changed 0.4152 of the frame"
+    },
+    "centre_flat_fraction": {
+     "status": "info",
+     "detail": "0.53 of the central region is one colour (information only: flat ground gives high values too)"
+    }
+   },
+   "metrics": {
+    "frame": {
+     "width": 1280,
+     "height": 720,
+     "black_fraction": 0.0,
+     "dominant_colour_fraction": 0.19820421006944444,
+     "distinct_colours": 111
+    },
+    "fault_changed_fraction": 0.41518,
+    "centre_dominant_fraction": 0.528
+   },
+   "godot_error": null,
+   "typesafe_questions": [
+    {
+     "qid": "Q-OCC-CENTER-001",
+     "question": "occlusion_018__q_occ_center_001",
+     "expect": true,
+     "version": 1,
+     "calibration": "NEW, uncalibrated: not measured on any picture yet",
+     "result": "pass",
+     "answer": 0.81
+    }
+   ],
+   "typesafe_reason": null,
+   "reproduce": "python cube_visual_qa.py suite --from-file reports/suite/live-batch1\\scenarios.json --only OCCLUSION-018"
+  },
+  {
+   "id": "OCCLUSION-019",
+   "category": "OCCLUSION",
+   "template": "occ_object_in_front",
+   "injected_fault": "occluder_object",
+   "deterministic": "PASS",
+   "typesafe": "PASS",
+   "final": "PASS",
+   "fingerprint": "133853c2990c",
+   "world_seed": 5106,
+   "gen_seed": 7,
+   "expected": {
+    "bricks_min": 1,
+    "fault_visible": [
+     "p1:ref",
+     "p1:shot"
+    ],
+    "shot": "p1:shot",
+    "centre_flat_info": true
+   },
+   "pictures": [
+    "../runA/scenarios/OCCLUSION-019/p1/ref.png",
+    "../runA/scenarios/OCCLUSION-019/p1/shot.png"
+   ],
+   "checks": {
+    "executed": {
+     "status": "pass",
+     "detail": "1 Godot run(s) finished with telemetry"
+    },
+    "bricks_loaded": {
+     "status": "pass",
+     "detail": "82 bricks in the scene (need >= 1)"
+    },
+    "frame_not_black": {
+     "status": "pass",
+     "detail": "black 0.000"
+    },
+    "frame_not_flat": {
+     "status": "pass",
+     "detail": "dominant colour 0.317"
+    },
+    "injected_fault_visible": {
+     "status": "pass",
+     "detail": "the injected fault changed 0.3170 of the frame"
+    },
+    "centre_flat_fraction": {
+     "status": "info",
+     "detail": "1.00 of the central region is one colour (information only: flat ground gives high values too)"
+    }
+   },
+   "metrics": {
+    "frame": {
+     "width": 1280,
+     "height": 720,
+     "black_fraction": 0.0,
+     "dominant_colour_fraction": 0.3169704861111111,
+     "distinct_colours": 105
+    },
+    "fault_changed_fraction": 0.31697,
+    "centre_dominant_fraction": 1.0
+   },
+   "godot_error": null,
+   "typesafe_questions": [
+    {
+     "qid": "Q-OCC-CENTER-001",
+     "question": "occlusion_019__q_occ_center_001",
+     "expect": true,
+     "version": 1,
+     "calibration": "NEW, uncalibrated: not measured on any picture yet",
+     "result": "pass",
+     "answer": 0.97
+    }
+   ],
+   "typesafe_reason": null,
+   "reproduce": "python cube_visual_qa.py suite --from-file reports/suite/live-batch1\\scenarios.json --only OCCLUSION-019"
+  },
+  {
+   "id": "OCCLUSION-020",
+   "category": "OCCLUSION",
+   "template": "occ_hud_corner",
+   "injected_fault": null,
+   "deterministic": "PASS",
+   "typesafe": "PASS",
+   "final": "PASS",
+   "fingerprint": "4786ccc07b87",
+   "world_seed": 1645,
+   "gen_seed": 7,
+   "expected": {
+    "bricks_min": 1,
+    "fault_visible": null,
+    "shot": "p1:shot",
+    "centre_flat_info": true
+   },
+   "pictures": [
+    "../runA/scenarios/OCCLUSION-020/p1/ref.png",
+    "../runA/scenarios/OCCLUSION-020/p1/shot.png"
+   ],
+   "checks": {
+    "executed": {
+     "status": "pass",
+     "detail": "1 Godot run(s) finished with telemetry"
+    },
+    "bricks_loaded": {
+     "status": "pass",
+     "detail": "79 bricks in the scene (need >= 1)"
+    },
+    "frame_not_black": {
+     "status": "pass",
+     "detail": "black 0.000"
+    },
+    "frame_not_flat": {
+     "status": "pass",
+     "detail": "dominant colour 0.375"
+    },
+    "centre_flat_fraction": {
+     "status": "info",
+     "detail": "0.83 of the central region is one colour (information only: flat ground gives high values too)"
+    }
+   },
+   "metrics": {
+    "frame": {
+     "width": 1280,
+     "height": 720,
+     "black_fraction": 0.0,
+     "dominant_colour_fraction": 0.37494032118055554,
+     "distinct_colours": 59
+    },
+    "centre_dominant_fraction": 0.834
+   },
+   "godot_error": null,
+   "typesafe_questions": [
+    {
+     "qid": "Q-OCC-CENTER-001",
+     "question": "occlusion_020__q_occ_center_001",
+     "expect": false,
+     "version": 1,
+     "calibration": "NEW, uncalibrated: not measured on any picture yet",
+     "result": "pass",
+     "answer": 0.09
+    }
+   ],
+   "typesafe_reason": null,
+   "reproduce": "python cube_visual_qa.py suite --from-file reports/suite/live-batch1\\scenarios.json --only OCCLUSION-020"
+  }
+ ],
+ "requests": [
+  {
+   "index": 0,
+   "request_key": "ddded53466cc5bdebef1",
+   "scenarios": [
+    "WORLD-008"
+   ],
+   "est_tokens": 2962,
+   "status": "ok"
+  },
+  {
+   "index": 1,
+   "request_key": "aff1a2424b63797c2e69",
+   "scenarios": [
+    "WORLD-009"
+   ],
+   "est_tokens": 2962,
+   "status": "ok"
+  },
+  {
+   "index": 2,
+   "request_key": "e192e7a5f5bb0b5ad524",
+   "scenarios": [
+    "WORLD-010"
+   ],
+   "est_tokens": 2958,
+   "status": "ok"
+  },
+  {
+   "index": 3,
+   "request_key": "cf40e31dae503c9a4bee",
+   "scenarios": [
+    "OCCLUSION-017"
+   ],
+   "est_tokens": 2964,
+   "status": "ok"
+  },
+  {
+   "index": 4,
+   "request_key": "332d8c01300772e71b1f",
+   "scenarios": [
+    "OCCLUSION-018"
+   ],
+   "est_tokens": 2964,
+   "status": "ok"
+  },
+  {
+   "index": 5,
+   "request_key": "8edabdeadd96078a9caf",
+   "scenarios": [
+    "OCCLUSION-019"
+   ],
+   "est_tokens": 2964,
+   "status": "ok"
+  },
+  {
+   "index": 6,
+   "request_key": "6f57c9d0347c63fb7fa4",
+   "scenarios": [
+    "OCCLUSION-020"
+   ],
+   "est_tokens": 2964,
+   "status": "ok"
+  }
+ ]
+}

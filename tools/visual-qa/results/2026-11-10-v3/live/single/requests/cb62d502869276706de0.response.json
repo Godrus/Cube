@@ -1,0 +1,37 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "world_008__q_terr_gap_001": {
+      "type": "noul",
+      "noul": 0.89
+    },
+    "world_009__q_terr_gap_001": {
+      "type": "noul",
+      "noul": 0.78
+    },
+    "world_010__q_mat_patch_001": {
+      "type": "noul",
+      "noul": 0.98
+    },
+    "occlusion_017__q_occ_center_001": {
+      "type": "noul",
+      "noul": 0.98
+    },
+    "occlusion_018__q_occ_center_001": {
+      "type": "noul",
+      "noul": 0.83
+    },
+    "occlusion_019__q_occ_center_001": {
+      "type": "noul",
+      "noul": 0.99
+    },
+    "occlusion_020__q_occ_center_001": {
+      "type": "noul",
+      "noul": 0.03
+    }
+  },
+  "usage": {
+    "input_tokens": 17605,
+    "output_tokens": 210
+  }
+}

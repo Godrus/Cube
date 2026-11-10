@@ -1,0 +1,109 @@
+{
+  "endpoint": "https://api.typesafe.ai/v1/systemone",
+  "headers": {
+    "TypeSafe-Danger-Zone-Images": "true",
+    "Authorization": "Bearer <redacted>"
+  },
+  "request": {
+    "model": "jev-1.14.0",
+    "state": {
+      "world_008_p1_shot": "cubeqa-world_008_p1_shot-60c70ac4ddfc",
+      "world_009_p1_shot": "cubeqa-world_009_p1_shot-2253da2e61a4",
+      "world_010_p1_shot": "cubeqa-world_010_p1_shot-aacf810e94d9",
+      "occlusion_017_p1_shot": "cubeqa-occlusion_017_p1_shot-41a8b6fc1e5c",
+      "occlusion_018_p1_shot": "cubeqa-occlusion_018_p1_shot-3ce3c0f44447",
+      "occlusion_019_p1_shot": "cubeqa-occlusion_019_p1_shot-a4970ba66d90",
+      "occlusion_020_p1_shot": "cubeqa-occlusion_020_p1_shot-a162e4b2093f"
+    },
+    "assets": {
+      "cubeqa-world_008_p1_shot-60c70ac4ddfc": {
+        "type": "image",
+        "part": "image-world_008_p1_shot"
+      },
+      "cubeqa-world_009_p1_shot-2253da2e61a4": {
+        "type": "image",
+        "part": "image-world_009_p1_shot"
+      },
+      "cubeqa-world_010_p1_shot-aacf810e94d9": {
+        "type": "image",
+        "part": "image-world_010_p1_shot"
+      },
+      "cubeqa-occlusion_017_p1_shot-41a8b6fc1e5c": {
+        "type": "image",
+        "part": "image-occlusion_017_p1_shot"
+      },
+      "cubeqa-occlusion_018_p1_shot-3ce3c0f44447": {
+        "type": "image",
+        "part": "image-occlusion_018_p1_shot"
+      },
+      "cubeqa-occlusion_019_p1_shot-a4970ba66d90": {
+        "type": "image",
+        "part": "image-occlusion_019_p1_shot"
+      },
+      "cubeqa-occlusion_020_p1_shot-a162e4b2093f": {
+        "type": "image",
+        "part": "image-occlusion_020_p1_shot"
+      }
+    },
+    "questions": {
+      "world_008__q_terr_gap_001": {
+        "type": "noul",
+        "instructions": "Is there an area in `world_008_p1_shot` where plain dark background shows through, with ground visible around it on at least two sides?"
+      },
+      "world_009__q_terr_gap_001": {
+        "type": "noul",
+        "instructions": "Is there an area in `world_009_p1_shot` where plain dark background shows through, with ground visible around it on at least two sides?"
+      },
+      "world_010__q_mat_patch_001": {
+        "type": "noul",
+        "instructions": "Is there a block-shaped patch on the ground in `world_010_p1_shot` whose colour is clearly neither green, brown nor grey?"
+      },
+      "occlusion_017__q_occ_center_001": {
+        "type": "noul",
+        "instructions": "Does a flat shape that is not part of the landscape cover the middle of `occlusion_017_p1_shot`, so that the ground behind it cannot be seen?"
+      },
+      "occlusion_018__q_occ_center_001": {
+        "type": "noul",
+        "instructions": "Does a flat shape that is not part of the landscape cover the middle of `occlusion_018_p1_shot`, so that the ground behind it cannot be seen?"
+      },
+      "occlusion_019__q_occ_center_001": {
+        "type": "noul",
+        "instructions": "Does a flat shape that is not part of the landscape cover the middle of `occlusion_019_p1_shot`, so that the ground behind it cannot be seen?"
+      },
+      "occlusion_020__q_occ_center_001": {
+        "type": "noul",
+        "instructions": "Does a flat shape that is not part of the landscape cover the middle of `occlusion_020_p1_shot`, so that the ground behind it cannot be seen?"
+      }
+    }
+  },
+  "parts": {
+    "image-world_008_p1_shot": {
+      "bytes": 174351,
+      "sha256": "c0885a7bcd47b3052c6162c048dd50399ac5eddae2f86f2f46ec30a85d164841"
+    },
+    "image-world_009_p1_shot": {
+      "bytes": 111175,
+      "sha256": "cd3fe0fd8e71225fa31c7c2ed575f1272720aa8fc0fb1fe741907fbe31700193"
+    },
+    "image-world_010_p1_shot": {
+      "bytes": 161314,
+      "sha256": "7241058a8898381603e2242a2566efdc03cbeaa54135656883acadb3b6e837a6"
+    },
+    "image-occlusion_017_p1_shot": {
+      "bytes": 123549,
+      "sha256": "ed807109fc259a8e6ac7a6c1defbe2e6348e4f6c7631b8ae42ec0acde4949772"
+    },
+    "image-occlusion_018_p1_shot": {
+      "bytes": 151976,
+      "sha256": "aadcb130ecffe8da9dd70df35f12e66aa52c422cc7152ce8dbea64f457cb0a5a"
+    },
+    "image-occlusion_019_p1_shot": {
+      "bytes": 143022,
+      "sha256": "d4984934ee79dd1bd7a9fff74774c3730332d413c5c5548593ed5a9c6734095e"
+    },
+    "image-occlusion_020_p1_shot": {
+      "bytes": 129794,
+      "sha256": "aabd1e07f6103d83706eb6ac7442dc046ce8f45697f47cd4be2cdfebf1d68eab"
+    }
+  }
+}
