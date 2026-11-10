@@ -1,0 +1,13 @@
+{
+  "questionnaire": "scene-smoke-v2+terrain-integrity-v2",
+  "model": "jev-1.14.0",
+  "images": {
+    "screenshot": "D:\\Projects\\GitHub\\Games\\Cube-ps2\\tools\\visual-qa\\fixtures-v2\\seed102-hidden_area.png"
+  },
+  "when": "2026-11-10T11:51:12+00:00",
+  "mode": "live",
+  "verdict": "UNKNOWN",
+  "error": "HTTP 529: {\"detail\":{\"error_type\":\"system_overloaded\",\"message\":\"We are currently experiencing high traffic and cannot process your request. Please try again later.\"}}",
+  "results": [],
+  "note": "the API call failed"
+}

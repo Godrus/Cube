@@ -1,0 +1,53 @@
+{
+  "questionnaire": "scene-smoke-v2+terrain-integrity-v2",
+  "model": "jev-1.14.0",
+  "images": {
+    "screenshot": "D:\\Projects\\GitHub\\Games\\Cube-ps2\\tools\\visual-qa\\fixtures-v2\\seed101-missing_brick.png"
+  },
+  "when": "2026-11-10T11:51:10+00:00",
+  "mode": "live",
+  "verdict": "WARN",
+  "results": [
+    {
+      "question": "terrain_visible",
+      "p": 0.87,
+      "expect": true,
+      "result": "pass"
+    },
+    {
+      "question": "scene_kind",
+      "choice": "block_landscape",
+      "probabilities": {
+        "block_landscape": 1.0,
+        "blank_or_background_only": 0.0,
+        "other_scene": 0.0
+      },
+      "expect": "block_landscape",
+      "result": "pass"
+    },
+    {
+      "question": "gap_in_ground",
+      "p": 0.6,
+      "expect": false,
+      "result": "unsure"
+    },
+    {
+      "question": "gap_box",
+      "box": null,
+      "confidence": 0.24,
+      "present_p": 0.6,
+      "result": "not-present"
+    },
+    {
+      "question": "off_palette_patch",
+      "p": 0.32,
+      "expect": false,
+      "result": "unsure"
+    }
+  ],
+  "note": "",
+  "usage": {
+    "input_tokens": 2910,
+    "output_tokens": 122
+  }
+}
