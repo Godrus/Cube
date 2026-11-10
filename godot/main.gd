@@ -5,8 +5,9 @@ extends Node3D
 ##
 ## Controls: click to capture the mouse, WASD move, mouse looks, Space jumps (walking) or rises
 ## (flying), Shift descends (flying), F switches walking / flying, V switches first / third person,
-## 1-5 choose the block to place, left click removes the block under the crosshair, right click
-## places the chosen block, Esc releases the mouse. The world and the player are saved when the
+## 1-9 or the mouse wheel choose the hotbar slot, left click mines the block under the crosshair
+## (it goes into the inventory), right click places the selected block (it is used up), I opens
+## the inventory (click two slots to swap them), C switches creative / survival, Esc releases the mouse. The world and the player are saved when the
 ## window is closed and are loaded again on the next start (same --world directory).
 ##
 ## Command line after `--`:
@@ -48,11 +49,22 @@ var fault_bbox = null
 var edit_hit := false
 var down_frames := 0
 var start_flying := false
-var place_material := 5
 var third_person := false
 var player_body: MeshInstance3D
 var hud: Label
+var objective_label: Label
+var message_label: Label
+var hotbar: HBoxContainer
+var inventory_panel: PanelContainer
+var slot_nodes := []
+var panel_slot_nodes := []
+var picked_slot := -1
+var target_box: MeshInstance3D
+var ghost_box: MeshInstance3D
+var toast := ""
+var toast_left := 0.0
 var scen_active := false
+var scen_hud := false
 var scen_steps := []
 var scen_out := ""
 var scen_i := 0
@@ -115,6 +127,8 @@ func _ready() -> void:
 		if not start_flying and not world.is_walking():
 			world.set_walk(true)
 		_build_player_and_hud()
+	elif scen_hud:
+		_build_player_and_hud()  # a scenario that wants the interface in its pictures
 
 
 func _exit_tree() -> void:
@@ -134,9 +148,18 @@ func _build_player_and_hud() -> void:
 	player_body.material_override = m
 	player_body.visible = false
 	add_child(player_body)
+	# Target outline and placement ghost (cubes of one voxel, drawn slightly larger).
+	target_box = _make_marker(Color(1, 1, 1, 0.22))
+	ghost_box = _make_marker(Color(0.2, 1, 0.2, 0.45))
 	var layer := CanvasLayer.new()
+	add_child(layer)
+	# Crosshair: a dark outline under a light cross, readable on any background.
 	var cross := Label.new()
 	cross.text = "+"
+	cross.add_theme_font_size_override("font_size", 28)
+	cross.add_theme_color_override("font_color", Color(1, 1, 1))
+	cross.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+	cross.add_theme_constant_override("outline_size", 6)
 	cross.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	cross.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	cross.set_anchors_preset(Control.PRESET_CENTER)
@@ -145,8 +168,120 @@ func _build_player_and_hud() -> void:
 	layer.add_child(cross)
 	hud = Label.new()
 	hud.position = Vector2(10, 8)
+	hud.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+	hud.add_theme_constant_override("outline_size", 4)
 	layer.add_child(hud)
-	add_child(layer)
+	objective_label = Label.new()
+	objective_label.position = Vector2(10, 32)
+	objective_label.add_theme_color_override("font_color", Color(1, 0.95, 0.6))
+	objective_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+	objective_label.add_theme_constant_override("outline_size", 4)
+	layer.add_child(objective_label)
+	message_label = Label.new()
+	message_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	message_label.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	message_label.position = Vector2(0, 70)
+	message_label.add_theme_font_size_override("font_size", 22)
+	message_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+	message_label.add_theme_constant_override("outline_size", 6)
+	layer.add_child(message_label)
+	# Hotbar (always visible) and the inventory panel (key I).
+	hotbar = HBoxContainer.new()
+	hotbar.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	hotbar.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	hotbar.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	hotbar.position = Vector2(0, -12)
+	hotbar.add_theme_constant_override("separation", 4)
+	layer.add_child(hotbar)
+	for i in range(9):
+		var slot := _make_slot(i)
+		hotbar.add_child(slot)
+		slot_nodes.append(slot)
+	inventory_panel = PanelContainer.new()
+	inventory_panel.set_anchors_preset(Control.PRESET_CENTER)
+	inventory_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	inventory_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	inventory_panel.visible = false
+	var grid := GridContainer.new()
+	grid.columns = 9
+	grid.add_theme_constant_override("h_separation", 4)
+	grid.add_theme_constant_override("v_separation", 4)
+	inventory_panel.add_child(grid)
+	for i in range(27):
+		var slot := _make_slot(i)
+		grid.add_child(slot)
+		panel_slot_nodes.append(slot)
+	layer.add_child(inventory_panel)
+
+
+func _make_marker(color: Color) -> MeshInstance3D:
+	var mi := MeshInstance3D.new()
+	var b := BoxMesh.new()
+	b.size = Vector3(1.01, 1.01, 1.01)
+	mi.mesh = b
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = color
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mi.material_override = mat
+	mi.visible = false
+	add_child(mi)
+	return mi
+
+
+## One inventory slot: a coloured swatch, a count and a frame that is bright when selected.
+func _make_slot(index: int) -> Control:
+	var panel := Panel.new()
+	panel.custom_minimum_size = Vector2(54, 54)
+	panel.set_meta("index", index)
+	var swatch := ColorRect.new()
+	swatch.name = "swatch"
+	swatch.position = Vector2(9, 9)
+	swatch.size = Vector2(36, 36)
+	swatch.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_child(swatch)
+	var count := Label.new()
+	count.name = "count"
+	count.position = Vector2(30, 32)
+	count.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+	count.add_theme_constant_override("outline_size", 5)
+	count.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_child(count)
+	var key := Label.new()
+	key.name = "key"
+	key.text = str(index + 1) if index < 9 else ""
+	key.position = Vector2(4, 0)
+	key.add_theme_font_size_override("font_size", 12)
+	key.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_child(key)
+	panel.gui_input.connect(_on_slot_input.bind(index))
+	return panel
+
+
+func _on_slot_input(event: InputEvent, index: int) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		if picked_slot < 0:
+			picked_slot = index
+		else:
+			world.swap_slots(picked_slot, index)
+			picked_slot = -1
+
+
+func _style_slot(panel: Control, selected: bool, picked: bool) -> void:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.1, 0.1, 0.12, 0.8)
+	sb.set_border_width_all(4 if selected else 2)
+	sb.border_color = Color(1, 0.9, 0.3) if selected else (Color(0.4, 0.8, 1) if picked else Color(0.5, 0.5, 0.55))
+	panel.add_theme_stylebox_override("panel", sb)
+
+
+func _fill_slot(panel: Control, item: int, count: int, creative: bool) -> void:
+	var swatch: ColorRect = panel.get_node("swatch")
+	var label: Label = panel.get_node("count")
+	swatch.visible = item != 0
+	if item != 0:
+		swatch.color = world.item_colour(item)
+	label.text = "" if (item == 0 or creative) else str(count)
 
 
 func _update_player_and_hud() -> void:
@@ -157,10 +292,57 @@ func _update_player_and_hud() -> void:
 	player_body.position = feet + Vector3(0, 0.9, 0)
 	player_body.rotation = Vector3(0, cam.rotation.y, 0)
 	var p: Vector3 = cam.position
-	hud.text = "%s | %s | x %.1f y %.1f z %.1f | block %d | WASD move, Space jump, F fly/walk, V camera, 1-5 block, click edit" % [
+	var st: Dictionary = world.stream_stats()
+	hud.text = "%s | %s | %s | x %.0f y %.0f z %.0f | bricks %d" % [
 		"walking" if world.is_walking() else "flying",
 		"third person" if third_person else "first person",
-		p.x, p.y, p.z, place_material]
+		"creative" if world.game_view()["creative"] else "survival",
+		p.x, p.y, p.z, st["resident"]]
+	var g: Dictionary = world.game_view()
+	var slots: PackedInt32Array = g["slots"]
+	var creative: bool = g["creative"]
+	for i in range(9):
+		_fill_slot(slot_nodes[i], slots[2 * i], slots[2 * i + 1], creative)
+		_style_slot(slot_nodes[i], i == int(g["selected"]), false)
+	if inventory_panel.visible:
+		for i in range(27):
+			_fill_slot(panel_slot_nodes[i], slots[2 * i], slots[2 * i + 1], creative)
+			_style_slot(panel_slot_nodes[i], i == int(g["selected"]), i == picked_slot)
+	objective_label.text = "%s: %s%s" % [g["objective_title"], g["objective_text"], "  [done]" if g["objective_done"] else ""]
+	var msg: String = g["message"]
+	if toast != "":
+		msg = toast
+		toast_left -= get_process_delta_time()
+		if toast_left <= 0.0:
+			toast = ""
+	message_label.text = msg
+	# Target outline and placement ghost.
+	var t: Dictionary = world.target_info()
+	if t.is_empty() or inventory_panel.visible:
+		target_box.visible = false
+		ghost_box.visible = false
+		return
+	var vox: Vector3 = t["voxel"]
+	var front: Vector3 = t["front"]
+	target_box.position = vox + Vector3(0.5, 0.5, 0.5)
+	target_box.visible = true
+	ghost_box.position = front + Vector3(0.5, 0.5, 0.5)
+	ghost_box.visible = true
+	var gm: StandardMaterial3D = ghost_box.material_override
+	if t["can_place"]:
+		var sel: int = int(g["selected"])
+		var item: int = slots[2 * sel]
+		var c: Color = world.item_colour(item)
+		gm.albedo_color = Color(c.r, c.g, c.b, 0.5)
+	else:
+		gm.albedo_color = Color(1, 0.15, 0.15, 0.5)
+	var tm: StandardMaterial3D = target_box.material_override
+	tm.albedo_color = Color(1, 1, 1, 0.22) if t["can_remove"] else Color(1, 0.3, 0.3, 0.3)
+
+
+func _say(text: String) -> void:
+	toast = text
+	toast_left = 2.5
 
 
 func _input(event: InputEvent) -> void:
@@ -173,18 +355,38 @@ func _input(event: InputEvent) -> void:
 		elif event.keycode == KEY_V and world.is_walking():
 			third_person = not third_person
 			world.set_third_person(third_person)
-		elif event.keycode >= KEY_1 and event.keycode <= KEY_5:
-			place_material = event.keycode - KEY_0
+		elif event.keycode >= KEY_1 and event.keycode <= KEY_9:
+			world.select_slot(event.keycode - KEY_1)
+		elif event.keycode == KEY_C:
+			var g: Dictionary = world.game_view()
+			world.set_creative(not g["creative"])
+			_say("Creative mode" if not g["creative"] else "Survival mode")
+		elif event.keycode == KEY_I:
+			inventory_panel.visible = not inventory_panel.visible
+			picked_slot = -1
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if inventory_panel.visible else Input.MOUSE_MODE_CAPTURED
 	if event is InputEventMouseButton and event.pressed:
+		if inventory_panel != null and inventory_panel.visible:
+			return
 		if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 		elif event.button_index == MOUSE_BUTTON_LEFT:
-			world.edit(0)
+			var r: String = world.mine()
+			if r != "ok" and r != "none":
+				_say(r)
 		elif event.button_index == MOUSE_BUTTON_RIGHT:
-			world.edit(place_material)
+			var r2: String = world.place()
+			if r2 != "ok" and r2 != "none":
+				_say(r2)
+		elif event.button_index == MOUSE_BUTTON_WHEEL_UP:
+			world.scroll_slot(-1)
+		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			world.scroll_slot(1)
 	elif event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		look += Vector2(-event.relative.x, -event.relative.y) * 0.003
 	elif event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+		if inventory_panel != null and inventory_panel.visible:
+			inventory_panel.visible = false
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 
@@ -205,6 +407,7 @@ func _process(delta: float) -> void:
 		look = Vector2.ZERO
 	cam.position = world.camera_position()
 	cam.rotation = world.camera_rotation()
+	_update_player_and_hud()
 	if fault == "partial_load" and frames == 1:
 		freeze_world = true  # the world delivered one batch; the rest never reaches the scene
 	if smoke:
@@ -368,6 +571,7 @@ func _load_scenario(path: String) -> void:
 	f.close()
 	scen_steps = data["steps"]
 	scen_out = str(data["out_dir"])
+	scen_hud = bool(data.get("hud", false))
 	scen_active = true
 
 
@@ -377,7 +581,7 @@ func _event(op: String, extra: Dictionary = {}) -> Dictionary:
 		"camera_rotation": [cam.rotation.x, cam.rotation.y, cam.rotation.z],
 		"walking": world.is_walking(), "grounded": world.is_grounded(),
 		"feet": [world.player_feet().x, world.player_feet().y, world.player_feet().z],
-		"stats": world.stream_stats(), "ms": Time.get_ticks_msec()}
+		"stats": world.stream_stats(), "ms": Time.get_ticks_msec(), "game": world.game_view()}
 	for k in extra:
 		e[k] = extra[k]
 	scen_events.append(e)
@@ -415,6 +619,7 @@ func _scenario_frame() -> void:
 				scen_edit_event["bricks_changed"] = int(scen_edit_event.get("bricks_changed", 0)) + changed
 	cam.position = world.camera_position()
 	cam.rotation = world.camera_rotation()
+	_update_player_and_hud()
 	scen_cmd["_left"] -= 1
 	if scen_cmd["_left"] > 0:
 		return
@@ -441,6 +646,22 @@ func _scenario_action(op: String) -> void:
 		"freeze":
 			freeze_world = true
 			_event("freeze")
+		"mine":
+			var r: String = world.mine()
+			scen_edit_event = _event("mine", {"result": r, "bricks_changed": 0})
+		"place":
+			var r2: String = world.place()
+			scen_edit_event = _event("place", {"result": r2, "bricks_changed": 0})
+		"select":
+			world.select_slot(int(scen_cmd.get("slot", 0)))
+			_event("select")
+		"creative":
+			world.set_creative(bool(scen_cmd.get("on", true)))
+			_event("creative")
+		"inventory":
+			if inventory_panel != null:
+				inventory_panel.visible = bool(scen_cmd.get("open", true))
+			_event("inventory")
 		"mode":
 			world.set_walk(bool(scen_cmd.get("walk", true)))
 			world.set_third_person(bool(scen_cmd.get("third", false)))

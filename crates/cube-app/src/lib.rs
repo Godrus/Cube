@@ -11,6 +11,7 @@
 //! decided with a real neighbour), a few per frame; until they exist the region stays where it is.
 //! Bricks are never unloaded and the world has a finite edge (`WORLD_LIMIT_BRICKS`).
 
+pub mod game;
 pub mod port;
 
 use std::sync::{Arc, Mutex, PoisonError};
@@ -88,6 +89,22 @@ pub struct PlayerState {
     pub walking: bool,
     /// Third-person camera.
     pub third_person: bool,
+}
+
+/// How far the player can reach to mine or build (voxels from the eye).
+pub const REACH: f64 = 6.0;
+
+/// What the crosshair points at.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Target {
+    /// The solid voxel.
+    pub voxel: [i64; 3],
+    /// The empty voxel in front of the hit face.
+    pub front: [i64; 3],
+    /// Its material.
+    pub material: u16,
+    /// Distance from the eye to the hit face.
+    pub distance: f64,
 }
 
 /// Collision data around the player: the derived faces of the bricks nearby.
@@ -315,6 +332,51 @@ impl Session {
             Some(n) => f(n),
             None => unreachable!("the slot was filled above"),
         }
+    }
+
+    /// The block under the crosshair within `reach` voxels of the eye, read from the faces the
+    /// client holds around the player (no frame is run, nothing changes).
+    pub fn target(&self, reach: f64) -> Option<Target> {
+        let walker = *lock(&self.walker);
+        let (eye, dir) = match walker {
+            Some(w) => (w.eye(), w.forward()),
+            None => {
+                let c = self.camera();
+                (c.pos, c.forward())
+            }
+        };
+        self.with_near(eye, |near| {
+            if !near.ready {
+                return None;
+            }
+            cube_client::pick_distance(&near.index, eye, dir, reach).map(|(h, d)| Target {
+                voxel: h.voxel,
+                front: h.front,
+                material: h.material,
+                distance: d,
+            })
+        })
+    }
+
+    /// `true` if a block in `voxel` would intersect the walking player's body.
+    pub fn body_overlaps(&self, voxel: [i64; 3]) -> bool {
+        lock(&self.walker).is_some_and(|w| w.overlaps_voxel(voxel))
+    }
+
+    /// Removes the block in `voxel` (the request goes through the host's Editing API).
+    pub fn remove_voxel(&self, voxel: [i64; 3]) -> Result<(), HostError> {
+        self.submit(EditIntent::Remove { voxel })
+            .map_err(HostError::Edit)
+    }
+
+    /// Places `material` in `voxel`; refused (`Ok(false)`) if it would fill the player's body.
+    pub fn place_voxel(&self, voxel: [i64; 3], material: u16) -> Result<bool, HostError> {
+        if self.body_overlaps(voxel) {
+            return Ok(false);
+        }
+        self.submit(EditIntent::Place { voxel, material })
+            .map(|()| true)
+            .map_err(HostError::Edit)
     }
 
     /// Keeps the walking body inside the loaded area (an invisible wall at its edge) and rescues

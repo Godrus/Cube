@@ -9,6 +9,8 @@ import json
 import os
 import shutil
 import subprocess
+import threading
+import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
@@ -20,7 +22,18 @@ def godot_exe():
     return exe if os.path.exists(exe) else None
 
 
-def run_scenario(scen, out_dir, timeout=180, extra_engine_args=()):
+def _working_set_mb():
+    """Largest working set (MB) among running Godot processes (Windows; 0 elsewhere)."""
+    try:
+        r = subprocess.run(["powershell", "-NoProfile", "-Command",
+                            "(Get-Process -Name 'Godot*' -ErrorAction SilentlyContinue | Measure-Object WorkingSet64 -Maximum).Maximum"],
+                           capture_output=True, text=True, timeout=20)
+        return float(r.stdout.strip() or 0) / 1e6
+    except Exception:
+        return 0.0
+
+
+def run_scenario(scen, out_dir, timeout=180, extra_engine_args=(), memory_log=None):
     """Returns {phase: telemetry dict or {"error": text}}. Pictures land in out_dir/<phase>/."""
     exe = godot_exe()
     if exe is None:
@@ -36,14 +49,31 @@ def run_scenario(scen, out_dir, timeout=180, extra_engine_args=()):
         worlds[name] = wdir
         spec = os.path.join(pdir, "scenario.json")
         with open(spec, "w", encoding="utf-8") as f:
-            json.dump({"out_dir": pdir.replace("\\", "/"), "steps": ph["steps"]}, f)
+            json.dump({"out_dir": pdir.replace("\\", "/"), "steps": ph["steps"], "hud": bool(scen.get("hud", False))}, f)
         for stale in ("telemetry.json",):
             if os.path.exists(os.path.join(pdir, stale)):
                 os.remove(os.path.join(pdir, stale))
         cmd = [exe, "--path", os.path.join(ROOT, "godot"), "--rendering-driver", "opengl3", *extra_engine_args, "--",
                "--world", wdir, "--seed", str(scen["world_seed"]), "--scenario", spec]
         try:
-            r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+            if memory_log is None:
+                r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+            else:
+                # Same run, with the process memory sampled every few seconds into memory_log.
+                done = threading.Event()
+
+                def sampler():
+                    t0 = time.time()
+                    while not done.wait(3.0):
+                        memory_log.append((round(time.time() - t0, 1), round(_working_set_mb(), 1)))
+
+                th = threading.Thread(target=sampler, daemon=True)
+                th.start()
+                try:
+                    r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+                finally:
+                    done.set()
+                    th.join(5)
             tel_path = os.path.join(pdir, "telemetry.json")
             if r.returncode != 0 or not os.path.exists(tel_path):
                 result[name] = {"error": f"Godot exit {r.returncode}: {(r.stdout or '')[-300:]}"}

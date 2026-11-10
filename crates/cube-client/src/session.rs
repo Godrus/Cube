@@ -78,6 +78,44 @@ pub struct SessionStats {
     pub active: u64,
 }
 
+/// What the crosshair points at and what the player may do about it.
+#[derive(Debug, Clone, PartialEq)]
+pub struct TargetInfo {
+    /// The solid voxel under the crosshair.
+    pub voxel: [i64; 3],
+    /// The empty voxel in front of the hit face (where a block would go).
+    pub front: [i64; 3],
+    /// Material of the targeted voxel.
+    pub material: u16,
+    /// Distance from the eye to the hit face.
+    pub distance: f64,
+    /// A block may be removed here.
+    pub can_remove: bool,
+    /// The selected block may be placed in front of the face.
+    pub can_place: bool,
+    /// Why not, when one of them is refused (empty when both are allowed).
+    pub reason: String,
+}
+
+/// Hotbar, inventory and objective as the player sees them.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct GameView {
+    /// `(item id, count)` per slot; id 0 is an empty slot. The first nine are the hotbar.
+    pub slots: Vec<(u16, u32)>,
+    /// Selected hotbar slot.
+    pub selected: usize,
+    /// Creative rules (unlimited materials) instead of survival.
+    pub creative: bool,
+    /// Objective title.
+    pub objective_title: String,
+    /// Objective progress text.
+    pub objective_text: String,
+    /// Objective finished.
+    pub objective_done: bool,
+    /// A short message for the player (empty when none).
+    pub message: String,
+}
+
 /// The surface an adapter sees of a world.
 pub trait SessionPort: Send {
     /// Runs one frame.
@@ -110,4 +148,29 @@ pub trait SessionPort: Send {
     fn stats(&self) -> SessionStats {
         SessionStats::default()
     }
+    /// What the crosshair points at (within the interaction reach), if anything.
+    fn target(&self) -> Option<TargetInfo> {
+        None
+    }
+    /// Mines the targeted block under the game rules: `Ok(true)` done, `Ok(false)` nothing there,
+    /// `Err(reason)` refused or failed (nothing changed).
+    fn mine(&mut self) -> Result<bool, String> {
+        Ok(false)
+    }
+    /// Places the selected block in front of the targeted face under the game rules.
+    fn place(&mut self) -> Result<bool, String> {
+        Ok(false)
+    }
+    /// Hotbar, inventory and objective.
+    fn game_view(&self) -> GameView {
+        GameView::default()
+    }
+    /// Selects a hotbar slot.
+    fn select_slot(&mut self, _slot: usize) {}
+    /// Moves the hotbar selection (mouse wheel).
+    fn scroll_slot(&mut self, _delta: i32) {}
+    /// Swaps two inventory slots.
+    fn swap_slots(&mut self, _a: usize, _b: usize) {}
+    /// Switches between creative and survival rules.
+    fn set_creative(&mut self, _on: bool) {}
 }

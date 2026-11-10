@@ -108,7 +108,8 @@ def journey():
 
 def main_journey():
     out = tempfile.mkdtemp(prefix="cube-journey-")
-    tel = godot_runner.run_scenario(journey(), out, timeout=400, extra_engine_args=["--disable-vsync"])
+    mem = []
+    tel = godot_runner.run_scenario(journey(), out, timeout=400, extra_engine_args=["--disable-vsync"], memory_log=mem)
     for ph, t in tel.items():
         if "events" not in t:
             print("Godot phase failed:", ph, t)
@@ -137,10 +138,77 @@ def main_journey():
           "resident %d" % q["restored"]["stats"]["resident"])
     ms = [(b["ms"] - a["ms"]) / 300.0 for a, b in zip([p["dug"]] + out_legs[:-1], out_legs)]
     print("   frame time on the way out (ms per frame, debug build, vsync off, generating and unloading): %s" % ["%.1f" % m for m in ms])
+    if mem:
+        peak = max(m for _, m in mem)
+        print("   process memory (working set, MB, every 3 s): %s" % [m for _, m in mem])
+        third = max(1, len(mem) // 3)
+        check("process memory does not keep growing on the way back", max(m for _, m in mem[-third:]) <= max(m for _, m in mem[:2 * third]) * 1.15,
+              "peak %.0f MB; first two thirds max %.0f, last third max %.0f" % (peak, max(m for _, m in mem[:2 * third]), max(m for _, m in mem[-third:])))
     failed = [n for n, ok, _ in checks if not ok]
     print("journey smoke:", "PASS" if not failed else "FAIL " + ", ".join(failed), "(", out, ")")
     return 0 if not failed else 1
 
 
+def play():
+    """Mine, build, use the hotbar and inventory, finish the objective, quit and continue; with the interface drawn."""
+    p1 = [W(20), {"op": "mode", "walk": True}, W(240), {"op": "turn", "yaw": 0.0, "pitch": -0.2, "frames": 3}, W(40),
+          {"op": "probe", "name": "start"}, {"op": "place"}, {"op": "probe", "name": "empty_place"}, W(3), {"op": "shot", "name": "hud_start"}]
+    for i in range(3):
+        p1 += [{"op": "mine"}, W(30), {"op": "probe", "name": "mined%d" % i}]
+    p1 += [{"op": "select", "slot": 0}, W(3), {"op": "shot", "name": "hud_mined"}]
+    for i in range(12):
+        p1 += [{"op": "mine"}, W(25), {"op": "select", "slot": 0}, {"op": "place"}, W(25), {"op": "probe", "name": "cycle%d" % i}]
+    p1 += [{"op": "inventory", "open": True}, W(3), {"op": "shot", "name": "inventory"}, {"op": "inventory", "open": False},
+           {"op": "turn", "yaw": 0.0, "pitch": -0.9, "frames": 3}, W(20), {"op": "place"}, {"op": "probe", "name": "place_at_feet"},
+           {"op": "turn", "yaw": 0.0, "pitch": 0.9, "frames": 3}, W(20),
+           {"op": "creative", "on": True}, {"op": "select", "slot": 4}, W(3), {"op": "place"}, W(20), {"op": "probe", "name": "creative_place"},
+           {"op": "shot", "name": "hud_creative"}, {"op": "creative", "on": False}, {"op": "mine"}, W(20), {"op": "probe", "name": "final"}]
+    p2 = [W(240), {"op": "probe", "name": "restored"}]
+    return {"world_seed": 7, "hud": True, "phases": [{"name": "p1", "create": True, "steps": p1},
+                                                   {"name": "p2", "create": False, "same_world_as": "p1", "steps": p2}]}
+
+
+def main_play():
+    out = tempfile.mkdtemp(prefix="cube-play-")
+    scen = play()
+    # the interface is only built in the first phase's scenario file; the second phase needs no pictures
+    tel = godot_runner.run_scenario(scen, out, timeout=300)
+    for ph, t in tel.items():
+        if "events" not in t:
+            print("Godot phase failed:", ph, t)
+            return 1
+    p, q = probes(tel, "p1"), probes(tel, "p2")
+    ev = tel["p1"]["events"]
+    checks = []
+
+    def check(name, ok, detail):
+        checks.append((name, ok, detail))
+        print(("ok   " if ok else "FAIL ") + name + ": " + detail)
+
+    tot = lambda e: sum(e["game"]["slots"][1::2])
+    check("hotbar and inventory exist; start empty", len(p["start"]["game"]["slots"]) == 54 and tot(p["start"]) == 0 and not p["start"]["game"]["creative"], "%d slots" % (len(p["start"]["game"]["slots"]) // 2))
+    mines = [e for e in ev if e["op"] == "mine"]
+    places = [e for e in ev if e["op"] == "place"]
+    check("placing with an empty hand is refused and costs nothing", places[0]["result"] != "ok" and tot(p["empty_place"]) == 0, "result '%s'" % places[0]["result"])
+    check("mining three blocks puts three items in the inventory", all(m["result"] == "ok" for m in mines[:3]) and tot(p["mined2"]) == 3,
+          "items %d" % tot(p["mined2"]))
+    check("building uses items up and the objective completes", tot(p["cycle11"]) == 3 and p["cycle11"]["game"]["objective_done"],
+          "%d items left, objective '%s'" % (tot(p["cycle11"]), p["cycle11"]["game"]["objective_text"]))
+    body = places[13]
+    check("placing into the player's own body is refused and costs nothing", body["result"] == "You are standing there" and tot(p["place_at_feet"]) == 3,
+          "result '%s', items %d" % (body["result"], tot(p["place_at_feet"])))
+    check("creative: placing works", places[14]["result"] == "ok" and p["creative_place"]["game"]["creative"], "result '%s'" % places[14]["result"])
+    check("creative consumed nothing: survival again has the same items plus the one mined", not p["final"]["game"]["creative"] and tot(p["final"]) == tot(p["place_at_feet"]) + 1,
+          "items %d" % tot(p["final"]))
+    check("after quit and restart items and objective are back", tot(q["restored"]) == tot(p["final"]) and q["restored"]["game"]["objective_done"],
+          "items %d, objective done %s" % (tot(q["restored"]), q["restored"]["game"]["objective_done"]))
+    for name in ("hud_start", "hud_mined", "inventory", "hud_creative"):
+        f = os.path.join(out, "p1", name + ".png")
+        check("picture " + name, os.path.exists(f) and os.path.getsize(f) > 10000, f)
+    failed = [n for n, ok, _ in checks if not ok]
+    print("play smoke:", "PASS" if not failed else "FAIL " + ", ".join(failed), "(", out, ")")
+    return 0 if not failed else 1
+
+
 if __name__ == "__main__":
-    sys.exit(main_journey() if "--journey" in sys.argv else main())
+    sys.exit(main_play() if "--play" in sys.argv else main_journey() if "--journey" in sys.argv else main())

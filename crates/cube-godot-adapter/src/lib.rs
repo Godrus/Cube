@@ -184,6 +184,129 @@ impl CubeWorld {
         d
     }
 
+    /// What the crosshair points at: an empty dictionary when nothing is in reach, otherwise
+    /// `voxel`, `front` (both `Vector3`, the voxel's minimum corner), `material`, `distance`,
+    /// `can_remove`, `can_place` and `reason`.
+    #[func]
+    fn target_info(&self) -> VarDictionary {
+        let mut d = VarDictionary::new();
+        if let Some(t) = self.session.as_ref().and_then(|s| s.target()) {
+            let v = |p: [i64; 3]| Vector3::new(p[0] as f32, p[1] as f32, p[2] as f32);
+            d.set("voxel", v(t.voxel));
+            d.set("front", v(t.front));
+            d.set("material", i64::from(t.material));
+            d.set("distance", t.distance);
+            d.set("can_remove", t.can_remove);
+            d.set("can_place", t.can_place);
+            d.set("reason", &GString::from(t.reason.as_str()).to_variant());
+        }
+        d
+    }
+
+    /// Mines the targeted block under the game rules. Returns "ok", "none" (nothing in reach) or
+    /// the reason it was refused.
+    #[func]
+    fn mine(&mut self) -> GString {
+        let r = self.session.as_mut().map_or(Ok(false), |s| s.mine());
+        GString::from(
+            match r {
+                Ok(true) => "ok".to_owned(),
+                Ok(false) => "none".to_owned(),
+                Err(e) => e,
+            }
+            .as_str(),
+        )
+    }
+
+    /// Places the selected block under the game rules (same return values as `mine`).
+    #[func]
+    fn place(&mut self) -> GString {
+        let r = self.session.as_mut().map_or(Ok(false), |s| s.place());
+        GString::from(
+            match r {
+                Ok(true) => "ok".to_owned(),
+                Ok(false) => "none".to_owned(),
+                Err(e) => e,
+            }
+            .as_str(),
+        )
+    }
+
+    /// Hotbar, inventory and objective: `slots` (flat `[item, count, item, count, ...]`, item 0 is
+    /// an empty slot, the first nine are the hotbar), `selected`, `creative`, `objective_title`,
+    /// `objective_text`, `objective_done`, `message`.
+    #[func]
+    fn game_view(&self) -> VarDictionary {
+        let g = self
+            .session
+            .as_ref()
+            .map(|s| s.game_view())
+            .unwrap_or_default();
+        let mut flat = PackedInt32Array::new();
+        for (item, count) in &g.slots {
+            flat.push(i32::from(*item));
+            flat.push(*count as i32);
+        }
+        let mut d = VarDictionary::new();
+        d.set("slots", &flat.to_variant());
+        d.set("selected", g.selected as i64);
+        d.set("creative", g.creative);
+        d.set(
+            "objective_title",
+            &GString::from(g.objective_title.as_str()).to_variant(),
+        );
+        d.set(
+            "objective_text",
+            &GString::from(g.objective_text.as_str()).to_variant(),
+        );
+        d.set("objective_done", g.objective_done);
+        d.set("message", &GString::from(g.message.as_str()).to_variant());
+        d
+    }
+
+    /// Selects a hotbar slot.
+    #[func]
+    fn select_slot(&mut self, slot: i32) {
+        if let (Some(s), Ok(i)) = (self.session.as_mut(), usize::try_from(slot)) {
+            s.select_slot(i);
+        }
+    }
+
+    /// Moves the hotbar selection by `delta` slots.
+    #[func]
+    fn scroll_slot(&mut self, delta: i32) {
+        if let Some(s) = self.session.as_mut() {
+            s.scroll_slot(delta);
+        }
+    }
+
+    /// Swaps two inventory slots.
+    #[func]
+    fn swap_slots(&mut self, a: i32, b: i32) {
+        if let (Some(s), Ok(a), Ok(b)) = (
+            self.session.as_mut(),
+            usize::try_from(a),
+            usize::try_from(b),
+        ) {
+            s.swap_slots(a, b);
+        }
+    }
+
+    /// Switches between creative and survival rules.
+    #[func]
+    fn set_creative(&mut self, on: bool) {
+        if let Some(s) = self.session.as_mut() {
+            s.set_creative(on);
+        }
+    }
+
+    /// The colour of a material or item id (the palette the bricks are drawn with).
+    #[func]
+    fn item_colour(&self, item: i32) -> Color {
+        let c = material_colour(item.clamp(0, i32::from(u16::MAX)) as u16);
+        Color::from_rgb(c[0], c[1], c[2])
+    }
+
     /// Feet position of the walking player (zero when flying).
     #[func]
     fn player_feet(&self) -> Vector3 {
