@@ -1,0 +1,39 @@
+{
+  "bricks_in_scene": 79,
+  "camera_position": [
+    0.5,
+    13,
+    0.5
+  ],
+  "camera_rotation": [
+    -0.70000004768372,
+    -0.25,
+    0
+  ],
+  "expected_bbox": [
+    0.403453302383423,
+    0.264086638556586,
+    0.670313167572022,
+    0.752923838297526
+  ],
+  "fault": "wrong_material",
+  "frames": 45,
+  "kind": "scene",
+  "label": "defective",
+  "seed": 106,
+  "viewport": [
+    1280,
+    720
+  ],
+  "split": "evaluation",
+  "set_label": "defective",
+  "fault_kind": "wrong_material",
+  "defect_box": [
+    0.40625,
+    0.3013888888888889,
+    0.6703125,
+    0.49166666666666664
+  ],
+  "changed_fraction": 0.01752,
+  "visible": true
+}

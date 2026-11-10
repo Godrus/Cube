@@ -1,0 +1,29 @@
+{
+  "bricks_in_scene": 79,
+  "camera_position": [
+    0.5,
+    13,
+    0.5
+  ],
+  "camera_rotation": [
+    -0.70000004768372,
+    -0.25,
+    0
+  ],
+  "expected_bbox": null,
+  "fault": "none",
+  "frames": 45,
+  "kind": "scene",
+  "label": "good",
+  "seed": 106,
+  "viewport": [
+    1280,
+    720
+  ],
+  "split": "evaluation",
+  "set_label": "good",
+  "fault_kind": "none",
+  "defect_box": null,
+  "changed_fraction": 0.0,
+  "visible": true
+}

@@ -1,0 +1,39 @@
+{
+  "bricks_in_scene": 78,
+  "camera_position": [
+    0.5,
+    12,
+    0.5
+  ],
+  "camera_rotation": [
+    -0.55000001192093,
+    -0.75,
+    0
+  ],
+  "expected_bbox": [
+    0.388531541824341,
+    0.304995452033149,
+    0.624047470092773,
+    0.731150733100043
+  ],
+  "fault": "missing_brick",
+  "frames": 45,
+  "kind": "scene",
+  "label": "defective",
+  "seed": 105,
+  "viewport": [
+    1280,
+    720
+  ],
+  "split": "evaluation",
+  "set_label": "defective",
+  "fault_kind": "missing_brick",
+  "defect_box": [
+    0.403125,
+    0.33055555555555555,
+    0.55859375,
+    0.5111111111111111
+  ],
+  "changed_fraction": 0.0116,
+  "visible": true
+}

@@ -1,0 +1,39 @@
+{
+  "bricks_in_scene": 79,
+  "camera_position": [
+    0.5,
+    13,
+    0.5
+  ],
+  "camera_rotation": [
+    -0.70000004768372,
+    -0.25,
+    0
+  ],
+  "expected_bbox": [
+    0.0791800320148468,
+    0.239426761203342,
+    0.967471027374268,
+    1
+  ],
+  "fault": "hidden_area",
+  "frames": 45,
+  "kind": "scene",
+  "label": "defective",
+  "seed": 106,
+  "viewport": [
+    1280,
+    720
+  ],
+  "split": "evaluation",
+  "set_label": "defective",
+  "fault_kind": "hidden_area",
+  "defect_box": [
+    0.109375,
+    0.29305555555555557,
+    0.91953125,
+    1.0
+  ],
+  "changed_fraction": 0.1337,
+  "visible": true
+}

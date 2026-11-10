@@ -1,0 +1,21 @@
+{
+  "name": "block-edit-v2",
+  "version": 2,
+  "description": "v2: an ENLARGED crop around the known edit area, before and after, with the known operation (one block removed under the crosshair). Nearest-neighbour enlargement, no new colours. `changed` is a parameter from the test scenario, never sent to the model.",
+  "images": [
+    "before_crop",
+    "after_crop"
+  ],
+  "questions": {
+    "block_missing_in_after": {
+      "type": "noul",
+      "instructions": "Compared with `before_crop`, is one block missing near the middle of `after_crop`, leaving a pit or notch that `before_crop` does not have?",
+      "expect": "$changed"
+    },
+    "notch_box": {
+      "type": "box",
+      "instructions": "Where is the pit or notch in `after_crop` that `before_crop` does not have?",
+      "only_if": "block_missing_in_after"
+    }
+  }
+}

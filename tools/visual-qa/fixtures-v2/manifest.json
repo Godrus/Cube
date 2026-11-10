@@ -1,0 +1,564 @@
+{
+  "version": 2,
+  "min_visible_fraction": 0.002,
+  "items": [
+    {
+      "id": "seed101-good",
+      "kind": "scene",
+      "image": "seed101-good.png",
+      "truth": "seed101-good.truth.json",
+      "split": "calibration",
+      "label": "good",
+      "fault": "none",
+      "visible": true,
+      "typesafe_checks": {
+        "terrain_visible": true,
+        "scene_kind": "block_landscape",
+        "gap_in_ground": false,
+        "off_palette_patch": false
+      }
+    },
+    {
+      "id": "seed101-missing_brick",
+      "kind": "scene",
+      "image": "seed101-missing_brick.png",
+      "truth": "seed101-missing_brick.truth.json",
+      "split": "calibration",
+      "label": "defective",
+      "fault": "missing_brick",
+      "visible": true,
+      "label_evidence": {
+        "changed_pixels": 244063,
+        "share": 0.999
+      },
+      "typesafe_checks": {
+        "terrain_visible": true,
+        "scene_kind": "block_landscape",
+        "gap_in_ground": true,
+        "off_palette_patch": false
+      }
+    },
+    {
+      "id": "seed101-hidden_area",
+      "kind": "scene",
+      "image": "seed101-hidden_area.png",
+      "truth": "seed101-hidden_area.truth.json",
+      "split": "calibration",
+      "label": "defective",
+      "fault": "hidden_area",
+      "visible": true,
+      "label_evidence": {
+        "changed_pixels": 352408,
+        "share": 0.996
+      },
+      "typesafe_checks": {
+        "terrain_visible": true,
+        "scene_kind": "block_landscape",
+        "gap_in_ground": true,
+        "off_palette_patch": false
+      }
+    },
+    {
+      "id": "seed102-good",
+      "kind": "scene",
+      "image": "seed102-good.png",
+      "truth": "seed102-good.truth.json",
+      "split": "calibration",
+      "label": "good",
+      "fault": "none",
+      "visible": true,
+      "typesafe_checks": {
+        "terrain_visible": true,
+        "scene_kind": "block_landscape",
+        "gap_in_ground": false,
+        "off_palette_patch": false
+      }
+    },
+    {
+      "id": "seed102-hidden_area",
+      "kind": "scene",
+      "image": "seed102-hidden_area.png",
+      "truth": "seed102-hidden_area.truth.json",
+      "split": "calibration",
+      "label": "defective",
+      "fault": "hidden_area",
+      "visible": true,
+      "label_evidence": {
+        "changed_pixels": 172627,
+        "share": 0.997
+      },
+      "typesafe_checks": {
+        "terrain_visible": true,
+        "scene_kind": "block_landscape",
+        "gap_in_ground": true,
+        "off_palette_patch": false
+      }
+    },
+    {
+      "id": "seed102-wrong_material",
+      "kind": "scene",
+      "image": "seed102-wrong_material.png",
+      "truth": "seed102-wrong_material.truth.json",
+      "split": "calibration",
+      "label": "defective",
+      "fault": "wrong_material",
+      "visible": true,
+      "label_evidence": {
+        "changed_pixels": 23410,
+        "share": 1.0
+      },
+      "typesafe_checks": {
+        "terrain_visible": true,
+        "scene_kind": "block_landscape",
+        "gap_in_ground": false,
+        "off_palette_patch": true
+      }
+    },
+    {
+      "id": "seed103-good",
+      "kind": "scene",
+      "image": "seed103-good.png",
+      "truth": "seed103-good.truth.json",
+      "split": "calibration",
+      "label": "good",
+      "fault": "none",
+      "visible": true,
+      "typesafe_checks": {
+        "terrain_visible": true,
+        "scene_kind": "block_landscape",
+        "gap_in_ground": false,
+        "off_palette_patch": false
+      }
+    },
+    {
+      "id": "seed103-wrong_material",
+      "kind": "scene",
+      "image": "seed103-wrong_material.png",
+      "truth": "seed103-wrong_material.truth.json",
+      "split": "excluded",
+      "label": "defective",
+      "fault": "wrong_material",
+      "visible": false,
+      "typesafe_checks": {}
+    },
+    {
+      "id": "seed103-partial_load",
+      "kind": "scene",
+      "image": "seed103-partial_load.png",
+      "truth": "seed103-partial_load.truth.json",
+      "split": "calibration",
+      "label": "defective",
+      "fault": "partial_load",
+      "visible": true,
+      "typesafe_checks": {
+        "terrain_visible": true,
+        "scene_kind": "block_landscape",
+        "gap_in_ground": null,
+        "off_palette_patch": null
+      }
+    },
+    {
+      "id": "seed104-good",
+      "kind": "scene",
+      "image": "seed104-good.png",
+      "truth": "seed104-good.truth.json",
+      "split": "calibration",
+      "label": "good",
+      "fault": "none",
+      "visible": true,
+      "typesafe_checks": {
+        "terrain_visible": true,
+        "scene_kind": "block_landscape",
+        "gap_in_ground": false,
+        "off_palette_patch": false
+      }
+    },
+    {
+      "id": "seed104-partial_load",
+      "kind": "scene",
+      "image": "seed104-partial_load.png",
+      "truth": "seed104-partial_load.truth.json",
+      "split": "calibration",
+      "label": "defective",
+      "fault": "partial_load",
+      "visible": true,
+      "typesafe_checks": {
+        "terrain_visible": true,
+        "scene_kind": "block_landscape",
+        "gap_in_ground": null,
+        "off_palette_patch": null
+      }
+    },
+    {
+      "id": "seed104-missing_brick",
+      "kind": "scene",
+      "image": "seed104-missing_brick.png",
+      "truth": "seed104-missing_brick.truth.json",
+      "split": "calibration",
+      "label": "defective",
+      "fault": "missing_brick",
+      "visible": true,
+      "label_evidence": {
+        "changed_pixels": 100485,
+        "share": 0.998
+      },
+      "typesafe_checks": {
+        "terrain_visible": true,
+        "scene_kind": "block_landscape",
+        "gap_in_ground": true,
+        "off_palette_patch": false
+      }
+    },
+    {
+      "id": "seed105-good",
+      "kind": "scene",
+      "image": "seed105-good.png",
+      "truth": "seed105-good.truth.json",
+      "split": "evaluation",
+      "label": "good",
+      "fault": "none",
+      "visible": true,
+      "typesafe_checks": {
+        "terrain_visible": true,
+        "scene_kind": "block_landscape",
+        "gap_in_ground": false,
+        "off_palette_patch": false
+      }
+    },
+    {
+      "id": "seed105-missing_brick",
+      "kind": "scene",
+      "image": "seed105-missing_brick.png",
+      "truth": "seed105-missing_brick.truth.json",
+      "split": "evaluation",
+      "label": "defective",
+      "fault": "missing_brick",
+      "visible": true,
+      "label_evidence": {
+        "changed_pixels": 10689,
+        "share": 0.886
+      },
+      "typesafe_checks": {
+        "terrain_visible": true,
+        "scene_kind": "block_landscape",
+        "gap_in_ground": true,
+        "off_palette_patch": false
+      }
+    },
+    {
+      "id": "seed105-hidden_area",
+      "kind": "scene",
+      "image": "seed105-hidden_area.png",
+      "truth": "seed105-hidden_area.truth.json",
+      "split": "evaluation",
+      "label": "defective",
+      "fault": "hidden_area",
+      "visible": true,
+      "label_evidence": {
+        "changed_pixels": 49391,
+        "share": 0.982
+      },
+      "typesafe_checks": {
+        "terrain_visible": true,
+        "scene_kind": "block_landscape",
+        "gap_in_ground": true,
+        "off_palette_patch": false
+      }
+    },
+    {
+      "id": "seed106-good",
+      "kind": "scene",
+      "image": "seed106-good.png",
+      "truth": "seed106-good.truth.json",
+      "split": "evaluation",
+      "label": "good",
+      "fault": "none",
+      "visible": true,
+      "typesafe_checks": {
+        "terrain_visible": true,
+        "scene_kind": "block_landscape",
+        "gap_in_ground": false,
+        "off_palette_patch": false
+      }
+    },
+    {
+      "id": "seed106-hidden_area",
+      "kind": "scene",
+      "image": "seed106-hidden_area.png",
+      "truth": "seed106-hidden_area.truth.json",
+      "split": "evaluation",
+      "label": "defective",
+      "fault": "hidden_area",
+      "visible": true,
+      "label_evidence": {
+        "changed_pixels": 123216,
+        "share": 0.998
+      },
+      "typesafe_checks": {
+        "terrain_visible": true,
+        "scene_kind": "block_landscape",
+        "gap_in_ground": true,
+        "off_palette_patch": false
+      }
+    },
+    {
+      "id": "seed106-wrong_material",
+      "kind": "scene",
+      "image": "seed106-wrong_material.png",
+      "truth": "seed106-wrong_material.truth.json",
+      "split": "evaluation",
+      "label": "defective",
+      "fault": "wrong_material",
+      "visible": true,
+      "label_evidence": {
+        "changed_pixels": 16150,
+        "share": 1.0
+      },
+      "typesafe_checks": {
+        "terrain_visible": true,
+        "scene_kind": "block_landscape",
+        "gap_in_ground": false,
+        "off_palette_patch": true
+      }
+    },
+    {
+      "id": "seed107-good",
+      "kind": "scene",
+      "image": "seed107-good.png",
+      "truth": "seed107-good.truth.json",
+      "split": "evaluation",
+      "label": "good",
+      "fault": "none",
+      "visible": true,
+      "typesafe_checks": {
+        "terrain_visible": true,
+        "scene_kind": "block_landscape",
+        "gap_in_ground": false,
+        "off_palette_patch": false
+      }
+    },
+    {
+      "id": "seed107-wrong_material",
+      "kind": "scene",
+      "image": "seed107-wrong_material.png",
+      "truth": "seed107-wrong_material.truth.json",
+      "split": "evaluation",
+      "label": "defective",
+      "fault": "wrong_material",
+      "visible": true,
+      "label_evidence": {
+        "changed_pixels": 3987,
+        "share": 1.0
+      },
+      "typesafe_checks": {
+        "terrain_visible": true,
+        "scene_kind": "block_landscape",
+        "gap_in_ground": false,
+        "off_palette_patch": true
+      }
+    },
+    {
+      "id": "seed107-partial_load",
+      "kind": "scene",
+      "image": "seed107-partial_load.png",
+      "truth": "seed107-partial_load.truth.json",
+      "split": "evaluation",
+      "label": "defective",
+      "fault": "partial_load",
+      "visible": true,
+      "typesafe_checks": {
+        "terrain_visible": true,
+        "scene_kind": "block_landscape",
+        "gap_in_ground": null,
+        "off_palette_patch": null
+      }
+    },
+    {
+      "id": "seed108-good",
+      "kind": "scene",
+      "image": "seed108-good.png",
+      "truth": "seed108-good.truth.json",
+      "split": "evaluation",
+      "label": "good",
+      "fault": "none",
+      "visible": true,
+      "typesafe_checks": {
+        "terrain_visible": true,
+        "scene_kind": "block_landscape",
+        "gap_in_ground": false,
+        "off_palette_patch": false
+      }
+    },
+    {
+      "id": "seed108-partial_load",
+      "kind": "scene",
+      "image": "seed108-partial_load.png",
+      "truth": "seed108-partial_load.truth.json",
+      "split": "evaluation",
+      "label": "defective",
+      "fault": "partial_load",
+      "visible": true,
+      "typesafe_checks": {
+        "terrain_visible": true,
+        "scene_kind": "block_landscape",
+        "gap_in_ground": null,
+        "off_palette_patch": null
+      }
+    },
+    {
+      "id": "seed108-missing_brick",
+      "kind": "scene",
+      "image": "seed108-missing_brick.png",
+      "truth": "seed108-missing_brick.truth.json",
+      "split": "evaluation",
+      "label": "defective",
+      "fault": "missing_brick",
+      "visible": true,
+      "label_evidence": {
+        "changed_pixels": 140180,
+        "share": 0.998
+      },
+      "typesafe_checks": {
+        "terrain_visible": true,
+        "scene_kind": "block_landscape",
+        "gap_in_ground": true,
+        "off_palette_patch": false
+      }
+    },
+    {
+      "id": "edit301-normal",
+      "kind": "edit",
+      "before": "edit301-normal-before.png",
+      "after": "edit301-normal-after.png",
+      "truth": "edit301-normal.truth.json",
+      "split": "excluded",
+      "label": "changed",
+      "fault": "none",
+      "visible": false,
+      "typesafe_checks": {}
+    },
+    {
+      "id": "edit302-stale",
+      "kind": "edit",
+      "before": "edit302-stale-before.png",
+      "after": "edit302-stale-after.png",
+      "truth": "edit302-stale.truth.json",
+      "split": "calibration",
+      "label": "unchanged",
+      "fault": "stale",
+      "visible": true,
+      "typesafe_checks": {
+        "block_missing_in_after": false
+      }
+    },
+    {
+      "id": "edit303-normal",
+      "kind": "edit",
+      "before": "edit303-normal-before.png",
+      "after": "edit303-normal-after.png",
+      "truth": "edit303-normal.truth.json",
+      "split": "excluded",
+      "label": "changed",
+      "fault": "none",
+      "visible": false,
+      "typesafe_checks": {}
+    },
+    {
+      "id": "edit304-stale",
+      "kind": "edit",
+      "before": "edit304-stale-before.png",
+      "after": "edit304-stale-after.png",
+      "truth": "edit304-stale.truth.json",
+      "split": "calibration",
+      "label": "unchanged",
+      "fault": "stale",
+      "visible": true,
+      "typesafe_checks": {
+        "block_missing_in_after": false
+      }
+    },
+    {
+      "id": "edit305-normal",
+      "kind": "edit",
+      "before": "edit305-normal-before.png",
+      "after": "edit305-normal-after.png",
+      "truth": "edit305-normal.truth.json",
+      "split": "calibration",
+      "label": "changed",
+      "fault": "none",
+      "visible": true,
+      "typesafe_checks": {
+        "block_missing_in_after": true
+      }
+    },
+    {
+      "id": "edit306-stale",
+      "kind": "edit",
+      "before": "edit306-stale-before.png",
+      "after": "edit306-stale-after.png",
+      "truth": "edit306-stale.truth.json",
+      "split": "evaluation",
+      "label": "unchanged",
+      "fault": "stale",
+      "visible": true,
+      "typesafe_checks": {
+        "block_missing_in_after": false
+      }
+    },
+    {
+      "id": "edit307-normal",
+      "kind": "edit",
+      "before": "edit307-normal-before.png",
+      "after": "edit307-normal-after.png",
+      "truth": "edit307-normal.truth.json",
+      "split": "excluded",
+      "label": "unchanged",
+      "fault": "none",
+      "visible": false,
+      "typesafe_checks": {}
+    },
+    {
+      "id": "edit308-stale",
+      "kind": "edit",
+      "before": "edit308-stale-before.png",
+      "after": "edit308-stale-after.png",
+      "truth": "edit308-stale.truth.json",
+      "split": "evaluation",
+      "label": "unchanged",
+      "fault": "stale",
+      "visible": true,
+      "typesafe_checks": {
+        "block_missing_in_after": false
+      }
+    },
+    {
+      "id": "edit309-normal",
+      "kind": "edit",
+      "before": "edit309-normal-before.png",
+      "after": "edit309-normal-after.png",
+      "truth": "edit309-normal.truth.json",
+      "split": "evaluation",
+      "label": "changed",
+      "fault": "none",
+      "visible": true,
+      "typesafe_checks": {
+        "block_missing_in_after": true
+      }
+    },
+    {
+      "id": "edit310-stale",
+      "kind": "edit",
+      "before": "edit310-stale-before.png",
+      "after": "edit310-stale-after.png",
+      "truth": "edit310-stale.truth.json",
+      "split": "evaluation",
+      "label": "unchanged",
+      "fault": "stale",
+      "visible": true,
+      "typesafe_checks": {
+        "block_missing_in_after": false
+      }
+    }
+  ],
+  "labelled_before_any_model_call": true
+}

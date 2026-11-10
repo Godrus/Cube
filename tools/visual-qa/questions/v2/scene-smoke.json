@@ -1,0 +1,25 @@
+{
+  "name": "scene-smoke-v2",
+  "version": 2,
+  "description": "v2: only what code cannot judge. A blank, black or flat frame, size, batches and brick counts are checked by deterministic code (deterministic.py), not here. Normal Cube terrain has sharp cube edges, steps and exposed side faces; none of that is a defect.",
+  "images": [
+    "screenshot"
+  ],
+  "questions": {
+    "terrain_visible": {
+      "type": "noul",
+      "instructions": "Is a landscape built from green and brown cube-shaped blocks, with steps and sharp block edges, visible in `screenshot`?",
+      "expect": true
+    },
+    "scene_kind": {
+      "type": "choice",
+      "instructions": "What does `screenshot` show?",
+      "criteria": {
+        "block_landscape": "A landscape of green and brown cube-shaped blocks with sky above",
+        "blank_or_background_only": "A blank frame or only background colour, without any blocky ground",
+        "other_scene": "Anything else"
+      },
+      "expect": "block_landscape"
+    }
+  }
+}

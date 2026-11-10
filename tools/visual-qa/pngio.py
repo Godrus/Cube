@@ -94,3 +94,57 @@ def dimensions(data):
         if kind == b"IHDR":
             return struct.unpack(">II", body[:8])
     raise ValueError("no IHDR")
+
+
+def to_rgb(width, height, channels, px):
+    """Drops the alpha channel."""
+    if channels == 3:
+        return bytes(px)
+    out = bytearray(width * height * 3)
+    out[0::3] = px[0::4]
+    out[1::3] = px[1::4]
+    out[2::3] = px[2::4]
+    return bytes(out)
+
+
+def crop_enlarge(width, height, px, box, scale):
+    """Crops the fraction box (left, top, right, bottom in 0..1) of an RGB image and enlarges it
+    by an integer factor with nearest-neighbour sampling (no new colours, blocks stay sharp).
+    Returns (new_width, new_height, bytes)."""
+    x0, x1 = int(box[0] * width), int(box[2] * width)
+    y0, y1 = int(box[1] * height), int(box[3] * height)
+    w, h = x1 - x0, y1 - y0
+    out = bytearray(w * scale * h * scale * 3)
+    pos = 0
+    for y in range(h):
+        row = bytearray()
+        for x in range(w):
+            i = ((y0 + y) * width + (x0 + x)) * 3
+            row += bytes(px[i:i + 3]) * scale
+        for _ in range(scale):
+            out[pos:pos + len(row)] = row
+            pos += len(row)
+    return w * scale, h * scale, bytes(out)
+
+
+def diff_box(width, height, a, b, tolerance=12):
+    """Bounding box (left, top, right, bottom in 0..1) and fraction of the pixels whose RGB values
+    differ by more than `tolerance` in any channel between two equal-size RGB images; box is None
+    when nothing differs."""
+    xs0, ys0, xs1, ys1, changed = width, height, -1, -1, 0
+    for y in range(height):
+        base = y * width * 3
+        ra, rb = a[base:base + width * 3], b[base:base + width * 3]
+        if ra == rb:
+            continue
+        for x in range(width):
+            i = x * 3
+            if (abs(ra[i] - rb[i]) > tolerance or abs(ra[i + 1] - rb[i + 1]) > tolerance
+                    or abs(ra[i + 2] - rb[i + 2]) > tolerance):
+                changed += 1
+                xs0, xs1 = min(xs0, x), max(xs1, x)
+                ys0, ys1 = min(ys0, y), max(ys1, y)
+    if changed == 0:
+        return None, 0.0
+    return ((xs0 / width, ys0 / height, (xs1 + 1) / width, (ys1 + 1) / height),
+            changed / (width * height))

@@ -1,0 +1,41 @@
+{
+  "bricks_in_scene": 69,
+  "camera_position": [
+    0.5,
+    15,
+    0.5
+  ],
+  "camera_rotation": [
+    -0.60000002384186,
+    0,
+    0
+  ],
+  "edit_hit": true,
+  "edit_region": [
+    0.45,
+    0.4,
+    0.55,
+    0.6
+  ],
+  "expected_bbox": null,
+  "expected_changed": true,
+  "fault": "none",
+  "frames": 70,
+  "kind": "edit",
+  "label": "changed",
+  "seed": 309,
+  "viewport": [
+    1280,
+    720
+  ],
+  "split": "evaluation",
+  "operation": "remove one block under the crosshair",
+  "defect_box": [
+    0.49140625,
+    0.48333333333333334,
+    0.50859375,
+    0.5013888888888889
+  ],
+  "changed_fraction": 0.00031,
+  "visible": true
+}

@@ -251,5 +251,92 @@ class Runs(unittest.TestCase):
         send.assert_not_called()
 
 
+class V2(unittest.TestCase):
+    def manifest(self):
+        with open(os.path.join(HERE, "fixtures-v2", "manifest.json"), encoding="utf-8") as f:
+            return json.load(f)
+
+    def test_v1_questionnaires_are_still_there_unchanged_in_name(self):
+        for n in ("scene-smoke", "terrain-integrity", "block-edit"):
+            self.assertNotIn("version", qa.load_questionnaire(n))
+
+    def test_v2_questionnaires_are_valid_and_merge_with_unique_names(self):
+        for n in ("v2/scene-smoke", "v2/terrain-integrity", "v2/block-edit"):
+            self.assertEqual(qa.load_questionnaire(n)["version"], 2)
+        m = qa.load_questionnaire(qa.V2_SCENE)
+        self.assertEqual(m["images"], ["screenshot"])
+        self.assertEqual(len(m["questions"]), 5)
+        with self.assertRaises(qa.QAError):
+            qa.load_questionnaire("v2/scene-smoke+v2/scene-smoke")
+
+    def test_v2_does_not_ask_what_code_decides_or_what_every_scene_has(self):
+        text = json.dumps([qa.load_questionnaire(n) for n in ("v2/scene-smoke", "v2/terrain-integrity")]).lower()
+        for banned in ("tear", "crack", "flat colour", "completely black", "hole in the terrain"):
+            self.assertNotIn(banned, text)
+
+    def test_the_edit_expectation_comes_from_a_parameter_never_from_the_request(self):
+        q = qa.load_questionnaire("v2/block-edit")
+        with self.assertRaises(qa.QAError):
+            qa.resolve_expect(q["questions"]["block_missing_in_after"], {})
+        self.assertIs(qa.resolve_expect(q["questions"]["block_missing_in_after"], {"changed": True}), True)
+        body, _ = qa.build_request(q, {"before_crop": fixture("good-1.png"), "after_crop": fixture("good-2.png")}, "m")
+        self.assertNotIn("$changed", json.dumps(body))
+
+    def test_the_enlarged_crop_is_a_valid_image_for_the_api(self):
+        data = qa.prepare_image(os.path.join(FIX, "good-1.png"), qa.EDIT_CROP)
+        self.assertEqual(qa.check_image(data, "crop"), (1280, 720))
+
+    def test_labels_were_registered_before_any_model_call_and_splits_are_disjoint(self):
+        m = self.manifest()
+        self.assertTrue(m["labelled_before_any_model_call"])
+        seeds = {}
+        for it in m["items"]:
+            seed = "".join(ch for ch in it["id"].split("-")[0] if ch.isdigit())
+            if it["split"] in ("calibration", "evaluation"):
+                seeds.setdefault(seed, set()).add(it["split"])
+        self.assertTrue(all(len(v) == 1 for v in seeds.values()), "a seed never appears in both splits")
+        kinds = {(it["kind"], it["split"], it["label"]) for it in m["items"]}
+        self.assertIn(("scene", "evaluation", "good"), kinds)
+        self.assertIn(("scene", "calibration", "defective"), kinds)
+
+    def test_at_least_fifteen_new_labelled_pictures_in_two_sets(self):
+        m = self.manifest()
+        usable = [i for i in m["items"] if i["split"] in ("calibration", "evaluation")]
+        images = sum(2 if i["kind"] == "edit" else 1 for i in usable)
+        self.assertGreaterEqual(images, 30)
+        self.assertGreaterEqual(len([i for i in usable if i["split"] == "evaluation"]), 8)
+
+    def test_deterministic_checks_find_partial_loads_and_stale_updates_without_a_model(self):
+        import deterministic
+        fix = os.path.join(HERE, "fixtures-v2")
+        def truth(n):
+            with open(os.path.join(fix, n), encoding="utf-8") as f:
+                return json.load(f)
+        ref = truth("seed103-good.truth.json")
+        with open(os.path.join(fix, "seed103-partial_load.png"), "rb") as f:
+            res = deterministic.check_scene(f.read(), truth("seed103-partial_load.truth.json"), ref)
+        self.assertFalse(res["loaded_bricks_vs_reference"][0])
+        with open(os.path.join(fix, "seed103-good.png"), "rb") as f:
+            good = deterministic.check_scene(f.read(), ref, ref)
+        self.assertTrue(all(ok for ok, _ in good.values()))
+        with open(os.path.join(fix, "edit302-stale-before.png"), "rb") as f:
+            b = f.read()
+        with open(os.path.join(fix, "edit302-stale-after.png"), "rb") as f:
+            a = f.read()
+        self.assertFalse(deterministic.check_edit(b, a, truth("edit302-stale.truth.json"))["scene_updated_after_edit"][0])
+
+    def test_a_v2_dry_run_sends_nothing(self):
+        with mock.patch.object(qa, "send") as send, tempfile.TemporaryDirectory() as out,                 contextlib.redirect_stdout(io.StringIO()):
+            code = qa.main(["v2", "--split", "calibration", "--out", out])
+        self.assertEqual(code, 0)
+        send.assert_not_called()
+
+    def test_a_live_v2_run_over_budget_is_refused_before_any_request(self):
+        with mock.patch.dict(os.environ, {"TYPESAFE_API_KEY": "k"}), mock.patch.object(qa, "load_dotenv"),                 mock.patch.object(qa, "send") as send, tempfile.TemporaryDirectory() as out,                 contextlib.redirect_stderr(io.StringIO()):
+            code = qa.main(["v2", "--split", "calibration", "--live", "--max-requests", "2", "--out", out])
+        self.assertEqual(code, 2)
+        send.assert_not_called()
+
+
 if __name__ == "__main__":
     unittest.main()

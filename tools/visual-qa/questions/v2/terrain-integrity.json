@@ -1,0 +1,25 @@
+{
+  "name": "terrain-integrity-v2",
+  "version": 2,
+  "description": "v2: localized, visually observable signs only. Steps, sharp block edges, exposed side faces and height changes are normal. The finite world edge (dark background beyond the last blocks) is normal too: a gap counts only when ground surrounds it.",
+  "images": [
+    "screenshot"
+  ],
+  "questions": {
+    "gap_in_ground": {
+      "type": "noul",
+      "instructions": "Is there an area in `screenshot` where plain dark background shows through, with ground visible around it on at least two sides?",
+      "expect": false
+    },
+    "gap_box": {
+      "type": "box",
+      "instructions": "Where is the area in `screenshot` where plain dark background shows through, with ground visible around it?",
+      "only_if": "gap_in_ground"
+    },
+    "off_palette_patch": {
+      "type": "noul",
+      "instructions": "Is there a block-shaped patch on the ground in `screenshot` whose colour is clearly neither green, brown nor grey?",
+      "expect": false
+    }
+  }
+}

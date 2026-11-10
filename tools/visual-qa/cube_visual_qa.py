@@ -40,7 +40,7 @@ class QAError(Exception):
 # questionnaires
 
 
-def load_questionnaire(name_or_path):
+def _load_one(name_or_path):
     path = name_or_path
     if not os.path.exists(path):
         path = os.path.join(HERE, "questions", name_or_path + ".json")
@@ -50,6 +50,25 @@ def load_questionnaire(name_or_path):
         q = json.load(f)
     validate_questionnaire(q)
     return q
+
+
+def load_questionnaire(name_or_path):
+    """`scene-smoke` (v1), `v2/scene-smoke`, or several joined with `+` (one request, shared
+    images; question names must be unique)."""
+    parts = [_load_one(n) for n in name_or_path.split("+")]
+    if len(parts) == 1:
+        return parts[0]
+    merged = {"name": "+".join(p["name"] for p in parts), "images": [], "questions": {}}
+    for p in parts:
+        for img in p["images"]:
+            if img not in merged["images"]:
+                merged["images"].append(img)
+        for qn, spec in p["questions"].items():
+            if qn in merged["questions"]:
+                raise QAError(f"question name {qn} appears twice")
+            merged["questions"][qn] = spec
+    validate_questionnaire(merged)
+    return merged
 
 
 def validate_questionnaire(q):
@@ -186,7 +205,17 @@ def judge_choice(answer, expect):
     return "unsure"
 
 
-def evaluate(questionnaire, response):
+def resolve_expect(spec, params):
+    e = spec.get("expect")
+    if isinstance(e, str) and e.startswith("$"):
+        v = (params or {}).get(e[1:])
+        if v is None:
+            raise QAError(f"expectation {e} needs --param {e[1:]}=...")
+        return v
+    return e
+
+
+def evaluate(questionnaire, response, params=None):
     """Turns an API response into per-question results and one verdict.
     PASS: every check passed. FAIL: some check clearly failed. WARN: no clear failure but some
     check is unsure. UNKNOWN: the response lacks answers, so nothing is concluded."""
@@ -201,12 +230,14 @@ def evaluate(questionnaire, response):
             continue
         if spec["type"] == "noul":
             p = a.get("noul")
-            results.append({"question": qname, "p": p, "expect": spec["expect"],
-                            "result": judge_noul(p, spec["expect"]) if p is not None else "missing"})
+            expect = resolve_expect(spec, params)
+            results.append({"question": qname, "p": p, "expect": expect,
+                            "result": judge_noul(p, expect) if p is not None else "missing"})
         elif spec["type"] == "choice":
+            expect = resolve_expect(spec, params)
             results.append({"question": qname, "choice": a.get("choice"),
-                            "probabilities": a.get("probabilities"), "expect": spec["expect"],
-                            "result": judge_choice(a, spec["expect"])})
+                            "probabilities": a.get("probabilities"), "expect": expect,
+                            "result": judge_choice(a, expect)})
         else:  # box: reported only when its presence question says the target is there
             gate = answers.get(spec["only_if"], {}).get("noul")
             present = gate is not None and gate >= YES
@@ -272,11 +303,21 @@ def save_run(out_dir, label, run, request_desc, raw):
 # commands
 
 
-def run_one(questionnaire, files, model, live, key, out_dir, label, mock=None):
-    images = {}
-    for slot, path in files.items():
-        with open(path, "rb") as f:
-            images[slot] = f.read()
+def prepare_image(path, crop):
+    """Bytes of the PNG, optionally cropped to a fraction box and enlarged (nearest neighbour)."""
+    with open(path, "rb") as f:
+        data = f.read()
+    if not crop:
+        return data
+    box, scale = crop
+    w, h, c, px = pngio.read_png(data)
+    nw, nh, rgb = pngio.crop_enlarge(w, h, pngio.to_rgb(w, h, c, px), box, scale)
+    return pngio.write_png(nw, nh, 3, bytearray(rgb))
+
+
+def run_one(questionnaire, files, model, live, key, out_dir, label, mock=None, params=None, crop=None):
+    images = {slot: prepare_image(path, crop.get(slot) if isinstance(crop, dict) else crop)
+              for slot, path in files.items()}
     body, parts = build_request(questionnaire, images, model)
     desc = describe_request(body, parts)
     run = {"questionnaire": questionnaire["name"], "model": model, "images": files,
@@ -297,7 +338,7 @@ def run_one(questionnaire, files, model, live, key, out_dir, label, mock=None):
             run.update(verdict="UNKNOWN", error=raw, results=[], note="the API call failed")
             save_run(out_dir, label, run, desc, None)
             return run
-    verdict, results, note = evaluate(questionnaire, raw)
+    verdict, results, note = evaluate(questionnaire, raw, params)
     run.update(verdict=verdict, results=results, note=note, usage=raw.get("usage"))
     save_run(out_dir, label, run, desc, raw)
     return run
@@ -380,6 +421,86 @@ def cmd_fixtures(args):
     return 0
 
 
+V2_SCENE = "v2/scene-smoke+v2/terrain-integrity"
+V2_EDIT = "v2/block-edit"
+EDIT_CROP = ((0.375, 0.375, 0.625, 0.625), 4)  # 320x180 around the crosshair, enlarged to 1280x720
+
+
+def v2_items(split, only):
+    path = os.path.join(HERE, "fixtures-v2", "manifest.json")
+    with open(path, encoding="utf-8") as f:
+        manifest = json.load(f)
+    items = [i for i in manifest["items"] if i["split"] == split]
+    if only:
+        items = [i for i in items if i["id"] in only]
+    return manifest, items
+
+
+def targets_typesafe(item):
+    """TypeSafe is asked only where it can add something: a partial load is found by counting
+    bricks and needs no model."""
+    if item.get("fault") == "partial_load":
+        return False
+    checks = item.get("typesafe_checks", {})
+    return any(checks.get(k) is not None for k in ("gap_in_ground", "off_palette_patch", "block_missing_in_after"))
+
+
+def cmd_v2(args):
+    import deterministic
+    key = require_live(args)
+    manifest, items = v2_items(args.split, args.only.split(",") if args.only else None)
+    if not manifest.get("labelled_before_any_model_call"):
+        raise QAError("fixtures-v2/manifest.json has no pre-registered labels; run label_fixtures.py first")
+    fix = os.path.join(HERE, "fixtures-v2")
+    plan = [i for i in items if targets_typesafe(i)]
+    if args.live and len(plan) > args.max_requests:
+        raise QAError(f"{len(plan)} requests exceed --max-requests {args.max_requests}; nothing was sent")
+    out = os.path.join(args.out, "v2")
+    lines = [f"# Visual QA v2: split `{args.split}`", "",
+             f"- mode: {'LIVE' if args.live else 'dry run (nothing sent)'}; model `{args.model}`",
+             f"- items in split: {len(items)}; TypeSafe requests: {len(plan)}; "
+             f"images sent: {sum(2 if i['kind'] == 'edit' else 1 for i in plan)}",
+             f"- rough budget: {sum(5800 if i['kind'] == 'edit' else 2950 for i in plan):,} input tokens "
+             "(an estimate from the v1 run: about 2,900 per 1280x720 image)", "",
+             "## Deterministic checks (plain code, all items)", "", "| item | label | check | ok | detail |", "|---|---|---|---|---|"]
+    good_truth = {}
+    for i in items:
+        if i["kind"] == "scene" and i["fault"] == "none":
+            with open(os.path.join(fix, i["truth"]), encoding="utf-8") as f:
+                good_truth[i["id"].split("-")[0]] = json.load(f)
+    for i in items:
+        with open(os.path.join(fix, i["truth"]), encoding="utf-8") as f:
+            truth = json.load(f)
+        if i["kind"] == "scene":
+            with open(os.path.join(fix, i["image"]), "rb") as f:
+                res = deterministic.check_scene(f.read(), truth, good_truth.get(i["id"].split("-")[0]))
+        else:
+            with open(os.path.join(fix, i["before"]), "rb") as f:
+                b = f.read()
+            with open(os.path.join(fix, i["after"]), "rb") as f:
+                a = f.read()
+            res = deterministic.check_edit(b, a, truth)
+        for name, (ok, detail) in res.items():
+            lines.append(f"| {i['id']} | {i['label']} | {name} | {'ok' if ok else '**FAILS**'} | {detail} |")
+    lines += ["", "## TypeSafe requests", "", "| item | label | verdict | mode |", "|---|---|---|---|"]
+    for i in plan:
+        if i["kind"] == "scene":
+            q = load_questionnaire(V2_SCENE)
+            files, params, crop = {"screenshot": os.path.join(fix, i["image"])}, None, None
+        else:
+            q = load_questionnaire(V2_EDIT)
+            files = {"before_crop": os.path.join(fix, i["before"]), "after_crop": os.path.join(fix, i["after"])}
+            params = {"changed": i["typesafe_checks"]["block_missing_in_after"]}
+            crop = EDIT_CROP
+        run = run_one(q, files, args.model, args.live, key, out, i["id"], params=params, crop=crop)
+        lines.append(f"| {i['id']} | {i['label']} | {run['verdict']} | {run['mode']} |")
+    os.makedirs(out, exist_ok=True)
+    with open(os.path.join(out, f"summary-{args.split}.md"), "w", encoding="utf-8") as f:
+        f.write(chr(10).join(lines) + chr(10))
+    print(chr(10).join(lines))
+    return 0
+
+
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -395,9 +516,16 @@ def main(argv=None):
             s.add_argument("image", nargs="+", help="slot=path, e.g. screenshot=shot.png")
             s.add_argument("--label")
             s.add_argument("--mock-response", help="evaluate a recorded response instead of calling")
+    s2 = sub.add_parser("v2", help="v2 questionnaires on the Godot fixtures (dry run by default)")
+    s2.add_argument("--split", choices=["calibration", "evaluation"], required=True)
+    s2.add_argument("--only", help="comma-separated fixture ids")
+    s2.add_argument("--model", default=DEFAULT_MODEL)
+    s2.add_argument("--out", default=os.path.join(HERE, "reports"))
+    s2.add_argument("--live", action="store_true")
+    s2.add_argument("--max-requests", type=int, default=2)
     args = p.parse_args(argv)
     try:
-        return {"check": cmd_check, "fixtures": cmd_fixtures}[args.cmd](args)
+        return {"check": cmd_check, "fixtures": cmd_fixtures, "v2": cmd_v2}[args.cmd](args)
     except QAError as e:
         print(f"error: {e}", file=sys.stderr)
         return 2
