@@ -6,8 +6,10 @@
 //! manifest and the file journal, the generator and the Processing executor (faces provider).
 //!
 //! * the **untouched base** is never saved: it is regenerated from the record's seed and
-//!   generator version into a **static bounded area** (not streaming; WGEN-02..04 are not
-//!   built), in a fixed order, by the system-commit port, which never overwrites a loaded cell;
+//!   generator version by the system-commit port, which never overwrites a loaded cell. A
+//!   **static initial area** is loaded when the world opens, and [`LocalHost::ensure_loaded`]
+//!   streams more bricks in around the player (never unloading any: a brick's revision must be
+//!   the same after a restart, or the journal's expectations would not hold);
 //! * every **user edit** is a journalled operation (acknowledged = fsynced); opening a world
 //!   regenerates the area, replays the confirmed edits and rebuilds the retry table;
 //! * viewers (the client) read through [`LocalHost::reader`] and [`LocalHost::executor`], hear
@@ -21,6 +23,8 @@ use std::path::Path;
 use std::sync::{Arc, Mutex, PoisonError};
 
 use cube_backend_voxel::{FacesProvider, VoxelBackend, add, remove};
+use std::collections::HashSet;
+
 use cube_core::{
     AssetHost, AssetId, BrickCoord, DirtyRegion, GeometryAsset, GeometryTransform, Layer,
     LayerData, LayerId, LayerKind, OperationId, Region, SharedAsset, SystemCommit, VoxelPos,
@@ -43,6 +47,9 @@ use cube_worldgen::{GenError, generate_brick, registry};
 pub const ASSET: u64 = 1;
 /// The voxel layer.
 pub const VOXEL_LAYER: u64 = 1;
+/// The world is finite: bricks further than this many bricks from the origin column are never
+/// generated (the player meets an edge, not an endless world and an endless memory bill).
+pub const WORLD_LIMIT_BRICKS: i64 = 48;
 /// The operation scope of the local player.
 pub const PLAYER_SCOPE: u64 = 1;
 const EDIT: Capability = Capability(1);
@@ -152,6 +159,14 @@ pub struct LocalHost {
     executor: Arc<Executor>,
     fanout: Arc<Fanout>,
     next_seq: Mutex<u64>,
+    system: SystemCommit,
+    streamed: Mutex<Streamed>,
+}
+
+/// Bricks the host has generated into Core, and the next system operation number.
+struct Streamed {
+    loaded: HashSet<BrickCoord>,
+    next_op: u64,
 }
 
 fn lock<T>(m: &Mutex<T>) -> std::sync::MutexGuard<'_, T> {
@@ -234,8 +249,24 @@ impl LocalHost {
         }));
 
         // The untouched base of the static area, then the user's edits on top of it.
+        let mut streamed = Streamed {
+            loaded: HashSet::new(),
+            next_op: 1,
+        };
         if snapshot.is_none() {
-            materialise(&handles.system, &record, &area)?;
+            let bricks = area.bricks();
+            materialise(&handles.system, &record, &bricks, &mut streamed)?;
+            // Bricks that earlier sessions edited may lie outside the initial area: their base must
+            // exist before their edits are replayed.
+            let mut edited = Vec::new();
+            for e in entries.iter().filter(|e| !e.payload.is_empty()) {
+                if let Ok(batch) = cube_persistence::decode_batch(&e.payload, &limits) {
+                    for set in &batch.sets {
+                        edited.extend(set.writes.iter().map(|w| w.brick));
+                    }
+                }
+            }
+            materialise(&handles.system, &record, &edited, &mut streamed)?;
         }
         let report = replay_confirmed(&entries, &handles.recovery, &limits);
         if !report.failed.is_empty() {
@@ -264,7 +295,54 @@ impl LocalHost {
             executor,
             fanout,
             next_seq: Mutex::new(next_seq),
+            system: handles.system,
+            streamed: Mutex::new(streamed),
         })
+    }
+
+    /// Generates (into Core, by the system-commit port) the bricks of the cube of `radius` around
+    /// `centre` that are not loaded yet, nearest first, at most `budget` of them. Returns how
+    /// many bricks of that cube are still missing. Bricks beyond [`WORLD_LIMIT_BRICKS`]
+    /// horizontally are never generated. Nothing is ever unloaded.
+    pub fn ensure_loaded(
+        &self,
+        centre: BrickCoord,
+        radius: i64,
+        budget: usize,
+    ) -> Result<usize, HostError> {
+        let mut wanted: Vec<BrickCoord> = Vec::new();
+        {
+            let st = lock(&self.streamed);
+            for dz in -radius..=radius {
+                for dy in -radius..=radius {
+                    for dx in -radius..=radius {
+                        let b = BrickCoord::new(centre.x + dx, centre.y + dy, centre.z + dz);
+                        if b.x.abs() <= WORLD_LIMIT_BRICKS
+                            && b.z.abs() <= WORLD_LIMIT_BRICKS
+                            && !st.loaded.contains(&b)
+                        {
+                            wanted.push(b);
+                        }
+                    }
+                }
+            }
+        }
+        let dist = |b: &BrickCoord| {
+            let d = [b.x - centre.x, b.y - centre.y, b.z - centre.z];
+            d[0] * d[0] + d[1] * d[1] + d[2] * d[2]
+        };
+        wanted.sort_by_key(|b| (dist(b), b.x, b.y, b.z));
+        let missing = wanted.len();
+        let now: Vec<BrickCoord> = wanted.into_iter().take(budget).collect();
+        let done = now.len();
+        let mut st = lock(&self.streamed);
+        materialise(&self.system, &self.record, &now, &mut st)?;
+        Ok(missing - done)
+    }
+
+    /// Number of bricks generated into Core so far (diagnostics).
+    pub fn loaded_bricks(&self) -> usize {
+        lock(&self.streamed).loaded.len()
     }
 
     /// Height of the ground at column `(x, z)` in this world (voxels), for placing a camera.
@@ -369,19 +447,19 @@ impl LocalHost {
 fn materialise(
     system: &SystemCommit,
     record: &WorldRecord,
-    area: &StaticArea,
+    bricks: &[BrickCoord],
+    streamed: &mut Streamed,
 ) -> Result<(), HostError> {
-    for (n, b) in area.bricks().into_iter().enumerate() {
+    for &b in bricks {
+        if !streamed.loaded.insert(b) {
+            continue;
+        }
         let g = generate_brick(record.seed, record.generator_version, b)
             .map_err(HostError::Generator)?;
+        let op = OperationId::new(0, streamed.next_op);
+        streamed.next_op += 1;
         system
-            .materialise(
-                OperationId::new(0, n as u64 + 1),
-                LayerId::new(VOXEL_LAYER),
-                0,
-                b,
-                g.into_change(),
-            )
+            .materialise(op, LayerId::new(VOXEL_LAYER), 0, b, g.into_change())
             .map_err(setup)?;
     }
     Ok(())

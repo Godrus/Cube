@@ -142,6 +142,45 @@ impl CubeWorld {
         })
     }
 
+    /// Switches between walking (gravity, jump, collision) and free flight.
+    #[func]
+    fn set_walk(&mut self, on: bool) {
+        if let Some(s) = self.session.as_mut() {
+            s.set_walk(on);
+        }
+    }
+
+    /// Chooses the third-person camera (only while walking).
+    #[func]
+    fn set_third_person(&mut self, on: bool) {
+        if let Some(s) = self.session.as_mut() {
+            s.set_third_person(on);
+        }
+    }
+
+    /// `true` while the player walks.
+    #[func]
+    fn is_walking(&self) -> bool {
+        self.session.as_ref().is_some_and(|s| s.walking())
+    }
+
+    /// Standing on something (walking only).
+    #[func]
+    fn is_grounded(&self) -> bool {
+        self.session.as_ref().is_some_and(|s| s.grounded())
+    }
+
+    /// Feet position of the walking player (zero when flying).
+    #[func]
+    fn player_feet(&self) -> Vector3 {
+        self.session
+            .as_ref()
+            .and_then(|s| s.player_feet())
+            .map_or(Vector3::ZERO, |p| {
+                Vector3::new(p[0] as f32, p[1] as f32, p[2] as f32)
+            })
+    }
+
     /// Number of bricks with geometry currently in the scene.
     #[func]
     fn brick_count(&self) -> i32 {

@@ -72,4 +72,21 @@ pub trait SessionPort: Send {
     fn pose(&self) -> Pose;
     /// Stops the session; returns bricks the engine must drop.
     fn shutdown(&mut self) -> Vec<CellKey>;
+    /// Switches between walking (gravity, collision) and free flight. Sessions without a walking
+    /// player ignore it.
+    fn set_walk(&mut self, _on: bool) {}
+    /// Chooses the third-person camera (walking only).
+    fn set_third_person(&mut self, _on: bool) {}
+    /// `true` while the player walks.
+    fn walking(&self) -> bool {
+        false
+    }
+    /// Feet position of the walking player, if any.
+    fn player_feet(&self) -> Option<[f64; 3]> {
+        None
+    }
+    /// The walking player stands on something.
+    fn grounded(&self) -> bool {
+        false
+    }
 }

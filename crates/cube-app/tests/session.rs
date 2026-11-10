@@ -55,7 +55,7 @@ impl Scene {
 
 /// Runs frames until the client has nothing pending (bounded), like an engine over some frames.
 fn settle(s: &Session, scene: &mut Scene) {
-    for _ in 0..30 {
+    for _ in 0..200 {
         let f = s.frame(&[]).unwrap();
         let done = f.report.pending == 0 && f.report.stale == 0 && f.report.failed.is_empty();
         scene.apply(f);
@@ -101,7 +101,9 @@ fn launch_generate_display_move_edit_save_quit_load_continue() {
     // Launch, generate, display: the first frames deliver the whole active region.
     let (s, mut scene) = session(&host);
     settle(&s, &mut scene);
-    assert_eq!(scene.0.len(), 125);
+    // The region has the profile's full radius (3): 7 x 7 x 7 bricks. The host generated the extra
+    // ring beyond its initial area (streaming); before, the region was clamped inside the area (125).
+    assert_eq!(scene.0.len(), 343);
     assert!(
         scene.triangles() > 500,
         "a real surface: {}",
@@ -114,11 +116,19 @@ fn launch_generate_display_move_edit_save_quit_load_continue() {
         "nothing new when nothing changed"
     );
 
-    // Move the camera: the active region follows and bricks stream in and out of the scene.
+    // Move the camera: the active region follows, the host generates new bricks around it and
+    // bricks stream in and out of the scene. This runs on a second world, because streaming adds
+    // bricks to the loaded set and the exact-hash comparison after the restart below needs a host
+    // that only loaded the region around the origin.
+    let d2 = dir("move");
+    let host2 = Arc::new(LocalHost::create(&d2, rec, area(&rec)).unwrap());
+    let loaded_before = host2.loaded_bricks();
+    let (sm, mut scene_m) = session(&host2);
+    settle(&sm, &mut scene_m);
     let mut moved = false;
     for _ in 0..30 {
-        let (up, rm) = scene.apply(
-            s.frame(&[(
+        let (up, rm) = scene_m.apply(
+            sm.frame(&[(
                 Intent::Move {
                     forward: 1,
                     right: 1,
@@ -131,6 +141,12 @@ fn launch_generate_display_move_edit_save_quit_load_continue() {
         moved |= up + rm > 0;
     }
     assert!(moved || shown_before_move > 0);
+    assert!(
+        host2.loaded_bricks() > loaded_before,
+        "the host generated bricks ahead of the camera"
+    );
+    drop((sm, host2));
+    let _ = std::fs::remove_dir_all(&d2);
     // Back above the origin for a predictable edit.
     drop(s);
     let (s, mut scene) = session(&host);
@@ -163,9 +179,11 @@ fn launch_generate_display_move_edit_save_quit_load_continue() {
     // Load: the record, the regenerated base and the replayed edits give the same world and the
     // same geometry as before the quit.
     let host = Arc::new(LocalHost::open(&d, area(&rec)).unwrap());
-    assert_eq!(host.content_hash(), edited_hash, "the exact edited world");
     let (s, mut scene2) = session(&host);
     settle(&s, &mut scene2);
+    // The first frame streamed the same surroundings as before the quit; the loaded world (base,
+    // streamed bricks and replayed edits) is then identical.
+    assert_eq!(host.content_hash(), edited_hash, "the exact edited world");
     let reloaded: Vec<(CellKey, MeshBuffers)> =
         scene2.0.iter().map(|(k, b)| (*k, b.clone())).collect();
     let diff: Vec<_> = reloaded
@@ -185,7 +203,8 @@ fn launch_generate_display_move_edit_save_quit_load_continue() {
     let continued = host.content_hash();
     assert_ne!(continued, edited_hash);
     drop((s, host));
-    let host = LocalHost::open(&d, area(&rec)).unwrap();
+    let host = Arc::new(LocalHost::open(&d, area(&rec)).unwrap());
+    let (_s3, _scene3) = session(&host);
     assert_eq!(
         host.content_hash(),
         continued,

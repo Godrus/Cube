@@ -173,6 +173,14 @@ impl FaceIndex {
             materials,
         }
     }
+
+    /// `true` if the voxel is solid *as far as the derived faces show*: it has at least one
+    /// visible face. A voxel buried inside solid ground has none, and neither does any voxel of
+    /// a brick whose faces are not loaded; callers that need "is the ground there yet" must
+    /// check that separately. Read-only, no authority.
+    pub fn is_solid(&self, voxel: [i64; 3]) -> bool {
+        self.materials.contains_key(&voxel)
+    }
 }
 
 fn dir_of(axis: usize, step: i64) -> Dir {
@@ -189,6 +197,17 @@ fn dir_of(axis: usize, step: i64) -> Dir {
 /// Walks the ray `origin + t * dir` (`dir` need not be normalised) through the voxel grid and
 /// returns the first face turned towards it within `max_dist` voxels, or `None`.
 pub fn pick(index: &FaceIndex, origin: [f64; 3], dir: [f64; 3], max_dist: f64) -> Option<Hit> {
+    pick_distance(index, origin, dir, max_dist).map(|(hit, _)| hit)
+}
+
+/// Like [`pick`], and also the distance along the (normalised) ray at which the hit face was
+/// entered; the camera boom of the third-person view uses it to stop in front of a wall.
+pub fn pick_distance(
+    index: &FaceIndex,
+    origin: [f64; 3],
+    dir: [f64; 3],
+    max_dist: f64,
+) -> Option<(Hit, f64)> {
     let len = (dir[0] * dir[0] + dir[1] * dir[1] + dir[2] * dir[2]).sqrt();
     if len == 0.0 || !len.is_finite() {
         return None;
@@ -223,15 +242,19 @@ pub fn pick(index: &FaceIndex, origin: [f64; 3], dir: [f64; 3], max_dist: f64) -
             return None;
         }
         let front = cell;
+        let entered_at = t_max[a];
         cell[a] += step[a];
         t_max[a] += t_delta[a];
         // Entering `cell` through the side that faces back towards `front`.
         if index.faces.contains(&(cell, dir_of(a, -step[a]))) {
-            return Some(Hit {
-                voxel: cell,
-                front,
-                material: index.materials.get(&cell).copied().unwrap_or(0),
-            });
+            return Some((
+                Hit {
+                    voxel: cell,
+                    front,
+                    material: index.materials.get(&cell).copied().unwrap_or(0),
+                },
+                entered_at,
+            ));
         }
     }
 }

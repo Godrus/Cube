@@ -3,13 +3,17 @@ extends Node3D
 ## No geometry, no world rules and no file writes are done here (except test pictures and test
 ## labels when a command line option asks for them).
 ##
-## Controls: click to capture the mouse, WASD move, Space / Shift up and down, mouse looks,
-## left click removes the block under the crosshair, right click places a block, Esc releases the mouse.
+## Controls: click to capture the mouse, WASD move, mouse looks, Space jumps (walking) or rises
+## (flying), Shift descends (flying), F switches walking / flying, V switches first / third person,
+## 1-5 choose the block to place, left click removes the block under the crosshair, right click
+## places the chosen block, Esc releases the mouse. The world and the player are saved when the
+## window is closed and are loaded again on the next start (same --world directory).
 ##
 ## Command line after `--`:
 ##   --smoke                          headless self check
 ##   --screenshot <png>               save one picture and quit
 ##   --edit-shots <before> <after>    picture, remove the block under the crosshair, picture
+##   --fly                            start flying instead of walking (QA options always fly)
 ##   --world <dir> --seed <n>         world directory and seed
 ##   --yaw <rad> --pitch <rad>        extra camera turn at the start
 ##   --down <frames>                  descend for that many frames first (edit pictures from close up)
@@ -43,6 +47,11 @@ var freeze_world := false
 var fault_bbox = null
 var edit_hit := false
 var down_frames := 0
+var start_flying := false
+var place_material := 5
+var third_person := false
+var player_body: MeshInstance3D
+var hud: Label
 var scen_active := false
 var scen_steps := []
 var scen_out := ""
@@ -92,6 +101,8 @@ func _ready() -> void:
 			"--scenario":
 				i += 1
 				_load_scenario(args[i])
+			"--fly":
+				start_flying = true
 		i += 1
 	var create := not FileAccess.file_exists(dir.path_join("manifest"))
 	if not world.open_world(dir, seed_value, create):
@@ -99,6 +110,11 @@ func _ready() -> void:
 		get_tree().quit(2)
 		return
 	print("CUBE world opened: dir=", dir, " create=", create)
+	var qa_mode := smoke or shot_path != "" or before_path != "" or scen_active
+	if not qa_mode:
+		if not start_flying and not world.is_walking():
+			world.set_walk(true)
+		_build_player_and_hud()
 
 
 func _exit_tree() -> void:
@@ -108,14 +124,64 @@ func _exit_tree() -> void:
 		world.close()
 
 
+func _build_player_and_hud() -> void:
+	player_body = MeshInstance3D.new()
+	var box := BoxMesh.new()
+	box.size = Vector3(0.6, 1.8, 0.6)
+	player_body.mesh = box
+	var m := StandardMaterial3D.new()
+	m.albedo_color = Color(0.9, 0.55, 0.2)
+	player_body.material_override = m
+	player_body.visible = false
+	add_child(player_body)
+	var layer := CanvasLayer.new()
+	var cross := Label.new()
+	cross.text = "+"
+	cross.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	cross.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	cross.set_anchors_preset(Control.PRESET_CENTER)
+	cross.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	cross.grow_vertical = Control.GROW_DIRECTION_BOTH
+	layer.add_child(cross)
+	hud = Label.new()
+	hud.position = Vector2(10, 8)
+	layer.add_child(hud)
+	add_child(layer)
+
+
+func _update_player_and_hud() -> void:
+	if player_body == null:
+		return
+	var feet: Vector3 = world.player_feet()
+	player_body.visible = third_person and world.is_walking()
+	player_body.position = feet + Vector3(0, 0.9, 0)
+	player_body.rotation = Vector3(0, cam.rotation.y, 0)
+	var p: Vector3 = cam.position
+	hud.text = "%s | %s | x %.1f y %.1f z %.1f | block %d | WASD move, Space jump, F fly/walk, V camera, 1-5 block, click edit" % [
+		"walking" if world.is_walking() else "flying",
+		"third person" if third_person else "first person",
+		p.x, p.y, p.z, place_material]
+
+
 func _input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo and player_body != null:
+		if event.keycode == KEY_F:
+			world.set_walk(not world.is_walking())
+			if not world.is_walking():
+				third_person = false
+				world.set_third_person(false)
+		elif event.keycode == KEY_V and world.is_walking():
+			third_person = not third_person
+			world.set_third_person(third_person)
+		elif event.keycode >= KEY_1 and event.keycode <= KEY_5:
+			place_material = event.keycode - KEY_0
 	if event is InputEventMouseButton and event.pressed:
 		if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 		elif event.button_index == MOUSE_BUTTON_LEFT:
 			world.edit(0)
 		elif event.button_index == MOUSE_BUTTON_RIGHT:
-			world.edit(5)
+			world.edit(place_material)
 	elif event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		look += Vector2(-event.relative.x, -event.relative.y) * 0.003
 	elif event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
@@ -308,7 +374,9 @@ func _load_scenario(path: String) -> void:
 func _event(op: String, extra: Dictionary = {}) -> Dictionary:
 	var e := {"op": op, "frame": frames, "bricks": world.brick_count(),
 		"camera_position": [cam.position.x, cam.position.y, cam.position.z],
-		"camera_rotation": [cam.rotation.x, cam.rotation.y, cam.rotation.z]}
+		"camera_rotation": [cam.rotation.x, cam.rotation.y, cam.rotation.z],
+		"walking": world.is_walking(), "grounded": world.is_grounded(),
+		"feet": [world.player_feet().x, world.player_feet().y, world.player_feet().z]}
 	for k in extra:
 		e[k] = extra[k]
 	scen_events.append(e)
@@ -372,6 +440,10 @@ func _scenario_action(op: String) -> void:
 		"freeze":
 			freeze_world = true
 			_event("freeze")
+		"mode":
+			world.set_walk(bool(scen_cmd.get("walk", true)))
+			world.set_third_person(bool(scen_cmd.get("third", false)))
+			_event("mode", {"walk": bool(scen_cmd.get("walk", true))})
 		"occlude":
 			_occlude(scen_cmd)
 			_event("occlude", {"kind": scen_cmd.get("kind", "panel")})
