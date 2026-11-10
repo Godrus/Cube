@@ -9,10 +9,22 @@
 //! a brick border exists on both sides of it and no quad edge on a border contains a foreign
 //! vertex. Interior quads (cells 1..=14 in both plane axes) are merged greedily.
 //!
-//! **Known limit (honest scope):** T-junctions *inside* a brick between an interior merged quad
-//! and the unit ring around it remain possible; they are not claimed to be fixed here. The
-//! renderer or a later pass may fix them; the correctness oracle is coverage, not topology.
-//! Greedy is not the default renderer: that needs a decision and measurements (GOV-13, DG-1).
+//! **No T-junctions in the triangle mesh (PS-5).** A merged rectangle next to unit quads
+//! necessarily has foreign vertices on its edges (the corners of its neighbours). That is fine
+//! for a *quad list* and wrong for a *mesh*, so the mesh is built by [`triangulate`], which adds
+//! every foreign edge vertex to the polygon of the merged quad (a fan around the quad centre),
+//! so every vertex on an edge is a vertex of both triangles that meet there. Two rules make the
+//! set of vertices on the edges of a quad complete inside one brick:
+//!
+//! 1. quads in a plane that lies on a brick border are never merged (the other side of that
+//!    plane is the neighbouring brick, whose perpendicular faces would touch the quad edge
+//!    from outside);
+//! 2. interior quads merge only inside the ring (cells 1..=14), so every face that touches an
+//!    edge of a merged quad belongs to the same brick.
+//!
+//! [`mesh_t_junctions`] is the independent checker; the tests run it over whole multi-brick
+//! worlds, not only per brick. Coverage equality with faces is necessary but is not what proves
+//! this. Greedy is not the default renderer: that needs a decision and measurements (GOV-13).
 
 use std::sync::Arc;
 
@@ -93,8 +105,15 @@ pub fn merge(faces: &[Face], origin: VoxelPos) -> Vec<Quad> {
                 grid[v * edge + u] = f.material;
             }
             let mut done = vec![false; edge * edge];
-            let interior =
-                |u: usize, v: usize| (1..edge - 1).contains(&u) && (1..edge - 1).contains(&v);
+            // A plane on the brick border is never merged (rule 1).
+            let local = (slice - [origin.x, origin.y, origin.z][na]) as usize;
+            let on_border = match d {
+                Dir::PosX | Dir::PosY | Dir::PosZ => local == edge - 1,
+                _ => local == 0,
+            };
+            let interior = |u: usize, v: usize| {
+                !on_border && (1..edge - 1).contains(&u) && (1..edge - 1).contains(&v)
+            };
             for v in 0..edge {
                 for u in 0..edge {
                     let m = grid[v * edge + u];
@@ -144,6 +163,228 @@ pub fn merge(faces: &[Face], origin: VoxelPos) -> Vec<Quad> {
     }
     quads.sort();
     quads
+}
+
+/// The four corner points of a quad in lattice coordinates (the face plane is at `slice + 1`
+/// for positive directions and at `slice` for negative ones).
+fn corners(q: &Quad) -> [[i64; 3]; 4] {
+    let (ua, va, na) = axes(q.dir);
+    let plane = coord(q.origin, na)
+        + match q.dir {
+            Dir::PosX | Dir::PosY | Dir::PosZ => 1,
+            _ => 0,
+        };
+    let base = [q.origin.x, q.origin.y, q.origin.z];
+    let mut out = [[0i64; 3]; 4];
+    for (k, (du, dv)) in [(0, 0), (1, 0), (1, 1), (0, 1)].into_iter().enumerate() {
+        let mut p = [0i64; 3];
+        p[na] = plane;
+        p[ua] = base[ua] + du * i64::from(q.u_len);
+        p[va] = base[va] + dv * i64::from(q.v_len);
+        out[k] = p;
+    }
+    out
+}
+
+/// Lattice points strictly inside the edges of `q`.
+fn edge_points(q: &Quad) -> Vec<[i64; 3]> {
+    let c = corners(q);
+    let mut out = Vec::new();
+    for k in 0..4 {
+        let (a, b) = (c[k], c[(k + 1) % 4]);
+        let axis = (0..3).find(|i| a[*i] != b[*i]).expect("edges have length");
+        let (lo, hi) = (a[axis].min(b[axis]), a[axis].max(b[axis]));
+        for t in lo + 1..hi {
+            let mut p = a;
+            p[axis] = t;
+            out.push(p);
+        }
+    }
+    out
+}
+
+/// Every (quad, foreign vertex strictly inside one of its edges) in `quads`: the T-junctions.
+/// Independent of how the quads were made, so it can check a whole world of bricks at once.
+pub fn t_junctions(quads: &[Quad]) -> Vec<(Quad, [i64; 3])> {
+    let vertices: std::collections::BTreeSet<[i64; 3]> = quads.iter().flat_map(corners).collect();
+    let mut out = Vec::new();
+    for q in quads {
+        for p in edge_points(q) {
+            if vertices.contains(&p) {
+                out.push((*q, p));
+            }
+        }
+    }
+    out
+}
+
+/// Indexed triangles of a greedy mesh. Positions are in **half voxels** (twice the lattice
+/// coordinate), so quad centres are exact integers.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct TriMesh {
+    /// Unique positions, ascending.
+    pub vertices: Vec<[i64; 3]>,
+    /// Triangles, counter-clockwise seen from outside, with direction and material.
+    pub triangles: Vec<([u32; 3], Dir, u16)>,
+}
+
+impl TriMesh {
+    /// The union of several meshes: vertices with equal positions become one (how a renderer
+    /// sees neighbouring bricks).
+    pub fn union(meshes: &[&TriMesh]) -> TriMesh {
+        let mut pos: std::collections::BTreeSet<[i64; 3]> = Default::default();
+        for m in meshes {
+            pos.extend(m.vertices.iter().copied());
+        }
+        let vertices: Vec<[i64; 3]> = pos.into_iter().collect();
+        let index: std::collections::BTreeMap<[i64; 3], u32> = vertices
+            .iter()
+            .enumerate()
+            .map(|(i, p)| (*p, i as u32))
+            .collect();
+        let mut triangles = Vec::new();
+        for m in meshes {
+            for (t, d, mat) in &m.triangles {
+                triangles.push((t.map(|i| index[&m.vertices[i as usize]]), *d, *mat));
+            }
+        }
+        TriMesh {
+            vertices,
+            triangles,
+        }
+    }
+
+    /// Sum over all triangles of the axis-aligned area measure (the absolute components of the
+    /// cross product), an exact integer in half-voxel units, for coverage comparisons: for
+    /// axis-aligned planar triangles it is twice the area.
+    pub fn double_area(&self) -> i128 {
+        let mut a = 0i128;
+        for (t, _, _) in &self.triangles {
+            let p: [[i128; 3]; 3] = t.map(|i| self.vertices[i as usize].map(i128::from));
+            let u = [p[1][0] - p[0][0], p[1][1] - p[0][1], p[1][2] - p[0][2]];
+            let w = [p[2][0] - p[0][0], p[2][1] - p[0][1], p[2][2] - p[0][2]];
+            let c = [
+                u[1] * w[2] - u[2] * w[1],
+                u[2] * w[0] - u[0] * w[2],
+                u[0] * w[1] - u[1] * w[0],
+            ];
+            a += c[0].abs() + c[1].abs() + c[2].abs();
+        }
+        a
+    }
+}
+
+fn gcd(a: i64, b: i64) -> i64 {
+    if b == 0 { a.abs() } else { gcd(b, a % b) }
+}
+
+/// Number of (triangle edge, vertex strictly inside it) pairs: the T-junctions of a triangle
+/// mesh. Zero is the contract.
+pub fn mesh_t_junctions(m: &TriMesh) -> usize {
+    let vs: std::collections::BTreeSet<[i64; 3]> = m.vertices.iter().copied().collect();
+    let mut edges: std::collections::BTreeSet<([i64; 3], [i64; 3])> = Default::default();
+    for (t, _, _) in &m.triangles {
+        for k in 0..3 {
+            let (a, b) = (
+                m.vertices[t[k] as usize],
+                m.vertices[t[(k + 1) % 3] as usize],
+            );
+            edges.insert((a.min(b), a.max(b)));
+        }
+    }
+    let mut n = 0;
+    for (a, b) in edges {
+        let d = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
+        let g = gcd(gcd(d[0], d[1]), d[2]);
+        for t in 1..g {
+            let p = [
+                a[0] + d[0] / g * t,
+                a[1] + d[1] / g * t,
+                a[2] + d[2] / g * t,
+            ];
+            if vs.contains(&p) {
+                n += 1;
+            }
+        }
+    }
+    n
+}
+
+/// Triangulates quads without T-junctions: a quad whose edges carry foreign vertices becomes a
+/// fan around its centre through every boundary vertex; any other quad becomes two triangles.
+/// Deterministic; covers exactly the area of the quads.
+pub fn triangulate(quads: &[Quad]) -> TriMesh {
+    let all: std::collections::BTreeSet<[i64; 3]> = quads.iter().flat_map(corners).collect();
+    let mut positions: std::collections::BTreeSet<[i64; 3]> = Default::default();
+    let mut raw: Vec<(Vec<[i64; 3]>, Option<[i64; 3]>, Dir, u16)> = Vec::new();
+    for q in quads {
+        let c = corners(q).map(|p| p.map(|v| 2 * v));
+        // Boundary ring in (u, v) counter-clockwise order, with the foreign vertices.
+        let mut ring: Vec<[i64; 3]> = Vec::new();
+        for k in 0..4 {
+            let (a, b) = (c[k], c[(k + 1) % 4]);
+            ring.push(a);
+            let axis = (0..3).find(|i| a[*i] != b[*i]).expect("edges have length");
+            let step = (b[axis] - a[axis]).signum();
+            let mut t = a[axis] + 2 * step;
+            while t != b[axis] {
+                let mut p = a;
+                p[axis] = t;
+                if all.contains(&p.map(|v| v / 2)) {
+                    ring.push(p);
+                }
+                t += 2 * step;
+            }
+        }
+        // (u, v, normal) is right handed for X and Z and left handed for Y.
+        let handed = if q.dir.axis() == 1 { -1 } else { 1 };
+        let want = match q.dir {
+            Dir::PosX | Dir::PosY | Dir::PosZ => 1,
+            _ => -1,
+        };
+        if handed != want {
+            ring.reverse();
+        }
+        let centre = (ring.len() > 4).then(|| {
+            [
+                (c[0][0] + c[2][0]) / 2,
+                (c[0][1] + c[2][1]) / 2,
+                (c[0][2] + c[2][2]) / 2,
+            ]
+        });
+        positions.extend(ring.iter().copied());
+        positions.extend(centre);
+        raw.push((ring, centre, q.dir, q.material));
+    }
+    let vertices: Vec<[i64; 3]> = positions.into_iter().collect();
+    let index: std::collections::BTreeMap<[i64; 3], u32> = vertices
+        .iter()
+        .enumerate()
+        .map(|(i, p)| (*p, i as u32))
+        .collect();
+    let mut triangles = Vec::new();
+    for (ring, centre, dir, material) in raw {
+        let id = |p: &[i64; 3]| index[p];
+        match centre {
+            None => {
+                triangles.push(([id(&ring[0]), id(&ring[1]), id(&ring[2])], dir, material));
+                triangles.push(([id(&ring[0]), id(&ring[2]), id(&ring[3])], dir, material));
+            }
+            Some(c) => {
+                for k in 0..ring.len() {
+                    triangles.push((
+                        [id(&c), id(&ring[k]), id(&ring[(k + 1) % ring.len()])],
+                        dir,
+                        material,
+                    ));
+                }
+            }
+        }
+    }
+    TriMesh {
+        vertices,
+        triangles,
+    }
 }
 
 /// Expands quads back to unit faces (for coverage checks and for consumers that need them).

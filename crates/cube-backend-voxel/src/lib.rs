@@ -22,7 +22,10 @@ pub mod sections;
 pub use collision::{COLLISION_KIND, CollisionBoxes, CollisionProvider, SolidBox, merge_boxes};
 pub use edit::Limits;
 pub use faces::{Dir, FACES_KIND, Face, FacesMesh, FacesProvider};
-pub use greedy::{GREEDY_KIND, GreedyMesh, GreedyProvider, Quad, SeamRule, expand, merge};
+pub use greedy::{
+    GREEDY_KIND, GreedyMesh, GreedyProvider, Quad, SeamRule, TriMesh, expand, merge,
+    mesh_t_junctions, t_junctions, triangulate,
+};
 pub use lod::{LOD_EDGE, LOD_KIND, LodBrick, LodProvider, coarsen};
 pub use ops::VoxelBackend;
 pub use params::{TransformMode, VoxelOp, add, decode, remove, set_material, transform};
