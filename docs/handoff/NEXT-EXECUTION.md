@@ -5,7 +5,7 @@
 ## Current epic and tasks
 
 * Epic **E-M1** (persistent world and gameplay integrity), see `docs/roadmap/WORK-PACKAGES.md`.
-* **M1-A2** inventory/world reconciliation: **TESTED**, commit `e47a35b` on branch `prod/m1-reconcile` (from `origin/dev` 679e8d5). Integration into `dev` depends on CI; check `git log origin/dev` for whether it already landed before assuming either way.
+* **M1-A2** inventory/world reconciliation: **TESTED and INTEGRATED into `origin/dev`** (commits `e47a35b`, docs `6ff18b3`; CI run 42857847038 green). Player-visible: DEMO_AVAILABLE, but the Godot smoke was not re-run after the change.
 * Next, one task: **CMB-01** (health, damage event, death and respawn as a pure Rust module `crates/cube-app/src/combat.rs`), then CMB-02, CMB-03. In parallel an independent agent may take **M1-A1** (spike first) or **WGN2-01**.
 
 ## Priority and dependencies
@@ -18,7 +18,7 @@
 
 ```bash
 git fetch origin
-git worktree add -b prod/combat-core ../Cube-combat origin/dev     # or origin/prod/m1-reconcile if dev has not got it
+git worktree add -b prod/combat-core ../Cube-combat origin/dev
 cd ../Cube-combat
 cargo test -p cube-app --test reconcile      # proves the base is green
 ```
@@ -38,7 +38,7 @@ python tools/visual-qa/walk_smoke.py --play                  # real Godot (see g
 
 * Revision expectations in the journal make unloading edited bricks unsafe unless one of the three options in `WORK-PACKAGES.md` (M1-A1) is chosen and tested; "just evict" loses edits silently.
 * `cube-app` hosts prototype gameplay; a gameplay crate needs an ADG change (owner).
-* `gh` was not installed on the machine that wrote this; CI results come from the GitHub web UI or API.
+* `gh` was not installed on the machine that wrote this; CI results come from `curl https://api.github.com/repos/Godrus/Cube/actions/runs?branch=<branch>` (the repository is public) or the web UI.
 * The Godot smoke after the reconcile change was **not re-run** in this iteration (Rust level only); run `walk_smoke.py --play` before claiming the demo still works end to end.
 
 ## Must not change without a decision
@@ -51,4 +51,4 @@ The next agent is done with CMB-01 when its tests pass, `cargo fmt`, clippy, wor
 
 ## Last integration result
 
-Branch `prod/m1-reconcile` holds `e47a35b` (code, tests, registry) and the documents of this directive. Local verification on Windows: `cargo test -p cube-app` (all suites incl. 4 new reconcile tests and 5 new game unit tests) passed, mutation check made the crash tests fail as intended, fmt, clippy `-D warnings`, `archcheck` and `features --check` clean. CI result: see the commit status on GitHub (not read by the author). Uncommitted work: none in the `Cube-m1` worktree after the commit of these documents.
+`origin/dev` = the commit that contains `6ff18b3` (fast-forward from 679e8d5 by push of `prod/m1-reconcile:dev` after CI run 42857847038 finished `success`: fmt, clippy, tests on Linux and Windows, loom, deny, archcheck, features). Local checks before: `cargo test -p cube-app` all suites (new: 4 crash tests in `reconcile.rs`, 5 unit tests in `game.rs`; a mutation that disables the settle step made the crash tests fail as intended), fmt, clippy `-D warnings`, archcheck, features. Uncommitted work: none.
