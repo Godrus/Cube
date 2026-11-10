@@ -4,6 +4,8 @@ Human-readable view of what Cube can do, what is being built and what is still o
 
 **Last verified state:** `dev` at `c248bce` (CI green; includes the Godot first world, world record, greedy without T-junctions); `dev` at `c87534e`, CI 42720748823 green. Gates passed: G0, G1, G2 (RG-2 still mandatory), G3, G4. Open: G5 (PS-5), G10 (PS-10). RG-1 not passed.
 
+**Product view:** the player-facing order of work (milestones M0..M12, crosswalk to PS-0..PS-14) is `roadmap/PRODUCT-ROADMAP.md`; the vision is `vision/GAME-VISION.md`. Inventory and world are reconciled after a crash (F-GPL-002, Rust-tested, branch `prod/m1-reconcile`).
+
 **One rule above all:** integrated Rust code is *not* a player feature. Today **no feature is player available**. One thing is a **developer demo (DEMO_AVAILABLE)**: a Godot 4 scene (`godot/`) that shows a generated, editable and savable voxel terrain; it needs a Rust build and a local Godot and is not part of CI. Everything else marked integrated is reachable only through Rust APIs and tests.
 
 Status words: Decision (IDEA, PROPOSED, APPROVED, DEFERRED, REJECTED), Implementation (NOT_STARTED, IN_PROGRESS, IMPLEMENTED, TESTED, INTEGRATED), Player (NOT_AVAILABLE, INTERNAL_ONLY, DEMO_AVAILABLE, PLAYER_AVAILABLE). Blocked is a flag with blocker ids.
