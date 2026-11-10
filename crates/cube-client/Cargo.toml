@@ -1,0 +1,18 @@
+[package]
+name = "cube-client"
+version = "0.0.0"
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+description = "Engine-neutral client runtime skeleton: active region, derived-geometry cache, dirty updates, lifecycle (CLI-00..02)"
+
+# Depends on Core and Processing only (ADG Part B allows more, none is needed). It has no commit
+# handle and no authority over the world: it asks for derived data and caches it read-only. It
+# knows no engine; an engine adapter (ADP-01, later) turns its batches into scene calls.
+
+[dependencies]
+cube-core = { path = "../cube-core" }
+cube-processing = { path = "../cube-processing" }
+
+[lints]
+workspace = true

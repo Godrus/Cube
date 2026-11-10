@@ -14,6 +14,8 @@ cube-orchestration = { path = "../cube-orchestration" }
 cube-backend-voxel = { path = "../cube-backend-voxel" }
 cube-backend-sdf = { path = "../cube-backend-sdf" }
 cube-backend-mesh = { path = "../cube-backend-mesh" }
+cube-worldgen = { path = "../cube-worldgen" }
+cube-client = { path = "../cube-client" }
 cube-persistence = { path = "../cube-persistence" }
 
 [dev-dependencies]

@@ -2076,3 +2076,27 @@ owner: Project Owner
 affected_documents: [docs/api-contracts/README.md, docs/api-contracts/core-contracts.md, docs/production/ps-0-exit-checklist.md, crates/cube-core/src/palette.rs]
 history:
   - 2026-11-09 entry created
+
+## DEC-091  Technical assignment of the WorldGen Agent (WGEN-01) and the Client Runtime Agent (CLI-00..02)
+id: DEC-091
+aliases: [GOV-03 (partial, WorldGen and Client Runtime), R-UNOWNED]
+category: PROCESS
+level: TECHNICAL
+status: CONFIRMED
+statement: >
+  Rule R-UNOWNED of the ADG says that tasks of UNASSIGNED modules cannot start before GOV-03 names the owner. The owner message of 2026-11-10 ('First Visible World', sections 7.1 and 8) tells the engineering agent to assign a WorldGen Agent and a Client Runtime Agent in the existing ownership matrix where delegated technical assignment is sufficient, and to continue independent work otherwise. This entry makes that assignment, narrowly: (1) a WorldGen Agent (an agent session under DEC-001, not a new management structure) owns crate cube-worldgen for WGEN-01 (pure generator and version registry) only; (2) a Client Runtime Agent owns crate cube-client for CLI-00 (skeleton) and the engine-neutral parts of CLI-01 and CLI-02 (active region, derived-geometry cache, dirty updates, lifecycle) only. Both are reversible technical work inside the confirmed concept (a deterministic seeded generator, an engine-neutral read-only client), they add no game feature, and the crates keep the ADG edges and the archcheck rules (no floats in cube-worldgen, no commit handle and no engine in cube-client).
+not_decided: >
+  WGEN-02 (service), WGEN-03 (materialiser through the system-commit port), WGEN-04 and LEG-01 stay UNASSIGNED and gated (GOV-21, GOV-11). Engine Adapter (O-5, ADP-01..03), Networking (O-3), Server Runtime, Import/Export and the gameplay owner stay deferred as in DEC-072; CLI-03 and CLI-04 (input, intents) and everything that needs a game window or gameplay are not started. Generator version 1 (terrain-v1) is an engineering baseline, not an approved world design: no biomes, caves, water, structures or game rules are decided. If the owner reads R-UNOWNED as requiring a named owner in the repository, this entry is that record and the owner may reject or amend it.
+decided_by: AGENT_DELEGATED
+delegation_basis: DEC-001 and the owner instruction of 2026-11-10 (sections 7.1 and 8 of 'Cube - First Visible World: Recovery Safety, Geometry Backends, WorldGen and Client Foundation')
+decided_on: 2026-11-10
+decided_on_basis: date of this registry commit (agent decision under delegation)
+recorded_on: 2026-11-10 (this registry)
+confirmed_on: 2026-11-10
+confirmation_evidence: E-DELEGATION (the owner may reject or amend)
+source: OWNER-CHAT-2026-11-10 (sections 7.1 and 8); docs/production/module-boundaries.md rule R-UNOWNED
+source_availability: UNAVAILABLE in repository (session transcript only)
+owner: Project Owner
+affected_documents: [docs/production/module-boundaries.md, docs/production/ps-0-exit-checklist.md]
+history:
+  - 2026-11-10 entry created

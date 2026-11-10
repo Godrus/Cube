@@ -7,7 +7,8 @@ Read this, then `FUNCTIONAL-ROADMAP.md`. The long procedural guide is `AGENT_HAN
 * **Integration branch:** `dev`. `master` is release only and must not be changed. Work on short `prod/*` branches from the latest `dev`; merge only commits whose required CI checks are green (fast-forward push is allowed by the ruleset). No force push.
 * **Gates:** G0 to G4 passed (G2 with mandatory RG-2 revalidation). G5 and G10 open. RG-1 not passed. Evidence: `production/ps-0-exit-checklist.md` sections 6 to 14, registry entries DEC-076..DEC-090.
 * **Works (Rust level, tested, internal only):** Core (coordinates, bricks, revisions, atomic commit, views, bounds, palette), Processing (snapshots, executor, stale rejection, budgets), Editing API, Orchestration (one user commit path), voxel backend with faces/greedy/collision/LOD providers, experimental persistence codec with atomic snapshots, file-backed journal with payload (acknowledged = fsynced; a damaged acknowledged record fails closed through acknowledgement marks), replay and restart idempotency, crash-point harness, manifest, verified snapshot store, crash-safe compaction and `open_world` recovery (all experimental).
-* **Does not exist:** SDF and mesh backends, world generator, client or renderer, any gameplay, a world record (PERS-08), a final save format. Known limit L-COMP-1: retry history before the last compaction is not remembered. No feature is player available.
+* **Also exists (branch `prod/lcomp1`, tested, provisional):** persisted retry floors (L-COMP-1, requirement RS-1 in `api-contracts/editing-contracts.md`), SDF backend (`cube-backend-sdf`), mesh backend (`cube-backend-mesh`, Core page store), deterministic generator terrain-v1 (`cube-worldgen`, technical assignment DEC-091), engine-neutral client foundation (`cube-client`), headless first-world test (`first_world.rs`). **Not player visible.**
+* **Does not exist:** world service and materialiser, engine adapter, renderer, any gameplay, a world record (PERS-08), a final save format. Known limit L-COMP-1: retry history before the last compaction is not remembered. No feature is player available.
 
 ## Architecture in five lines
 
@@ -26,7 +27,7 @@ Read this, then `FUNCTIONAL-ROADMAP.md`. The long procedural guide is `AGENT_HAN
 
 ## Open work you may continue independently
 
-SDF-01..03 and MSH-01..03; PERS-06..09; TD-2 (validation port needs a layer, additive API change with snapshot update); TD-1 (observer delivery queue, only with loom models); greedy T-junctions. Check ADG start and merge conditions before each task.
+PERS-06..09; WGEN-02..04 (gated by GOV-21, GOV-11), PERS-06..09, CLI-03/04, ADP-01 (no owner); TD-2 (validation port needs a layer, additive API change with snapshot update); TD-1 (observer delivery queue, only with loom models); greedy T-junctions. Check ADG start and merge conditions before each task.
 
 ## Decisions the owner still has to make
 

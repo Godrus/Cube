@@ -1,0 +1,18 @@
+[package]
+name = "cube-worldgen"
+version = "0.0.0"
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+description = "Pure deterministic world generator (WGEN-01, PS-11 11A)"
+
+# Depends on Core and Processing only (ADG Part B). It has no write handle to Core: generated
+# data enters the world only through the system-commit port, by a materialiser (WGEN-03, later).
+# Integer-only world math (archcheck forbids floats here).
+
+[dependencies]
+cube-core = { path = "../cube-core" }
+cube-processing = { path = "../cube-processing" }
+
+[lints]
+workspace = true

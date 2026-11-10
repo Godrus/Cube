@@ -22,10 +22,10 @@
 | `cube-history` | L6 | Agent G | PS-7 | undo/redo |
 | `cube-composite` | L7 | Composite Agent | PS-8 | composite operations |
 | `cube-persistence` | L8 | Agent H | PS-10 | storage, journal, recovery |
-| `cube-worldgen` | outside AU-1.0 (ACR-004 B) | UNASSIGNED (WorldGen) - owner decision | PS-11 | generator, service, Materialiser |
+| `cube-worldgen` | outside AU-1.0 (ACR-004 B) | WorldGen Agent for WGEN-01 only (technical assignment, DEC-091); the rest of the module stays UNASSIGNED (WorldGen) - owner decision | PS-11 | generator, service, Materialiser |
 | `cube-net` | L9 | UNASSIGNED (Networking Adapter, O-3) - owner decision | PS-13 | transport contract, protocol, transports |
 | `cube-server` | outside AU-1.0 | UNASSIGNED (Server Runtime) - owner decision | PS-13 | authoritative runtime, two hosts |
-| `cube-client` | outside AU-1.0 | UNASSIGNED (Client Runtime) - owner decision | PS-12 | engine-independent client runtime |
+| `cube-client` | outside AU-1.0 | Client Runtime Agent for CLI-00 and the engine-neutral part of CLI-01/CLI-02 only (technical assignment, DEC-091); the rest stays UNASSIGNED (Client Runtime) - owner decision | PS-12 | engine-independent client runtime |
 | `cube-godot-adapter` | L10 | UNASSIGNED (Engine Adapter, O-5) - owner decision | PS-12 | GDExtension surface |
 | `cube-testkit` | test-time | Agent I | PS-0 | strategies, fakes, golden runner, FaultFs |
 | `cube-integration-tests` | test-time (leaf) | Agent I | PS-1 | cross-crate suites, conformance suites, benches; a leaf crate so that it may depend on everything without cycles |
@@ -238,7 +238,7 @@ Semantics: **S (start-after)** - the dependency's public interface is frozen; th
 | ITG-02 | PS-11 | Agent I (QA and Benchmarks) | WGEN-04, PERS-06 | G10, WGEN-04, G1 |
 | LEG-01 | PS-11 | UNASSIGNED (WorldGen) - owner decision | WGEN-03, GOV-11 | WGEN-04, PERS-08, ITG-02, G1 |
 | TEST-09 | PS-11 | Agent I (QA and Benchmarks) | TEST-02, WGEN-01 | WGEN-01, G1 |
-| WGEN-01 | PS-11 | UNASSIGNED (WorldGen) - owner decision | CORE-10, CORE-07, CORE-16 | CORE-10, CORE-16, G1 |
+| WGEN-01 | PS-11 | WorldGen Agent (technical assignment, DEC-091) | CORE-10, CORE-07, CORE-16 | CORE-10, CORE-16, G1 |
 | WGEN-02 | PS-11 | UNASSIGNED (WorldGen) - owner decision | WGEN-01, PROC-03, PROC-04 | PROC-04, GOV-21, G1 |
 | WGEN-03 | PS-11 | UNASSIGNED (WorldGen) - owner decision | WGEN-01, CORE-09, GOV-11 | CORE-09, GOV-11, GOV-21, G1 |
 | WGEN-04 | PS-11 | UNASSIGNED (WorldGen) - owner decision | WGEN-02, WGEN-03, API-04 | WGEN-03, G1 |
@@ -246,7 +246,7 @@ Semantics: **S (start-after)** - the dependency's public interface is frozen; th
 | ADP-01 | PS-12 | UNASSIGNED (Engine Adapter, O-5) - owner decision | CLI-01 | CLI-01, CLI-02, CORE-12, G1 |
 | ADP-02 | PS-12 | UNASSIGNED (Engine Adapter, O-5) - owner decision | ADP-01 | ADP-01, G1 |
 | ADP-03 | PS-12 | UNASSIGNED (Engine Adapter, O-5) - owner decision | ADP-01 | ADP-01, G1 |
-| CLI-00 | PS-12 | UNASSIGNED (Client Runtime) - owner decision | CORE-10, API-01 | G1 |
+| CLI-00 | PS-12 | Client Runtime Agent (technical assignment, DEC-091) | CORE-10, API-01 | G1 |
 | CLI-01 | PS-12 | UNASSIGNED (Client Runtime) - owner decision | CLI-00, CORE-06 | CORE-06, G1 |
 | CLI-02 | PS-12 | UNASSIGNED (Client Runtime) - owner decision | CLI-00, PROC-03, VOX-02 | VOX-03, PROC-05, G1 |
 | CLI-03 | PS-12 | UNASSIGNED (Client Runtime) - owner decision | VOX-05 | VOX-05, G1 |

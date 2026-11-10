@@ -55,6 +55,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "cube-client"
+version = "0.0.0"
+dependencies = [
+ "cube-core",
+ "cube-processing",
+]
+
+[[package]]
 name = "cube-core"
 version = "0.0.0"
 dependencies = [
@@ -78,12 +86,14 @@ dependencies = [
  "cube-backend-mesh",
  "cube-backend-sdf",
  "cube-backend-voxel",
+ "cube-client",
  "cube-core",
  "cube-editing-api",
  "cube-orchestration",
  "cube-persistence",
  "cube-processing",
  "cube-testkit",
+ "cube-worldgen",
  "loom",
  "trybuild",
 ]
@@ -118,6 +128,14 @@ dependencies = [
 [[package]]
 name = "cube-testkit"
 version = "0.0.0"
+
+[[package]]
+name = "cube-worldgen"
+version = "0.0.0"
+dependencies = [
+ "cube-core",
+ "cube-processing",
+]
 
 [[package]]
 name = "equivalent"
