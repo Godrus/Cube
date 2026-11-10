@@ -9,6 +9,8 @@
 //! The active region is limited to the host's static bounded area (one brick of apron stays
 //! inside it); this is not streaming.
 
+pub mod port;
+
 use std::sync::{Arc, Mutex, PoisonError};
 
 use cube_client::{
@@ -78,6 +80,11 @@ impl Session {
     /// The host (read-only use: hash, record).
     pub fn host(&self) -> &Arc<LocalHost> {
         &self.host
+    }
+
+    /// Turns the camera without running a frame (so no batch of geometry is consumed).
+    pub fn look(&self, yaw: f32, pitch: f32) {
+        lock(&self.camera).apply(&Intent::Look { yaw, pitch }, 0.0);
     }
 
     /// The current camera pose.

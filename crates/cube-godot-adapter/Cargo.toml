@@ -1,0 +1,27 @@
+[package]
+name = "cube-godot-adapter"
+version = "0.0.0"
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+description = "Thin Godot 4 GDExtension adapter: translates session buffers into scene nodes (ADP-01)"
+
+# Depends on the engine-neutral client only (ADG Part B) and on the Godot bindings. It holds no
+# world state, no generator, no editing or persistence logic and no handle: it copies buffers
+# into engine arrays and engine input into controls (DEC-092).
+
+[lib]
+crate-type = ["lib", "cdylib"]
+
+[dependencies]
+cube-client = { path = "../cube-client" }
+cube-app = { path = "../cube-app" }
+godot = { version = "=0.5.5", features = ["api-4-2"] }
+
+[lints.rust]
+# The GDExtension entry point is an `unsafe impl` required by the binding; nothing else is.
+unsafe_code = "allow"
+missing_docs = "warn"
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }

@@ -1,0 +1,12 @@
+[configuration]
+entry_symbol = "gdext_rust_init"
+compatibility_minimum = 4.2
+reloadable = false
+
+[libraries]
+windows.debug.x86_64 = "res://../target/debug/cube_godot_adapter.dll"
+windows.release.x86_64 = "res://../target/release/cube_godot_adapter.dll"
+linux.debug.x86_64 = "res://../target/debug/libcube_godot_adapter.so"
+linux.release.x86_64 = "res://../target/release/libcube_godot_adapter.so"
+macos.debug = "res://../target/debug/libcube_godot_adapter.dylib"
+macos.release = "res://../target/release/libcube_godot_adapter.dylib"

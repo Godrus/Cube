@@ -70,6 +70,8 @@ pub fn allowed_edges() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
     put("cube-client", &client);
     let mut adapter: Vec<&'static str> = BASE.to_vec();
     adapter.push("cube-client");
+    // The adapter reaches the world only through the composition root (DEC-092).
+    adapter.push("cube-app");
     put("cube-godot-adapter", &adapter);
     // Composition root of the first world (DEC-092): joins the local host and the client.
     put(

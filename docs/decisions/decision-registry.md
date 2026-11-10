@@ -2100,3 +2100,27 @@ owner: Project Owner
 affected_documents: [docs/production/module-boundaries.md, docs/production/ps-0-exit-checklist.md]
 history:
   - 2026-11-10 entry created
+
+## DEC-092  Technical assignment of the Engine Adapter Agent (O-5) and the first-world composition (cube-server local host, cube-app)
+id: DEC-092
+aliases: [O-5, GOV-03 (partial, Engine Adapter and local Server host), R-UNOWNED]
+category: PROCESS
+level: TECHNICAL
+status: CONFIRMED
+statement: >
+  The owner message of 2026-11-10 ('First Visible World: Godot 4, WorldGen Integration and Geometry Completion', sections 4 and 5) proposes an Engine Adapter Agent for cube-godot-adapter (GDExtension boundary, Godot API, lifecycle, integration tests) and asks for the first displayed world. Under DEC-001 and that instruction: (1) an Engine Adapter Agent (an agent session, no new management structure) owns crate cube-godot-adapter for ADP-01, ADP-02 and ADP-03 only; (2) the Client Runtime Agent of DEC-091 also covers CLI-03 and CLI-04; (3) to compose a world without a network, the ADG gets two additions that are not strategic: crate cube-server is created as an in-process local host only (the authoritative side of one local world: Core handles, Orchestration, persistence, generator, Processing; ADG edges unchanged, no edge to the client), and a leaf composition crate cube-app joins the local host with the client and exposes one SessionPort to the adapter (edges: Core, Processing, Orchestration, Persistence, voxel backend, client, server); the adapter gets one new edge, to cube-app, and calls nothing but its open function. The Godot/Rust split of the strategic architecture is unchanged: Rust Core stays engine-neutral, the adapter holds no authoritative state, no WorldGen, no editing or persistence logic and no commit, GDScript calls no commit, there is no child process for the local world, and the only `unsafe` is the GDExtension entry impl that the binding requires (the adapter crate alone relaxes the workspace unsafe lint for it).
+not_decided: >
+  The networked Server Runtime (PS-13, SRV tasks), Networking (O-3), authorisation beyond the local capability, the permission schema, multiplayer and every gameplay feature stay deferred as in DEC-072. WGEN-02..04 and LEG-01 stay gated by GOV-21 and GOV-11 (the first world uses a static bounded area, not streaming). The Godot version policy is not decided beyond this: the binding targets Godot 4.2 API (tested with 4.2.2). Whether cube-server and cube-app stay as they are when PS-13 arrives is a PS-13 matter; the local host is meant to become the local host of the later server. If the owner reads R-UNOWNED as requiring a named owner in the repository, this entry is that record and the owner may reject or amend it (the crates are small and removable).
+decided_by: AGENT_DELEGATED
+delegation_basis: DEC-001 and the owner instruction of 2026-11-10 (sections 4, 5 and 14 of 'Cube - First Visible World: Godot 4, WorldGen Integration and Geometry Completion')
+decided_on: 2026-11-10
+decided_on_basis: date of this registry commit (agent decision under delegation)
+recorded_on: 2026-11-10 (this registry)
+confirmed_on: 2026-11-10
+confirmation_evidence: E-DELEGATION (the owner may reject or amend)
+source: OWNER-CHAT-2026-11-10 (sections 4, 5); docs/production/module-boundaries.md rule R-UNOWNED
+source_availability: UNAVAILABLE in repository (session transcript only)
+owner: Project Owner
+affected_documents: [docs/production/module-boundaries.md, docs/production/ps-0-exit-checklist.md, xtask/src/archcheck.rs]
+history:
+  - 2026-11-10 entry created

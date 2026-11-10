@@ -267,6 +267,11 @@ impl LocalHost {
         })
     }
 
+    /// Height of the ground at column `(x, z)` in this world (voxels), for placing a camera.
+    pub fn surface_height(&self, x: i64, z: i64) -> i64 {
+        cube_worldgen::v1::height(self.record.seed, x, z)
+    }
+
     /// The record of this world.
     pub fn record(&self) -> &WorldRecord {
         &self.record

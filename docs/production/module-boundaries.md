@@ -24,9 +24,10 @@
 | `cube-persistence` | L8 | Agent H | PS-10 | storage, journal, recovery |
 | `cube-worldgen` | outside AU-1.0 (ACR-004 B) | WorldGen Agent for WGEN-01 only (technical assignment, DEC-091); the rest of the module stays UNASSIGNED (WorldGen) - owner decision | PS-11 | generator, service, Materialiser |
 | `cube-net` | L9 | UNASSIGNED (Networking Adapter, O-3) - owner decision | PS-13 | transport contract, protocol, transports |
-| `cube-server` | outside AU-1.0 | UNASSIGNED (Server Runtime) - owner decision | PS-13 | authoritative runtime, two hosts |
-| `cube-client` | outside AU-1.0 | Client Runtime Agent for CLI-00 and the engine-neutral part of CLI-01/CLI-02 only (technical assignment, DEC-091); the rest stays UNASSIGNED (Client Runtime) - owner decision | PS-12 | engine-independent client runtime |
-| `cube-godot-adapter` | L10 | UNASSIGNED (Engine Adapter, O-5) - owner decision | PS-12 | GDExtension surface |
+| `cube-server` | outside AU-1.0 | in-process local host only: Integration Owner (DEC-092); the networked server stays UNASSIGNED (Server Runtime) - owner decision | PS-13 | authoritative runtime, two hosts |
+| `cube-app` | composition root of the first world (DEC-092) | Integration Owner | PS-12 | joins the local host and the client; edges: core, processing, orchestration, persistence, backend-voxel, client, server |
+| `cube-client` | outside AU-1.0 | Client Runtime Agent for CLI-00..04 (technical assignment, DEC-091 and DEC-092); the rest stays UNASSIGNED (Client Runtime) - owner decision | PS-12 | engine-independent client runtime |
+| `cube-godot-adapter` | L10 | Engine Adapter Agent for ADP-01..03 (technical assignment, DEC-092) | PS-12 | GDExtension surface |
 | `cube-testkit` | test-time | Agent I | PS-0 | strategies, fakes, golden runner, FaultFs |
 | `cube-integration-tests` | test-time (leaf) | Agent I | PS-1 | cross-crate suites, conformance suites, benches; a leaf crate so that it may depend on everything without cycles |
 | `xtask` | tooling | Main Agent / Integration Owner | PS-0 | archcheck and package checks |
@@ -243,14 +244,14 @@ Semantics: **S (start-after)** - the dependency's public interface is frozen; th
 | WGEN-03 | PS-11 | UNASSIGNED (WorldGen) - owner decision | WGEN-01, CORE-09, GOV-11 | CORE-09, GOV-11, GOV-21, G1 |
 | WGEN-04 | PS-11 | UNASSIGNED (WorldGen) - owner decision | WGEN-02, WGEN-03, API-04 | WGEN-03, G1 |
 | WGEN-05 | PS-11 | UNASSIGNED (WorldGen) - owner decision | WGEN-01, TEST-02 | WGEN-01, G1 |
-| ADP-01 | PS-12 | UNASSIGNED (Engine Adapter, O-5) - owner decision | CLI-01 | CLI-01, CLI-02, CORE-12, G1 |
-| ADP-02 | PS-12 | UNASSIGNED (Engine Adapter, O-5) - owner decision | ADP-01 | ADP-01, G1 |
-| ADP-03 | PS-12 | UNASSIGNED (Engine Adapter, O-5) - owner decision | ADP-01 | ADP-01, G1 |
+| ADP-01 | PS-12 | Engine Adapter Agent (technical assignment, DEC-092) | CLI-01 | CLI-01, CLI-02, CORE-12, G1 |
+| ADP-02 | PS-12 | Engine Adapter Agent (technical assignment, DEC-092) | ADP-01 | ADP-01, G1 |
+| ADP-03 | PS-12 | Engine Adapter Agent (technical assignment, DEC-092) | ADP-01 | ADP-01, G1 |
 | CLI-00 | PS-12 | Client Runtime Agent (technical assignment, DEC-091) | CORE-10, API-01 | G1 |
-| CLI-01 | PS-12 | UNASSIGNED (Client Runtime) - owner decision | CLI-00, CORE-06 | CORE-06, G1 |
-| CLI-02 | PS-12 | UNASSIGNED (Client Runtime) - owner decision | CLI-00, PROC-03, VOX-02 | VOX-03, PROC-05, G1 |
-| CLI-03 | PS-12 | UNASSIGNED (Client Runtime) - owner decision | VOX-05 | VOX-05, G1 |
-| CLI-04 | PS-12 | UNASSIGNED (Client Runtime) - owner decision | CLI-00, API-01 | API-01, G1 |
+| CLI-01 | PS-12 | Client Runtime Agent (technical assignment, DEC-091, DEC-092) | CLI-00, CORE-06 | CORE-06, G1 |
+| CLI-02 | PS-12 | Client Runtime Agent (technical assignment, DEC-091, DEC-092) | CLI-00, PROC-03, VOX-02 | VOX-03, PROC-05, G1 |
+| CLI-03 | PS-12 | Client Runtime Agent (technical assignment, DEC-091, DEC-092) | VOX-05 | VOX-05, G1 |
+| CLI-04 | PS-12 | Client Runtime Agent (technical assignment, DEC-091, DEC-092) | CLI-00, API-01 | API-01, G1 |
 | LEG-02 | PS-12 | UNASSIGNED (Engine Adapter, O-5) - owner decision | ADP-01, CLI-01, GOV-11 | ORCH-05, HIST-02, CLI-01, ADP-01, TEST-10, G1 |
 | RND-01 | PS-12 | Agent I (QA and Benchmarks) | VOX-03 | VOX-03, G1 |
 | CLI-05 | PS-13 | UNASSIGNED (Client Runtime) - owner decision | CLI-01, NET-02 | NET-03, SRV-04, CLI-01, G1 |

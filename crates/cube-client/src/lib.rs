@@ -19,12 +19,14 @@
 pub mod buffers;
 pub mod intent;
 pub mod profile;
+pub mod session;
 
 pub use buffers::MeshBuffers;
 pub use intent::{
     Camera, EditIntent, EditPort, FaceIndex, Hit, Intent, edit_from_camera, pick, replay,
 };
 pub use profile::{DeviceClass, ViewProfile};
+pub use session::{CellKeyExt, Controls, FrameOut, Pose, SessionPort};
 
 /// The derived kind of the baseline renderer (faces, GOV-13).
 pub const fn faces_kind() -> DerivedKind {
