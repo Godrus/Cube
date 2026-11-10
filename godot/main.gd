@@ -101,6 +101,13 @@ func _ready() -> void:
 	print("CUBE world opened: dir=", dir, " create=", create)
 
 
+func _exit_tree() -> void:
+	# A normal quit (window closed, Alt+F4, quit-after) must stop the world so that the journal is
+	# flushed and the world can be reopened; close() is a no-op when the world is already closed.
+	if world != null:
+		world.close()
+
+
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:
 		if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:

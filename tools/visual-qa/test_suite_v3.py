@@ -450,7 +450,8 @@ class EndToEndOffline(unittest.TestCase):
     """The whole `suite` flow with a fake Godot and the mock API."""
 
     def run_suite(self, d, **kw):
-        a = args_for(d, generate=8, profile="regression", seed="5", execute="godot", mode="adaptive", **kw)
+        kw.setdefault("profile", "regression")
+        a = args_for(d, generate=8, seed="5", execute="godot", mode="adaptive", **kw)
         with mock.patch.object(godot_runner, "godot_exe", return_value="fake"), mock.patch.object(godot_runner, "run_scenario", side_effect=fake_runner):
             return suite.run_suite(a)
 
@@ -479,6 +480,17 @@ class EndToEndOffline(unittest.TestCase):
             self.assertEqual(r2["api"]["sent"], 0)
             self.assertEqual(r2["api"]["reused"], sent1 - 1)
             self.assertEqual(r2["api"]["skipped"], 1)
+
+    def test_unsupported_check_is_a_visible_status_not_a_pass(self):
+        with tempfile.TemporaryDirectory() as d:
+            self.run_suite(d, checks="camera,collision", profile="gameplay")
+            r = json.load(open(os.path.join(d, "results.json"), encoding="utf-8"))
+            u = [x for x in r["scenarios"] if x["final"] == "UNSUPPORTED"]
+            self.assertEqual(len(u), 1)
+            self.assertIn("no collision", u[0]["unsupported_reason"])
+            self.assertEqual(r["by_category"]["COLLISION"]["UNSUPPORTED"], 1)
+            self.assertEqual(r["by_category"]["COLLISION"]["PASS"], 0)
+            self.assertIn("UNSUPPORTED", open(os.path.join(d, "report.md"), encoding="utf-8").read())
 
     def test_live_without_key_stops_before_anything(self):
         with tempfile.TemporaryDirectory() as d, mock.patch.dict(os.environ, {}, clear=False), \
@@ -520,6 +532,20 @@ class Integration(unittest.TestCase):
         self.assertIn("var scen_active := false", text)
         self.assertIn("if scen_active:", text)
         self.assertIn('"--scenario":', text)
+
+    def test_hooks_inactive_in_a_normal_godot_start(self):
+        exe = godot_runner.godot_exe()
+        if exe is None:
+            self.skipTest("Godot not installed")
+        import subprocess
+        with tempfile.TemporaryDirectory() as d:
+            r = subprocess.run([exe, "--path", os.path.join(godot_runner.ROOT, "godot"), "--rendering-driver", "opengl3",
+                                "--quit-after", "90", "--", "--world", d], capture_output=True, text=True, timeout=120)
+            # exit code is not asserted: --quit-after returns 1 in this Godot build for a normal start (not a QA hook effect)
+            self.assertIn("CUBE world opened", r.stdout)
+            self.assertNotIn("scenario done", r.stdout)
+            self.assertFalse(os.path.exists(os.path.join(d, "telemetry.json")))
+            self.assertFalse([n for n in os.listdir(d) if n.endswith(".png")])
 
     def test_typesafe_not_in_required_ci(self):
         root = os.path.join(HERE, "..", "..", ".github")

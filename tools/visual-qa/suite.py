@@ -31,7 +31,7 @@ REGRESSION_DIR = os.path.join(HERE, "regression")
 # status logic
 
 def final_status(scen, det, ts):
-    """det / ts are status strings. Statuses: PASS WARN FAIL UNKNOWN SKIPPED."""
+    """det / ts are status strings. Statuses: PASS WARN FAIL UNKNOWN SKIPPED UNSUPPORTED."""
     if det == "SKIPPED":
         return "SKIPPED"
     if det == "FAIL":
@@ -173,9 +173,9 @@ def md_report(run):
     L += ["## Results", "", "| Scenario | Category | Template | Deterministic | TypeSafe | Final |", "|---|---|---|---|---|---|"]
     for r in run["scenarios"]:
         L.append(f"| {r['id']} | {r['category']} | {r['template']}{(' [' + r['injected_fault'] + ']') if r['injected_fault'] else ''} | {r['deterministic']} | {r['typesafe']} | {r['final']} |")
-    L += ["", "## Summary by category", "", "| Category | n | PASS | WARN | FAIL | UNKNOWN | SKIPPED |", "|---|---|---|---|---|---|---|"]
+    L += ["", "## Summary by category", "", "| Category | n | PASS | WARN | FAIL | UNKNOWN | SKIPPED | UNSUPPORTED |", "|---|---|---|---|---|---|---|---|"]
     for cat, c in run["by_category"].items():
-        L.append(f"| {cat} | {c['n']} | {c['PASS']} | {c['WARN']} | {c['FAIL']} | {c['UNKNOWN']} | {c['SKIPPED']} |")
+        L.append(f"| {cat} | {c['n']} | {c['PASS']} | {c['WARN']} | {c['FAIL']} | {c['UNKNOWN']} | {c['SKIPPED']} | {c['UNSUPPORTED']} |")
     L += ["", "(status = the final status of the scenarios of that category; counts, not rates)", "", "## Details", ""]
     for r in run["scenarios"]:
         L += [f"### {r['id']} {r['template']} ({r['category']}): {r['final']}", "",
@@ -183,6 +183,8 @@ def md_report(run):
               f"- injected fault: {r['injected_fault'] or 'none'}; expected: `{json.dumps(r['expected'])}`"]
         if r.get("pictures"):
             L.append("- pictures: " + ", ".join(f"`{p}`" for p in r["pictures"]))
+        if r.get("unsupported_reason"):
+            L.append(f"- UNSUPPORTED: {r['unsupported_reason']}. No test exists; this is neither a pass nor a skip.")
         if r.get("godot_error"):
             L.append(f"- Godot: {r['godot_error']}")
         for name, c in (r.get("checks") or {}).items():
@@ -292,6 +294,7 @@ def run_suite(args):
     for g, rec in zip(plan["groups"], records):
         ts_results.update(qa_batch.parse_record(g, rec))
     rows, by_cat = [], {}
+    empty_cat = lambda: {"n": 0, "PASS": 0, "WARN": 0, "FAIL": 0, "UNKNOWN": 0, "SKIPPED": 0, "UNSUPPORTED": 0}
     for s in scen:
         sid = s["id"]
         det = dets.get(sid)
@@ -322,9 +325,19 @@ def run_suite(args):
                "typesafe_reason": None if ts else reason,
                "reproduce": f"python cube_visual_qa.py suite --from-file {os.path.join(out, 'scenarios.json')} --only {sid}"}
         rows.append(row)
-        c = by_cat.setdefault(s["category"], {"n": 0, "PASS": 0, "WARN": 0, "FAIL": 0, "UNKNOWN": 0, "SKIPPED": 0})
+        c = by_cat.setdefault(s["category"], empty_cat())
         c["n"] += 1
         c[fin] += 1
+    for name in unsupported:  # asked for but impossible: a visible row, never a pass
+        why = scenario_gen.UNSUPPORTED.get(name, "no API")
+        rows.append({"id": f"{name.upper()}-UNSUPPORTED", "category": "COLLISION", "template": name, "injected_fault": None,
+                     "deterministic": "UNSUPPORTED", "typesafe": "UNSUPPORTED", "final": "UNSUPPORTED", "fingerprint": "-",
+                     "world_seed": "-", "gen_seed": "-", "expected": {}, "pictures": [], "checks": None, "metrics": None,
+                     "godot_error": None, "typesafe_questions": None, "typesafe_reason": "unsupported: " + why,
+                     "reproduce": "-", "unsupported_reason": why})
+        c = by_cat.setdefault("COLLISION", empty_cat())
+        c["n"] += 1
+        c["UNSUPPORTED"] += 1
     inp = [r["response"]["usage"]["input_tokens"] for r in records if r["status"] == "ok" and r.get("response", {}).get("usage")]
     api = {"sent": sum(1 for r in records if r["status"] in ("ok", "error")), "reused": sum(1 for r in records if r["status"] == "reused"),
            "skipped": sum(1 for r in records if r["status"] == "skipped"), "deferred": sum(1 for r in records if r["status"] == "deferred"),
