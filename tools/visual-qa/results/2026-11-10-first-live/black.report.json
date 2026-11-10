@@ -1,0 +1,53 @@
+{
+  "questionnaire": "scene-smoke",
+  "model": "jev-1.14.0",
+  "images": {
+    "screenshot": "D:\\Projects\\GitHub\\Games\\Cube-ps2\\tools\\visual-qa\\fixtures\\black.png"
+  },
+  "when": "2026-11-10T02:42:54+00:00",
+  "mode": "live",
+  "verdict": "FAIL",
+  "results": [
+    {
+      "question": "voxel_ground_visible",
+      "p": 0.06,
+      "expect": true,
+      "result": "fail"
+    },
+    {
+      "question": "frame_is_one_flat_colour",
+      "p": 0.98,
+      "expect": false,
+      "result": "fail"
+    },
+    {
+      "question": "large_hole_in_ground",
+      "p": 0.86,
+      "expect": false,
+      "result": "fail"
+    },
+    {
+      "question": "tears_in_terrain",
+      "p": 0.1,
+      "expect": false,
+      "result": "pass"
+    },
+    {
+      "question": "scene_kind",
+      "choice": "empty_or_black_frame",
+      "probabilities": {
+        "voxel_landscape_with_ground": 0.0,
+        "empty_or_black_frame": 0.87,
+        "sky_without_ground": 0.13,
+        "other_scene": 0.0
+      },
+      "expect": "voxel_landscape_with_ground",
+      "result": "fail"
+    }
+  ],
+  "note": "",
+  "usage": {
+    "input_tokens": 2915,
+    "output_tokens": 142
+  }
+}

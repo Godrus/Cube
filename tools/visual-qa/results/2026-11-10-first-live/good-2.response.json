@@ -1,0 +1,36 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "voxel_ground_visible": {
+      "type": "noul",
+      "noul": 0.53
+    },
+    "frame_is_one_flat_colour": {
+      "type": "noul",
+      "noul": 0.06
+    },
+    "large_hole_in_ground": {
+      "type": "noul",
+      "noul": 0.76
+    },
+    "tears_in_terrain": {
+      "type": "noul",
+      "noul": 0.75
+    },
+    "scene_kind": {
+      "type": "choice",
+      "choice": "voxel_landscape_with_ground",
+      "confidence": 0.97,
+      "probabilities": {
+        "voxel_landscape_with_ground": 0.98,
+        "empty_or_black_frame": 0.0,
+        "sky_without_ground": 0.0,
+        "other_scene": 0.02
+      }
+    }
+  },
+  "usage": {
+    "input_tokens": 2916,
+    "output_tokens": 146
+  }
+}

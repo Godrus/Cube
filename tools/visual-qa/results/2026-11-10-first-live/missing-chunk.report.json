@@ -1,0 +1,53 @@
+{
+  "questionnaire": "scene-smoke",
+  "model": "jev-1.14.0",
+  "images": {
+    "screenshot": "D:\\Projects\\GitHub\\Games\\Cube-ps2\\tools\\visual-qa\\fixtures\\missing-chunk.png"
+  },
+  "when": "2026-11-10T02:42:56+00:00",
+  "mode": "live",
+  "verdict": "FAIL",
+  "results": [
+    {
+      "question": "voxel_ground_visible",
+      "p": 0.73,
+      "expect": true,
+      "result": "pass"
+    },
+    {
+      "question": "frame_is_one_flat_colour",
+      "p": 0.02,
+      "expect": false,
+      "result": "pass"
+    },
+    {
+      "question": "large_hole_in_ground",
+      "p": 0.33,
+      "expect": false,
+      "result": "unsure"
+    },
+    {
+      "question": "tears_in_terrain",
+      "p": 0.86,
+      "expect": false,
+      "result": "fail"
+    },
+    {
+      "question": "scene_kind",
+      "choice": "voxel_landscape_with_ground",
+      "probabilities": {
+        "voxel_landscape_with_ground": 0.97,
+        "empty_or_black_frame": 0.0,
+        "sky_without_ground": 0.0,
+        "other_scene": 0.03
+      },
+      "expect": "voxel_landscape_with_ground",
+      "result": "pass"
+    }
+  ],
+  "note": "",
+  "usage": {
+    "input_tokens": 2914,
+    "output_tokens": 146
+  }
+}

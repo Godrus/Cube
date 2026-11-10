@@ -1,22 +1,52 @@
 {
   "good-1.png": {
     "expect": "PASS",
-    "why": "screenshot of the first world, seed 7"
+    "why": "screenshot of the first world, seed 7",
+    "checks": {
+      "voxel_ground_visible": true,
+      "frame_is_one_flat_colour": false,
+      "large_hole_in_ground": false,
+      "tears_in_terrain": false
+    }
   },
   "good-2.png": {
     "expect": "PASS",
-    "why": "screenshot of a second world, seed 11"
+    "why": "screenshot of a second world, seed 11",
+    "checks": {
+      "voxel_ground_visible": true,
+      "frame_is_one_flat_colour": false,
+      "large_hole_in_ground": false,
+      "tears_in_terrain": false
+    }
   },
   "black.png": {
     "expect": "FAIL",
-    "why": "completely black frame"
+    "why": "completely black frame",
+    "checks": {
+      "voxel_ground_visible": false,
+      "frame_is_one_flat_colour": true,
+      "large_hole_in_ground": null,
+      "tears_in_terrain": null
+    }
   },
   "no-terrain.png": {
     "expect": "FAIL",
-    "why": "sky gradient only, no ground"
+    "why": "sky gradient only, no ground",
+    "checks": {
+      "voxel_ground_visible": false,
+      "frame_is_one_flat_colour": null,
+      "large_hole_in_ground": null,
+      "tears_in_terrain": null
+    }
   },
   "missing-chunk.png": {
     "expect": "FAIL",
-    "why": "good-1 with a large rectangle of ground replaced by sky colour"
+    "why": "good-1 with a large rectangle of ground replaced by sky colour",
+    "checks": {
+      "voxel_ground_visible": true,
+      "frame_is_one_flat_colour": false,
+      "large_hole_in_ground": true,
+      "tears_in_terrain": null
+    }
   }
 }

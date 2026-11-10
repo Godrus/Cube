@@ -51,4 +51,4 @@ The truth table lives in code: each question has an `expect` value that is **nev
 
 ## Status
 
-Offline tests pass. **No live request has been made** (no key was available to the agent that wrote this), so there is no measured accuracy yet. Run `python cube_visual_qa.py fixtures --live` and compare the verdicts with `labels.json`; the summary lists every disagreement. `examples/example-synthetic.report.md` is produced from a **synthetic** response (`examples-synthetic-response.json`), not from the model.
+Offline tests pass. One live run was made on 2026-11-10 (5 requests): `results/2026-11-10-first-live/SUMMARY.md`. It caught the black, sky-only and missing-ground images but also flagged both good screenshots (`tears_in_terrain` and `large_hole_in_ground` are unusable as written); the conditional Box was not run live. Five images do not measure the model. `python analyze.py` rebuilds the confusion matrices from `reports/`. `examples/example-synthetic.report.md` is produced from a **synthetic** response (`examples-synthetic-response.json`), not from the model.

@@ -1,0 +1,53 @@
+{
+  "endpoint": "https://api.typesafe.ai/v1/systemone",
+  "headers": {
+    "TypeSafe-Danger-Zone-Images": "true",
+    "Authorization": "Bearer <redacted>"
+  },
+  "request": {
+    "model": "jev-1.14.0",
+    "state": {
+      "screenshot": "cubeqa-screenshot-04f38426a692"
+    },
+    "assets": {
+      "cubeqa-screenshot-04f38426a692": {
+        "type": "image",
+        "part": "image-screenshot"
+      }
+    },
+    "questions": {
+      "voxel_ground_visible": {
+        "type": "noul",
+        "instructions": "Is a ground surface built from blocky, cube-shaped voxels visible in `screenshot`?"
+      },
+      "frame_is_one_flat_colour": {
+        "type": "noul",
+        "instructions": "Is `screenshot` almost entirely a single flat colour, for example completely black?"
+      },
+      "large_hole_in_ground": {
+        "type": "noul",
+        "instructions": "Is there a large area in `screenshot` where ground should be but only the plain background or sky shows?"
+      },
+      "tears_in_terrain": {
+        "type": "noul",
+        "instructions": "Are there sharp gaps or cracks cutting through the terrain in `screenshot`?"
+      },
+      "scene_kind": {
+        "type": "choice",
+        "instructions": "What does `screenshot` show?",
+        "criteria": {
+          "voxel_landscape_with_ground": "A landscape with a blocky green and brown ground surface and sky above it",
+          "empty_or_black_frame": "A blank frame, completely black or one flat colour",
+          "sky_without_ground": "Only sky or background colour with no ground surface at all",
+          "other_scene": "Anything else"
+        }
+      }
+    }
+  },
+  "parts": {
+    "image-screenshot": {
+      "bytes": 165835,
+      "sha256": "2a16917c9be6b9533ab6c05d63ab6f96bd00a5afafa0b9df1bc3447bc99040ea"
+    }
+  }
+}
