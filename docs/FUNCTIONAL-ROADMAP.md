@@ -27,7 +27,7 @@ Status words: Decision (IDEA, PROPOSED, APPROVED, DEFERRED, REJECTED), Implement
 | Server / Multiplayer | **in-process local host of one world** (DEC-092; not the networked server) | authoritative server, replication (PS-13) | PROPOSED; owners unassigned |
 | Gameplay, Characters, Inventory, Crafting, Combat, NPC / AI | none | everything; a minimal slice is *proposed* in `production/FIRST_PLAYABLE_SCOPE.md` | **product detail still required**; not approved |
 | Content / Mods | palette model only | packages, mod loading (no Mod SDK planned yet) | PROPOSED |
-| Platforms / QA | **Visual QA of Godot screenshots with TypeSafe Jev (experimental tool; v1 flagged both good screenshots, v2 questionnaires and 37 real Godot fault pictures are ready and validated offline, live accuracy still unmeasured; deterministic code handles black frames, brick counts and stale updates)**, CI (Linux and Windows), loom, cargo-deny, architecture checks, API snapshots, fault injection model | mobile device validation (DG-1..3) | approved; needs physical devices |
+| Platforms / QA | **Visual QA of Godot screenshots with TypeSafe Jev (experimental, advisory only; v2 measured on 37 real Godot pictures: deterministic code found every partial load and stale update, TypeSafe found missing geometry and wrong materials without a false positive but missed the one-block edits; counts in `tools/visual-qa/V2-RESULTS.md`)**, CI (Linux and Windows), loom, cargo-deny, architecture checks, API snapshots, fault injection model | mobile device validation (DG-1..3) | approved; needs physical devices |
 
 ## 2. In development and next
 

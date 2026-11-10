@@ -1,0 +1,41 @@
+{
+  "model": "jev-1.14.0",
+  "answers": {
+    "terrain_visible": {
+      "type": "noul",
+      "noul": 0.69
+    },
+    "scene_kind": {
+      "type": "choice",
+      "choice": "block_landscape",
+      "confidence": 0.79,
+      "probabilities": {
+        "block_landscape": 0.86,
+        "blank_or_background_only": 0.01,
+        "other_scene": 0.13
+      }
+    },
+    "gap_in_ground": {
+      "type": "noul",
+      "noul": 0.6
+    },
+    "gap_box": {
+      "type": "box",
+      "box": {
+        "top": 0.01,
+        "bottom": 0.08,
+        "left": 0.58,
+        "right": 0.71
+      },
+      "confidence": 0.75
+    },
+    "off_palette_patch": {
+      "type": "noul",
+      "noul": 0.94
+    }
+  },
+  "usage": {
+    "input_tokens": 2912,
+    "output_tokens": 122
+  }
+}
