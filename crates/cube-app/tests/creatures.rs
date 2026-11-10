@@ -274,3 +274,40 @@ fn the_port_view_equals_the_model() {
     );
     let _ = std::fs::remove_dir_all(d);
 }
+
+#[test]
+fn swinging_again_and_again_never_duplicates_a_kill_or_its_loot() {
+    let (mut p, d, _) = start("dup", true);
+    p.enable_creatures();
+    let mut killed: Vec<(i64, i64)> = Vec::new();
+    for _ in 0..2500 {
+        run(&mut p, 1);
+        // A swing every frame: most are refused (cooldown, nothing in reach) and change nothing.
+        if let Ok(st) = p.attack()
+            && st.hit.killed
+        {
+            killed.push(st.column);
+        }
+    }
+    assert!(!killed.is_empty(), "at least one kill happened");
+    let mut unique = killed.clone();
+    unique.sort();
+    unique.dedup();
+    assert_eq!(unique.len(), killed.len(), "no column was killed twice");
+    let mut expected = std::collections::BTreeMap::<u16, u32>::new();
+    for c in &killed {
+        if let Some(drop) = cube_app::loot::SLIME_LOOT.roll(cube_app::loot::loot_key(7, c.0, c.1)) {
+            *expected.entry(drop.item.0).or_default() += drop.count;
+        }
+    }
+    let got: std::collections::BTreeMap<u16, u32> = (1..=6u16)
+        .map(|i| (i, p.game().inventory.count_of(cube_app::game::ItemId(i))))
+        .filter(|(_, n)| *n > 0)
+        .collect();
+    assert_eq!(
+        got, expected,
+        "the inventory is exactly the sum of the rolls of the kills"
+    );
+    assert_eq!(p.game().killed.len(), killed.len());
+    let _ = std::fs::remove_dir_all(d);
+}

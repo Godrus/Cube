@@ -890,6 +890,30 @@ mod tests {
     }
 
     #[test]
+    fn a_save_written_before_reconcile_and_combat_still_loads() {
+        // The exact format of the first game files (no pending, health or kill lines).
+        let old = "cube-game 1
+mode survival
+selected 2
+slot 0 1 64
+slot 1 3 5
+objective shelter-1 8 12 3 4
+";
+        let g = GameState::decode(old).expect("an old file loads");
+        assert_eq!(g.inventory.count_of(ItemId(1)), 64);
+        assert_eq!(g.inventory.count_of(ItemId(3)), 5);
+        assert_eq!(g.inventory.selected(), 2);
+        assert_eq!((g.objective.mined, g.objective.placed), (3, 4));
+        assert_eq!(g.health.cur(), crate::combat::PLAYER_MAX_HEALTH);
+        assert!(g.pending.is_none() && g.killed.is_empty());
+        assert_eq!(
+            GameState::decode(&g.encode()),
+            Some(g),
+            "and saves in the new format"
+        );
+    }
+
+    #[test]
     fn a_damaged_intent_line_means_a_damaged_file() {
         let mut g = GameState::default();
         g.begin_mined(3, 1);

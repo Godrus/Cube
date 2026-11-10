@@ -92,5 +92,11 @@ def run_scenario(scen, out_dir, timeout=180, extra_engine_args=(), memory_log=No
             with open(tel_path, encoding="utf-8") as f:
                 result[name] = json.load(f)
         except subprocess.TimeoutExpired:
-            result[name] = {"error": f"Godot did not finish within {timeout}s"}
+            where = ""
+            try:
+                with open(os.path.join(pdir, "progress.txt"), encoding="utf-8") as pf:
+                    where = " | last progress: " + pf.read().strip()
+            except OSError:
+                where = " | no progress file (the scene never started the scenario: native extension not loaded?)"
+            result[name] = {"error": f"Godot did not finish within {timeout}s" + where}
     return result

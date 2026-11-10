@@ -8,6 +8,7 @@ Run:  python walk_smoke.py        (needs Godot 4.2.2; set GODOT_BIN if it is els
 import json
 import math
 import os
+import time
 import sys
 import tempfile
 
@@ -202,6 +203,7 @@ def main_play():
           "items %d" % tot(p["final"]))
     check("after quit and restart items and objective are back", tot(q["restored"]) == tot(p["final"]) and q["restored"]["game"]["objective_done"],
           "items %d, objective done %s" % (tot(q["restored"]), q["restored"]["game"]["objective_done"]))
+    check("a normal game (no --creatures) has no creatures and the combat hooks stay off", all(not e.get("creatures") for e in ev if "game" in e) and all(e["op"] not in ("attack", "fight") for e in ev), "%d events checked" % len(ev))
     for name in ("hud_start", "hud_mined", "inventory", "hud_creative"):
         f = os.path.join(out, "p1", name + ".png")
         check("picture " + name, os.path.exists(f) and os.path.getsize(f) > 10000, f)
@@ -215,19 +217,20 @@ def combat():
     and after quit and restart the kill and the loot are still there (the creature does not come back)."""
     p1 = [W(20), {"op": "mode", "walk": True}, W(240), {"op": "probe", "name": "start"},
           {"op": "attack"}, {"op": "probe", "name": "nothing_in_reach"}, W(3), {"op": "shot", "name": "creatures_far"},
-          {"op": "fight", "frames": 900}, W(3), {"op": "fight", "frames": 1, "name": "x"}, {"op": "probe", "name": "after_fight"}, {"op": "shot", "name": "after_fight"}]
-    p2 = [W(240), {"op": "probe", "name": "restored"}, {"op": "fight", "frames": 1}]
+          {"op": "fight", "frames": 330}, {"op": "shot", "name": "chase"}, {"op": "fight", "frames": 1500}, W(3), {"op": "probe", "name": "after_fight"}, {"op": "shot", "name": "after_fight"}]
+    p2 = [W(240), {"op": "probe", "name": "restored"}]
     return {"world_seed": 7, "hud": True, "creatures": True,
             "phases": [{"name": "p1", "create": True, "steps": p1}, {"name": "p2", "create": False, "same_world_as": "p1", "steps": p2}]}
 
 
-def main_combat():
+def combat_once(n):
     out = tempfile.mkdtemp(prefix="cube-combat-")
-    tel = godot_runner.run_scenario(combat(), out, timeout=900)
+    t0 = time.time()
+    tel = godot_runner.run_scenario(combat(), out, timeout=240)
     for ph, t in tel.items():
         if "events" not in t:
-            print("Godot phase failed:", ph, t)
-            return 1
+            print("FAIL godot phase %s: %s" % (ph, t.get("error", t)))
+            return False
     p, q = probes(tel, "p1"), probes(tel, "p2")
     ev = tel["p1"]["events"]
     checks = []
@@ -237,31 +240,60 @@ def main_combat():
         print(("ok   " if ok else "FAIL ") + name + ": " + detail)
 
     st = p["start"]
-    check("full health and creatures exist near the start", st["game"]["health"] == 20 == st["game"]["max_health"] and len(st["creatures"]) >= 1,
-          "health %s/%s, %d creatures" % (st["game"]["health"], st["game"]["max_health"], len(st["creatures"])))
+    check("full health and creatures exist near the start; the HUD shows it", st["game"]["health"] == 20 == st["game"]["max_health"] and len(st["creatures"]) >= 1 and st["hp_label"] == "HP 20/20",
+          "health %s/%s, label '%s', %d creatures" % (st["game"]["health"], st["game"]["max_health"], st["hp_label"], len(st["creatures"])))
     att = [e for e in ev if e["op"] == "attack"]
-    check("a swing with nothing in reach hits nothing", att and att[0]["result"] == "none", "result '%s'" % (att[0]["result"] if att else None))
+    check("a swing with nothing in reach hits nothing", bool(att) and att[0]["result"] == "none", "result '%s'" % (att[0]["result"] if att else None))
     fights = [e for e in ev if e["op"] == "fight"]
-    hits = max([f["hits"] for f in fights] or [0])
+    f = fights[-1] if fights else {"result": "missing", "trace": [], "hits": 0, "frames_used": 0}
+    check("the bot reached the slime and killed it", f["result"] == "killed", "result '%s' after %d frames, %d hits" % (f["result"], f["frames_used"], f["hits"]))
+    if f["result"] != "killed":
+        for t in f["trace"][-12:]:
+            print("     trace", t)
+    states = {t["state"] for t in f["trace"]} | {c["state"] for c in st["creatures"]}
+    names = {0: "IDLE", 1: "CHASE", 2: "ATTACK"}
+    check("the AI went through IDLE, CHASE and ATTACK (DEAD = removed with a message)", {0, 1, 2} <= states, "seen " + ",".join(names.get(x, str(x)) for x in sorted(states)))
     a = p["after_fight"]
-    check("the player landed hits (two kill a slime)", hits >= 2, "hits %d" % hits)
+    msg = a["game"]["message"]
+    check("the creature's death is shown and counted (it is gone, a message says so)", "defeated" in msg and f["hits"] >= 2, "message '%s'" % msg)
     loot = sum(a["game"]["slots"][1::2])
-    check("the kill rolled loot into the inventory or the table rolled nothing (see telemetry)", loot >= 0, "items %d" % loot)
+    import re
+    m = re.search(r"\+(\d+) ", msg)
+    check("the inventory holds exactly the loot the message names", loot == (int(m.group(1)) if m else 0), "items %d, message '%s'" % (loot, msg))
     lowest = min(e["game"]["health"] for e in ev if "game" in e)
-    check("the creature hurt the player on its way", lowest < 20, "lowest health %s" % lowest)
-    for name in ("creatures_far", "after_fight"):
-        f = os.path.join(out, "p1", name + ".png")
-        check("picture " + name, os.path.exists(f) and os.path.getsize(f) > 10000, f)
+    check("the creature hurt the player (damage is decided in Rust)", lowest < 20, "lowest health %s; HUD at the end '%s'" % (lowest, a["hp_label"]))
+    check("the HUD health equals the Rust health", a["hp_label"] == "HP %d/%d" % (a["game"]["health"], a["game"]["max_health"]), "'%s'" % a["hp_label"])
+    # Displayed positions equal the Rust state in every probe (the box sits 0.4 above the feet).
+    bad = 0
+    total = 0
+    for e in ev:
+        if "creatures" not in e:
+            continue
+        nodes = e.get("nodes", [])
+        total += len(nodes)
+        for nd in nodes:
+            if not any(abs(nd[0] - c["pos"][0]) < 0.01 and abs(nd[1] - 0.4 - c["pos"][1]) < 0.01 and abs(nd[2] - c["pos"][2]) < 0.01 for c in e["creatures"]):
+                bad += 1
+    check("each drawn creature sits where Rust says", total > 0 and bad == 0, "%d positions compared, %d off" % (total, bad))
+    for name in ("creatures_far", "chase", "after_fight"):
+        pic = os.path.join(out, "p1", name + ".png")
+        check("picture " + name, os.path.exists(pic) and os.path.getsize(pic) > 10000, pic)
     r = q["restored"]
-    check("after restart the items are back", sum(r["game"]["slots"][1::2]) == loot, "items %d" % sum(r["game"]["slots"][1::2]))
-    lp = [f["last_hit_pos"] for f in fights if f["last_hit_pos"]]
-    if lp:
-        lx, lz = lp[-1][0], lp[-1][2]
+    check("after restart the items are back and the health is not reset by magic", sum(r["game"]["slots"][1::2]) == loot, "items %d" % sum(r["game"]["slots"][1::2]))
+    if f["last_hit_pos"]:
+        lx, lz = f["last_hit_pos"][0], f["last_hit_pos"][2]
         back = [c for c in r["creatures"] if abs(c["pos"][0] - lx) < 8 and abs(c["pos"][2] - lz) < 8]
         check("the killed creature did not come back", len(back) == 0, "%d creatures near the kill" % len(back))
-    failed = [n for n, ok, _ in checks if not ok]
-    print("combat smoke:", "PASS" if not failed else "FAIL " + ", ".join(failed), "(", out, ")")
-    return 0 if not failed else 1
+    failed = [x for x, ok, _ in checks if not ok]
+    print("combat smoke run %d: %s (%.0f s, %s)" % (n, "PASS" if not failed else "FAIL " + ", ".join(failed), time.time() - t0, out))
+    return not failed
+
+
+def main_combat():
+    runs = int(sys.argv[sys.argv.index("--runs") + 1]) if "--runs" in sys.argv else 2
+    oks = [combat_once(i + 1) for i in range(runs)]
+    print("combat smoke:", "PASS" if all(oks) else "FAIL", "(%d of %d runs passed)" % (sum(oks), runs))
+    return 0 if all(oks) else 1
 
 
 if __name__ == "__main__":

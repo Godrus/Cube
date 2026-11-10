@@ -83,6 +83,14 @@ var scen_events := []
 var scen_changed := 0
 var scen_edit_event = null
 var scen_hits := 0
+var fight_result := ""
+var fight_trace := []
+var fight_best := 1e9
+var fight_stuck := 0
+var fight_last := ""
+var fight_prev_living := -1
+var fight_hits_at_start := 0
+var fight_start_frame := 0
 var scen_last_hit_pos := []
 
 
@@ -675,11 +683,34 @@ func _event(op: String, extra: Dictionary = {}) -> Dictionary:
 		"walking": world.is_walking(), "grounded": world.is_grounded(),
 		"feet": [world.player_feet().x, world.player_feet().y, world.player_feet().z],
 		"stats": world.stream_stats(), "ms": Time.get_ticks_msec(), "game": world.game_view(),
-		"creatures": _creatures_plain()}
+		"creatures": _creatures_plain(), "nodes": _nodes_plain(), "hp_label": "" if health_label == null else health_label.text, "hp_bar": 0 if health_bar == null else health_bar.value}
 	for k in extra:
 		e[k] = extra[k]
 	scen_events.append(e)
 	return e
+
+
+func fight_reset() -> void:
+	fight_result = ""
+	fight_trace = []
+	fight_best = 1e9
+	fight_stuck = 0
+	fight_last = ""
+	fight_prev_living = -1
+	fight_hits_at_start = scen_hits
+	fight_start_frame = frames
+
+
+func _write_progress() -> void:
+	# Written while a scenario runs so that a stuck run can say where it stopped.
+	var f := FileAccess.open(scen_out.path_join("progress.txt"), FileAccess.WRITE)
+	if f == null:
+		return
+	var op := "" if scen_cmd == null else str(scen_cmd["op"])
+	f.store_string("step %d/%d op=%s frame=%d hp=%s creatures=%d hits=%d fight=%s last=%s
+" % [
+		scen_i, scen_steps.size(), op, frames, str(world.game_view()["health"]), world.creatures().size(), scen_hits, fight_result, fight_last])
+	f.close()
 
 
 func _creatures_plain() -> Array:
@@ -690,8 +721,19 @@ func _creatures_plain() -> Array:
 	return out
 
 
+func _nodes_plain() -> Array:
+	var out := []
+	for n in creature_nodes:
+		if (n as MeshInstance3D).visible:
+			var p: Vector3 = (n as MeshInstance3D).position
+			out.append([p.x, p.y, p.z])
+	return out
+
+
 func _scenario_frame() -> void:
 	frames += 1
+	if frames % 60 == 0:
+		_write_progress()
 	if scen_cmd == null:
 		if scen_i >= scen_steps.size():
 			_scenario_finish(0)
@@ -714,27 +756,60 @@ func _scenario_frame() -> void:
 		dyaw = float(scen_cmd.get("yaw", 0.0)) / float(scen_cmd["_total"])
 		dpitch = float(scen_cmd.get("pitch", 0.0)) / float(scen_cmd["_total"])
 	elif op == "fight":
-		# QA bot: walk to the nearest creature and swing at it (what a player would do by hand).
+		# QA bot (scenario mode only): walk to the nearest living creature and swing at it, the way a
+		# person would by hand. It ends itself with an explicit result: killed, stuck (no progress
+		# for 4 s), no_target, or timeout (the step's frame budget).
+		if int(scen_cmd["_left"]) == int(scen_cmd["_total"]):
+			fight_reset()
 		var list: Array = world.creatures()
 		var feet: Vector3 = world.player_feet()
 		var best = null
 		var bd := 1e9
+		var living := 0
 		for c in list:
+			if int(c["state"]) == 3:
+				continue
+			living += 1
 			var d: float = feet.distance_to(c["pos"])
-			if d < bd and int(c["state"]) != 3:
+			if d < bd:
 				bd = d
 				best = c
-		if best != null and bd < 90.0:
+		# Killed = the creature that was hit is gone (the population may already have spawned another).
+		if scen_hits > fight_hits_at_start and scen_last_hit_pos.size() == 3:
+			var lp := Vector3(scen_last_hit_pos[0], scen_last_hit_pos[1], scen_last_hit_pos[2])
+			var still := false
+			for c2 in list:
+				if int(c2["state"]) != 3 and (c2["pos"] as Vector3).distance_to(lp) < 1.5:
+					still = true
+			if not still:
+				fight_result = "killed"
+		if best == null or bd > 90.0:
+			if fight_result == "":
+				fight_result = "no_target"
+		elif fight_result == "":
 			var bp: Vector3 = best["pos"]
 			var want := atan2(-(bp.x - feet.x), -(bp.z - feet.z))
 			dyaw = wrapf(want - cam.rotation.y, -PI, PI) * 0.5
-			if bd > 2.0:
+			if bd < fight_best - 0.05:
+				fight_best = bd
+				fight_stuck = 0
+			else:
+				fight_stuck += 1
+			if fight_stuck > 240 and bd > 2.0:
+				fight_result = "stuck"
+			elif bd > 2.0:
 				fwd = 1
 				up = 1 if frames % 40 == 0 else 0
 			else:
-				if world.attack() == "ok":
+				fight_last = world.attack()
+				if fight_last == "ok":
 					scen_hits += 1
 					scen_last_hit_pos = [bp.x, bp.y, bp.z]
+			if int(scen_cmd["_total"]) - int(scen_cmd["_left"]) > 0 and frames % 30 == 0:
+				fight_trace.append({"frame": frames, "dist": snappedf(bd, 0.01), "state": int(best["state"]), "hp": int(world.game_view()["health"]),
+					"hits": scen_hits, "last": fight_last, "living": living, "target_hp": int(best["health"])})
+		if fight_result != "":
+			scen_cmd["_left"] = 1
 	if not freeze_world:
 		var changed: int = world.frame(fwd, right, up, dyaw, dpitch, 1.0 / 60.0)
 		if changed > 0:
@@ -787,7 +862,7 @@ func _scenario_action(op: String) -> void:
 				inventory_panel.visible = bool(scen_cmd.get("open", true))
 			_event("inventory")
 		"fight":
-			_event("fight", {"hits": scen_hits, "last_hit_pos": scen_last_hit_pos})
+			_event("fight", {"hits": scen_hits, "last_hit_pos": scen_last_hit_pos, "result": fight_result if fight_result != "" else "timeout", "trace": fight_trace, "frames_used": frames - fight_start_frame + 1})
 		"attack":
 			_event("attack", {"result": world.attack()})
 		"mode":
