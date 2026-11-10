@@ -2,7 +2,7 @@
 
 Human-readable view of what Cube can do, what is being built and what is still only a plan. The complete list with stable ids is `FEATURE-REGISTRY.md` (generated from `features.json`). The technical plan, dependencies and gates stay in `production/` (ADG in `production/module-boundaries.md`); this file does not replace them and never changes them.
 
-**Last verified state:** `dev` at `01519c6` (CI green; includes L-COMP-1, SDF, Mesh, WorldGen 11A, client foundation); `dev` at `c87534e`, CI 42720748823 green. Gates passed: G0, G1, G2 (RG-2 still mandatory), G3, G4. Open: G5 (PS-5), G10 (PS-10). RG-1 not passed.
+**Last verified state:** `dev` at `c248bce` (CI green; includes the Godot first world, world record, greedy without T-junctions); `dev` at `c87534e`, CI 42720748823 green. Gates passed: G0, G1, G2 (RG-2 still mandatory), G3, G4. Open: G5 (PS-5), G10 (PS-10). RG-1 not passed.
 
 **One rule above all:** integrated Rust code is *not* a player feature. Today **no feature is player available**. One thing is a **developer demo (DEMO_AVAILABLE)**: a Godot 4 scene (`godot/`) that shows a generated, editable and savable voxel terrain; it needs a Rust build and a local Godot and is not part of CI. Everything else marked integrated is reachable only through Rust APIs and tests.
 
