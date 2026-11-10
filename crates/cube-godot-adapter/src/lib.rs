@@ -170,6 +170,20 @@ impl CubeWorld {
         self.session.as_ref().is_some_and(|s| s.grounded())
     }
 
+    /// Streaming and memory counters: resident, edited, loads, evictions, derived_cached, active.
+    #[func]
+    fn stream_stats(&self) -> VarDictionary {
+        let s = self.session.as_ref().map(|s| s.stats()).unwrap_or_default();
+        let mut d = VarDictionary::new();
+        d.set("resident", s.resident as i64);
+        d.set("edited", s.edited as i64);
+        d.set("loads", s.loads as i64);
+        d.set("evictions", s.evictions as i64);
+        d.set("derived_cached", s.derived_cached as i64);
+        d.set("active", s.active as i64);
+        d
+    }
+
     /// Feet position of the walking player (zero when flying).
     #[func]
     fn player_feet(&self) -> Vector3 {

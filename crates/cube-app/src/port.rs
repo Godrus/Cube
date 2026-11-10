@@ -181,6 +181,10 @@ impl SessionPort for PortSession {
     fn grounded(&self) -> bool {
         self.session.grounded()
     }
+
+    fn stats(&self) -> cube_client::SessionStats {
+        self.session.stats()
+    }
 }
 
 /// Opens (or creates) the first world in `dir` with `seed` and starts a session above its

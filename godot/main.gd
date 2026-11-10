@@ -376,7 +376,8 @@ func _event(op: String, extra: Dictionary = {}) -> Dictionary:
 		"camera_position": [cam.position.x, cam.position.y, cam.position.z],
 		"camera_rotation": [cam.rotation.x, cam.rotation.y, cam.rotation.z],
 		"walking": world.is_walking(), "grounded": world.is_grounded(),
-		"feet": [world.player_feet().x, world.player_feet().y, world.player_feet().z]}
+		"feet": [world.player_feet().x, world.player_feet().y, world.player_feet().z],
+		"stats": world.stream_stats(), "ms": Time.get_ticks_msec()}
 	for k in extra:
 		e[k] = extra[k]
 	scen_events.append(e)

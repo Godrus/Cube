@@ -163,10 +163,28 @@ pub struct LocalHost {
     streamed: Mutex<Streamed>,
 }
 
-/// Bricks the host has generated into Core, and the next system operation number.
+/// Bricks resident in Core (generated or edited), the bricks the player has edited, and the next
+/// system operation number.
 struct Streamed {
     loaded: HashSet<BrickCoord>,
+    /// Bricks with user edits: they are never unloaded (their content is not regenerable).
+    edited: HashSet<BrickCoord>,
     next_op: u64,
+    loads: u64,
+    evictions: u64,
+}
+
+/// Counters of the streaming state.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct StreamStats {
+    /// Bricks resident in Core now.
+    pub resident: usize,
+    /// Of those, bricks with user edits (pinned).
+    pub edited: usize,
+    /// Bricks generated or reloaded since the host opened.
+    pub loads: u64,
+    /// Bricks unloaded since the host opened.
+    pub evictions: u64,
 }
 
 fn lock<T>(m: &Mutex<T>) -> std::sync::MutexGuard<'_, T> {
@@ -251,22 +269,45 @@ impl LocalHost {
         // The untouched base of the static area, then the user's edits on top of it.
         let mut streamed = Streamed {
             loaded: HashSet::new(),
+            edited: HashSet::new(),
             next_op: 1,
+            loads: 0,
+            evictions: 0,
         };
         if snapshot.is_none() {
             let bricks = area.bricks();
             materialise(&handles.system, &record, &bricks, &mut streamed)?;
             // Bricks that earlier sessions edited may lie outside the initial area: their base must
             // exist before their edits are replayed.
-            let mut edited = Vec::new();
+            // A brick may have been unloaded and loaded again during the session that wrote the
+            // journal; every load raises its revision by one, and an edit records the revision it
+            // expected. So the base is brought to the first recorded expectation of each cell
+            // (by the same unload and load steps, never by resetting a counter) before replay.
+            let mut first_seen: HashSet<BrickCoord> = HashSet::new();
             for e in entries.iter().filter(|e| !e.payload.is_empty()) {
-                if let Ok(batch) = cube_persistence::decode_batch(&e.payload, &limits) {
-                    for set in &batch.sets {
-                        edited.extend(set.writes.iter().map(|w| w.brick));
+                let Ok(batch) = cube_persistence::decode_batch(&e.payload, &limits) else {
+                    continue;
+                };
+                for set in &batch.sets {
+                    for w in &set.writes {
+                        streamed.edited.insert(w.brick);
+                        if !first_seen.insert(w.brick) {
+                            continue;
+                        }
+                        materialise(&handles.system, &record, &[w.brick], &mut streamed)?;
+                        if let cube_core::ExpectedRevision::At(want) = w.expected {
+                            bring_to_revision(
+                                &handles.system,
+                                &reader,
+                                &record,
+                                w.brick,
+                                want,
+                                &mut streamed,
+                            )?;
+                        }
                     }
                 }
             }
-            materialise(&handles.system, &record, &edited, &mut streamed)?;
         }
         let report = replay_confirmed(&entries, &handles.recovery, &limits);
         if !report.failed.is_empty() {
@@ -340,9 +381,79 @@ impl LocalHost {
         Ok(missing - done)
     }
 
-    /// Number of bricks generated into Core so far (diagnostics).
+    /// Number of bricks resident in Core now (diagnostics).
     pub fn loaded_bricks(&self) -> usize {
         lock(&self.streamed).loaded.len()
+    }
+
+    /// Streaming counters.
+    pub fn stream_stats(&self) -> StreamStats {
+        let st = lock(&self.streamed);
+        StreamStats {
+            resident: st.loaded.len(),
+            edited: st.edited.len(),
+            loads: st.loads,
+            evictions: st.evictions,
+        }
+    }
+
+    /// Unloads bricks the player is far from. A resident brick is a candidate when it has no user
+    /// edit and is further than `evict_radius` bricks from `centre`; if more than `max_resident`
+    /// bricks are resident, the farthest candidates beyond `protect_radius` go too. Bricks with
+    /// user edits and bricks within `protect_radius` are never unloaded. The derived data of
+    /// unloaded bricks is dropped from the Processing cache. Returns how many bricks were
+    /// unloaded. Unloaded base bricks are regenerated, identical, when the player comes back.
+    pub fn evict_far(
+        &self,
+        centre: BrickCoord,
+        evict_radius: i64,
+        protect_radius: i64,
+        max_resident: usize,
+    ) -> Result<usize, HostError> {
+        let dist = |b: &BrickCoord| {
+            (b.x - centre.x)
+                .abs()
+                .max((b.y - centre.y).abs())
+                .max((b.z - centre.z).abs())
+        };
+        let mut st = lock(&self.streamed);
+        let mut victims: Vec<BrickCoord> = st
+            .loaded
+            .iter()
+            .filter(|b| !st.edited.contains(b) && dist(b) > evict_radius)
+            .copied()
+            .collect();
+        let over = st.loaded.len().saturating_sub(victims.len()) > max_resident;
+        if over {
+            let mut more: Vec<BrickCoord> = st
+                .loaded
+                .iter()
+                .filter(|b| {
+                    !st.edited.contains(b) && dist(b) > protect_radius && dist(b) <= evict_radius
+                })
+                .copied()
+                .collect();
+            more.sort_by_key(|b| (std::cmp::Reverse(dist(b)), b.x, b.y, b.z));
+            let excess = st.loaded.len() - victims.len() - max_resident;
+            victims.extend(more.into_iter().take(excess));
+        }
+        let mut targets = Vec::with_capacity(victims.len());
+        for b in &victims {
+            self.system
+                .evict(LayerId::new(VOXEL_LAYER), 0, *b)
+                .map_err(setup)?;
+            st.loaded.remove(b);
+            st.evictions += 1;
+            if let Ok(key) = cube_core::CellKey::new(LayerId::new(VOXEL_LAYER), 0, *b) {
+                targets.push(cube_processing::DerivedTarget {
+                    kind: cube_backend_voxel::FACES_KIND,
+                    key,
+                });
+            }
+        }
+        drop(st);
+        self.executor.forget(&targets);
+        Ok(victims.len())
     }
 
     /// Height of the ground at column `(x, z)` in this world (voxels), for placing a camera.
@@ -391,6 +502,11 @@ impl LocalHost {
             EditRequest::Remove { voxel } => (voxel, kinds::REMOVE_GEOMETRY, remove(None)),
         };
         let edit_err = |e: &dyn std::fmt::Debug| HostError::Edit(format!("{e:?}"));
+        let brick = BrickCoord::new(
+            voxel[0].div_euclid(16),
+            voxel[1].div_euclid(16),
+            voxel[2].div_euclid(16),
+        );
         let end = |c: i64| {
             c.checked_add(1)
                 .ok_or_else(|| HostError::Edit("coordinate at the end of the grid".into()))
@@ -438,7 +554,10 @@ impl LocalHost {
             return Err(edit_err(&r));
         }
         match self.svc.commit(&h) {
-            EditingResult::Success(_) => Ok(()),
+            EditingResult::Success(_) => {
+                lock(&self.streamed).edited.insert(brick); // pinned from now on
+                Ok(())
+            }
             other => Err(edit_err(&other)),
         }
     }
@@ -458,9 +577,43 @@ fn materialise(
             .map_err(HostError::Generator)?;
         let op = OperationId::new(0, streamed.next_op);
         streamed.next_op += 1;
+        streamed.loads += 1;
         system
             .materialise(op, LayerId::new(VOXEL_LAYER), 0, b, g.into_change())
             .map_err(setup)?;
+    }
+    Ok(())
+}
+
+/// Raises the revision of a resident, unedited base brick to `want` by unloading and loading it
+/// again (each load is one revision), exactly the steps the earlier session took. Fails if the
+/// brick is already past `want` (the journal and the world disagree).
+fn bring_to_revision(
+    system: &SystemCommit,
+    reader: &SharedAsset,
+    record: &WorldRecord,
+    b: BrickCoord,
+    want: cube_core::Revision,
+    streamed: &mut Streamed,
+) -> Result<(), HostError> {
+    let layer = LayerId::new(VOXEL_LAYER);
+    let have = |reader: &SharedAsset| {
+        reader
+            .snapshot()
+            .cell_token(layer, 0, b)
+            .map_or(0, |t| t.value().raw())
+    };
+    while have(reader) < want.raw() {
+        system.evict(layer, 0, b).map_err(setup)?;
+        streamed.loaded.remove(&b);
+        materialise(system, record, &[b], streamed)?;
+    }
+    if have(reader) != want.raw() {
+        return Err(HostError::Setup(format!(
+            "brick {b:?} is at revision {} but the journal expects {}",
+            have(reader),
+            want.raw()
+        )));
     }
     Ok(())
 }

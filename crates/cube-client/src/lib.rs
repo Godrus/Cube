@@ -28,7 +28,7 @@ pub use intent::{
     replay,
 };
 pub use profile::{DeviceClass, ViewProfile};
-pub use session::{CellKeyExt, Controls, FrameOut, Pose, SessionPort};
+pub use session::{CellKeyExt, Controls, FrameOut, Pose, SessionPort, SessionStats};
 pub use walk::{EYE_HEIGHT, WalkInput, Walker};
 
 /// The derived kind of the baseline renderer (faces, GOV-13).

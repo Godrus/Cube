@@ -49,8 +49,31 @@ const CHASE_MARGIN: f64 = 0.3;
 /// Below this height (voxels) the player has left the world and is put back at the spawn point.
 const VOID_Y: f64 = -64.0;
 const EYE: f64 = cube_client::EYE_HEIGHT;
-/// Bricks the host may generate in one frame (generation is cheap but not free).
-const LOAD_BUDGET: usize = 48;
+/// Streaming limits (all in bricks). Defaults are engineering values, not measured optima.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct StreamBudget {
+    /// Bricks the host may generate in one frame (generation is cheap but not free).
+    pub load_per_frame: usize,
+    /// Bricks beyond the view region that are kept generated (so faces see real neighbours).
+    pub load_margin: i64,
+    /// Extra distance beyond the loaded surroundings before a brick is unloaded (hysteresis:
+    /// walking back and forth over a border must not load and unload the same bricks).
+    pub evict_hysteresis: i64,
+    /// Upper bound on resident bricks; the farthest unedited bricks beyond the loaded
+    /// surroundings are unloaded first. Edited bricks are never unloaded, so edits can exceed it.
+    pub max_resident: usize,
+}
+
+impl Default for StreamBudget {
+    fn default() -> Self {
+        Self {
+            load_per_frame: 48,
+            load_margin: 1,
+            evict_hysteresis: 2,
+            max_resident: 1500,
+        }
+    }
+}
 
 /// The player as it is saved between runs (client-side data, not world state).
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -87,6 +110,7 @@ pub struct Session {
     third_person: Mutex<bool>,
     spawn: Mutex<[f64; 3]>,
     near: Mutex<Option<Near>>,
+    budget: Mutex<StreamBudget>,
 }
 
 fn lock<T>(m: &Mutex<T>) -> std::sync::MutexGuard<'_, T> {
@@ -118,7 +142,26 @@ impl Session {
             third_person: Mutex::new(false),
             spawn: Mutex::new([camera_pos[0], camera_pos[1] - EYE, camera_pos[2]]),
             near: Mutex::new(None),
+            budget: Mutex::new(StreamBudget::default()),
         })
+    }
+
+    /// Replaces the streaming limits.
+    pub fn set_budget(&self, b: StreamBudget) {
+        *lock(&self.budget) = b;
+    }
+
+    /// Streaming and memory counters.
+    pub fn stats(&self) -> cube_client::SessionStats {
+        let s = self.host.stream_stats();
+        cube_client::SessionStats {
+            resident: s.resident as u64,
+            edited: s.edited as u64,
+            loads: s.loads,
+            evictions: s.evictions,
+            derived_cached: self.host.executor().cached_entries() as u64,
+            active: self.client.cached() as u64,
+        }
     }
 
     /// The host (read-only use: hash, record).
@@ -354,18 +397,30 @@ impl Session {
         };
         {
             let r = i64::from(self.profile.radius);
+            let bud = *lock(&self.budget);
             let mut c = lock(&self.centre);
             if *c != Some(want) {
                 // Generate the new surroundings (region + one brick) first; move the region only
                 // when they all exist, so no face is ever decided against a missing neighbour.
                 // The very first region is generated in full (nothing is shown before it exists).
-                let budget = if c.is_none() { usize::MAX } else { LOAD_BUDGET };
-                let missing = self.host.ensure_loaded(want, r + 1, budget)?;
+                let budget = if c.is_none() {
+                    usize::MAX
+                } else {
+                    bud.load_per_frame
+                };
+                let missing = self.host.ensure_loaded(want, r + bud.load_margin, budget)?;
                 if missing == 0 {
                     self.client
                         .set_interest(want, self.profile.radius)
                         .map_err(|e| HostError::Setup(format!("{e:?}")))?;
                     *c = Some(want);
+                    // Unload what the player left far behind (never edited bricks).
+                    self.host.evict_far(
+                        want,
+                        r + bud.load_margin + bud.evict_hysteresis,
+                        r + bud.load_margin,
+                        bud.max_resident,
+                    )?;
                 }
             }
         }

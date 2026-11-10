@@ -264,6 +264,32 @@ impl Executor {
         Ok(slot.current().map(|p| payload_of(&p.value)))
     }
 
+    /// Drops the cached results of `targets` (for example the derived data of bricks that were
+    /// unloaded). A target with a task queued or running is kept, so a task is never orphaned;
+    /// asking for a forgotten target later simply computes it again. Returns how many entries
+    /// were dropped.
+    pub fn forget(&self, targets: &[DerivedTarget]) -> usize {
+        let active: Vec<DerivedTarget> = {
+            let s = lock(&self.inner.sched);
+            targets
+                .iter()
+                .filter(|t| s.active.get(t).is_some_and(|x| !x.state().is_terminal()))
+                .copied()
+                .collect()
+        };
+        let mut slots = lock(&self.inner.slots);
+        targets
+            .iter()
+            .filter(|t| !active.contains(t))
+            .filter(|t| slots.remove(t).is_some())
+            .count()
+    }
+
+    /// Number of cached derived entries (diagnostics: it must not grow without bound).
+    pub fn cached_entries(&self) -> usize {
+        lock(&self.inner.slots).len()
+    }
+
     /// Pinned snapshot data now and its high-water marks.
     pub fn pinned(&self) -> PinUsage {
         self.inner.budget.usage()

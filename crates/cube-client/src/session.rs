@@ -61,6 +61,23 @@ pub struct Pose {
     pub pitch: f32,
 }
 
+/// Counters an engine may show (streaming and memory), all read-only.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct SessionStats {
+    /// Bricks resident in the authoritative world.
+    pub resident: u64,
+    /// Of those, bricks with user edits (never unloaded).
+    pub edited: u64,
+    /// Bricks generated or reloaded since the start.
+    pub loads: u64,
+    /// Bricks unloaded since the start.
+    pub evictions: u64,
+    /// Cached derived entries (faces) in Processing.
+    pub derived_cached: u64,
+    /// Bricks with geometry in the client's active region.
+    pub active: u64,
+}
+
 /// The surface an adapter sees of a world.
 pub trait SessionPort: Send {
     /// Runs one frame.
@@ -88,5 +105,9 @@ pub trait SessionPort: Send {
     /// The walking player stands on something.
     fn grounded(&self) -> bool {
         false
+    }
+    /// Streaming and memory counters.
+    fn stats(&self) -> SessionStats {
+        SessionStats::default()
     }
 }

@@ -90,5 +90,57 @@ def main():
     return 0 if not failed else 1
 
 
+def journey():
+    """Travel far and come back with a pinned edit at the start: memory must stabilise, the game must keep running."""
+    p1 = [W(20), {"op": "mode", "walk": True}, W(240), {"op": "turn", "yaw": 0.0, "pitch": -3.0, "frames": 3}, W(20),
+          {"op": "edit", "material": 0}, W(90), {"op": "probe", "name": "dug"},
+          {"op": "turn", "yaw": 3.1416, "pitch": 3.6, "frames": 3}]
+    for i in range(6):
+        p1 += [{"op": "move", "fwd": 1, "up": 1, "frames": 300}, {"op": "probe", "name": "out%d" % i}]
+    p1 += [{"op": "turn", "yaw": 3.1416, "pitch": 0.0, "frames": 3}]
+    for i in range(6):
+        p1 += [{"op": "move", "fwd": 1, "up": 1, "frames": 300}, {"op": "probe", "name": "back%d" % i}]
+    p1 += [W(60), {"op": "probe", "name": "final"}]
+    p2 = [W(240), {"op": "probe", "name": "restored"}]
+    return {"world_seed": 7, "phases": [{"name": "p1", "create": True, "steps": p1},
+                                        {"name": "p2", "create": False, "same_world_as": "p1", "steps": p2}]}
+
+
+def main_journey():
+    out = tempfile.mkdtemp(prefix="cube-journey-")
+    tel = godot_runner.run_scenario(journey(), out, timeout=400, extra_engine_args=["--disable-vsync"])
+    for ph, t in tel.items():
+        if "events" not in t:
+            print("Godot phase failed:", ph, t)
+            return 1
+    p, q = probes(tel, "p1"), probes(tel, "p2")
+    checks = []
+
+    def check(name, ok, detail):
+        checks.append((name, ok, detail))
+        print(("ok   " if ok else "FAIL ") + name + ": " + detail)
+
+    out_legs = [p["out%d" % i] for i in range(6)]
+    back_legs = [p["back%d" % i] for i in range(6)]
+    res = lambda legs: [e["stats"]["resident"] for e in legs]
+    far = max(abs(e["feet"][2] - p["dug"]["feet"][2]) for e in out_legs)
+    check("travelled far and back", far > 100 and abs(p["final"]["feet"][2] - p["dug"]["feet"][2]) < 30,
+          "farthest %.0f voxels, ended %.0f from the start" % (far, abs(p["final"]["feet"][2] - p["dug"]["feet"][2])))
+    check("far bricks were unloaded", p["final"]["stats"]["evictions"] > 0, "%d bricks unloaded, %d loaded in total" % (p["final"]["stats"]["evictions"], p["final"]["stats"]["loads"]))
+    check("resident bricks stabilised (no growth on the way back)", max(res(back_legs)) <= max(res(out_legs)),
+          "out %s back %s" % (res(out_legs), res(back_legs)))
+    check("derived cache bounded", max(e["stats"]["derived_cached"] for e in out_legs + back_legs) < 1200,
+          "max %d entries" % max(e["stats"]["derived_cached"] for e in out_legs + back_legs))
+    check("the edited start brick stayed pinned", p["final"]["stats"]["edited"] >= 1 and p["final"]["stats"]["resident"] >= 1, "%d edited bricks" % p["final"]["stats"]["edited"])
+    check("still standing on ground and rendering after the journey", p["final"]["grounded"] and p["final"]["bricks"] > 50, "%d bricks in the scene" % p["final"]["bricks"])
+    check("after restart: walking, grounded, resident set rebuilt small", q["restored"]["walking"] and q["restored"]["grounded"],
+          "resident %d" % q["restored"]["stats"]["resident"])
+    ms = [(b["ms"] - a["ms"]) / 300.0 for a, b in zip([p["dug"]] + out_legs[:-1], out_legs)]
+    print("   frame time on the way out (ms per frame, debug build, vsync off, generating and unloading): %s" % ["%.1f" % m for m in ms])
+    failed = [n for n, ok, _ in checks if not ok]
+    print("journey smoke:", "PASS" if not failed else "FAIL " + ", ".join(failed), "(", out, ")")
+    return 0 if not failed else 1
+
+
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main_journey() if "--journey" in sys.argv else main())

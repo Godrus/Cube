@@ -20,7 +20,7 @@ def godot_exe():
     return exe if os.path.exists(exe) else None
 
 
-def run_scenario(scen, out_dir, timeout=180):
+def run_scenario(scen, out_dir, timeout=180, extra_engine_args=()):
     """Returns {phase: telemetry dict or {"error": text}}. Pictures land in out_dir/<phase>/."""
     exe = godot_exe()
     if exe is None:
@@ -40,7 +40,7 @@ def run_scenario(scen, out_dir, timeout=180):
         for stale in ("telemetry.json",):
             if os.path.exists(os.path.join(pdir, stale)):
                 os.remove(os.path.join(pdir, stale))
-        cmd = [exe, "--path", os.path.join(ROOT, "godot"), "--rendering-driver", "opengl3", "--",
+        cmd = [exe, "--path", os.path.join(ROOT, "godot"), "--rendering-driver", "opengl3", *extra_engine_args, "--",
                "--world", wdir, "--seed", str(scen["world_seed"]), "--scenario", spec]
         try:
             r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
