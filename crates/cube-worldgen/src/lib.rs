@@ -14,10 +14,14 @@
 //!
 //! Version 1, "terrain-v1": a height field from three octaves of integer value noise; grass on
 //! the surface, three layers of dirt, stone below; no caves, biomes, water or structures.
+//! Version 2, "terrain-v2" (see [`v2`]): four biomes from two climate fields. Version 1 stays
+//! in the registry unchanged so that worlds created with it keep working.
+//!
 //! Determinism is argued from integer arithmetic only; cross-device identity is DG-2 and is
 //! **not** claimed.
 
 pub mod v1;
+pub mod v2;
 
 use cube_core::{
     BRICK_VOLUME, BrickCoord, CellChange, CellPayload, Channel, ChannelId, ChannelSet,
@@ -35,6 +39,20 @@ pub mod materials {
     pub const DIRT: u16 = 2;
     /// Grass.
     pub const GRASS: u16 = 3;
+    /// Sand (version 2).
+    pub const SAND: u16 = 4;
+    /// Snow (version 2).
+    pub const SNOW: u16 = 7;
+    /// Tree trunk (reserved for a later version).
+    pub const WOOD: u16 = 8;
+    /// Tree leaves (reserved for a later version).
+    pub const LEAVES: u16 = 9;
+    /// Forest floor (version 2).
+    pub const MOSS: u16 = 10;
+    /// Coal ore (reserved for a later version).
+    pub const COAL: u16 = 11;
+    /// Iron ore (reserved for a later version).
+    pub const IRON: u16 = 12;
 }
 
 /// Why a brick could not be generated (stable codes, WG-07).
@@ -73,6 +91,8 @@ impl std::error::Error for GenError {}
 pub enum Status {
     /// Runnable and the default for new worlds.
     Active,
+    /// Runnable (worlds created with it keep working), no longer the default.
+    Legacy,
 }
 
 /// A registry entry.
@@ -88,17 +108,52 @@ pub struct VersionInfo {
 
 /// All released generator versions, ascending.
 pub fn registry() -> &'static [VersionInfo] {
-    const R: [VersionInfo; 1] = [VersionInfo {
-        version: GeneratorVersion::new(1),
-        algorithm: "terrain-v1",
-        status: Status::Active,
-    }];
+    const R: [VersionInfo; 2] = [
+        VersionInfo {
+            version: GeneratorVersion::new(1),
+            algorithm: "terrain-v1",
+            status: Status::Legacy,
+        },
+        VersionInfo {
+            version: GeneratorVersion::new(2),
+            algorithm: "terrain-v2",
+            status: Status::Active,
+        },
+    ];
     &R
 }
 
 /// The version new worlds use.
 pub const fn current_version() -> GeneratorVersion {
-    GeneratorVersion::new(1)
+    GeneratorVersion::new(2)
+}
+
+/// Ground height of the column `(x, z)` in the world of `version`.
+pub fn surface_height(
+    seed: WorldSeed,
+    version: GeneratorVersion,
+    x: i64,
+    z: i64,
+) -> Result<i64, GenError> {
+    check(version)?;
+    Ok(match version.raw() {
+        1 => v1::height(seed, x, z),
+        _ => v2::height(seed, x, z),
+    })
+}
+
+/// The biome of the column `(x, z)` in the world of `version` (version 1 has one: plains).
+pub fn biome_at(
+    seed: WorldSeed,
+    version: GeneratorVersion,
+    x: i64,
+    z: i64,
+) -> Result<v2::Biome, GenError> {
+    check(version)?;
+    Ok(match version.raw() {
+        1 => v2::Biome::Plains,
+        _ => v2::biome(seed, x, z),
+    })
 }
 
 /// The content of one generated brick. The three shapes exist so that a mostly empty or mostly
@@ -208,7 +263,10 @@ pub fn voxel_at(
     if [x, y, z].iter().any(|c| c.abs() > COORD_LIMIT) {
         return Err(GenError::InvalidCoord);
     }
-    Ok(v1::material(seed, x, y, z))
+    Ok(match version.raw() {
+        1 => v1::material(seed, x, y, z),
+        _ => v2::material(seed, x, y, z),
+    })
 }
 
 /// Generates one brick of the untouched base world.
@@ -225,7 +283,10 @@ pub fn generate_brick(
     {
         return Err(GenError::InvalidCoord);
     }
-    let content = v1::brick(seed, origin.x, origin.y, origin.z);
+    let content = match version.raw() {
+        1 => v1::brick(seed, origin.x, origin.y, origin.z),
+        _ => v2::brick(seed, origin.x, origin.y, origin.z),
+    };
     Ok(GeneratedBrick {
         coord: brick,
         content,

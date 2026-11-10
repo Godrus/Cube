@@ -45,8 +45,13 @@ pub struct ItemDefinition {
 /// How many of the items are blocks (the first ones): creative mode offers exactly these.
 pub const BLOCK_ITEMS: usize = 5;
 
+/// The `i`-th placeable item (what creative mode offers in hotbar slot `i`).
+pub fn placeable(i: usize) -> Option<&'static ItemDefinition> {
+    ITEMS.iter().filter(|d| d.places.is_some()).nth(i)
+}
+
 /// All items of the prototype.
-pub const ITEMS: [ItemDefinition; 6] = [
+pub const ITEMS: [ItemDefinition; 12] = [
     ItemDefinition {
         id: ItemId(1),
         name: "Stone",
@@ -82,6 +87,42 @@ pub const ITEMS: [ItemDefinition; 6] = [
         name: "Slime gel",
         max_stack: MAX_STACK,
         places: None,
+    },
+    ItemDefinition {
+        id: ItemId(7),
+        name: "Snow",
+        max_stack: MAX_STACK,
+        places: Some(7),
+    },
+    ItemDefinition {
+        id: ItemId(8),
+        name: "Wood",
+        max_stack: MAX_STACK,
+        places: Some(8),
+    },
+    ItemDefinition {
+        id: ItemId(9),
+        name: "Leaves",
+        max_stack: MAX_STACK,
+        places: Some(9),
+    },
+    ItemDefinition {
+        id: ItemId(10),
+        name: "Moss",
+        max_stack: MAX_STACK,
+        places: Some(10),
+    },
+    ItemDefinition {
+        id: ItemId(11),
+        name: "Coal ore",
+        max_stack: MAX_STACK,
+        places: Some(11),
+    },
+    ItemDefinition {
+        id: ItemId(12),
+        name: "Iron ore",
+        max_stack: MAX_STACK,
+        places: Some(12),
     },
 ];
 
@@ -377,7 +418,7 @@ impl GameState {
         match self.mode {
             Mode::Creative => {
                 let i = self.inventory.selected();
-                (i < BLOCK_ITEMS).then(|| ITEMS[i].places).flatten()
+                placeable(i).and_then(|d| d.places)
             }
             Mode::Survival => self
                 .inventory

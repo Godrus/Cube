@@ -191,6 +191,14 @@ pub trait SessionPort: Send {
     fn attack(&mut self) -> Result<bool, String> {
         Ok(false)
     }
+    /// Ground height of the voxel column `(x, z)` (0 when the world cannot say).
+    fn ground_height(&self, _x: i64, _z: i64) -> i64 {
+        0
+    }
+    /// Name of the biome the player is in (empty when the world has none).
+    fn biome(&self) -> String {
+        String::new()
+    }
     /// The creatures near the player.
     fn creatures(&self) -> Vec<CreatureView> {
         Vec::new()

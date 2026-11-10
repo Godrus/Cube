@@ -8,13 +8,13 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use cube_client::{Controls, DeviceClass, FrameOut, Intent, Pose, SessionPort, ViewProfile};
-use cube_core::{CellKey, GeneratorVersion, WorldSeed};
+use cube_core::{CellKey, WorldSeed};
 use cube_persistence::{STRUCTURE_VERSION, WorldRecord};
 use cube_server::{LocalHost, StaticArea};
 
 use crate::combat::{AttackRefused, AttackTimer, WOODEN_SWORD};
 use crate::creature::TICK;
-use crate::game::{BLOCK_ITEMS, GameState, ITEMS, Mode, Reconciled, SLOTS};
+use crate::game::{GameState, Mode, Reconciled, SLOTS, placeable};
 use crate::loot::loot_key;
 use crate::spawn::{Population, SpawnArea};
 use crate::{PlayerState, REACH, Session};
@@ -460,13 +460,7 @@ impl SessionPort for PortSession {
         let creative = self.game.mode == Mode::Creative;
         let slots = if creative {
             (0..SLOTS)
-                .map(|i| {
-                    if i < BLOCK_ITEMS {
-                        (ITEMS[i].id.0, 0)
-                    } else {
-                        (0, 0)
-                    }
-                })
+                .map(|i| placeable(i).map_or((0, 0), |d| (d.id.0, 0)))
                 .collect()
         } else {
             self.game
@@ -500,6 +494,21 @@ impl SessionPort for PortSession {
             Err(AttackRefused::OnCooldown { .. }) => Err("Weapon recovering".into()),
             Err(_) => Ok(false),
         }
+    }
+
+    fn ground_height(&self, x: i64, z: i64) -> i64 {
+        self.session.ground_height(x, z)
+    }
+
+    fn biome(&self) -> String {
+        let p = self.session.player_feet().unwrap_or_else(|| {
+            let c = self.session.camera().pos;
+            [c[0], c[1], c[2]]
+        });
+        self.session
+            .host()
+            .biome_name(p[0].floor() as i64, p[2].floor() as i64)
+            .to_owned()
     }
 
     fn creatures(&self) -> Vec<cube_client::CreatureView> {
@@ -557,7 +566,7 @@ pub fn open_first_world(
     let record = WorldRecord {
         world_id: 1,
         seed: WorldSeed::new(seed),
-        generator_version: GeneratorVersion::new(1),
+        generator_version: cube_server::current_generator_version(),
         structure_version: STRUCTURE_VERSION,
     };
     let area = StaticArea::around_origin(&record, FIRST_WORLD_RADIUS);

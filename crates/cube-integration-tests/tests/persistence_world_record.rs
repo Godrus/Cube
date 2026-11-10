@@ -17,7 +17,12 @@ use cube_persistence::{
     create_world_with_record, load_world_record, open_world_with_record, replay_confirmed,
 };
 use cube_testkit::faultfs::{FaultFs, FsError, explore};
-use cube_worldgen::{current_version, generate_brick, v1};
+use cube_worldgen::{generate_brick, v1};
+
+/// These tests use the v1 height function as their oracle, so they pin version 1.
+fn current_version() -> GeneratorVersion {
+    GeneratorVersion::new(1)
+}
 
 fn limits() -> Limits {
     Limits::default()

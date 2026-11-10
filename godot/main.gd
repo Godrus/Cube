@@ -91,6 +91,7 @@ var fight_last := ""
 var fight_prev_living := -1
 var fight_hits_at_start := 0
 var fight_start_frame := 0
+var fight_states := []
 var scen_last_hit_pos := []
 
 
@@ -387,10 +388,11 @@ func _update_player_and_hud() -> void:
 	player_body.rotation = Vector3(0, cam.rotation.y, 0)
 	var p: Vector3 = cam.position
 	var st: Dictionary = world.stream_stats()
-	hud.text = "%s | %s | %s | x %.0f y %.0f z %.0f | bricks %d" % [
+	hud.text = "%s | %s | %s | %s | x %.0f y %.0f z %.0f | bricks %d" % [
 		"walking" if world.is_walking() else "flying",
 		"third person" if third_person else "first person",
 		"creative" if world.game_view()["creative"] else "survival",
+		world.game_view()["biome"],
 		p.x, p.y, p.z, st["resident"]]
 	var g: Dictionary = world.game_view()
 	var slots: PackedInt32Array = g["slots"]
@@ -699,6 +701,7 @@ func fight_reset() -> void:
 	fight_prev_living = -1
 	fight_hits_at_start = scen_hits
 	fight_start_frame = frames
+	fight_states = []
 
 
 func _write_progress() -> void:
@@ -755,6 +758,17 @@ func _scenario_frame() -> void:
 	elif op == "turn":
 		dyaw = float(scen_cmd.get("yaw", 0.0)) / float(scen_cmd["_total"])
 		dpitch = float(scen_cmd.get("pitch", 0.0)) / float(scen_cmd["_total"])
+	elif op == "hover":
+		# QA (scenario mode only): fly forward while keeping a fixed height above the ground below,
+		# the way a person flying over the land would; `height` voxels above the surface.
+		fwd = 1
+		var hp: Vector3 = cam.position
+		var want_y: float = float(world.ground_height(int(floor(hp.x)), int(floor(hp.z)))) + float(scen_cmd.get("height", 30))
+		up = 1 if hp.y < want_y - 2.0 else (-1 if hp.y > want_y + 2.0 else 0)
+		if hp.x <= float(scen_cmd.get("until_x", -1e9)):
+			scen_cmd["_left"] = 1
+		if hp.z >= float(scen_cmd.get("until_z", 1e9)):
+			scen_cmd["_left"] = 1
 	elif op == "fight":
 		# QA bot (scenario mode only): walk to the nearest living creature and swing at it, the way a
 		# person would by hand. It ends itself with an explicit result: killed, stuck (no progress
@@ -788,6 +802,8 @@ func _scenario_frame() -> void:
 				fight_result = "no_target"
 		elif fight_result == "":
 			var bp: Vector3 = best["pos"]
+			if not fight_states.has(int(best["state"])):
+				fight_states.append(int(best["state"]))
 			var want := atan2(-(bp.x - feet.x), -(bp.z - feet.z))
 			dyaw = wrapf(want - cam.rotation.y, -PI, PI) * 0.5
 			if bd < fight_best - 0.05:
@@ -862,7 +878,7 @@ func _scenario_action(op: String) -> void:
 				inventory_panel.visible = bool(scen_cmd.get("open", true))
 			_event("inventory")
 		"fight":
-			_event("fight", {"hits": scen_hits, "last_hit_pos": scen_last_hit_pos, "result": fight_result if fight_result != "" else "timeout", "trace": fight_trace, "frames_used": frames - fight_start_frame + 1})
+			_event("fight", {"hits": scen_hits, "last_hit_pos": scen_last_hit_pos, "result": fight_result if fight_result != "" else "timeout", "trace": fight_trace, "states": fight_states, "frames_used": frames - fight_start_frame + 1})
 		"attack":
 			_event("attack", {"result": world.attack()})
 		"mode":

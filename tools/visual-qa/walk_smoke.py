@@ -250,7 +250,7 @@ def combat_once(n):
     if f["result"] != "killed":
         for t in f["trace"][-12:]:
             print("     trace", t)
-    states = {t["state"] for t in f["trace"]} | {c["state"] for c in st["creatures"]}
+    states = set(f.get("states", [])) | {c["state"] for c in st["creatures"]}
     names = {0: "IDLE", 1: "CHASE", 2: "ATTACK"}
     check("the AI went through IDLE, CHASE and ATTACK (DEAD = removed with a message)", {0, 1, 2} <= states, "seen " + ",".join(names.get(x, str(x)) for x in sorted(states)))
     a = p["after_fight"]
@@ -296,5 +296,83 @@ def main_combat():
     return 0 if all(oks) else 1
 
 
+def world_tour():
+    """Fly over the land at a fixed height above the ground (seed 7) and look at each stop. Terrain-following only,
+    no teleport: what a person flying would see. Phase 1 flies +Z over plains, tundra and desert; phase 2 starts
+    again at the origin and flies -X over the forest."""
+    south = [W(20), {"op": "mode", "walk": False}, {"op": "turn", "yaw": 3.14159265, "pitch": -0.3, "frames": 3}, W(10)]
+    for name, z in (("plains", 30), ("tundra", 180), ("desert", 400)):
+        south += [{"op": "hover", "frames": 4000, "height": 28, "until_z": z}, W(15), {"op": "probe", "name": name}, {"op": "shot", "name": name}]
+    west = [W(20), {"op": "mode", "walk": False}, {"op": "turn", "yaw": 1.5707963, "pitch": -0.3, "frames": 3}, W(10),
+            {"op": "hover", "frames": 4000, "height": 28, "until_x": -170}, W(15), {"op": "probe", "name": "forest"}, {"op": "shot", "name": "forest"}]
+    return {"world_seed": 7, "hud": True, "phases": [{"name": "p1", "create": True, "steps": south},
+                                                   {"name": "p2", "create": True, "steps": west}]}
+
+
+def mean_rgb(path):
+    import pngio
+    with open(path, "rb") as f:
+        w, h, ch, px = pngio.read_png(f.read())
+    # the lower two thirds: land, not sky and not the interface at the top
+    tot, n = [0, 0, 0], 0
+    for y in range(h // 3, h - 80):
+        row = y * w * ch
+        for x in range(0, w, 4):
+            o = row + x * ch
+            tot[0] += px[o]
+            tot[1] += px[o + 1]
+            tot[2] += px[o + 2]
+            n += 1
+    return [t / n for t in tot]
+
+
+def main_world():
+    out = tempfile.mkdtemp(prefix="cube-world-")
+    t0 = time.time()
+    tel = godot_runner.run_scenario(world_tour(), out, timeout=300)
+    for ph in ("p1", "p2"):
+        if "events" not in tel[ph]:
+            print("FAIL godot:", ph, tel[ph].get("error", tel[ph]))
+            return 1
+    p = dict(probes(tel, "p1"))
+    p2 = probes(tel, "p2")
+    p.update(p2)
+    checks = []
+
+    def check(name, ok, detail):
+        checks.append((name, ok, detail))
+        print(("ok   " if ok else "FAIL ") + name + ": " + detail)
+
+    biomes = {k: p[k]["game"]["biome"] for k in p}
+    pos = {k: p[k]["camera_position"] for k in p}
+    for k in p:
+        print("     stop %-7s biome %-7s camera z %.0f y %.0f" % (k, biomes[k], pos[k][2], pos[k][1]))
+    check("the tour met all four biomes", set(biomes.values()) == {"Plains", "Forest", "Tundra", "Desert"}, ", ".join(sorted(set(biomes.values()))))
+    check("the HUD names a biome everywhere", all(b != "" for b in biomes.values()), str(biomes))
+    means = {}
+    for k in p:
+        f = os.path.join(out, "p2" if k == "forest" else "p1", k + ".png")
+        check("picture " + k, os.path.exists(f) and os.path.getsize(f) > 10000, f)
+        if os.path.exists(f):
+            means[k] = mean_rgb(f)
+            print("     mean colour %-7s %s" % (k, [round(c) for c in means[k]]))
+    by_biome = {}
+    for k, b in biomes.items():
+        by_biome.setdefault(b, means.get(k))
+    dist = lambda a, b: sum(abs(x - y) for x, y in zip(a, b))
+    names = [b for b in by_biome if by_biome[b]]
+    far = [(dist(by_biome[a], by_biome[b]), a, b) for i, a in enumerate(names) for b in names[i + 1:]]
+    check("the pictures of different biomes look different (colour distance)", all(d > 25 for d, _, _ in far), ", ".join("%s/%s %.0f" % (a, b, d) for d, a, b in far))
+    if "Desert" in by_biome and by_biome["Desert"]:
+        r, g, b = by_biome["Desert"]
+        check("the desert is sandy (red and green above blue)", r > b * 1.1 and g > b * 1.1, "mean %s" % [round(c) for c in by_biome["Desert"]])
+    if "Tundra" in by_biome and by_biome["Tundra"]:
+        r, g, b = by_biome["Tundra"]
+        check("the tundra is pale (bright and not green)", min(r, g, b) > 120 and b >= g * 0.9, "mean %s" % [round(c) for c in by_biome["Tundra"]])
+    failed = [x for x, ok, _ in checks if not ok]
+    print("world tour: %s (%.0f s, %s)" % ("PASS" if not failed else "FAIL " + ", ".join(failed), time.time() - t0, out))
+    return 0 if not failed else 1
+
+
 if __name__ == "__main__":
-    sys.exit(main_combat() if "--combat" in sys.argv else main_play() if "--play" in sys.argv else main_journey() if "--journey" in sys.argv else main())
+    sys.exit(main_world() if "--world" in sys.argv else main_combat() if "--combat" in sys.argv else main_play() if "--play" in sys.argv else main_journey() if "--journey" in sys.argv else main())

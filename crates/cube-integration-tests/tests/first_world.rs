@@ -20,7 +20,12 @@ use cube_integration_tests::fakes::*;
 use cube_orchestration::DirtySink;
 use cube_persistence::{DirStorage, Limits, create_world, open_world, replay_confirmed};
 use cube_processing::{Executor, ExecutorConfig, ManualClock, ProviderRegistry};
-use cube_worldgen::{current_version, generate_brick, v1, voxel_at};
+use cube_worldgen::{generate_brick, v1, voxel_at};
+
+/// These tests use the v1 height function as their oracle, so they pin version 1.
+fn current_version() -> cube_core::GeneratorVersion {
+    cube_core::GeneratorVersion::new(1)
+}
 
 const SEED: WorldSeed = WorldSeed::new(7);
 

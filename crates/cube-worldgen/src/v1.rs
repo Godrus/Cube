@@ -37,8 +37,9 @@ fn smooth(t: i128) -> i128 {
     (t * t * (3 * 65_536 - 2 * t)).div_euclid(65_536 * 65_536)
 }
 
-/// One octave at column `(x, z)`, in 1/256 voxel.
-fn octave(seed: u64, n: u64, x: i64, z: i64, spacing: i64, amp: i64) -> i128 {
+/// Smoothed value noise at column `(x, z)` on a lattice with the given spacing, in
+/// `[-32768, 32767]` (shared with later versions; the arithmetic must never change).
+pub(crate) fn value_noise(seed: u64, n: u64, x: i64, z: i64, spacing: i64) -> i128 {
     let (ix, fx) = (x.div_euclid(spacing), x.rem_euclid(spacing));
     let (iz, fz) = (z.div_euclid(spacing), z.rem_euclid(spacing));
     let sx = smooth(i128::from(fx) * 65_536 / i128::from(spacing));
@@ -46,7 +47,12 @@ fn octave(seed: u64, n: u64, x: i64, z: i64, spacing: i64, amp: i64) -> i128 {
     let v = |dx: i64, dz: i64| lattice(seed, n, ix + dx, iz + dz);
     let a = v(0, 0) + ((v(1, 0) - v(0, 0)) * sx).div_euclid(65_536);
     let b = v(0, 1) + ((v(1, 1) - v(0, 1)) * sx).div_euclid(65_536);
-    let h = a + ((b - a) * sz).div_euclid(65_536);
+    a + ((b - a) * sz).div_euclid(65_536)
+}
+
+/// One octave at column `(x, z)`, in 1/256 voxel.
+fn octave(seed: u64, n: u64, x: i64, z: i64, spacing: i64, amp: i64) -> i128 {
+    let h = value_noise(seed, n, x, z, spacing);
     (h * i128::from(amp) * 256).div_euclid(32_768)
 }
 

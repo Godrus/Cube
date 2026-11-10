@@ -44,6 +44,11 @@ use cube_persistence::{
 use cube_processing::{Executor, ExecutorConfig, ManualClock, ProviderRegistry};
 use cube_worldgen::{GenError, generate_brick, registry};
 
+/// The generator version that new worlds are created with.
+pub fn current_generator_version() -> cube_core::GeneratorVersion {
+    cube_worldgen::current_version()
+}
+
 /// The one asset of a local world.
 pub const ASSET: u64 = 1;
 /// The voxel layer.
@@ -68,7 +73,8 @@ pub struct StaticArea {
 impl StaticArea {
     /// The area around the surface of the column `(0, 0)` of the record's world.
     pub fn around_origin(record: &WorldRecord, radius: i64) -> Self {
-        let h = cube_worldgen::v1::height(record.seed, 0, 0);
+        let h =
+            cube_worldgen::surface_height(record.seed, record.generator_version, 0, 0).unwrap_or(0);
         Self {
             centre: BrickCoord::new(0, h.div_euclid(16), 0),
             radius,
@@ -503,7 +509,20 @@ impl LocalHost {
 
     /// Height of the ground at column `(x, z)` in this world (voxels), for placing a camera.
     pub fn surface_height(&self, x: i64, z: i64) -> i64 {
-        cube_worldgen::v1::height(self.record.seed, x, z)
+        cube_worldgen::surface_height(self.record.seed, self.record.generator_version, x, z)
+            .unwrap_or(0)
+    }
+
+    /// The name of the biome of the voxel column `(x, z)` ("" for a generator version without
+    /// biomes in its registry entry).
+    pub fn biome_name(&self, x: i64, z: i64) -> &'static str {
+        match cube_worldgen::biome_at(self.record.seed, self.record.generator_version, x, z) {
+            Ok(cube_worldgen::v2::Biome::Plains) => "Plains",
+            Ok(cube_worldgen::v2::Biome::Forest) => "Forest",
+            Ok(cube_worldgen::v2::Biome::Desert) => "Desert",
+            Ok(cube_worldgen::v2::Biome::Tundra) => "Tundra",
+            Err(_) => "",
+        }
     }
 
     /// The record of this world.

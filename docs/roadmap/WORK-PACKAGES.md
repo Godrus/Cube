@@ -48,7 +48,7 @@ Dependencies: CMB-02 needs CMB-01; CMB-04 needs CMB-01 and the collision query (
 
 | Task | Action | Acceptance |
 |---|---|---|
-| WGN2-01 | generator version 2 in the existing `cube-worldgen` registry (never edit v1 in place): climate fields (integer noise), 2-3 biomes with blended borders | pinned hashes; v1 worlds still open and regenerate identically; order and thread independence tests like v1 |
+| WGN2-01 (DONE as terrain-v2, F-WGN-003; later slices are versions 3, 4, 5, never edits of v2) | generator version 2 in the existing `cube-worldgen` registry (never edit v1 in place): climate fields (integer noise), 2-3 biomes with blended borders | pinned hashes; v1 worlds still open and regenerate identically; order and thread independence tests like v1 |
 | WGN2-02 | caves (3D integer noise carve), ores | same as above; ground stays continuous across brick borders; no open holes at the surface by accident |
 | WGN2-03 | trees and simple vegetation as deterministic features crossing brick borders | oracle equality across borders |
 | WGN2-04 | POIs: camp or ruin as a structure placed deterministically | same |

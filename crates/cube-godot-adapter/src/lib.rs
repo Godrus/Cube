@@ -30,6 +30,12 @@ pub fn material_colour(m: u16) -> [f32; 3] {
         4 => [0.85, 0.80, 0.55],
         5 => [0.80, 0.25, 0.20],
         6 => [0.30, 0.85, 0.40],
+        7 => [0.93, 0.95, 0.98],
+        8 => [0.40, 0.26, 0.12],
+        9 => [0.15, 0.45, 0.15],
+        10 => [0.16, 0.36, 0.20],
+        11 => [0.12, 0.12, 0.14],
+        12 => [0.62, 0.50, 0.42],
         _ => [0.80, 0.20, 0.80],
     }
 }
@@ -263,8 +269,25 @@ impl CubeWorld {
         d.set("objective_done", g.objective_done);
         d.set("message", &GString::from(g.message.as_str()).to_variant());
         d.set("health", i64::from(g.health));
+        d.set(
+            "biome",
+            &GString::from(
+                self.session
+                    .as_ref()
+                    .map(|s| s.biome())
+                    .unwrap_or_default()
+                    .as_str(),
+            )
+            .to_variant(),
+        );
         d.set("max_health", i64::from(g.max_health));
         d
+    }
+
+    /// Ground height of the voxel column `(x, z)` (for QA scenarios that follow the terrain).
+    #[func]
+    fn ground_height(&self, x: i64, z: i64) -> i64 {
+        self.session.as_ref().map_or(0, |s| s.ground_height(x, z))
     }
 
     /// Swings the weapon at the nearest creature in reach. Returns "ok" (hit), "none" (nothing
