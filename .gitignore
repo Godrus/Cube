@@ -8,3 +8,4 @@ __pycache__/
 !.env.example
 /godot/bin/
 /godot/build/
+/godot/*.uid
