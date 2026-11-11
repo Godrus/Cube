@@ -48,6 +48,11 @@ pub fn loot_key(seed: u64, cx: i64, cz: i64) -> u64 {
     mix(mix(seed ^ 0x100F) ^ mix(cx as u64) ^ mix((cz as u64).rotate_left(17)))
 }
 
+/// The roll key of the cache of the ruin whose altar stands in column `(x, z)`.
+pub fn cache_key(seed: u64, x: i64, z: i64) -> u64 {
+    mix(mix(seed ^ 0xCAC4_E000) ^ mix(x as u64) ^ mix((z as u64).rotate_left(29)))
+}
+
 impl LootTable {
     /// Rolls the table with `key`. `None` for "nothing" (also for an empty or all-zero table).
     pub fn roll(&self, key: u64) -> Option<Drop> {
@@ -97,6 +102,36 @@ pub const SLIME_LOOT: LootTable = LootTable {
     ],
 };
 
+/// What a ruin's altar cache holds, rolled twice (prototype): ore, bricks, moss.
+pub const RUIN_LOOT: LootTable = LootTable {
+    entries: &[
+        LootEntry {
+            item: Some(ItemId(12)),
+            min: 2,
+            max: 5,
+            weight: 3,
+        },
+        LootEntry {
+            item: Some(ItemId(11)),
+            min: 4,
+            max: 8,
+            weight: 3,
+        },
+        LootEntry {
+            item: Some(ItemId(5)),
+            min: 6,
+            max: 12,
+            weight: 3,
+        },
+        LootEntry {
+            item: Some(ItemId(10)),
+            min: 3,
+            max: 6,
+            weight: 1,
+        },
+    ],
+};
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -131,6 +166,16 @@ mod tests {
         assert!((5_500..=6_500).contains(&gel), "gel {gel}");
         assert!((600..=1_400).contains(&brick), "brick {brick}");
         assert!((2_500..=3_500).contains(&none), "nothing {none}");
+    }
+
+    #[test]
+    fn a_cache_always_holds_something_and_is_fixed_by_the_ruin() {
+        for k in 0..500u64 {
+            let d = RUIN_LOOT.roll(cache_key(3, k as i64, 11)).unwrap();
+            assert!(d.count >= 2);
+            assert_eq!(Some(d), RUIN_LOOT.roll(cache_key(3, k as i64, 11)));
+        }
+        assert_ne!(cache_key(3, 5, 6), cache_key(3, 6, 5));
     }
 
     #[test]

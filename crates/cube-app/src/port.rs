@@ -221,6 +221,54 @@ impl PortSession {
         Ok(strike)
     }
 
+    /// The player searches the altar of the ruin they stand at (reach 3 voxels). The cache is a
+    /// pure function of the world seed and the ruin, taken once (saved with the state in the same
+    /// file write as its items and experience). Returns what the player is told, empty when no
+    /// altar is in reach.
+    pub fn interact(&mut self) -> String {
+        let Some(feet) = self.session.player_feet() else {
+            return String::new();
+        };
+        let Some(site) = self.session.host().altar_near(feet, 3.0) else {
+            return String::new();
+        };
+        if self.game.looted.contains(&site) {
+            let t = "The altar is empty".to_owned();
+            self.say(t.clone());
+            return t;
+        }
+        let seed = self.session.world_seed();
+        let key = crate::loot::cache_key(seed, site.0, site.1);
+        let mut text = String::from("Altar cache:");
+        let mut lost = 0;
+        for k in [key, key ^ 0xA5A5] {
+            if let Some(d) = crate::loot::RUIN_LOOT.roll(k) {
+                lost += self.game.grant_loot(d.item, d.count);
+                let name = crate::game::definition(d.item).map_or("item", |i| i.name);
+                text.push_str(&format!(" +{} {name}", d.count));
+            }
+        }
+        if lost > 0 {
+            text.push_str(&format!(" ({lost} did not fit and are lost)"));
+        }
+        self.game.looted.insert(site);
+        let gain = self.game.progress.gain(crate::progression::RUIN_XP);
+        if gain.added > 0 {
+            text.push_str(&format!(", +{} XP", gain.added));
+        }
+        if gain.to > gain.from {
+            self.game
+                .health
+                .refill_to(crate::progression::max_health_for(gain.to));
+            text.push_str(&format!(". Level {}!", gain.to));
+        }
+        if self.try_save_game().is_err() {
+            text.push_str(" (could not save)");
+        }
+        self.say(text.clone());
+        text
+    }
+
     /// The creatures, if switched on (tests, and later the view).
     pub fn creatures(&self) -> Option<&Population> {
         self.creatures.as_ref()
@@ -518,6 +566,10 @@ impl SessionPort for PortSession {
             xp_level_start: crate::progression::xp_for_level(self.game.progress.level()),
             xp_next: self.game.progress.next_level_xp().unwrap_or(0),
         }
+    }
+
+    fn interact(&mut self) -> String {
+        PortSession::interact(self)
     }
 
     fn attack(&mut self) -> Result<bool, String> {

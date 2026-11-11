@@ -558,6 +558,35 @@ impl LocalHost {
         None
     }
 
+    /// The altar (middle of a ruin's floor) within `reach` voxels horizontally and 3 vertically
+    /// of `feet`: its centre column `(x, z)`. `None` where there is no ruin (also in worlds
+    /// older than terrain-v5).
+    pub fn altar_near(&self, feet: [f64; 3], reach: f64) -> Option<(i64, i64)> {
+        let rx = (feet[0].floor() as i64).div_euclid(40);
+        let rz = (feet[2].floor() as i64).div_euclid(40);
+        for dz in -1..=1 {
+            for dx in -1..=1 {
+                let r = cube_worldgen::ruin_of_region(
+                    self.record.seed,
+                    self.record.generator_version,
+                    rx + dx,
+                    rz + dz,
+                )
+                .ok()
+                .flatten();
+                if let Some(r) = r {
+                    let (ax, az) = (r.x as f64 + 0.5, r.z as f64 + 0.5);
+                    let near = (feet[0] - ax).hypot(feet[2] - az) <= reach
+                        && (feet[1] - (r.floor + 1) as f64).abs() <= 3.0;
+                    if near {
+                        return Some((r.x, r.z));
+                    }
+                }
+            }
+        }
+        None
+    }
+
     /// The record of this world.
     pub fn record(&self) -> &WorldRecord {
         &self.record

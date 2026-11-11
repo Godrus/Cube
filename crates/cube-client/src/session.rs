@@ -199,6 +199,11 @@ pub trait SessionPort: Send {
     fn attack(&mut self) -> Result<bool, String> {
         Ok(false)
     }
+    /// The player searches what is in reach (the altar of a ruin). Returns a short text for the
+    /// player, empty when there was nothing to search.
+    fn interact(&mut self) -> String {
+        String::new()
+    }
     /// QA only (scenario runs): puts the free camera at `eye` looking along `yaw` and `pitch`.
     /// A normal game never calls it.
     fn qa_teleport(&mut self, _eye: [f64; 3], _yaw: f32, _pitch: f32) {}

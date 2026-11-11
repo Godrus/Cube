@@ -317,6 +317,17 @@ impl CubeWorld {
         )
     }
 
+    /// Searches the altar of the ruin in reach. Returns the message for the player ("" if none).
+    #[func]
+    fn interact(&mut self) -> GString {
+        GString::from(
+            self.session
+                .as_mut()
+                .map_or(String::new(), |s| s.interact())
+                .as_str(),
+        )
+    }
+
     /// The creatures near the player: an array of dictionaries with `kind`, `pos` (`Vector3`,
     /// feet), `yaw`, `health`, `max_health` and `state` (0 idle, 1 chase, 2 attack, 3 dead).
     #[func]

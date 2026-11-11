@@ -388,6 +388,8 @@ pub struct GameState {
     pub killed: std::collections::BTreeSet<(i64, i64)>,
     /// Experience (the level is derived from it). Files without an `xp` line load with none.
     pub progress: crate::progression::Progress,
+    /// Altars (ruin centre columns) whose cache the player took; it is never refilled.
+    pub looted: std::collections::BTreeSet<(i64, i64)>,
 }
 
 impl Default for GameState {
@@ -400,6 +402,7 @@ impl Default for GameState {
             health: crate::combat::Health::full(crate::combat::PLAYER_MAX_HEALTH),
             killed: std::collections::BTreeSet::new(),
             progress: crate::progression::Progress::new(),
+            looted: std::collections::BTreeSet::new(),
         }
     }
 }
@@ -555,6 +558,9 @@ impl GameState {
         for (cx, cz) in &self.killed {
             s += &format!("kill {cx} {cz}\n");
         }
+        for (x, z) in &self.looted {
+            s += &format!("cache {x} {z}\n");
+        }
         match self.pending {
             Some(PendingEdit {
                 seq,
@@ -628,6 +634,13 @@ impl GameState {
                     let cx: i64 = it.next()?.parse().ok()?;
                     let cz: i64 = it.next()?.parse().ok()?;
                     if it.next().is_some() || !st.killed.insert((cx, cz)) {
+                        return None;
+                    }
+                }
+                "cache" => {
+                    let x: i64 = it.next()?.parse().ok()?;
+                    let z: i64 = it.next()?.parse().ok()?;
+                    if it.next().is_some() || !st.looted.insert((x, z)) {
                         return None;
                     }
                 }
@@ -1056,5 +1069,46 @@ objective shelter-1 8 12 3 4
         assert!(GameState::decode(&text.replace("xp 37", "xp 99999")).is_none());
         assert!(GameState::decode(&text.replace("xp 37", "xp x")).is_none());
         assert!(GameState::decode(&text.replace("xp 37", "xp 3 4")).is_none());
+    }
+
+    #[test]
+    fn taken_caches_are_saved_and_a_cache_cannot_be_listed_twice() {
+        let mut g = GameState::default();
+        g.looted.insert((-95, -29));
+        g.looted.insert((12, 7));
+        let text = g.encode();
+        assert_eq!(GameState::decode(&text).unwrap().looted, g.looted);
+        assert!(
+            GameState::decode(&format!(
+                "{text}cache 12 7
+"
+            ))
+            .is_none()
+        );
+        assert!(
+            GameState::decode(&format!(
+                "{text}cache 1
+"
+            ))
+            .is_none()
+        );
+        assert!(
+            GameState::decode(&format!(
+                "{text}cache 1 2 3
+"
+            ))
+            .is_none()
+        );
+        let old: String = text
+            .lines()
+            .filter(|l| !l.starts_with("cache"))
+            .map(|l| {
+                format!(
+                    "{l}
+"
+                )
+            })
+            .collect();
+        assert!(GameState::decode(&old).unwrap().looted.is_empty());
     }
 }

@@ -478,6 +478,10 @@ func _input(event: InputEvent) -> void:
 			var ra: String = world.attack()
 			if ra != "ok" and ra != "none":
 				_say(ra)
+		elif event.keycode == KEY_R and world.is_walking():
+			var ri: String = world.interact()
+			if ri != "":
+				_say(ri)
 		elif event.keycode == KEY_V and world.is_walking():
 			third_person = not third_person
 			world.set_third_person(third_person)

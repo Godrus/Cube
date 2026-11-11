@@ -9,6 +9,9 @@ use crate::combat::PLAYER_MAX_HEALTH;
 /// Highest level; experience above its threshold is not counted.
 pub const MAX_LEVEL: u32 = 20;
 
+/// Experience for taking a ruin's altar cache.
+pub const RUIN_XP: u32 = 10;
+
 /// Extra maximum health per level above the first.
 pub const HEALTH_PER_LEVEL: u32 = 4;
 
