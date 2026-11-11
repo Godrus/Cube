@@ -258,7 +258,7 @@ def combat_once(n):
     check("the creature's death is shown and counted (it is gone, a message says so)", "defeated" in msg and f["hits"] >= 2, "message '%s'" % msg)
     loot = sum(a["game"]["slots"][1::2])
     import re
-    m = re.search(r"\+(\d+) ", msg)
+    m = re.search(r"\+(\d+) (?!XP)", msg)  # "+4 XP" is experience, not loot
     check("the inventory holds exactly the loot the message names", loot == (int(m.group(1)) if m else 0), "items %d, message '%s'" % (loot, msg))
     lowest = min(e["game"]["health"] for e in ev if "game" in e)
     check("the creature hurt the player (damage is decided in Rust)", lowest < 20, "lowest health %s; HUD at the end '%s'" % (lowest, a["hp_label"]))
