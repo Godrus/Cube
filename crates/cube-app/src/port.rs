@@ -186,8 +186,12 @@ impl PortSession {
         let Some(pop) = self.creatures.as_mut() else {
             return Err(AttackRefused::OutOfReach);
         };
-        let weapon = crate::game::weapon_of(self.game.inventory.selected_item());
-        let strike = pop.player_attack(weapon, &mut self.attack_timer, feet)?;
+        let base = crate::game::weapon_of(self.game.inventory.selected_item());
+        let weapon = crate::combat::WeaponDef {
+            damage: base.damage + crate::progression::attack_bonus_for(self.game.progress.level()),
+            ..*base
+        };
+        let strike = pop.player_attack(&weapon, &mut self.attack_timer, feet)?;
         if strike.hit.killed {
             // The kill and its loot are one change of one file: both reach the disk or neither.
             self.game.killed.insert(strike.column);
@@ -301,7 +305,7 @@ impl PortSession {
         let text = match refused {
             CraftRefused::Creative => "Crafting is for survival mode".to_owned(),
             CraftRefused::NoRoom => "No room for the result".to_owned(),
-            _ => "Not enough materials (Iron sword: 3 Iron ore + 2 Wood)".to_owned(),
+            _ => "Not enough materials (Iron sword: 3 Iron ore + 2 Wood; Iron armour: 5 Iron ore + 2 Coal ore)".to_owned(),
         };
         self.say(text.clone());
         text
@@ -338,6 +342,9 @@ impl PortSession {
         );
         self.creature_time = (self.creature_time + dt).min(5.0 * TICK);
         let mut died = false;
+        self.game
+            .health
+            .set_armour(crate::game::armour_of(&self.game.inventory));
         while self.creature_time >= TICK {
             self.creature_time -= TICK;
             let health = &mut self.game.health;

@@ -51,7 +51,7 @@ pub fn placeable(i: usize) -> Option<&'static ItemDefinition> {
 }
 
 /// All items of the prototype.
-pub const ITEMS: [ItemDefinition; 13] = [
+pub const ITEMS: [ItemDefinition; 14] = [
     ItemDefinition {
         id: ItemId(1),
         name: "Stone",
@@ -130,10 +130,31 @@ pub const ITEMS: [ItemDefinition; 13] = [
         max_stack: 1,
         places: None,
     },
+    ItemDefinition {
+        id: IRON_ARMOUR_ITEM,
+        name: "Iron armour",
+        max_stack: 1,
+        places: None,
+    },
 ];
 
 /// The iron sword (a weapon: the selected hotbar item decides which weapon a swing uses).
 pub const IRON_SWORD_ITEM: ItemId = ItemId(13);
+
+/// Iron armour (worn while it is anywhere in the inventory: prototype, no equipment slots yet).
+pub const IRON_ARMOUR_ITEM: ItemId = ItemId(14);
+
+/// Armour value of the iron armour: damage taken off every hit.
+pub const IRON_ARMOUR_VALUE: u32 = 1;
+
+/// The armour value the inventory gives.
+pub fn armour_of(inventory: &Inventory) -> u32 {
+    if inventory.count_of(IRON_ARMOUR_ITEM) > 0 {
+        IRON_ARMOUR_VALUE
+    } else {
+        0
+    }
+}
 
 /// The weapon a swing uses when `item` is the selected hotbar item (anything else: the wooden
 /// sword the player always has).
@@ -157,11 +178,18 @@ pub struct Recipe {
 }
 
 /// The recipes of the prototype (no stations, no skill): prototype values, not a balance.
-pub const RECIPES: [Recipe; 1] = [Recipe {
-    name: "Iron sword",
-    inputs: &[(ItemId(12), 3), (ItemId(8), 2)],
-    output: (IRON_SWORD_ITEM, 1),
-}];
+pub const RECIPES: [Recipe; 2] = [
+    Recipe {
+        name: "Iron sword",
+        inputs: &[(ItemId(12), 3), (ItemId(8), 2)],
+        output: (IRON_SWORD_ITEM, 1),
+    },
+    Recipe {
+        name: "Iron armour",
+        inputs: &[(ItemId(12), 5), (ItemId(11), 2)],
+        output: (IRON_ARMOUR_ITEM, 1),
+    },
+];
 
 /// Why a craft did not happen.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

@@ -404,3 +404,17 @@ fn crafting_makes_the_sword_once_per_materials_and_saves_it() {
     assert_eq!(saved.inventory.count_of(ItemId(12)), 4);
     let _ = std::fs::remove_dir_all(d);
 }
+
+#[test]
+fn crafted_armour_is_worn_from_the_inventory() {
+    use cube_app::game::{GameState, IRON_ARMOUR_ITEM, ItemId, armour_of};
+    let mut g = GameState::default();
+    g.inventory.add(ItemId(12), 5); // iron ore
+    g.inventory.add(ItemId(11), 2); // coal ore
+    assert_eq!(armour_of(&g.inventory), 0);
+    let (mut p, d, _) = start_with("armour", false, g);
+    assert!(p.craft().starts_with("Crafted Iron armour"));
+    assert_eq!(p.game().inventory.count_of(IRON_ARMOUR_ITEM), 1);
+    assert_eq!(armour_of(&p.game().inventory), 1);
+    let _ = std::fs::remove_dir_all(d);
+}

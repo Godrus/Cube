@@ -38,6 +38,14 @@ pub fn max_health_for(level: u32) -> u32 {
     PLAYER_MAX_HEALTH + HEALTH_PER_LEVEL * (level.clamp(1, MAX_LEVEL) - 1)
 }
 
+/// Levels per point of attack bonus (a classless stat; classes are an owner decision, ODM-05).
+pub const LEVELS_PER_ATTACK_BONUS: u32 = 4;
+
+/// Extra damage per swing at `level`: 0 below level 5, 1 from 5, 2 from 9, and so on.
+pub fn attack_bonus_for(level: u32) -> u32 {
+    (level.clamp(1, MAX_LEVEL) - 1) / LEVELS_PER_ATTACK_BONUS
+}
+
 /// A character's total experience.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct Progress {
@@ -131,6 +139,15 @@ mod tests {
         assert_eq!(p.xp(), xp_for_level(MAX_LEVEL));
         assert_eq!(p.gain(5).added, 0);
         assert_eq!(p.next_level_xp(), None);
+    }
+
+    #[test]
+    fn attack_bonus_steps_every_four_levels() {
+        assert_eq!(attack_bonus_for(1), 0);
+        assert_eq!(attack_bonus_for(4), 0);
+        assert_eq!(attack_bonus_for(5), 1);
+        assert_eq!(attack_bonus_for(9), 2);
+        assert_eq!(attack_bonus_for(99), attack_bonus_for(MAX_LEVEL));
     }
 
     #[test]

@@ -10,6 +10,9 @@
 pub struct Health {
     cur: u32,
     max: u32,
+    /// Flat damage taken off every hit (never below 1 dealt). Derived from worn items by the
+    /// caller, not saved; creatures have none.
+    armour: u32,
 }
 
 /// Prototype maximum health of the player.
@@ -36,12 +39,30 @@ impl Health {
     /// Full health of `max` (a `max` of 0 becomes 1: nothing lives with no health).
     pub fn full(max: u32) -> Self {
         let max = max.max(1);
-        Self { cur: max, max }
+        Self {
+            cur: max,
+            max,
+            armour: 0,
+        }
+    }
+
+    /// Sets the armour value (flat reduction of each hit).
+    pub fn set_armour(&mut self, armour: u32) {
+        self.armour = armour;
+    }
+
+    /// The armour value.
+    pub fn armour(&self) -> u32 {
+        self.armour
     }
 
     /// From saved values; `None` if they are not valid (`max` 0 or `cur` above `max`).
     pub fn from_parts(cur: u32, max: u32) -> Option<Self> {
-        (max >= 1 && cur <= max).then_some(Self { cur, max })
+        (max >= 1 && cur <= max).then_some(Self {
+            cur,
+            max,
+            armour: 0,
+        })
     }
 
     /// Current health.
@@ -190,7 +211,13 @@ pub fn attack(
     if distance_milli > u64::from(weapon.reach_milli) {
         return Err(AttackRefused::OutOfReach);
     }
-    let d = target.damage(weapon.damage);
+    // Armour takes a flat amount off the hit, but a hit always does at least 1.
+    let amount = if weapon.damage == 0 {
+        0
+    } else {
+        weapon.damage.saturating_sub(target.armour).max(1)
+    };
+    let d = target.damage(amount);
     timer.left = weapon.cooldown_ticks;
     Ok(Hit {
         dealt: d.dealt,
@@ -214,6 +241,20 @@ mod tests {
         let c = h.damage(5);
         assert_eq!((c.dealt, c.killed), (0, false), "no second death");
         assert!(!h.damage(0).killed);
+    }
+
+    #[test]
+    fn armour_reduces_each_hit_but_never_below_one() {
+        let mut h = Health::full(20);
+        h.set_armour(1);
+        let mut t = AttackTimer::new();
+        let hit = attack(&WOODEN_SWORD, &mut t, &mut h, 0).unwrap();
+        assert_eq!(hit.dealt, WOODEN_SWORD.damage - 1);
+        h.set_armour(100);
+        let mut t = AttackTimer::new();
+        assert_eq!(attack(&WOODEN_SWORD, &mut t, &mut h, 0).unwrap().dealt, 1);
+        assert_eq!(h.armour(), 100);
+        assert_eq!(Health::from_parts(5, 9).unwrap().armour(), 0, "not saved");
     }
 
     #[test]

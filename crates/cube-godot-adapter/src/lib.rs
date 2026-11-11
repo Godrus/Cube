@@ -407,6 +407,9 @@ impl CubeWorld {
         if item == i32::from(cube_app::game::IRON_SWORD_ITEM.0) {
             return Color::from_rgb(0.72, 0.76, 0.84); // a weapon, not a material: steel
         }
+        if item == i32::from(cube_app::game::IRON_ARMOUR_ITEM.0) {
+            return Color::from_rgb(0.55, 0.6, 0.7); // armour: darker steel
+        }
         let c = material_colour(item.clamp(0, i32::from(u16::MAX)) as u16);
         Color::from_rgb(c[0], c[1], c[2])
     }
