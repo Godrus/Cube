@@ -463,12 +463,14 @@ def main_trees():
 
 
 def ruins_scenario():
-    """Seed 7, generator version 5: a ruin with its centre at (-95, -29) and floor -10 (pinned by worldgen_v5.rs), with a
+    """Seed 7, generator version 6 (the default): a ruin with its centre at (-95, -29) and floor -10 (pinned by worldgen_v5.rs), with a
     creature den in the middle. The camera is put south of its door and then inside by the QA-only teleport."""
     steps = [W(20), {"op": "mode", "walk": False},
              {"op": "teleport", "x": -94.5, "y": -6.5, "z": -17.5, "yaw": 0.0, "pitch": -0.2}, {"op": "mode", "walk": True}, W(90), {"op": "probe", "name": "door_seen"}, {"op": "shot", "name": "ruin_door"},
              W(60), {"op": "probe", "name": "den_awake"}, {"op": "mode", "walk": False},
-             {"op": "teleport", "x": -93.5, "y": -7.4, "z": -27.5, "yaw": 1.107, "pitch": -0.1}, W(200), {"op": "probe", "name": "inside"}, {"op": "shot", "name": "ruin_inside"}]
+             {"op": "teleport", "x": -93.5, "y": -7.4, "z": -27.5, "yaw": 1.107, "pitch": -0.1}, W(200), {"op": "probe", "name": "inside"}, {"op": "shot", "name": "ruin_inside"},
+             # v6: the chamber under the ruin (floor -10, chamber floor -17, den at x -92.5, z -25.5)
+             {"op": "teleport", "x": -97.5, "y": -14.4, "z": -25.5, "yaw": -1.5708, "pitch": 0.0}, W(120), {"op": "probe", "name": "chamber"}, {"op": "shot", "name": "ruin_chamber"}]
     return {"world_seed": 7, "hud": True, "creatures": True, "phases": [{"name": "p1", "create": True, "steps": steps}]}
 
 
@@ -492,8 +494,12 @@ def main_ruins():
     check("the den creature notices the visitor (it leaves IDLE)", any(c["state"] in (1, 2) for c in near(w)), "states %s" % [c["state"] for c in near(w)])
     check("the camera is inside the walls", i["camera_position"][0] > -100 and i["camera_position"][0] < -90 and i["camera_position"][2] > -34 and i["camera_position"][2] < -24, str([round(v) for v in i["camera_position"]]))
     check("the crosshair is on the stone altar or a brick wall of the ruin", i["target_material"] in (1, 5), "target material %s" % i["target_material"])
+    c = p["chamber"]
+    guard = [g for g in c["creatures"] if abs(g["pos"][0] + 92.5) < 4 and abs(g["pos"][2] + 25.5) < 4 and g["pos"][1] < -13]
+    check("a guard lives in the chamber under the ruin (v6 den)", len(guard) >= 1, "%d creatures in the chamber" % len(guard))
+    check("the camera is in the chamber (below the ruin floor)", c["camera_position"][1] < -12, "camera y %.1f" % c["camera_position"][1])
     means = {}
-    for name in ("ruin_door", "ruin_inside"):
+    for name in ("ruin_door", "ruin_inside", "ruin_chamber"):
         f = os.path.join(out, "p1", name + ".png")
         check("picture " + name, os.path.exists(f) and os.path.getsize(f) > 10000, f)
         means[name] = mean_rgb(f) if os.path.exists(f) else [0, 0, 0]

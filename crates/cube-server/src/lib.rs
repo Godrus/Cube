@@ -532,10 +532,12 @@ impl LocalHost {
             .is_ok_and(|m| m == 0)
     }
 
-    /// The den (two voxels off the middle of a ruin's floor) in the 16 x 16 column `(cx, cz)`, if there is one:
-    /// the feet position of the creature that lives there.
+    /// The den in the 16 x 16 column `(cx, cz)`, if there is one: the feet position of the
+    /// creature that lives there. In worlds before terrain-v6 it is two voxels off the middle of
+    /// a ruin's floor; from v6 on it is the chamber under the ruin (the guard of the deep cache).
     pub fn den_site(&self, cx: i64, cz: i64) -> Option<[f64; 3]> {
         let (rx, rz) = ((cx * 16).div_euclid(40), (cz * 16).div_euclid(40));
+        let chamber = self.record.generator_version.raw() >= 6;
         for dz in 0..=1 {
             for dx in 0..=1 {
                 let r = cube_worldgen::ruin_of_region(
@@ -546,12 +548,19 @@ impl LocalHost {
                 )
                 .ok()
                 .flatten();
-                // The den is two voxels off the middle (the altar stands in the middle).
-                if let Some(r) = r
-                    && (r.x + 2).div_euclid(16) == cx
-                    && (r.z + 2).div_euclid(16) == cz
-                {
-                    return Some([r.x as f64 + 2.5, (r.floor + 1) as f64, r.z as f64 + 2.5]);
+                let Some(r) = r else { continue };
+                // Offsets from the ruin's centre column; the altar stands in the middle.
+                let (ox, oz, y) = if chamber {
+                    (2, 3, r.floor + cube_worldgen::v6::CHAMBER_FLOOR + 1)
+                } else {
+                    (2, 2, r.floor + 1)
+                };
+                if (r.x + ox).div_euclid(16) == cx && (r.z + oz).div_euclid(16) == cz {
+                    return Some([
+                        r.x as f64 + ox as f64 + 0.5,
+                        y as f64,
+                        r.z as f64 + oz as f64 + 0.5,
+                    ]);
                 }
             }
         }
