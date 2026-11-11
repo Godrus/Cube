@@ -18,3 +18,4 @@ window/size/viewport_height=720
 [rendering]
 
 renderer/rendering_method="forward_plus"
+renderer/rendering_method.mobile="gl_compatibility"

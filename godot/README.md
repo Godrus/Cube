@@ -41,3 +41,16 @@ Not yet a full game: no health, creatures, crafting, item drops or tools, one ha
 ## Combat (prototype, internal)
 
 `godot --path godot -- --creatures` switches creatures on: slimes spawn near you, chase and hurt you, `E` swings the sword. Scripted check in real Godot: `python tools/visual-qa/walk_smoke.py --combat`. A fresh checkout or git worktree needs one import run first (`godot --headless --path godot --import`); the smoke runner does it by itself. Without that cache the scene shows a frozen picture because the native extension is not loaded.
+
+
+## Android (early spike, not a supported platform yet)
+
+Status: prepared, see `docs/handoff/NEXT-EXECUTION.md` for what was actually built and run. The Rust half builds the same GDExtension for Android; Godot packs it into an APK.
+
+```bash
+rustup target add aarch64-linux-android x86_64-linux-android      # once
+ANDROID_NDK_HOME=<sdk>/ndk/28.1.13356709 scripts/build-android.sh x86_64 arm64
+godot --headless --path godot --export-debug "Android x86_64 (emulator)" build/cube-x86_64.apk
+```
+
+Needs: the Android SDK and NDK (r27 or newer), Godot export templates for the same Godot version, the Android debug keystore in the Godot editor settings. The mobile renderer is the compatibility (GLES3) one (`project.godot`). The world is stored in `user://world` (no command line on a phone). There are no touch controls yet (mouse and keyboard only), so a phone cannot play it; that is M9 work.
