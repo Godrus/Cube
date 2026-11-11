@@ -1,5 +1,7 @@
 # Release Criteria
 
+> **Нумерация:** M0..M8 в этом файле это вехи готовности к релизу (Internal Alpha, Closed Alpha, Beta, RC, 1.0), а не продуктовые M0..M12 из `docs/roadmap/PRODUCT-ROADMAP.md`. Сводка пути к релизу: последний раздел того файла.
+
 **Status:** **Proposed.** No milestone is declared reached. A milestone is reached only when the owner records acceptance of its evidence. Words like "stable", "optimised enough", "ready" are not criteria; each item below is a check with a pass condition and evidence.
 
 ## 0. Rules for all criteria
