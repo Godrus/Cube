@@ -422,5 +422,45 @@ def main_caves():
     return 0 if not failed else 1
 
 
+def trees_scenario():
+    """Seed 7, generator version 4: a forest tree with its trunk at (-76, -11), ground -10, five voxels of wood
+    (pinned by worldgen_v4.rs). The camera is put in front of it by the QA-only teleport; mining the wood is the
+    ordinary game action. A second stop in the forest shows the crowns from a distance."""
+    steps = [W(20), {"op": "mode", "walk": False},
+             {"op": "teleport", "x": -75.5, "y": -7.4, "z": -7.5, "yaw": 0.0, "pitch": 0.0}, W(240), {"op": "probe", "name": "trunk_seen"}, {"op": "shot", "name": "trunk"},
+             {"op": "mine"}, W(30), {"op": "probe", "name": "wood_mined"},
+             {"op": "teleport", "x": -75.5, "y": 6.0, "z": 6.5, "yaw": 0.0, "pitch": -0.35}, W(240), {"op": "probe", "name": "forest_view"}, {"op": "shot", "name": "forest_trees"}]
+    return {"world_seed": 7, "hud": True, "phases": [{"name": "p1", "create": True, "steps": steps}]}
+
+
+def main_trees():
+    out = tempfile.mkdtemp(prefix="cube-trees-")
+    t0 = time.time()
+    tel = godot_runner.run_scenario(trees_scenario(), out, timeout=300)
+    if "events" not in tel["p1"]:
+        print("FAIL godot:", tel["p1"].get("error", tel["p1"]))
+        return 1
+    p = probes(tel, "p1")
+    ev = tel["p1"]["events"]
+    checks = []
+
+    def check(name, ok, detail):
+        checks.append((name, ok, detail))
+        print(("ok   " if ok else "FAIL ") + name + ": " + detail)
+
+    t = p["trunk_seen"]
+    check("the HUD says Forest at the tree", t["game"]["biome"] == "Forest", t["game"]["biome"])
+    check("the crosshair is on the trunk (wood, material 8)", t["target_material"] == 8, "target material %s" % t["target_material"])
+    mined = [e for e in ev if e["op"] == "mine"]
+    check("mining the trunk works and the inventory gets wood (item 8)", bool(mined) and mined[0]["result"] == "ok" and 8 in p["wood_mined"]["game"]["slots"][0::2],
+          "result '%s', slots %s" % (mined[0]["result"] if mined else None, p["wood_mined"]["game"]["slots"][:6]))
+    for name in ("trunk", "forest_trees"):
+        f = os.path.join(out, "p1", name + ".png")
+        check("picture " + name, os.path.exists(f) and os.path.getsize(f) > 10000, f)
+    failed = [x for x, ok, _ in checks if not ok]
+    print("trees smoke: %s (%.0f s, %s)" % ("PASS" if not failed else "FAIL " + ", ".join(failed), time.time() - t0, out))
+    return 0 if not failed else 1
+
+
 if __name__ == "__main__":
-    sys.exit(main_caves() if "--caves" in sys.argv else main_world() if "--world" in sys.argv else main_combat() if "--combat" in sys.argv else main_play() if "--play" in sys.argv else main_journey() if "--journey" in sys.argv else main())
+    sys.exit(main_trees() if "--trees" in sys.argv else main_caves() if "--caves" in sys.argv else main_world() if "--world" in sys.argv else main_combat() if "--combat" in sys.argv else main_play() if "--play" in sys.argv else main_journey() if "--journey" in sys.argv else main())

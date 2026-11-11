@@ -100,6 +100,12 @@ fn solid(seed: u64, x: i64, y: i64, z: i64, h: i64, biome: Biome, mouth: bool) -
     }
 }
 
+/// `true` if the surface voxel of the column `(x, z)` is cave air (a cave mouth).
+pub(crate) fn is_open_at_surface(seed: u64, x: i64, z: i64) -> bool {
+    let (h, b) = v2::column(seed, x, z);
+    solid(seed, x, h, z, h, b, mouth_at(seed, x, z)) == 0
+}
+
 /// Material of one voxel.
 pub fn material(seed: WorldSeed, x: i64, y: i64, z: i64) -> u16 {
     let (h, b) = v2::column(seed.raw(), x, z);

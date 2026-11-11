@@ -19,12 +19,15 @@
 //!
 //! Version 3, "terrain-v3" (see [`v3`]): version 2 plus caves and ores.
 //!
+//! Version 4, "terrain-v4" (see [`v4`]): version 3 plus trees.
+//!
 //! Determinism is argued from integer arithmetic only; cross-device identity is DG-2 and is
 //! **not** claimed.
 
 pub mod v1;
 pub mod v2;
 pub mod v3;
+pub mod v4;
 
 use cube_core::{
     BRICK_VOLUME, BrickCoord, CellChange, CellPayload, Channel, ChannelId, ChannelSet,
@@ -111,7 +114,7 @@ pub struct VersionInfo {
 
 /// All released generator versions, ascending.
 pub fn registry() -> &'static [VersionInfo] {
-    const R: [VersionInfo; 3] = [
+    const R: [VersionInfo; 4] = [
         VersionInfo {
             version: GeneratorVersion::new(1),
             algorithm: "terrain-v1",
@@ -125,6 +128,11 @@ pub fn registry() -> &'static [VersionInfo] {
         VersionInfo {
             version: GeneratorVersion::new(3),
             algorithm: "terrain-v3",
+            status: Status::Legacy,
+        },
+        VersionInfo {
+            version: GeneratorVersion::new(4),
+            algorithm: "terrain-v4",
             status: Status::Active,
         },
     ];
@@ -133,7 +141,7 @@ pub fn registry() -> &'static [VersionInfo] {
 
 /// The version new worlds use.
 pub const fn current_version() -> GeneratorVersion {
-    GeneratorVersion::new(3)
+    GeneratorVersion::new(4)
 }
 
 /// Ground height of the column `(x, z)` in the world of `version`.
@@ -274,7 +282,8 @@ pub fn voxel_at(
     Ok(match version.raw() {
         1 => v1::material(seed, x, y, z),
         2 => v2::material(seed, x, y, z),
-        _ => v3::material(seed, x, y, z),
+        3 => v3::material(seed, x, y, z),
+        _ => v4::material(seed, x, y, z),
     })
 }
 
@@ -295,7 +304,8 @@ pub fn generate_brick(
     let content = match version.raw() {
         1 => v1::brick(seed, origin.x, origin.y, origin.z),
         2 => v2::brick(seed, origin.x, origin.y, origin.z),
-        _ => v3::brick(seed, origin.x, origin.y, origin.z),
+        3 => v3::brick(seed, origin.x, origin.y, origin.z),
+        _ => v4::brick(seed, origin.x, origin.y, origin.z),
     };
     Ok(GeneratedBrick {
         coord: brick,
