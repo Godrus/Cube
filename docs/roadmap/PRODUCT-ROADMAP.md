@@ -24,6 +24,8 @@ Status = what is true in the repository on `dev` 679e8d5 plus the reconciliation
 | **M11** Large-scale infrastructure | Toward 500 players | distributed simulation, regional servers, entity handoff, load balancing, monitoring, admin, accounts, stress tests | PS-13, 14 | only after M8 works | measured load tests | NOT_STARTED |
 | **M12** Production quality | Release quality | art, animation, sound, music, UX, accessibility, content, PC and mobile optimisation, mod support, user content editor, release prep | PS-14 | scope | release candidate checks | NOT_STARTED |
 
+**Visual direction (owner, 2026-11-11):** Cube World Alpha / Veloren style; micro-voxel character work is deferred and changes no milestone. See `docs/vision/VISUAL-STYLE-GUIDE.md`. Focus: mechanics, adventures, RPG progression, exploration, Android compatibility.
+
 **Do not** build the M11 infrastructure before M8 runs; **do not** wait for M8 to design the network contracts: gameplay state in M2 must be engine-neutral and server-authoritative in shape (intent in, validated result out).
 
 ## 2. Historical Phase 0..8 of GDD/TDD v0.3 mapped to today

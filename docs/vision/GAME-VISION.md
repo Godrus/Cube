@@ -67,6 +67,10 @@ Eight stable principles. For each: what the player gets, what contradicts it, ho
 | 7 | **Cross-platform** | PC and mobile with the same rules, a different UI, controls and budgets | a reduced rule set on mobile; mobile checked only at the end | a PC and an Android player in one world; early Android feasibility spike (M9) |
 | 8 | **Extensible geometry and content** | new content and geometry types without rewriting formats; data-driven definitions; later mods | hard-coded content in the engine; a format change per feature | a new item or creature added as data (from M2) |
 
+## 3a. Visual direction
+
+Cube World Alpha and Veloren: stylised, cohesive, playable voxel RPG; not maximum voxel complexity. Canonical text and the explicit priority change (micro-voxel character work deferred) are in `VISUAL-STYLE-GUIDE.md`.
+
 ## 4. Gameplay loops
 
 * **Adventure:** explore, find an activity, face a challenge, earn a reward, grow, reach new territory.
