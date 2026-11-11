@@ -59,6 +59,10 @@ var creature_nodes := []
 var creature_prev := []
 var health_bar: ProgressBar
 var health_label: Label
+const TouchScript := preload("res://touch_controls.gd")
+var touch: Control = null
+var touch_mode := false
+var touch_test := false
 var xp_bar: ProgressBar
 var xp_label: Label
 var hurt_overlay: ColorRect
@@ -141,7 +145,22 @@ func _ready() -> void:
 			"--creatures":
 				OS.set_environment("CUBE_CREATURES", "1")
 				creatures_on = true
+			"--touch":
+				touch_mode = true
+			"--touch-test":
+				touch_test = true
 		i += 1
+	if touch_test:
+		var bad: Array = TouchScript.self_test()
+		print("CUBE touch test: ", "PASS" if bad.is_empty() else "FAIL " + str(bad))
+		get_tree().quit(0 if bad.is_empty() else 1)
+		return
+	if OS.has_feature("mobile"):
+		# A phone has no command line: touch controls on, and the creatures too (there is no other
+		# way to switch them on, and the fight loop is part of what is being tried there).
+		touch_mode = true
+		OS.set_environment("CUBE_CREATURES", "1")
+		creatures_on = true
 	var create := not FileAccess.file_exists(dir.path_join("manifest"))
 	if not world.open_world(dir, seed_value, create):
 		push_error("could not open the world")
@@ -268,6 +287,83 @@ func _build_player_and_hud() -> void:
 		grid.add_child(slot)
 		panel_slot_nodes.append(slot)
 	layer.add_child(inventory_panel)
+	if touch_mode:
+		_build_touch(layer)
+
+
+func _build_touch(layer: CanvasLayer) -> void:
+	touch = TouchScript.new()
+	layer.add_child(touch)
+	touch.look_moved.connect(func(d: Vector2): look += d)
+	touch.action.connect(_on_touch_action)
+	hotbar.mouse_filter = Control.MOUSE_FILTER_PASS
+
+
+func _on_touch_action(name: String) -> void:
+	match name:
+		"mine":
+			_do_mine()
+		"place":
+			_do_place()
+		"attack":
+			_do_attack()
+		"craft":
+			_do_craft()
+		"interact":
+			_do_interact()
+		"inventory":
+			_do_toggle_inventory()
+		"view":
+			_do_toggle_view()
+		"fly":
+			_do_toggle_fly()
+
+
+func _say_result(r: String) -> void:
+	if r != "" and r != "ok" and r != "none":
+		_say(r)
+
+
+func _do_mine() -> void:
+	_say_result(world.mine())
+
+
+func _do_place() -> void:
+	_say_result(world.place())
+
+
+func _do_attack() -> void:
+	if creatures_on:
+		_say_result(world.attack())
+
+
+func _do_craft() -> void:
+	_say_result(world.craft())
+
+
+func _do_interact() -> void:
+	if world.is_walking():
+		_say_result(world.interact())
+
+
+func _do_toggle_view() -> void:
+	if world.is_walking():
+		third_person = not third_person
+		world.set_third_person(third_person)
+
+
+func _do_toggle_fly() -> void:
+	world.set_walk(not world.is_walking())
+	if not world.is_walking():
+		third_person = false
+		world.set_third_person(false)
+
+
+func _do_toggle_inventory() -> void:
+	inventory_panel.visible = not inventory_panel.visible
+	picked_slot = -1
+	if touch == null:
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if inventory_panel.visible else Input.MOUSE_MODE_CAPTURED
 
 
 func _make_marker(color: Color) -> MeshInstance3D:
@@ -315,7 +411,11 @@ func _make_slot(index: int) -> Control:
 
 
 func _on_slot_input(event: InputEvent, index: int) -> void:
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+	var pressed: bool = (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT) or (event is InputEventScreenTouch and event.pressed)
+	if pressed and index < 9 and (inventory_panel == null or not inventory_panel.visible):
+		world.select_slot(index)  # the hotbar: a click or a tap chooses the slot
+		return
+	if pressed:
 		if picked_slot < 0:
 			picked_slot = index
 		else:
@@ -474,21 +574,14 @@ func _input(event: InputEvent) -> void:
 			if not world.is_walking():
 				third_person = false
 				world.set_third_person(false)
-		elif event.keycode == KEY_E and creatures_on:
-			var ra: String = world.attack()
-			if ra != "ok" and ra != "none":
-				_say(ra)
+		elif event.keycode == KEY_E:
+			_do_attack()
 		elif event.keycode == KEY_G:
-			var rc: String = world.craft()
-			if rc != "":
-				_say(rc)
-		elif event.keycode == KEY_R and world.is_walking():
-			var ri: String = world.interact()
-			if ri != "":
-				_say(ri)
-		elif event.keycode == KEY_V and world.is_walking():
-			third_person = not third_person
-			world.set_third_person(third_person)
+			_do_craft()
+		elif event.keycode == KEY_R:
+			_do_interact()
+		elif event.keycode == KEY_V:
+			_do_toggle_view()
 		elif event.keycode >= KEY_1 and event.keycode <= KEY_9:
 			world.select_slot(event.keycode - KEY_1)
 		elif event.keycode == KEY_C:
@@ -499,7 +592,7 @@ func _input(event: InputEvent) -> void:
 			inventory_panel.visible = not inventory_panel.visible
 			picked_slot = -1
 			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE if inventory_panel.visible else Input.MOUSE_MODE_CAPTURED
-	if event is InputEventMouseButton and event.pressed:
+	if touch == null and event is InputEventMouseButton and event.pressed:
 		if inventory_panel != null and inventory_panel.visible:
 			return
 		if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
@@ -516,7 +609,7 @@ func _input(event: InputEvent) -> void:
 			world.scroll_slot(-1)
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 			world.scroll_slot(1)
-	elif event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+	elif touch == null and event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		look += Vector2(-event.relative.x, -event.relative.y) * 0.003
 	elif event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
 		if inventory_panel != null and inventory_panel.visible:
@@ -535,6 +628,14 @@ func _process(delta: float) -> void:
 		var fwd := int(Input.is_key_pressed(KEY_W)) - int(Input.is_key_pressed(KEY_S))
 		var right := int(Input.is_key_pressed(KEY_D)) - int(Input.is_key_pressed(KEY_A))
 		var up := int(Input.is_key_pressed(KEY_SPACE)) - int(Input.is_key_pressed(KEY_SHIFT))
+		if touch != null:
+			var q: Vector2i = TouchScript.quantize(touch.move)
+			if q.y != 0:
+				fwd = q.y
+			if q.x != 0:
+				right = q.x
+			if touch.jump_held:
+				up = 1
 		if frames <= down_frames:
 			up = -1
 		world.frame(fwd, right, up, look.x, look.y, delta)
