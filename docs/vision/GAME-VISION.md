@@ -67,6 +67,10 @@ Eight stable principles. For each: what the player gets, what contradicts it, ho
 | 7 | **Cross-platform** | PC and mobile with the same rules, a different UI, controls and budgets | a reduced rule set on mobile; mobile checked only at the end | a PC and an Android player in one world; early Android feasibility spike (M9) |
 | 8 | **Extensible geometry and content** | new content and geometry types without rewriting formats; data-driven definitions; later mods | hard-coded content in the engine; a format change per feature | a new item or creature added as data (from M2) |
 
+## 3a. Visual direction (owner-approved principle, first slice built)
+
+**High-detail unsmoothed voxel art with adaptive per-object resolution and mobile-aware LOD.** Everything in Cube should in time be made of fine, flat-faced voxel geometry that does not read as large Minecraft cubes; the current terrain blocks are a temporary look. The world grid (brick 16^3, one voxel per world unit) is a storage unit, not a limit on object detail: each object picks its own resolution. One geometry asset serves several visual LODs; there is no separate PC and mobile game logic. The first proof is one character, the traveller (`F-CHR-001`, `docs/handoff/CHAR-01-REPORT.md`): 80 voxels per unit, three LODs, drawn in the real Godot scene. Technical readiness is not art approval: only the owner approves that the model matches the target style. Not decided or done: terrain, trees and buildings at fine resolution, equipment, texture-less shading rules, a LOD generator, Android measurements.
+
 ## 4. Gameplay loops
 
 * **Adventure:** explore, find an activity, face a challenge, earn a reward, grow, reach new territory.

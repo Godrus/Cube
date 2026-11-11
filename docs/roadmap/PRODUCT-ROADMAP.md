@@ -24,6 +24,8 @@ Status = what is true in the repository on `dev` 679e8d5 plus the reconciliation
 | **M11** Large-scale infrastructure | Toward 500 players | distributed simulation, regional servers, entity handoff, load balancing, monitoring, admin, accounts, stress tests | PS-13, 14 | only after M8 works | measured load tests | NOT_STARTED |
 | **M12** Production quality | Release quality | art, animation, sound, music, UX, accessibility, content, PC and mobile optimisation, mod support, user content editor, release prep | PS-14 | scope | release candidate checks | NOT_STARTED |
 
+**Visual direction (owner, 2026-11):** high-detail unsmoothed voxel art with adaptive per-object resolution and mobile-aware LOD; first slice is the traveller character (`F-CHR-001`), which does not change any milestone scope or dependency; the world grid, WorldGen, streaming and persistence are untouched. M12 art work builds on it; M9 must measure it on a device.
+
 **Do not** build the M11 infrastructure before M8 runs; **do not** wait for M8 to design the network contracts: gameplay state in M2 must be engine-neutral and server-authoritative in shape (intent in, validated result out).
 
 ## 2. Historical Phase 0..8 of GDD/TDD v0.3 mapped to today

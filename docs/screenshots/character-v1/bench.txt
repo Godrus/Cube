@@ -1,0 +1,6 @@
+CUBE bench: instances=0(+player) lod=0 avg_frame_ms=7.17 worst_ms=7.41 fps=140 draw_calls=76 primitives=68382 objects=76 vram_bytes=22497171 lod_switch_ms_per_instance=0.0000
+CUBE bench: instances=1(+player) lod=0 avg_frame_ms=7.15 worst_ms=7.41 fps=140 draw_calls=84 primitives=87388 objects=84 vram_bytes=22497171 lod_switch_ms_per_instance=0.0088
+CUBE bench: instances=12(+player) lod=0 avg_frame_ms=7.40 worst_ms=7.41 fps=135 draw_calls=172 primitives=296454 objects=172 vram_bytes=22497171 lod_switch_ms_per_instance=0.0068
+CUBE bench: instances=48(+player) lod=0 avg_frame_ms=7.93 worst_ms=8.33 fps=126 draw_calls=460 primitives=980670 objects=460 vram_bytes=22497171 lod_switch_ms_per_instance=0.0071
+CUBE bench: instances=48(+player) lod=1 avg_frame_ms=7.80 worst_ms=8.33 fps=128 draw_calls=460 primitives=427656 objects=460 vram_bytes=22497171 lod_switch_ms_per_instance=0.0074
+CUBE bench: instances=48(+player) lod=2 avg_frame_ms=7.92 worst_ms=8.65 fps=126 draw_calls=460 primitives=181284 objects=460 vram_bytes=22497171 lod_switch_ms_per_instance=0.0074
