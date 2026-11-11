@@ -143,4 +143,4 @@ Each row: **ID | Check | Pass condition | Evidence**.
 
 1. The agent assembles an evidence list mapping each criterion to a reference.
 2. The Integration Owner reviews it; missing evidence keeps the milestone **Not reached**.
-3. The owner records acceptance in the decision registry. Only then does `PROJECT_STATUS.md` show the milestone as Reached.
+3. The owner records acceptance in the decision registry. Only then is the milestone shown as Reached (in `.agent/BOARD.md` and `docs/FUNCTIONAL-ROADMAP.md`).

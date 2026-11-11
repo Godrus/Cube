@@ -47,3 +47,4 @@ jobs:
       - run: cargo test -p xtask
       - run: cargo xtask archcheck
       - run: cargo xtask features --check
+      - run: cargo xtask docscheck

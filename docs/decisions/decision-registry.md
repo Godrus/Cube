@@ -60,7 +60,7 @@ confirmation_evidence: E-CHAT
 source: OWNER-CHAT-2026-11-09 (instruction 'Close Governance, Complete PS-0, Start Production Development') section 3
 source_availability: UNAVAILABLE in repository (session transcript only)
 owner: Project Owner
-affected_documents: [docs/production/production-architecture-plan.md, docs/decisions/owner-architecture-decisions-v1.md, docs/decisions/owner-approval-matrix-v1.md, docs/owner-decision-m2t-optimization/OWNER_DECISION_REGISTER.md]
+affected_documents: [docs/production/production-architecture-plan.md, docs/decisions/owner-architecture-decisions-v1.md, docs/decisions/owner-approval-matrix-v1.md, docs/archive/owner-decision-m2t-optimization/OWNER_DECISION_REGISTER.md]
 history:
   - 2026-11-09 entry created
 
@@ -624,7 +624,7 @@ decided_on_basis:
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09)
-source: docs/gov01/GOV-01-DECISION-REGISTER.md item X-1; docs/production/ps-0-exit-checklist.md section 1 row 2
+source: docs/archive/gov01/GOV-01-DECISION-REGISTER.md item X-1; docs/production/ps-0-exit-checklist.md section 1 row 2
 source_availability: IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/production/ps-0-exit-checklist.md]
@@ -652,9 +652,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [docs/archive/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -677,9 +677,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [docs/archive/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -702,9 +702,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [docs/archive/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -727,9 +727,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md, docs/api-contracts/world-persistence-contracts.md]
+affected_documents: [docs/archive/product-vision/cube-product-vision.md, docs/api-contracts/world-persistence-contracts.md]
 history:
   - 2026-11-09 entry created
 
@@ -753,9 +753,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [docs/archive/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -777,9 +777,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [docs/archive/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -803,9 +803,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [docs/archive/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -826,9 +826,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [docs/archive/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -850,9 +850,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [docs/archive/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -874,9 +874,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [docs/archive/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -898,9 +898,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [docs/archive/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -922,9 +922,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [docs/archive/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -947,9 +947,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [docs/archive/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -970,9 +970,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [docs/archive/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -994,9 +994,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [docs/archive/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -1017,9 +1017,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [docs/archive/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -1041,9 +1041,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [docs/archive/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -1066,9 +1066,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [docs/archive/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -1089,9 +1089,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [docs/archive/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -1112,9 +1112,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [docs/archive/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -1136,9 +1136,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [docs/archive/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -1160,9 +1160,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [docs/archive/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -1183,9 +1183,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 
 confirmation_evidence: NONE
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [docs/archive/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -1253,7 +1253,7 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 1; docs/gov01/GOV-01-DECISION-REGISTER.md item 1
+source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 1; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 1
 source_availability: IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/production/architecture-blocker-decisions.md]
@@ -1277,7 +1277,7 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 2; docs/gov01/GOV-01-DECISION-REGISTER.md item 2
+source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 2; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 2
 source_availability: IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/production/architecture-blocker-decisions.md]
@@ -1302,7 +1302,7 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 3; docs/gov01/GOV-01-DECISION-REGISTER.md item 3
+source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 3; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 3
 source_availability: IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/production/architecture-blocker-decisions.md]
@@ -1326,7 +1326,7 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 4; docs/gov01/GOV-01-DECISION-REGISTER.md item 4
+source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 4; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 4
 source_availability: IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/decisions/acr-004-owner-review.md]
@@ -1350,7 +1350,7 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 5; docs/gov01/GOV-01-DECISION-REGISTER.md item 5
+source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 5; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 5
 source_availability: IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/production/architecture-blocker-decisions.md]
@@ -1374,7 +1374,7 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 6; docs/gov01/GOV-01-DECISION-REGISTER.md item 6
+source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 6; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 6
 source_availability: IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/production/architecture-blocker-decisions.md]
@@ -1398,7 +1398,7 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 7; docs/gov01/GOV-01-DECISION-REGISTER.md item 7
+source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 7; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 7
 source_availability: IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/production/architecture-blocker-decisions.md]
@@ -1423,7 +1423,7 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 8; docs/gov01/GOV-01-DECISION-REGISTER.md item 8
+source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 8; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 8
 source_availability: IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/production/architecture-blocker-decisions.md]
@@ -1447,7 +1447,7 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 9; docs/gov01/GOV-01-DECISION-REGISTER.md item 9
+source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 9; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 9
 source_availability: IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/production/architecture-blocker-decisions.md]
@@ -1472,7 +1472,7 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 10; docs/gov01/GOV-01-DECISION-REGISTER.md item 10
+source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 10; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 10
 source_availability: IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/api-contracts/core-contracts.md]
@@ -1496,7 +1496,7 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 11; docs/gov01/GOV-01-DECISION-REGISTER.md item 11
+source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 11; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 11
 source_availability: IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/production/architecture-blocker-decisions.md]
@@ -1521,7 +1521,7 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 12; docs/gov01/GOV-01-DECISION-REGISTER.md item 12
+source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 12; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 12
 source_availability: IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/production/architecture-blocker-decisions.md]
@@ -1545,7 +1545,7 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 13; docs/gov01/GOV-01-DECISION-REGISTER.md item 13
+source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 13; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 13
 source_availability: IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/production/architecture-blocker-decisions.md]
@@ -1570,7 +1570,7 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 14; docs/gov01/GOV-01-DECISION-REGISTER.md item 14
+source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 14; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 14
 source_availability: IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/production/architecture-blocker-decisions.md]
@@ -1594,7 +1594,7 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 15; docs/gov01/GOV-01-DECISION-REGISTER.md item 15
+source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 15; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 15
 source_availability: IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/production/integration-and-qa-plan.md]
@@ -1695,7 +1695,7 @@ category: PROCESS
 level: TECHNICAL
 status: CONFIRMED
 statement: >
-  The patch docs/gov01/ADG-D01-D02.proposed.patch is applied to docs/production/module-boundaries.md: every engineering task of PS-2..PS-14 gets G1 in its merge-after column (rule R-MERGE-G1) and QA-04 gets the gates G5, G6, G7, G8, G9, G11, G12. Verified by `python docs/audit/adg_check.py --strict` (all 8 checks PASS, longest path 25 tasks). The M2-T task-graph optimisations OPT-01..OPT-08 of ODM-14 are not applied here.
+  The patch docs/archive/gov01/ADG-D01-D02.proposed.patch is applied to docs/production/module-boundaries.md: every engineering task of PS-2..PS-14 gets G1 in its merge-after column (rule R-MERGE-G1) and QA-04 gets the gates G5, G6, G7, G8, G9, G11, G12. Verified by `python docs/archive/audit/adg_check.py --strict` (all 8 checks PASS, longest path 25 tasks). The M2-T task-graph optimisations OPT-01..OPT-08 of ODM-14 are not applied here.
 decided_by: AGENT_DELEGATED
 delegation_basis: DEC-001 (owner instruction 2026-11-09, section 7: defects found by checks are fixed within delegated authority)
 decided_on: 2026-11-09
@@ -1703,7 +1703,7 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend)
-source: docs/gov01/ADG-D01-D02-PATCH-PROPOSAL.md; docs/gov01/ADG-D01-D02-ANALYSIS.md
+source: docs/archive/gov01/ADG-D01-D02-PATCH-PROPOSAL.md; docs/archive/gov01/ADG-D01-D02-ANALYSIS.md
 source_availability: IN_REPOSITORY
 owner: Project Owner
 affected_documents: [docs/production/module-boundaries.md]
@@ -1766,7 +1766,7 @@ category: PROCESS
 level: TECHNICAL
 status: CONFIRMED
 statement: >
-  The owner permits the Provisional contract TC-01 (PR-01...PR-05 subset, docs/m2-delivery-review/M2_MINIMUM_CONTRACTS.md section 3) to be used to prepare and implement PS-2 Processing Foundation: a temporary technical specification, reversible engineering decisions within the approved principles, production code and tests that rest on explicitly marked provisional contracts, spike checks of disputed technical questions, and sequential integration where the entry and merge conditions of each task allow it. The implementation record is docs/production/processing-foundation-contract.md.
+  The owner permits the Provisional contract TC-01 (PR-01...PR-05 subset, docs/archive/m2-delivery-review/M2_MINIMUM_CONTRACTS.md section 3) to be used to prepare and implement PS-2 Processing Foundation: a temporary technical specification, reversible engineering decisions within the approved principles, production code and tests that rest on explicitly marked provisional contracts, spike checks of disputed technical questions, and sequential integration where the entry and merge conditions of each task allow it. The implementation record is docs/production/processing-foundation-contract.md.
 not_decided: >
   Owner approval of PR-01...PR-08 (GOV-07); closing ODM-02 (whether a Provisional registration satisfies the condition of AOD-24); the Geometry Processing Specification (EXT-GPS); GOV-16 (C-05 approval); GOV-24 (OD-R4 snapshot lifetime and caps); closing gate G2; declaring any provisional contract Frozen; changing the product concept.
 decided_by: OWNER
@@ -1869,7 +1869,7 @@ confirmation_evidence: E-DELEGATION (the owner may reject or amend); CI evidence
 source: docs/production/ps-0-exit-checklist.md section 7
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/production/ps-0-exit-checklist.md, docs/PROJECT_STATUS.md]
+affected_documents: [docs/production/ps-0-exit-checklist.md, docs/archive/PROJECT_STATUS.md]
 history:
   - 2026-11-09 entry created
 
@@ -2006,7 +2006,7 @@ confirmation_evidence: E-DELEGATION (the owner may reject or amend); CI evidence
 source: docs/production/ps-0-exit-checklist.md section 8
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/production/ps-0-exit-checklist.md, docs/PROJECT_STATUS.md]
+affected_documents: [docs/production/ps-0-exit-checklist.md, docs/archive/PROJECT_STATUS.md]
 history:
   - 2026-11-09 entry created
 
@@ -2028,7 +2028,7 @@ confirmation_evidence: E-DELEGATION (the owner may reject or amend); CI evidence
 source: docs/production/ps-0-exit-checklist.md section 9
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/production/ps-0-exit-checklist.md, docs/PROJECT_STATUS.md]
+affected_documents: [docs/production/ps-0-exit-checklist.md, docs/archive/PROJECT_STATUS.md]
 history:
   - 2026-11-09 entry created
 

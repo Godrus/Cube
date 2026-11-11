@@ -1,12 +1,12 @@
 # Work packages: epics and tasks for M1, M2, M3 (and later epics)
 
-**Status:** proposed decomposition. Hierarchy: Vision -> pillar -> milestone -> epic -> feature (`docs/features.json`) -> work package -> task -> acceptance test. Each task names its acceptance; a task is done only by the Definition of Done in `docs/handoff/NEW-CHAT-START.md` section 6. Ids here are work ids (`E-`, `M1-A1`, `CMB-01`), not feature ids; a feature id is created only when a real new function appears (rule 5 of `docs/AGENT-HANDOFF.md`). Roles are engineering areas, not owner assignments (the ownership matrix and DEC-072 stand; nobody is assigned by this file).
+**Status:** proposed decomposition. Hierarchy: Vision -> pillar -> milestone -> epic -> feature (`docs/features.json`) -> work package -> task -> acceptance test. Each task names its acceptance; a task is done only by the Definition of Done in `docs/handoff/NEW-CHAT-START.md` section 6. Ids here are work ids (`E-`, `M1-A1`, `CMB-01`), not feature ids; a feature id is created only when a real new function appears (rule 5 of `docs/archive/AGENT-HANDOFF.md`). Roles are engineering areas, not owner assignments (the ownership matrix and DEC-072 stand; nobody is assigned by this file).
 
 ## Epic E-M1: persistent world and gameplay integrity (M1)
 
 | Task | Action | Start state | Acceptance | Status |
 |---|---|---|---|---|
-| **M1-A2** | Inventory and world reconciliation | `game.state` and the journal were two stores | write-ahead intent in `game.state`; at open settle against the journal; Rust tests crash between each write pair (`crates/cube-app/tests/reconcile.rs`) | **TESTED** on branch `prod/m1-reconcile` (see `NEXT-EXECUTION.md` for integration) |
+| **M1-A2** | Inventory and world reconciliation | `game.state` and the journal were two stores | write-ahead intent in `game.state`; at open settle against the journal; Rust tests crash between each write pair (`crates/cube-app/tests/reconcile.rs`) | **TESTED** on branch `prod/m1-reconcile` (integrated, see `.agent/LOG.md` and git) |
 | **M1-A1** | Unload edited bricks and bring them back | `evict_far` never unloads bricks in `Streamed.edited` (pinned) | build over many bricks, walk away, resident memory bounded, come back and restart: identical content; edit journal and snapshots intact | NOT_STARTED, design below |
 | **M1-A3** | Measure generation cost on the main thread | `ensure_loaded` generates up to 48 bricks per frame in the frame call | a measured frame-time table (debug and release) under heavier worlds; only if it exceeds a budget, move generation to a worker with version checks, determinism and budgets | NOT_STARTED |
 | **M1-A4** | Character data ready for a server | player and game state are client files | an engine-neutral `CharacterRecord` with a stable text/binary form separate from the world (AI-15) | NOT_STARTED |

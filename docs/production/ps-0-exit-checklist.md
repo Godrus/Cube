@@ -1,7 +1,7 @@
 # PS-0 Exit Checklist (proposal)
 
 **Status:** **Proposed**; a checklist, not a decision. PS-0 (Governance and Architecture Freeze) closes when gate **G0** is satisfied (ADG part C and D in `module-boundaries.md`). **State on 2026-11-09 is in the State column below; PS-0 is not complete.** Marking an item DONE needs the evidence named in the row; an agent may not mark an owner-decision row DONE without the owner's registry entry (`production-architecture-plan.md` section 3.3).
-**Related:** PS-1 entry criteria (section 3), decisions list (`architecture-blocker-decisions.md` section 1), verdict (`production-plan-revision-v2.1-report.md` section 2).
+**Related:** PS-1 entry criteria (section 3), decisions list (`architecture-blocker-decisions.md` section 1), verdict (`archive/production/production-plan-revision-v2.1-report.md` section 2).
 
 ## 1. Gate G0 tasks
 
@@ -86,7 +86,7 @@ Statuses are kept apart: **IMPLEMENTED**, **TESTED** (CI host), **INTEGRATED** (
 | GOV-16 | n/a | n/a | n/a | DONE, DEC-079 |
 | GOV-24 | n/a | n/a | n/a | DONE, DEC-080 |
 
-**Exit criteria checked** (not only the existence of code): snapshot isolation and apron consistency (`processing_snapshot.rs`); provider DAG with deterministic order and cycle diagnostics (`graph.rs`, random-graph property test); cancellation at every state (`processing_executor.rs`, `processing_caps.rs`); stale rejection under explored interleavings (loom: slot, token, executor racing a commit; stress without violations); resource caps on the synthetic mobile budget; bounds integration (`BoundsProvider`: unknown data is a failure, never Empty); no direct Core mutation from Processing (archcheck ARCH-HANDLE and the crate graph); compliance with the provisional limits (`processing-foundation-contract.md`). Tools on the integration commit `d164d21`: `cargo fmt`, `clippy -D warnings`, `cargo test --workspace`, `cargo deny`, `cargo xtask archcheck` (all required checks green in CI run 42624528085), `docs/audit/adg_check.py --strict` PASS.
+**Exit criteria checked** (not only the existence of code): snapshot isolation and apron consistency (`processing_snapshot.rs`); provider DAG with deterministic order and cycle diagnostics (`graph.rs`, random-graph property test); cancellation at every state (`processing_executor.rs`, `processing_caps.rs`); stale rejection under explored interleavings (loom: slot, token, executor racing a commit; stress without violations); resource caps on the synthetic mobile budget; bounds integration (`BoundsProvider`: unknown data is a failure, never Empty); no direct Core mutation from Processing (archcheck ARCH-HANDLE and the crate graph); compliance with the provisional limits (`processing-foundation-contract.md`). Tools on the integration commit `d164d21`: `cargo fmt`, `clippy -D warnings`, `cargo test --workspace`, `cargo deny`, `cargo xtask archcheck` (all required checks green in CI run 42624528085), `docs/archive/audit/adg_check.py --strict` PASS.
 
 **PS-2 CLOSED - G2 PASSED** (conditional on RG-2: the provisional Processing contracts are diffed against the Geometry Processing Specification when it exists, before PR-01...PR-08 are frozen). PS-3 may start under the ADG.
 

@@ -3,6 +3,7 @@
 
 mod archcheck;
 mod chat;
+mod docscheck;
 mod features;
 
 use std::path::PathBuf;
@@ -62,6 +63,22 @@ fn main() -> ExitCode {
                 }
             }
         }
+        Some("docscheck") => match docscheck::run(&workspace_root()) {
+            Ok(v) if v.is_empty() => {
+                println!("docscheck: OK");
+                ExitCode::SUCCESS
+            }
+            Ok(v) => {
+                for x in &v {
+                    eprintln!("docscheck: {x}");
+                }
+                ExitCode::from(1)
+            }
+            Err(e) => {
+                eprintln!("docscheck: cannot run: {e}");
+                ExitCode::from(2)
+            }
+        },
         Some(cmd @ ("say" | "chat")) => {
             let rest: Vec<String> = args.collect();
             let root = workspace_root();
@@ -83,7 +100,7 @@ fn main() -> ExitCode {
         }
         _ => {
             eprintln!(
-                "usage: cargo xtask archcheck | features [--check|--write] | say [--as <id>] <text> | chat [N]"
+                "usage: cargo xtask archcheck | features [--check|--write] | docscheck | say [--as <id>] <text> | chat [N]"
             );
             ExitCode::from(2)
         }

@@ -10,7 +10,7 @@
 | `clippy` | `cargo clippy --workspace --all-targets -- -D warnings` | no warnings | Agent I |
 | `test (ubuntu-latest)`, `test (windows-latest)` | `cargo test --workspace` | all tests pass | Agent I |
 | `deny` | `cargo deny check` (action `EmbarkStudios/cargo-deny-action@v2`) | licences within the allow-list of `deny.toml`, no yanked crates, only crates.io | Agent I |
-| `archcheck` | `cargo xtask archcheck` | crate graph equals the ADG Part B edges; no forbidden `use` or token; self-tests of seeded violations pass (`cargo test -p xtask`) | Integration Owner |
+| `archcheck` | `cargo xtask archcheck` (the same job also runs `features --check` and `docscheck`) | crate graph equals the ADG Part B edges; no forbidden `use` or token; self-tests of seeded violations pass (`cargo test -p xtask`) | Integration Owner |
 
 Later additions (not required yet): public-API snapshots of `cube-core` and `cube-editing-api`, contract-id check, registry lint.
 

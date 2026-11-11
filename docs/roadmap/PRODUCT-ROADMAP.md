@@ -1,12 +1,12 @@
 # Cube Product Roadmap (M0 to M12), engineering crosswalk, critical path
 
-**Status:** proposed execution order from the owner's directive of 2026-11-10. The strategic direction is the owner's; the milestone cut and order are an agent proposal that stays reversible. It changes **no** engineering gate, ADG edge or contract (those stay in `docs/production/`). Status words follow `docs/AGENT-HANDOFF.md` rule list: implementation NOT_STARTED / IN_PROGRESS / IMPLEMENTED / TESTED / INTEGRATED, availability NOT_AVAILABLE / INTERNAL_ONLY / DEMO_AVAILABLE / PLAYER_AVAILABLE. Feature ids refer to `docs/features.json` (never a second registry); statuses are copied from it, not restated here. Vision: `docs/vision/GAME-VISION.md`. Tasks: `WORK-PACKAGES.md`.
+**Status:** proposed execution order from the owner's directive of 2026-11-10. The strategic direction is the owner's; the milestone cut and order are an agent proposal that stays reversible. It changes **no** engineering gate, ADG edge or contract (those stay in `docs/production/`). Status words follow `docs/archive/AGENT-HANDOFF.md` rule list: implementation NOT_STARTED / IN_PROGRESS / IMPLEMENTED / TESTED / INTEGRATED, availability NOT_AVAILABLE / INTERNAL_ONLY / DEMO_AVAILABLE / PLAYER_AVAILABLE. Feature ids refer to `docs/features.json` (never a second registry); statuses are copied from it, not restated here. Vision: `docs/vision/GAME-VISION.md`. Tasks: `WORK-PACKAGES.md`.
 
 **Numbering.** `M0..M12` here are *product* milestones. The older Game Track uses `M2-T` (technical slice: walk, edit, save/load, done in the demo), `M2` (First Playable with a gameplay loop) and `M3` (Vertical Slice) in `docs/production/`. Proposed mapping: Game Track M2 = product M1 + M2 (+ minimal M3); Game Track M3 = product M3..M5 slice. The historical Phase 0..8 of GDD/TDD v0.3 are kept in section 2; PS-0..PS-14 are not renamed.
 
 ## 1. Milestones
 
-Status = what is true in the repository on `dev` 679e8d5 plus the reconciliation commit in `NEXT-EXECUTION.md`. "Demo" means the Godot developer demo, run by hand on the developer machine, not in CI.
+Status = what is true in the repository on `dev` 679e8d5 plus later commits (current tasks: `.agent/BOARD.md`). "Demo" means the Godot developer demo, run by hand on the developer machine, not in CI.
 
 | M | Goal and player outcome | Required features | Engineering stages | Main risks | Acceptance (playable) | Status |
 |---|---|---|---|---|---|---|

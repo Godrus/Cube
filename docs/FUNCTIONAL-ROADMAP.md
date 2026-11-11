@@ -51,7 +51,7 @@ Status words: Decision (IDEA, PROPOSED, APPROVED, DEFERRED, REJECTED), Implement
 
 ## 4. First playable vertical slice (proposed orientation, not an approved specification)
 
-Source of the proposal: `production/FIRST_PLAYABLE_SCOPE.md` and `FIRST_PLAYABLE_DEPENDENCIES.md` (M2-T is not confirmed as final M2).
+Source of the proposal: `archive/production/FIRST_PLAYABLE_SCOPE.md` and `FIRST_PLAYABLE_DEPENDENCIES.md` (M2-T is not confirmed as final M2).
 
 | # | Scenario | Exists | Missing | Depends on | How it will be checked | Status |
 |---|---|---|---|---|---|---|
@@ -71,6 +71,6 @@ Characters, inventory, crafting, combat, creatures, NPC behaviour, multiplayer a
 
 ## 6. Known inconsistencies between sources
 
-* `PROJECT_STATUS.md` sections 4 and 5.2 still describe the 2026-11-05 documentation baseline; the stage rows were updated, the baseline text was not. This roadmap and `production/ps-0-exit-checklist.md` (sections 6 to 14) carry the current state.
-* `AGENT_HANDOFF.md` (older, contains rules written before DEC-001 delegation, e.g. rule 8) and the new `AGENT-HANDOFF.md` coexist; the new file is the current state snapshot, the old one the long procedural guide.
+* `archive/PROJECT_STATUS.md` is a historical snapshot of 2026-11-05. The current state is this roadmap, `production/ps-0-exit-checklist.md` (sections 6 to 14) and `.agent/BOARD.md`.
+* The old handoff files (`archive/AGENT_HANDOFF.md`, `archive/AGENT-HANDOFF.md`) are archived; their valid rules live in `handoff/NEW-CHAT-START.md`.
 * Decision status of ADG-planned but not yet started features (history, tools, server) is PROPOSED here because only the engineering plan names them, not a feature-level owner decision.

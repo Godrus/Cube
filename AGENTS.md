@@ -12,7 +12,7 @@ Cube: кроссплатформенная воксельная open-world actio
 ## Задачи
 
 - Взять задачу: свободная строка в BOARD, статус `doing`, свой agent-id, и сразу `cargo xtask say --as <id> "беру <ID>"`. Чужой свежий claim в чате: задачу не брать. `doing` без движения больше суток можно перехватить, написав в чат.
-- Новая работа: сначала строка в BOARD. Если это веха, ещё строка в `docs/roadmap/PRODUCT-ROADMAP.md`. Реестр функций один: `docs/features.json` (правила в разделе Rules for features файла `docs/AGENT-HANDOFF.md`).
+- Новая работа: сначала строка в BOARD. Если это веха, ещё строка в `docs/roadmap/PRODUCT-ROADMAP.md`. Реестр функций один: `docs/features.json` (правила: раздел 7 файла `docs/handoff/NEW-CHAT-START.md`).
 - Закончил: BOARD в `done`, одна строка в `.agent/LOG.md` (дата, agent, ID, коммит, чем проверено).
 
 ## Связь между агентами
@@ -32,6 +32,6 @@ Cube: кроссплатформенная воксельная open-world actio
 
 ## Документация
 
-- Новый `.md` только по строке в `.agent/INDEX.md` (путь и зачем) или по прямому слову владельца. Результат работы дописывается в существующий файл.
+- Новый `.md` только по строке в `.agent/INDEX.md` (путь и зачем) или по прямому слову владельца. Проверяет `cargo xtask docscheck` (CI): лишние файлы и битые ссылки ломают сборку. Результат работы дописывается в существующий файл.
 - Не плодить отчёты, планы и аудиты. Для следов работы есть git, BOARD и LOG.
 - Отчёт агента заканчивается строкой: `Functional Roadmap: updated / unchanged (reason). Features added: ... completed: ... Player-visible functionality: ...`
