@@ -652,9 +652,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/archive/product-vision/cube-product-vision.md]
+affected_documents: [docs/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -677,9 +677,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/archive/product-vision/cube-product-vision.md]
+affected_documents: [docs/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -702,9 +702,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/archive/product-vision/cube-product-vision.md]
+affected_documents: [docs/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -727,9 +727,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/archive/product-vision/cube-product-vision.md, docs/api-contracts/world-persistence-contracts.md]
+affected_documents: [docs/product-vision/cube-product-vision.md, docs/api-contracts/world-persistence-contracts.md]
 history:
   - 2026-11-09 entry created
 
@@ -753,9 +753,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/archive/product-vision/cube-product-vision.md]
+affected_documents: [docs/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -777,9 +777,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/archive/product-vision/cube-product-vision.md]
+affected_documents: [docs/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -803,9 +803,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/archive/product-vision/cube-product-vision.md]
+affected_documents: [docs/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -826,9 +826,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/archive/product-vision/cube-product-vision.md]
+affected_documents: [docs/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -850,9 +850,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/archive/product-vision/cube-product-vision.md]
+affected_documents: [docs/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -874,9 +874,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/archive/product-vision/cube-product-vision.md]
+affected_documents: [docs/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -898,9 +898,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/archive/product-vision/cube-product-vision.md]
+affected_documents: [docs/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -922,9 +922,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/archive/product-vision/cube-product-vision.md]
+affected_documents: [docs/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -947,9 +947,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/archive/product-vision/cube-product-vision.md]
+affected_documents: [docs/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -970,9 +970,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/archive/product-vision/cube-product-vision.md]
+affected_documents: [docs/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -994,9 +994,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/archive/product-vision/cube-product-vision.md]
+affected_documents: [docs/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -1017,9 +1017,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/archive/product-vision/cube-product-vision.md]
+affected_documents: [docs/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -1041,9 +1041,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/archive/product-vision/cube-product-vision.md]
+affected_documents: [docs/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -1066,9 +1066,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/archive/product-vision/cube-product-vision.md]
+affected_documents: [docs/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -1089,9 +1089,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/archive/product-vision/cube-product-vision.md]
+affected_documents: [docs/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -1112,9 +1112,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/archive/product-vision/cube-product-vision.md]
+affected_documents: [docs/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -1136,9 +1136,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/archive/product-vision/cube-product-vision.md]
+affected_documents: [docs/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -1160,9 +1160,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/archive/product-vision/cube-product-vision.md]
+affected_documents: [docs/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 
@@ -1183,9 +1183,9 @@ recorded_on: 2026-11-09 (this registry)
 confirmed_on: 
 confirmation_evidence: NONE
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
-source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/archive/product-vision
+source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/archive/product-vision/cube-product-vision.md]
+affected_documents: [docs/product-vision/cube-product-vision.md]
 history:
   - 2026-11-09 entry created
 

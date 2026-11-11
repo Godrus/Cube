@@ -159,7 +159,7 @@ history:                         # только добавлять строки
 
 | Документ | Место | Erratum |
 |---|---|---|
-| `docs/archive/product-vision/cube-owner-decision-register.md` | §0.1 | «неподписанность коммитов не доказывает отсутствие решений; не зарегистрировано в реестре, потому что реестра и акта подтверждения нет» |
-| `docs/archive/product-vision/cube-product-vision.md` | §0.1 | то же |
-| `docs/archive/product-vision/production-plan-alignment-report.md` | §1 п.6 | то же |
+| `docs/product-vision/cube-owner-decision-register.md` | §0.1 | «неподписанность коммитов не доказывает отсутствие решений; не зарегистрировано в реестре, потому что реестра и акта подтверждения нет» |
+| `docs/product-vision/cube-product-vision.md` | §0.1 | то же |
+| `docs/product-vision/production-plan-alignment-report.md` | §1 п.6 | то же |
 | `docs/archive/owner-decision-m2t-optimization/OWNER_DECISION_REGISTER.md` | §0.3 | то же |

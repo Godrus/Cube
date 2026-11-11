@@ -26,7 +26,7 @@
 * **Родитель:** один, `16db379d1704c06e8f71da7452eff3fff73b0fcb`.
 * **Автор:** `Godrus`; дата 2026-11-09 13:31:30 +0300; подпись `N`.
 * **Тема:** «docs: product vision consolidation, owner decision register, Production Plan alignment report, roadmap alignment (proposal)».
-* **Содержимое** (`git show --stat`, `git diff --name-only 16db379 8854a44`): ровно **4 файла**, 721 добавление, все в `docs/archive/product-vision/`: `cube-product-vision.md`, `cube-owner-decision-register.md`, `production-plan-alignment-report.md`, `implementation-roadmap-alignment.md`. Других файлов нет. Тем самым коммит **действительно содержит** четыре подготовленных документа; это проверено содержимым, а не предположением.
+* **Содержимое** (`git show --stat`, `git diff --name-only 16db379 8854a44`): ровно **4 файла**, 721 добавление, все в `docs/product-vision/`: `cube-product-vision.md`, `cube-owner-decision-register.md`, `production-plan-alignment-report.md`, `implementation-roadmap-alignment.md`. Других файлов нет. Тем самым коммит **действительно содержит** четыре подготовленных документа; это проверено содержимым, а не предположением.
 * **Принадлежность веткам:** локальная `docs/architecture-roadmap-v1` и удалённая `origin/docs/architecture-roadmap-v1` (на сервере проверено `ls-remote`). Не содержится в `master` и в `spike/*`.
 * **Примечание:** коммит создан в прошлом этапе по вашей просьбе; в удалённую ветку он попал не из этой сессии (push здесь не выполнялся; reflog фиксирует push на вашей стороне).
 
