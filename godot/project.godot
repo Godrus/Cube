@@ -18,4 +18,7 @@ window/size/viewport_height=720
 [rendering]
 
 renderer/rendering_method="forward_plus"
-renderer/rendering_method.mobile="gl_compatibility"
+renderer/rendering_method.mobile="mobile"
+textures/vram_compression/import_etc2_astc=true
+limits/opengl/max_renderable_lights=8
+limits/opengl/max_lights_per_object=2

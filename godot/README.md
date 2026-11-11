@@ -45,7 +45,7 @@ Not yet a full game: no health, creatures, crafting, item drops or tools, one ha
 
 ## Android (early spike, not a supported platform yet)
 
-Status: prepared, see `docs/handoff/NEXT-EXECUTION.md` for what was actually built and run. The Rust half builds the same GDExtension for Android; Godot packs it into an APK.
+Status (2026-11-11): the x86_64 build was exported and **ran in the Android Studio emulator** (Android 16, Vulkan Forward Mobile): the native Rust core loaded, the world was created in `user://world`, terrain, HUD and hotbar drew (`docs/screenshots/android/`). Not run on a physical phone, no arm64 build was run, no touch controls, performance not measured. The Rust half builds the same GDExtension for Android; Godot packs it into an APK.
 
 ```bash
 rustup target add aarch64-linux-android x86_64-linux-android      # once
@@ -53,4 +53,4 @@ ANDROID_NDK_HOME=<sdk>/ndk/28.1.13356709 scripts/build-android.sh x86_64 arm64
 godot --headless --path godot --export-debug "Android x86_64 (emulator)" build/cube-x86_64.apk
 ```
 
-Needs: the Android SDK and NDK (r27 or newer), Godot export templates for the same Godot version, the Android debug keystore in the Godot editor settings. The mobile renderer is the compatibility (GLES3) one (`project.godot`). The world is stored in `user://world` (no command line on a phone). There are no touch controls yet (mouse and keyboard only), so a phone cannot play it; that is M9 work.
+Needs: the Android SDK and NDK (r27 or newer), Godot export templates for the same Godot version, the Android debug keystore in the Godot editor settings. The mobile renderer is `mobile` (Vulkan, `project.godot`). The compatibility (GLES3) renderer was tried first and failed in the emulator (both of its GPU modes): shaders did not link, "active uniforms exceed GL_MAX_FRAGMENT_UNIFORM_VECTORS (261)", grey screen; whether real phones behave the same is unknown. The emulator needs `-gpu swiftshader_indirect` or `auto`; `-gpu host` did not boot. The world is stored in `user://world` (no command line on a phone). There are no touch controls yet (mouse and keyboard only), so a phone cannot play it; that is M9 work.
