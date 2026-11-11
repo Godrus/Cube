@@ -1,6 +1,6 @@
 # Provisional contract review: TC-01...TC-11 (proposed)
 
-**Status:** **Proposed** / `PENDING_OWNER_DECISION` (ODM-07). Reviews the temporary contracts of `docs/archive/m2-delivery-review/M2_MINIMUM_CONTRACTS.md` against the Draft long-term contracts in `docs/api-contracts/` and the decisions in `docs/decisions/`. **The content of the Geometry Processing Specification and of the Voxel Architecture is unknown** (absent from the repository) and is not reconstructed; where a judgement would need it, the review says "unknown". A Provisional contract is not an approved architecture and does not become one by use; none is registered by this review.
+**Status:** **Proposed** / `PENDING_OWNER_DECISION` (ODM-07). Reviews the temporary contracts of `docs/api-contracts/M2_MINIMUM_CONTRACTS.md` against the Draft long-term contracts in `docs/api-contracts/` and the decisions in `docs/decisions/`. **The content of the Geometry Processing Specification and of the Voxel Architecture is unknown** (absent from the repository) and is not reconstructed; where a judgement would need it, the review says "unknown". A Provisional contract is not an approved architecture and does not become one by use; none is registered by this review.
 **New:** TC-11 (World Operations interface) is added because the local authoritative runtime (`ODM-16`) needs a contract that the previous TC set did not contain.
 
 ## 1. Classification used

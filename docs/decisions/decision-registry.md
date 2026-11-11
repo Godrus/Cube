@@ -1766,7 +1766,7 @@ category: PROCESS
 level: TECHNICAL
 status: CONFIRMED
 statement: >
-  The owner permits the Provisional contract TC-01 (PR-01...PR-05 subset, docs/archive/m2-delivery-review/M2_MINIMUM_CONTRACTS.md section 3) to be used to prepare and implement PS-2 Processing Foundation: a temporary technical specification, reversible engineering decisions within the approved principles, production code and tests that rest on explicitly marked provisional contracts, spike checks of disputed technical questions, and sequential integration where the entry and merge conditions of each task allow it. The implementation record is docs/production/processing-foundation-contract.md.
+  The owner permits the Provisional contract TC-01 (PR-01...PR-05 subset, docs/api-contracts/M2_MINIMUM_CONTRACTS.md section 3) to be used to prepare and implement PS-2 Processing Foundation: a temporary technical specification, reversible engineering decisions within the approved principles, production code and tests that rest on explicitly marked provisional contracts, spike checks of disputed technical questions, and sequential integration where the entry and merge conditions of each task allow it. The implementation record is docs/production/processing-foundation-contract.md.
 not_decided: >
   Owner approval of PR-01...PR-08 (GOV-07); closing ODM-02 (whether a Provisional registration satisfies the condition of AOD-24); the Geometry Processing Specification (EXT-GPS); GOV-16 (C-05 approval); GOV-24 (OD-R4 snapshot lifetime and caps); closing gate G2; declaring any provisional contract Frozen; changing the product concept.
 decided_by: OWNER

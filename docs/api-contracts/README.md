@@ -3,6 +3,8 @@
 **Status:** DRAFT 0.1. **No contract in this directory is approved.** Approval is recorded by the Integration Owner in `docs/decisions/`.
 **Implementation status (INT-01, 2026-11-09):** the Core slice of the P0-alpha contracts is **Implemented** in `crates/cube-core` (merged into `dev`, required CI checks green, contract tests in the crate); PC-1 contracts are **Implemented under Provisional approval**; **no contract is Frozen** (approval axis unchanged; see registry DEC-071 and DEC-076).
 
+**Временные контракты TC-01..TC-11** (подмножества для технического среза: Processing, воксельная основа PC-1, координаты, адресация мира, рендеринг, коллизии, генерация, хранилище v0, взаимодействие игрока с миром, потоки, World Operations; у каждого условие истечения и путь миграции) описаны в `M2_MINIMUM_CONTRACTS.md`, их разбор по пригодности, неоднозначностям и запретным допущениям в `PROVISIONAL_CONTRACT_REVIEW.md`. Реестр решений ссылается на них (DEC-077 и соседние). Условия истечения нужно проверять при каждой смене этапа.
+
 | Contract | Implemented slice | Not implemented (open) |
 |---|---|---|
 | C-01 GeometryAsset | immutable asset of layers, snapshots, commit gate | junctions, composite references, metadata schema |

@@ -23,7 +23,7 @@
 | `docs/vision/` | видение игры и визуальный стиль |
 | `docs/product-vision/` | подтверждённые владельцем требования к продукту (CPR), которые остаются в силе; решения и сверка планов |
 | `docs/production/` | инженерный план, ADG (`module-boundaries.md`), ворота, контракты Processing и Editing, CI |
-| `docs/api-contracts/` | контракты (все Proposed или Provisional) |
+| `docs/api-contracts/` | контракты (все Proposed или Provisional), в том числе временные контракты TC-01..TC-11 |
 | `docs/architecture/`, `docs/specifications/`, `docs/agent-tasks/` | спецификации геометрии и границы системы |
 | `docs/decisions/` | пакеты решений владельца (кроме реестра, который выше) |
 | `docs/research/` | заметки по референсам и спайкам |
@@ -34,7 +34,7 @@
 
 ## Архив
 
-`docs/archive/` покрыт целиком, читать только при поиске истории. Внутри: пакеты GOV-01, M2 delivery review, owner-decision M2T, аудиты, governance; старые файлы handoff и статуса; планы Game Track (First Playable, Vertical Slice); отчёты ревизий плана v2 и v2.1; прежний индекс документации. Скрипты внутри архива (аудиторские `*.py`) не поддерживаются.
+`docs/archive/` покрыт целиком, читать только при поиске истории. Внутри: пакеты GOV-01, M2 delivery review, owner-decision M2T, аудиты, governance; старые файлы handoff и статуса; планы Game Track (First Playable, Vertical Slice); отчёты ревизий плана v2 и v2.1; прежний индекс документации. Реестр решений цитирует архивные файлы как первоисточники решений: не удалять, не править и не переименовывать их без записи в реестре. Скрипты внутри архива (аудиторские `*.py`) не поддерживаются.
 
 ## Как добавить файл
 
