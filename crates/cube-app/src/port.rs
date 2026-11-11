@@ -229,7 +229,7 @@ impl PortSession {
         let Some(feet) = self.session.player_feet() else {
             return String::new();
         };
-        let Some(site) = self.session.host().altar_near(feet, 3.0) else {
+        let Some((site, deep)) = self.session.host().altar_near(feet, 3.0) else {
             return String::new();
         };
         if self.game.looted.contains(&site) {
@@ -239,9 +239,15 @@ impl PortSession {
         }
         let seed = self.session.world_seed();
         let key = crate::loot::cache_key(seed, site.0, site.1);
-        let mut text = String::from("Altar cache:");
+        let mut text = String::from(if deep { "Deep cache:" } else { "Altar cache:" });
         let mut lost = 0;
-        for k in [key, key ^ 0xA5A5] {
+        // The deep cache (under the ruin) holds three rolls instead of two.
+        let keys: &[u64] = if deep {
+            &[key, key ^ 0xA5A5, key ^ 0x5A5A]
+        } else {
+            &[key, key ^ 0xA5A5]
+        };
+        for &k in keys {
             if let Some(d) = crate::loot::RUIN_LOOT.roll(k) {
                 lost += self.game.grant_loot(d.item, d.count);
                 let name = crate::game::definition(d.item).map_or("item", |i| i.name);
@@ -252,7 +258,11 @@ impl PortSession {
             text.push_str(&format!(" ({lost} did not fit and are lost)"));
         }
         self.game.looted.insert(site);
-        let gain = self.game.progress.gain(crate::progression::RUIN_XP);
+        let gain = self.game.progress.gain(if deep {
+            crate::progression::DEEP_XP
+        } else {
+            crate::progression::RUIN_XP
+        });
         if gain.added > 0 {
             text.push_str(&format!(", +{} XP", gain.added));
         }

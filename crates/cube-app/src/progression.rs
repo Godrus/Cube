@@ -12,6 +12,9 @@ pub const MAX_LEVEL: u32 = 20;
 /// Experience for taking a ruin's altar cache.
 pub const RUIN_XP: u32 = 10;
 
+/// Experience for taking the deep cache under a ruin.
+pub const DEEP_XP: u32 = 25;
+
 /// Extra maximum health per level above the first.
 pub const HEALTH_PER_LEVEL: u32 = 4;
 

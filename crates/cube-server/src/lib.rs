@@ -558,12 +558,14 @@ impl LocalHost {
         None
     }
 
-    /// The altar (middle of a ruin's floor) within `reach` voxels horizontally and 3 vertically
-    /// of `feet`: its centre column `(x, z)`. `None` where there is no ruin (also in worlds
-    /// older than terrain-v5).
-    pub fn altar_near(&self, feet: [f64; 3], reach: f64) -> Option<(i64, i64)> {
+    /// A cache site within `reach` voxels horizontally and a few vertically of `feet`: the altar
+    /// in the middle of a ruin's floor, or (generator version 6 and later) the pedestal of the
+    /// chamber under it. Returns the column that identifies the cache and whether it is the deep
+    /// one. `None` where there is no ruin (also in worlds older than terrain-v5).
+    pub fn altar_near(&self, feet: [f64; 3], reach: f64) -> Option<((i64, i64), bool)> {
         let rx = (feet[0].floor() as i64).div_euclid(40);
         let rz = (feet[2].floor() as i64).div_euclid(40);
+        let deep_exists = self.record.generator_version.raw() >= 6;
         for dz in -1..=1 {
             for dx in -1..=1 {
                 let r = cube_worldgen::ruin_of_region(
@@ -574,12 +576,19 @@ impl LocalHost {
                 )
                 .ok()
                 .flatten();
-                if let Some(r) = r {
-                    let (ax, az) = (r.x as f64 + 0.5, r.z as f64 + 0.5);
-                    let near = (feet[0] - ax).hypot(feet[2] - az) <= reach
-                        && (feet[1] - (r.floor + 1) as f64).abs() <= 3.0;
-                    if near {
-                        return Some((r.x, r.z));
+                let Some(r) = r else { continue };
+                let near = |x: i64, z: i64, y: f64, dy: f64| {
+                    (feet[0] - (x as f64 + 0.5)).hypot(feet[2] - (z as f64 + 0.5)) <= reach
+                        && (feet[1] - y).abs() <= dy
+                };
+                if near(r.x, r.z, (r.floor + 1) as f64, 3.0) {
+                    return Some(((r.x, r.z), false));
+                }
+                if deep_exists {
+                    let (px, pz) = cube_worldgen::v6::PEDESTAL;
+                    let y = (r.floor + cube_worldgen::v6::CHAMBER_FLOOR + 1) as f64;
+                    if near(r.x + px, r.z + pz, y, 2.0) {
+                        return Some(((r.x + px, r.z + pz), true));
                     }
                 }
             }

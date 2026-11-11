@@ -11,12 +11,17 @@ use cube_persistence::WorldRecord;
 use cube_server::{LocalHost, StaticArea};
 
 fn start(tag: &str, offset: f64) -> (PortSession, PathBuf, (i64, i64)) {
+    start_at(tag, 5, [offset, 0.0, 0.0], 1)
+}
+
+/// `at` is an offset from the ruin centre column and `dy` the feet above the floor (1 = on it).
+fn start_at(tag: &str, version: u32, at: [f64; 3], dy: i64) -> (PortSession, PathBuf, (i64, i64)) {
     let d = std::env::temp_dir().join(format!("cube-ruin-{}-{tag}", std::process::id()));
     let _ = std::fs::remove_dir_all(&d);
     let rec = WorldRecord {
         world_id: 1,
         seed: WorldSeed::new(7),
-        generator_version: GeneratorVersion::new(5),
+        generator_version: GeneratorVersion::new(version),
         structure_version: cube_persistence::STRUCTURE_VERSION,
     };
     // The pinned ruin of seed 7 (see cube-integration-tests worldgen_v5): centre (-95, -29), floor -10.
@@ -25,9 +30,9 @@ fn start(tag: &str, offset: f64) -> (PortSession, PathBuf, (i64, i64)) {
         LocalHost::create(&d, rec, StaticArea::around_origin(&rec, FIRST_WORLD_RADIUS)).unwrap(),
     );
     let feet = [
-        ruin.0 as f64 + 0.5 + offset,
-        (ruin.2 + 1) as f64,
-        ruin.1 as f64 + 0.5,
+        ruin.0 as f64 + 0.5 + at[0],
+        (ruin.2 + dy) as f64,
+        ruin.1 as f64 + 0.5 + at[2],
     ];
     let session = Session::new(
         host,
@@ -85,4 +90,26 @@ fn nothing_happens_away_from_an_altar() {
     assert!(p.game().looted.is_empty());
     assert_eq!(p.game().progress.xp(), 0);
     let _ = std::fs::remove_dir_all(d);
+}
+
+#[test]
+fn the_deep_cache_under_the_ruin_is_bigger_taken_once_and_only_in_version_six() {
+    // Feet on the chamber floor (7 below the ruin floor, standing one above it), beside the pedestal.
+    let (mut p, d, site) = start_at("deep", 6, [0.0, 0.0, 3.0], -6);
+    let t = p.interact();
+    assert!(t.starts_with("Deep cache:"), "{t}");
+    assert_eq!(p.game().progress.xp(), cube_app::progression::DEEP_XP);
+    assert!(p.game().looted.contains(&(site.0, site.1 + 4)));
+    assert_eq!(p.interact(), "The altar is empty");
+    assert_eq!(p.game().progress.xp(), cube_app::progression::DEEP_XP);
+    // The surface altar of the same ruin is a separate cache (version 6 keeps it).
+    drop(p);
+    let (mut p, d2, _) = start_at("surface6", 6, [1.0, 0.0, 0.0], 1);
+    assert!(p.interact().starts_with("Altar cache:"));
+    let _ = std::fs::remove_dir_all(d);
+    let _ = std::fs::remove_dir_all(d2);
+    // In a version 5 world there is no chamber, so nothing answers down there.
+    let (mut p5, d5, _) = start_at("deep5", 5, [0.0, 0.0, 3.0], -6);
+    assert_eq!(p5.interact(), "");
+    let _ = std::fs::remove_dir_all(d5);
 }

@@ -71,8 +71,11 @@ impl Ruin {
     /// What the ruin says about the voxel `(x, y, z)`: `Some(material)` (0 = air) if the ruin
     /// decides it given the natural `base` voxel and the natural ground `ground` of its column,
     /// `None` if the voxel is not the ruin's.
-    fn voxel(&self, x: i64, y: i64, z: i64, base: u16, ground: i64) -> Option<u16> {
+    fn voxel(&self, x: i64, y: i64, z: i64, base: u16, ground: i64, dungeon: bool) -> Option<u16> {
         let (dx, dz, dy) = (x - self.x, z - self.z, y - self.floor);
+        if dungeon && let Some(m) = crate::v6::dungeon(dx, dz, dy) {
+            return Some(m);
+        }
         if dx.abs() > HALF || dz.abs() > HALF || !(-BELOW..=ABOVE).contains(&dy) {
             return None;
         }
@@ -115,10 +118,15 @@ fn ruin_at(seed: u64, x: i64, z: i64) -> Option<Ruin> {
 
 /// Material of one voxel.
 pub fn material(seed: WorldSeed, x: i64, y: i64, z: i64) -> u16 {
+    material_with(seed, x, y, z, false)
+}
+
+/// Material of one voxel; `dungeon` adds the version 6 rooms under the ruins.
+pub(crate) fn material_with(seed: WorldSeed, x: i64, y: i64, z: i64, dungeon: bool) -> u16 {
     let base = v4::material(seed, x, y, z);
     if let Some(r) = ruin_at(seed.raw(), x, z) {
         let (ground, _) = v2::column(seed.raw(), x, z);
-        if let Some(m) = r.voxel(x, y, z, base, ground) {
+        if let Some(m) = r.voxel(x, y, z, base, ground, dungeon) {
             return m;
         }
     }
@@ -127,6 +135,17 @@ pub fn material(seed: WorldSeed, x: i64, y: i64, z: i64) -> u16 {
 
 /// Content of the brick whose origin is `(ox, oy, oz)`.
 pub fn brick(seed: WorldSeed, ox: i64, oy: i64, oz: i64) -> BrickContent {
+    brick_with(seed, ox, oy, oz, false)
+}
+
+/// Content of a brick; `dungeon` adds the version 6 rooms under the ruins.
+pub(crate) fn brick_with(
+    seed: WorldSeed,
+    ox: i64,
+    oy: i64,
+    oz: i64,
+    dungeon: bool,
+) -> BrickContent {
     let base = v4::brick(seed, ox, oy, oz);
     let (rx0, rx1) = (
         (ox - HALF).div_euclid(REGION),
@@ -167,7 +186,7 @@ pub fn brick(seed: WorldSeed, ox: i64, oy: i64, oz: i64) -> BrickContent {
                 let (ground, _) = v2::column(seed.raw(), x, z);
                 for ly in 0..16u8 {
                     let i = usize::from(lx) + 16 * (usize::from(ly) + 16 * usize::from(lz));
-                    if let Some(m) = r.voxel(x, oy + i64::from(ly), z, d[i], ground) {
+                    if let Some(m) = r.voxel(x, oy + i64::from(ly), z, d[i], ground, dungeon) {
                         d[i] = m;
                     }
                 }
