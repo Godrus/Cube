@@ -2,6 +2,7 @@
 
 Одна строка на завершённую задачу, новые сверху. Формат: `дата | agent | ID | коммит | что сделано; чем проверено`. Без кода и диффов (они в git). Хранить 30 строк, остальное переносить в `.agent/archive/ГГГГ-ММ.md`. История до 2026-11-11: `git log` и `docs/archive/handoff/NEXT-EXECUTION.md`.
 
+2026-11-11 | claude-1 | DOC-05 | коммит с DOC-05 в сообщении | дочитан весь архив (gov01, audit, m2-delivery-review, M2T, governance, production): правила веток и тегов, реестры упрощений, путь к мультиплееру, сохранность git (PRES-01), задачи DOC-05 и EXT-SPEC перенесены в BOARD, WORK-PACKAGES, NEW-CHAT-START
 2026-11-11 | claude-1 | DOC-04 | коммит с DOC-04 в сообщении | построчный разбор архива: временные контракты TC-01..TC-11 возвращены в `docs/api-contracts/`, критерии FPS, модуль правил игры, матрица сбоев, контрольные точки Android, правила веток и эмулятора перенесены в активные документы
 2026-11-11 | claude-1 | DOC-03 | коммит с DOC-03 в сообщении | проверка архива по существу: `docs/product-vision/` возвращён из архива (требования CPR в силе), срез и контроль прогресса перенесены в PRODUCT-ROADMAP, открытые решения в BOARD, правило экспериментов в NEW-CHAT-START; docscheck, 0 битых ссылок
 2026-11-11 | claude-1 | DOC-02 | коммит с DOC-02 в сообщении | 52 файла в `docs/archive/` (ссылки и пути переписаны), данные из NEXT-EXECUTION и handoff перенесены в BOARD и NEW-CHAT-START, `cargo xtask docscheck` в CI; проверено: 0 битых ссылок, 26 тестов xtask, fmt, clippy, archcheck, features
