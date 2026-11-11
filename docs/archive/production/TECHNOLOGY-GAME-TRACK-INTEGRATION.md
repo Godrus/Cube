@@ -1,7 +1,7 @@
 # Technology Track and Game Track: integration plan
 
-**Status:** **Proposed** [NP]. A way of working for the owner to accept, amend or reject. It adds no task to the ADG, authorises no work, and changes no governance gate. Labels as in `GAME_TRACK_ROADMAP.md`.
-**Premise:** the nearest major product goal is M2 First Playable (`FIRST_PLAYABLE_SCOPE.md`). Technology is judged by whether it brings the game closer; the game is judged by whether it can run on the architecture the project has decided.
+**Status:** **Proposed** [NP]. A way of working for the owner to accept, amend or reject. It adds no task to the ADG, authorises no work, and changes no governance gate. Labels as in [`GAME_TRACK_ROADMAP.md`](GAME_TRACK_ROADMAP.md).
+**Premise:** the nearest major product goal is M2 First Playable ([`FIRST_PLAYABLE_SCOPE.md`](FIRST_PLAYABLE_SCOPE.md)). Technology is judged by whether it brings the game closer; the game is judged by whether it can run on the architecture the project has decided.
 
 ## 1. The convergence model
 
@@ -16,7 +16,7 @@ Game Track:        design -> experiments -> rules/content on mocks -> rules/cont
 * The Technology Track delivers *capabilities in thin slices* that a game consumer can use as soon as they exist (section 5), not whole stages.
 * The Game Track develops rules, content and tests against a narrow **world port** (section 4.1) that has an in-memory stand-in first and the real runtime later, so that it never waits for the full geometry system.
 * Integration happens at the end of **every playable increment**, not at the end of a stage.
-* **Convergence at M2:** the M2 technology slice (`FIRST_PLAYABLE_DEPENDENCIES.md`) plus the M2 content and rules (`FIRST_PLAYABLE_SCOPE.md`) meet in the real client; M2 is accepted by the player-facing criteria FPS-01...FPS-17 and doubles as validation of the architecture (authority, edit path, persistence, streaming).
+* **Convergence at M2:** the M2 technology slice ([`FIRST_PLAYABLE_DEPENDENCIES.md`](FIRST_PLAYABLE_DEPENDENCIES.md)) plus the M2 content and rules ([`FIRST_PLAYABLE_SCOPE.md`](FIRST_PLAYABLE_SCOPE.md)) meet in the real client; M2 is accepted by the player-facing criteria FPS-01...FPS-17 and doubles as validation of the architecture (authority, edit path, persistence, streaming).
 * **Convergence at M3:** the technology added for M3 (generation features, building aids, optional co-op) plus the M3 content meet in a representative slice, accepted by VSG-01...VSG-14. M3 additionally validates *scale*: content volume, entity counts, save size.
 
 ## 2. Four levels of work (what is allowed when)
@@ -30,7 +30,7 @@ Game Track:        design -> experiments -> rules/content on mocks -> rules/cont
 
 ## 3. Rules for experiments (L2) [NP]
 
-1. **Labelled and isolated:** a spike branch or a directory outside the production base; the label *experimental, not for production* is in the README and in the build. The existing rule stays: spike code never merges; moving it into production needs a separate owner decision (`AGENT_HANDOFF.md`).
+1. **Labelled and isolated:** a spike branch or a directory outside the production base; the label *experimental, not for production* is in the README and in the build. The existing rule stays: spike code never merges; moving it into production needs a separate owner decision ([`AGENT_HANDOFF.md`](../AGENT_HANDOFF.md)).
 2. **What flows back is knowledge, not code:** requirements, tuned parameters, test scenarios, measurements, a written finding. Parameters go back as data tables; scenarios go back as acceptance tests.
 3. **Engine scripts may be used for speed, but are throwaway** (AOD-07 governs production: GDScript is UI and glue only, authority lives in Rust). An experiment must not be the basis of a save format, a protocol, or a contract.
 4. **Decision-bounded, not date-bounded:** each experiment states the question it answers and the finding that ends it. No dates are proposed here.
@@ -41,7 +41,7 @@ Game Track:        design -> experiments -> rules/content on mocks -> rules/cont
 
 | Item | Level | Now? | Why |
 |---|---|---|---|
-| Review and refine `FIRST_PLAYABLE_SCOPE.md`; a game design document for M2 (rules, content tables, stat tables) | L1 | **Yes** | documents only; it is the substitute for the missing GDD for this scope |
+| Review and refine [`FIRST_PLAYABLE_SCOPE.md`](FIRST_PLAYABLE_SCOPE.md); a game design document for M2 (rules, content tables, stat tables) | L1 | **Yes** | documents only; it is the substitute for the missing GDD for this scope |
 | Scenario library: player stories written as steps with expected results (FPS-01...FPS-17 as scripts) | L1 | **Yes** | become automated acceptance tests later |
 | Item, creature, loot and spawn tables as plain tables (format not decided) | L1 | **Yes** | the content-data format is an open decision; tables are format-neutral |
 | UI sketches, HUD layout, control scheme, camera design | L1 | **Yes** | |
@@ -77,7 +77,7 @@ The port is a *design* artefact until the Game Rules module is approved; its par
 Every M2 capability has a **scenario script** (L1). Scripts run first against the stand-ins, headless; later, unchanged, against the real runtime. A capability is "done" when its script passes on the real runtime and a player can repeat it in the client. This lets Game Track work be verified long before graphics exist, and gives the Technology Track real consumers.
 
 ### 5.3 Milestone slices and priority
-* Define the M2 **slice** in the ADG (roadmap gap R-01) so that the 65 technology tasks of `FIRST_PLAYABLE_DEPENDENCIES.md` are scheduled first and are not delayed by stage-level gates for work M2 does not use (proposal P-A, P-B there).
+* Define the M2 **slice** in the ADG (roadmap gap R-01) so that the 65 technology tasks of [`FIRST_PLAYABLE_DEPENDENCIES.md`](FIRST_PLAYABLE_DEPENDENCIES.md) are scheduled first and are not delayed by stage-level gates for work M2 does not use (proposal P-A, P-B there).
 * **Priority rule:** for any owner, an M2-slice task precedes a non-slice task. Non-slice technology may proceed in parallel only where it does not take an M2-slice owner's time.
 * **Consumer rule:** no technology task enters the M2 slice without a named game consumer and a scenario; no game system is specified without a world-port capability that serves it.
 
@@ -104,7 +104,7 @@ PI-1...PI-3 can be reached by the Technology Track with almost no gameplay; PI-4
 
 ## 7. Registers
 
-**Simplification register [NP]** (one row per temporary solution; created with the first experiment or implementation; initial rows are in `FIRST_PLAYABLE_SCOPE.md` section 5). Fields: id, system, what is simplified, why acceptable, what it preserves, what it must not prevent, replacement condition and milestone, owner, status (open / replaced / waived by the owner). A simplification without a replacement condition is not allowed. **Technology debt rule:** when a simplification is replaced, its register row is closed with a reference to the evidence (scenario passing on the full version).
+**Simplification register [NP]** (one row per temporary solution; created with the first experiment or implementation; initial rows are in [`FIRST_PLAYABLE_SCOPE.md`](FIRST_PLAYABLE_SCOPE.md) section 5). Fields: id, system, what is simplified, why acceptable, what it preserves, what it must not prevent, replacement condition and milestone, owner, status (open / replaced / waived by the owner). A simplification without a replacement condition is not allowed. **Technology debt rule:** when a simplification is replaced, its register row is closed with a reference to the evidence (scenario passing on the full version).
 
 **Experiment register [NP]:** id, question, branch/location, owner, finding, what flowed back (data, scenarios, requirements), date closed.
 
@@ -137,7 +137,7 @@ PI-1...PI-3 can be reached by the Technology Track with almost no gameplay; PI-4
 
 ## 10. Recommended next steps (all proposals; none starts implementation)
 
-1. Owner reads `FIRST_PLAYABLE_SCOPE.md` and decides the questions of `GAME_TRACK_ROADMAP.md` section 10.
+1. Owner reads [`FIRST_PLAYABLE_SCOPE.md`](FIRST_PLAYABLE_SCOPE.md) and decides the questions of [`GAME_TRACK_ROADMAP.md`](GAME_TRACK_ROADMAP.md) section 10.
 2. Owner decides how to treat the two absent documents (supply or record an alternative): the highest-leverage decision for M2.
 3. Add owners for gameplay, content, art/audio and UI to the GOV-03 list; assign or defer the five technology areas.
 4. Authorise L2 experiments one by one (entity-model spike first), with the rules of section 3.

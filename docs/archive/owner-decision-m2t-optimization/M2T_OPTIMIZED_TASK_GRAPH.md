@@ -1,6 +1,6 @@
 # M2-T optimised task graph (v2, proposed)
 
-**Status:** **Proposed.** A separate graph. The official ADG (`docs/production/module-boundaries.md`) is **not modified**, no ADG task or gate status changes, and the previous graph (`docs/archive/m2-delivery-review/M2_TASK_GRAPH.md`) is preserved unchanged in the repository as the original. Tables are generator output (`_build/opt_graph.py`, `_build/build_tables.py`, outside the repository); IDs are those of the ADG, and the previous package's `TGAP-`, `GM-`, `XI-`; the one new id is `TGAP-09`. Nothing here authorises work.
+**Status:** **Proposed.** A separate graph. The official ADG ([`docs/production/module-boundaries.md`](../../production/module-boundaries.md)) is **not modified**, no ADG task or gate status changes, and the previous graph ([`docs/archive/m2-delivery-review/M2_TASK_GRAPH.md`](../m2-delivery-review/M2_TASK_GRAPH.md)) is preserved unchanged in the repository as the original. Tables are generator output (`_build/opt_graph.py`, `_build/build_tables.py`, outside the repository); IDs are those of the ADG, and the previous package's `TGAP-`, `GM-`, `XI-`; the one new id is `TGAP-09`. Nothing here authorises work.
 
 ## 1. Summary
 
@@ -13,11 +13,11 @@
 | Dependency edges | | 426 | **350** |
 | Levels / maximum width | | 24 / 12 | **22 / 15** |
 
-M2-T task-count changes: 75 -> 74 = `NET-02` and `CLI-05` leave M2-T; `PERS-06` joins (base + snapshot recovery). Against the honest baseline B1 (which contains the journal, compaction and `TEST-04` that the ADG requires for reload): 79 -> 74. **Critical path changes are separate**: B1 20 -> v2 18. See `M2T_CRITICAL_PATH_REVIEW.md` for the reading of these numbers.
+M2-T task-count changes: 75 -> 74 = `NET-02` and `CLI-05` leave M2-T; `PERS-06` joins (base + snapshot recovery). Against the honest baseline B1 (which contains the journal, compaction and `TEST-04` that the ADG requires for reload): 79 -> 74. **Critical path changes are separate**: B1 20 -> v2 18. See [`M2T_CRITICAL_PATH_REVIEW.md`](M2T_CRITICAL_PATH_REVIEW.md) for the reading of these numbers.
 
 ## 2. Change log: original dependency set versus proposed
 
-Original = B1 (the previous graph plus the acceptance edges and the persistence chain the ADG requires). Reasons, compatibility implications, migration paths and owner decisions are in `M2T_CRITICAL_PATH_REVIEW.md` section 5.
+Original = B1 (the previous graph plus the acceptance edges and the persistence chain the ADG requires). Reasons, compatibility implications, migration paths and owner decisions are in [`M2T_CRITICAL_PATH_REVIEW.md`](M2T_CRITICAL_PATH_REVIEW.md) section 5.
 
 | Opt | Task | Original dependencies (corrected baseline B1) | Proposed dependencies (v2) |
 |---|---|---|---|

@@ -1,8 +1,8 @@
 # Cube — System Commit Contracts (Draft)
 
 **Status:** DRAFT 0.1.0-draft, **Proposed text, nothing approved.** Not part of the 45 numbered contracts and not assigned to a tier; P0/P1 are untouched (AOD-18). The contracts below **propose extensions** to C-17 OperationId, the commit primitive and the RevisionToken semantics; those P0 contracts are not edited here. The placement of the new port is the subject of **ACR-004 (Pending)**.
-**Basis:** AOD-15, AOD-16, AOD-20 (system generation gets an OperationId and takes part in revision/commit semantics; it is not an ordinary Editing-API operation and not in ordinary undo/redo; no bypass of public Core ports), `revision-and-snapshot-semantics.md`, `editing-contracts.md` (E-02 AuthorizationContext).
-Field order as in `worldgen-contracts.md`. No language-specific signatures.
+**Basis:** AOD-15, AOD-16, AOD-20 (system generation gets an OperationId and takes part in revision/commit semantics; it is not an ordinary Editing-API operation and not in ordinary undo/redo; no bypass of public Core ports), [`revision-and-snapshot-semantics.md`](revision-and-snapshot-semantics.md), [`editing-contracts.md`](editing-contracts.md) (E-02 AuthorizationContext).
+Field order as in [`worldgen-contracts.md`](worldgen-contracts.md). No language-specific signatures.
 
 ## 0. Role
 
@@ -11,14 +11,14 @@ Exactly three callers may commit to the authoritative asset: the Editing service
 ## SC-01 OperationOrigin = ActorKind on OperationId (extension of OperationId, proposal; ACR-004 part C)
 
 * **Purpose:** distinguish who caused a commit without changing OperationId's identity role.
-* **Model:** `OperationId` as in C-17 plus the origin, expressed as `ActorKind ∈ {User, System, Recovery}` (recommended in `docs/decisions/acr-004-owner-review.md`, requires owner approval) (carried with the id, not inside its numeric part; whether it is a field of the id or of the commit request is open).
+* **Model:** `OperationId` as in C-17 plus the origin, expressed as `ActorKind ∈ {User, System, Recovery}` (recommended in [`docs/decisions/acr-004-owner-review.md`](../decisions/acr-004-owner-review.md), requires owner approval) (carried with the id, not inside its numeric part; whether it is a field of the id or of the commit request is open).
 * **Rules:** allocated once per submitted commit (OD-R8 applies); the origin never changes; `Recovery` commits reuse the **original OperationId** of the journal record they replay.
 * **Open:** id format (OD-R8), whether the origin is part of the id.
 
 ## SC-02 ActorKind
 
 * **Model:** `User` (a player or designer through the Editing API; authorisation per E-02), `System` (WorldGen Materialiser and server-internal automation), `Recovery` (persistence loader replaying a snapshot and journal).
-* **Rules:** ActorKind is derived by the server from the authenticated path, never supplied by a client. The `Origin` field of E-02 (LocalClient | Server | System) is a related notion; mapping is open. `LocalClient` gains **no extra rights** in the embedded server (`server-runtime-contracts.md`, SR-06).
+* **Rules:** ActorKind is derived by the server from the authenticated path, never supplied by a client. The `Origin` field of E-02 (LocalClient | Server | System) is a related notion; mapping is open. `LocalClient` gains **no extra rights** in the embedded server ([`server-runtime-contracts.md`](server-runtime-contracts.md), SR-06).
 * **Errors:** `PermissionDenied` when a User actor targets the system-commit port.
 
 ## SC-03 CommitTarget
@@ -67,4 +67,4 @@ Exactly three callers may commit to the authoritative asset: the Editing service
 
 ## Not approved
 
-SC-01…SC-10 are Draft. OperationId origin representation, the revision effect (B-6), the ChangeType additions, the audit retention and the port signature are open. **ACR-004 is Pending** (owner review package: `docs/decisions/acr-004-owner-review.md`); until it is decided no P0 contract is edited and no production Core code is written.
+SC-01…SC-10 are Draft. OperationId origin representation, the revision effect (B-6), the ChangeType additions, the audit retention and the port signature are open. **ACR-004 is Pending** (owner review package: [`docs/decisions/acr-004-owner-review.md`](../decisions/acr-004-owner-review.md)); until it is decided no P0 contract is edited and no production Core code is written.

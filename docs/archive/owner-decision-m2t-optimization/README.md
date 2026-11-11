@@ -7,16 +7,16 @@
 
 | File | Content |
 |---|---|
-| `OWNER_DECISION_REGISTER.md` | consolidated register: cards for ODM-01, 02, 03, 09, 10, 11, 12, 16, 17, GOV-01#14, #15, the Core batch; table for the rest; corrections of earlier labels |
-| `OWNER_CONFIRMATION_PROTOCOL.md` | authorship, signature, confirmation and traceability kept apart; registry template; confirmation acts E1-E4; process; enforcement |
-| `M2T_CRITICAL_PATH_REVIEW.md` | baselines, the local authoritative runtime model, NET/SRV classification, task-by-task review, changes OPT-01...OPT-08 |
-| `M2T_OPTIMIZED_TASK_GRAPH.md` | complete v2 graph (Pre 17, M2-T 74, M2 27), change table, validation |
-| `M2T_TASK_CLASSIFICATION.md` | the 75 M2-T tasks classified (+2 rows) |
-| `M2T_ACCEPTANCE_CRITERIA.md` | AC-01...AC-16, measurable, no invented thresholds |
-| `PROVISIONAL_CONTRACT_REVIEW.md` | TC-01...TC-11 reviewed against the Draft contracts |
-| `DOCUMENTATION_INTEGRATION_PLAN.md` | D1-D4 files, dependencies, script failures with tested portable fixes |
-| `IMPLEMENTATION_READINESS.md` | the governing rule, requirements A-D, gate table R0-R8, M2-T0 |
-| `OWNER_ACTION_PLAN.md` | decide-first list, later list, sequence |
+| [`OWNER_DECISION_REGISTER.md`](OWNER_DECISION_REGISTER.md) | consolidated register: cards for ODM-01, 02, 03, 09, 10, 11, 12, 16, 17, GOV-01#14, #15, the Core batch; table for the rest; corrections of earlier labels |
+| [`OWNER_CONFIRMATION_PROTOCOL.md`](OWNER_CONFIRMATION_PROTOCOL.md) | authorship, signature, confirmation and traceability kept apart; registry template; confirmation acts E1-E4; process; enforcement |
+| [`M2T_CRITICAL_PATH_REVIEW.md`](M2T_CRITICAL_PATH_REVIEW.md) | baselines, the local authoritative runtime model, NET/SRV classification, task-by-task review, changes OPT-01...OPT-08 |
+| [`M2T_OPTIMIZED_TASK_GRAPH.md`](M2T_OPTIMIZED_TASK_GRAPH.md) | complete v2 graph (Pre 17, M2-T 74, M2 27), change table, validation |
+| [`M2T_TASK_CLASSIFICATION.md`](M2T_TASK_CLASSIFICATION.md) | the 75 M2-T tasks classified (+2 rows) |
+| [`M2T_ACCEPTANCE_CRITERIA.md`](M2T_ACCEPTANCE_CRITERIA.md) | AC-01...AC-16, measurable, no invented thresholds |
+| [`PROVISIONAL_CONTRACT_REVIEW.md`](../../api-contracts/PROVISIONAL_CONTRACT_REVIEW.md) | TC-01...TC-11 reviewed against the Draft contracts |
+| [`DOCUMENTATION_INTEGRATION_PLAN.md`](DOCUMENTATION_INTEGRATION_PLAN.md) | D1-D4 files, dependencies, script failures with tested portable fixes |
+| [`IMPLEMENTATION_READINESS.md`](IMPLEMENTATION_READINESS.md) | the governing rule, requirements A-D, gate table R0-R8, M2-T0 |
+| [`OWNER_ACTION_PLAN.md`](OWNER_ACTION_PLAN.md) | decide-first list, later list, sequence |
 
 ## Main findings
 

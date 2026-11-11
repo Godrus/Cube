@@ -51,10 +51,16 @@ The truth table lives in code: each question has an `expect` value that is **nev
 
 ## v2
 
-v3 (scenario generator, Godot runner, batching): `V3.md`; command `python cube_visual_qa.py suite --generate N --seed S [--profile ...] [--mode adaptive] [--live]`; tests `python -m unittest test_suite_v3`.
+v3 (scenario generator, Godot runner, batching): [`V3.md`](V3.md); command `python cube_visual_qa.py suite --generate N --seed S [--profile ...] [--mode adaptive] [--live]`; tests `python -m unittest test_suite_v3`.
 
-Results: `V2-RESULTS.md` (calibration and evaluation, per-part verdicts). Design: `V2.md`: questionnaires `questions/v2/`, fixtures `fixtures-v2/` (real Godot pictures with controlled faults, `make_godot_fixtures.py`, labels fixed by `label_fixtures.py` before any request), deterministic checks (`deterministic.py`), `python cube_visual_qa.py v2 --split calibration|evaluation [--live]` (dry run by default) and `python analyze_v2.py <split>`.
+Results: [`V2-RESULTS.md`](V2-RESULTS.md) (calibration and evaluation, per-part verdicts). Design: [`V2.md`](V2.md): questionnaires `questions/v2/`, fixtures `fixtures-v2/` (real Godot pictures with controlled faults, `make_godot_fixtures.py`, labels fixed by `label_fixtures.py` before any request), deterministic checks (`deterministic.py`), `python cube_visual_qa.py v2 --split calibration|evaluation [--live]` (dry run by default) and `python analyze_v2.py <split>`.
 
 ## Status
 
-Offline tests pass. One live run was made on 2026-11-10 (5 requests): `results/2026-11-10-first-live/SUMMARY.md`. It caught the black, sky-only and missing-ground images but also flagged both good screenshots (`tears_in_terrain` and `large_hole_in_ground` are unusable as written); the conditional Box was not run live. Five images do not measure the model. `python analyze.py` rebuilds the confusion matrices from `reports/`. `examples/example-synthetic.report.md` is produced from a **synthetic** response (`examples-synthetic-response.json`), not from the model.
+Offline tests pass. One live run was made on 2026-11-10 (5 requests): [`results/2026-11-10-first-live/SUMMARY.md`](results/2026-11-10-first-live/SUMMARY.md). It caught the black, sky-only and missing-ground images but also flagged both good screenshots (`tears_in_terrain` and `large_hole_in_ground` are unusable as written); the conditional Box was not run live. Five images do not measure the model. `python analyze.py` rebuilds the confusion matrices from `reports/`. [`examples/example-synthetic.report.md`](examples/example-synthetic.report.md) is produced from a **synthetic** response (`examples-synthetic-response.json`), not from the model.
+
+## Reports of the runs
+
+* First live run: [`SUMMARY.md`](results/2026-11-10-first-live/SUMMARY.md), [`analysis.md`](results/2026-11-10-first-live/analysis.md), [`fixtures-summary.md`](results/2026-11-10-first-live/fixtures-summary.md).
+* v2 calibration: [`report-calibration.md`](results/2026-11-10-v2-calibration/report-calibration.md); evaluation: [`report-evaluation.md`](results/2026-11-10-v2-evaluation/report-evaluation.md).
+* v3: Godot run [`report.md`](results/2026-11-10-v3/godot-run/report.md); live single [`report.md`](results/2026-11-10-v3/live/single/report.md); live batch [`report.md`](results/2026-11-10-v3/live/batch1/report.md).

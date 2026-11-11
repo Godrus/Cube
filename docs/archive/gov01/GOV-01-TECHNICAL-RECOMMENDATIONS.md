@@ -48,7 +48,7 @@ Legend: **OK** consistent; **Note** consistent with a remark; **Flag** needs the
 | 14 D-E | OK | OK | OK | OK | OK | OK | Note | the proposal is consistent; the spike profile (`panic = "abort"`) would make FFI `catch_unwind` inert; panic strategy is per artifact |
 | 15 branch | OK | OK | OK | OK | OK | OK | OK | no architecture effect |
 
-Cross-checks against ADG, module boundaries and contracts: ACR-001/002/003 are exactly the edges used by `module-boundaries.md` Part B (L2 ports; Core data); ACR-004 A corresponds to SC-01/02/05/10 which P0-alpha includes; D-K/D-C appear only in C-07…C-09 (PC-1); D-T only in C-04 (P0-alpha); OD-R1/R2/R6/D-R8 only in C-01/C-16/C-17 (P0-alpha). No recommendation requires a change to an approved AOD. Items needing an AOD interpretation: #4 (reject path contradicts AOD-20) and #13 (option C contradicts AOD-24).
+Cross-checks against ADG, module boundaries and contracts: ACR-001/002/003 are exactly the edges used by [`module-boundaries.md`](../../production/module-boundaries.md) Part B (L2 ports; Core data); ACR-004 A corresponds to SC-01/02/05/10 which P0-alpha includes; D-K/D-C appear only in C-07…C-09 (PC-1); D-T only in C-04 (P0-alpha); OD-R1/R2/R6/D-R8 only in C-01/C-16/C-17 (P0-alpha). No recommendation requires a change to an approved AOD. Items needing an AOD interpretation: #4 (reject path contradicts AOD-20) and #13 (option C contradicts AOD-24).
 
 ## 3. Prioritisation
 
@@ -90,7 +90,7 @@ The plan's literal rule is that GOV-01 contains all 15 and is a G0 member. Treat
 
 ## 5. What is missing as source data (not invented here)
 
-* Voxel Architecture 1.0, Geometry Processing Specification, GDD/TDD, original AU-1.0: absent *(verified, `docs/archive/README.md`)*.
+* Voxel Architecture 1.0, Geometry Processing Specification, GDD/TDD, original AU-1.0: absent *(verified, [`docs/archive/README.md`](../README.md))*.
 * OD-R6: hash algorithm, collision policy, which uses are "authoritative". `content_hash` algorithm (CORE-11). Persistence checksum algorithm (GOV-10).
 * D-R8: dedupe window/retention for idempotent retry.
 * D-K: `VoxelPos` width; level direction and cross-level coordinate mapping; production voxel size (needed to state the world extent); benchmark comparing brick edges.

@@ -11,7 +11,7 @@
 - Geometry Processing Specification (согласованные решения)
 - Cube Agent Development Specification v1.0
 - Architecture Update v1.0 (AU-1.0)
-- API Contracts: `docs/api-contracts/README.md`
+- API Contracts: [`docs/api-contracts/README.md`](../api-contracts/README.md)
 - Geometry Editing Integration & QA Pack v1.0 (rev 1.1)
 
 ---
@@ -627,7 +627,7 @@ Local history is separate from server history.
 Independent regions may be edited concurrently.
 
 Revision levels (AU-1.0 §7): Asset, Layer, Brick, Region (derived), Dependency, with Operation ID as an identifier that is not a revision.
-Formal semantics (increment rules, currency validation, commit, conflicts, interaction with History, Persistence and Networking): `docs/api-contracts/revision-and-snapshot-semantics.md` (proposed, pending approval).
+Formal semantics (increment rules, currency validation, commit, conflicts, interaction with History, Persistence and Networking): [`docs/api-contracts/revision-and-snapshot-semantics.md`](../api-contracts/revision-and-snapshot-semantics.md) (proposed, pending approval).
 
 ## 13.2 Server Authority
 
@@ -906,7 +906,7 @@ This is a work breakdown, not permission to independently modify shared contract
 
 # 24. Open Technical Decisions
 
-Authoritative consolidated list: `docs/decisions/audit-resolution-report.md` §H. From AU-1.0 §24 and this specification:
+Authoritative consolidated list: [`docs/decisions/audit-resolution-report.md`](../decisions/audit-resolution-report.md) §H. From AU-1.0 §24 and this specification:
 
 - Programming language and engine.
 - Exact integer and floating-point types.

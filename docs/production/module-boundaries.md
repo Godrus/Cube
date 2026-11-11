@@ -1,6 +1,6 @@
 # Cube Module Boundaries and Authoritative Dependency Graph v2 (proposal)
 
-**Status:** **Proposed**; nothing approved. This document owns two things: (1) the module/ownership boundaries and (2) the **Authoritative Dependency Graph (ADG)**, the only place where dependencies between modules, tasks and gates are defined. Other documents refer to it by part letter (A-D). Stage names are the canonical `PS-n` of `production-architecture-plan.md` section 2.
+**Status:** **Proposed**; nothing approved. This document owns two things: (1) the module/ownership boundaries and (2) the **Authoritative Dependency Graph (ADG)**, the only place where dependencies between modules, tasks and gates are defined. Other documents refer to it by part letter (A-D). Stage names are the canonical `PS-n` of [`production-architecture-plan.md`](production-architecture-plan.md) section 2.
 **Owners:** where the owner of a module is not decided, the table says `UNASSIGNED - owner decision`; this revision assigns nobody. Named agents are those of the existing QA Pack grid (Core, Processing, Main/Integration Owner, A-I, Composite, Resolution).
 
 ## Part A: modules, owners and boundaries

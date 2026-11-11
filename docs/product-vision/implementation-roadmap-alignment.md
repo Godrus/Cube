@@ -1,13 +1,13 @@
 # Implementation Roadmap Alignment
 
-> **Erratum 2026-11-09 (decision registry now exists: `docs/decisions/decision-registry.md`).** (1) Statements here that unsigned commits mean 'no decision can be confirmed' are withdrawn: DEC-002 accepts an explicit owner chat statement as a source and makes signatures optional. (2) CPR-PRN-05…08 are not confirmed decisions: the owner stated them as context; they are `RECORDED` (DEC-052). CPR-PRN-01…04 repeat AOD-01…07 (`RECORDED`). (3) AOD-25/AOD-26 are **not assigned** as bundles; the content is split into DEC-030…DEC-035 (CONCEPT, CONFIRMED from the owner's message) and DEC-053/DEC-054 (RECORDED / PROPOSED). (4) 'M2' in CPR-SAV-01 is read as 'the first approved save format'; working terms: **M2-T** = technical slice (walk, edit, save/load; the old M2 of DEVELOPMENT_ROADMAP), **M2** = First Playable with the gameplay loop (Game Track); ODM-06 still fixes their acceptance. (5) Priority, stage, module and 'related decisions' columns are agent annotations, not confirmations; only the `statement` of a registry entry is the owner's wording. (6) 'owner-signed' means an explicit owner statement, PR approval or owner-written text; no cryptographic signature is required (DEC-002).
+> **Erratum 2026-11-09 (decision registry now exists: [`docs/decisions/decision-registry.md`](../decisions/decision-registry.md)).** (1) Statements here that unsigned commits mean 'no decision can be confirmed' are withdrawn: DEC-002 accepts an explicit owner chat statement as a source and makes signatures optional. (2) CPR-PRN-05…08 are not confirmed decisions: the owner stated them as context; they are `RECORDED` (DEC-052). CPR-PRN-01…04 repeat AOD-01…07 (`RECORDED`). (3) AOD-25/AOD-26 are **not assigned** as bundles; the content is split into DEC-030…DEC-035 (CONCEPT, CONFIRMED from the owner's message) and DEC-053/DEC-054 (RECORDED / PROPOSED). (4) 'M2' in CPR-SAV-01 is read as 'the first approved save format'; working terms: **M2-T** = technical slice (walk, edit, save/load; the old M2 of DEVELOPMENT_ROADMAP), **M2** = First Playable with the gameplay loop (Game Track); ODM-06 still fixes their acceptance. (5) Priority, stage, module and 'related decisions' columns are agent annotations, not confirmations; only the `statement` of a registry entry is the owner's wording. (6) 'owner-signed' means an explicit owner statement, PR approval or owner-written text; no cryptographic signature is required (DEC-002).
 
 **Статус:** **Proposed.** Сопоставление канонических этапов Production Plan v2.1 (PS-0…PS-14, ADG) и релизных вех (M0…M8, M2-T/M2/M3 — все Proposed) с шестью **предполагаемыми продуктовыми срезами**. Срезы — разметка для планирования, **не** новая утверждённая последовательность и **не** новая нумерация этапов. Ничего не авторизует старт PS-1.
-**Дата:** 2026-11-09. Ссылки: `CPR-/AI-/OPN-` — `cube-product-vision.md`; `VP-` — `cube-owner-decision-register.md`; `R-n` — `production-plan-alignment-report.md` §4.
+**Дата:** 2026-11-09. Ссылки: `CPR-/AI-/OPN-` — [`cube-product-vision.md`](cube-product-vision.md); `VP-` — [`cube-owner-decision-register.md`](cube-owner-decision-register.md); `R-n` — [`production-plan-alignment-report.md`](production-plan-alignment-report.md) §4.
 
 ## 0. Принципы
 
-1. Цель — как можно раньше получить работающую игру: каждый срез завершается тем, что игрок (или тестер) делает руками; прогресс не измеряется числом задач (`GAME_TRACK_ROADMAP.md` §7).
+1. Цель — как можно раньше получить работающую игру: каждый срез завершается тем, что игрок (или тестер) делает руками; прогресс не измеряется числом задач ([`GAME_TRACK_ROADMAP.md`](../archive/production/GAME_TRACK_ROADMAP.md) §7).
 2. Канонические этапы не переименовываются. Срез ссылается на PS-n и M-n.
 3. Критерии приёмки и тесты ниже — **предложения**; численные пороги производительности не выдумываются (измерить → владелец задаёт порог).
 4. «Сознательно не реализуется» — конкретный список, чтобы срезы не росли сами по себе.
@@ -24,7 +24,7 @@
 | PSL-5 | Сетевой кооператив | M4 | PS-13 (dedicated, external transport, sessions, authz), PS-9 по необходимости | играет вдвоём/втроём на выделенном сервере; совместное строительство |
 | PSL-6 | Первый законченный RPG gameplay loop | M3 → M4 | PSL-2…PSL-5 + контент-широта | полный цикл «исследование → бой → награда → развитие → изменение мира» в течение нескольких часов |
 
-Соответствие `M2`: в `GAME_TRACK_ROADMAP.md` M2 = «First Playable» с боем и лутом; в `DEVELOPMENT_ROADMAP.md` M2 = «First Playable Prototype» (проще); M2-T = технический срез (ходьба и редактирование без боя). Различия уже перечислены в `GAME_TRACK_ROADMAP.md` §9 (C-1…C-8) и ждут решения владельца (ODM-06); здесь они не пересматриваются.
+Соответствие `M2`: в [`GAME_TRACK_ROADMAP.md`](../archive/production/GAME_TRACK_ROADMAP.md) M2 = «First Playable» с боем и лутом; в [`DEVELOPMENT_ROADMAP.md`](../archive/DEVELOPMENT_ROADMAP.md) M2 = «First Playable Prototype» (проще); M2-T = технический срез (ходьба и редактирование без боя). Различия уже перечислены в [`GAME_TRACK_ROADMAP.md`](../archive/production/GAME_TRACK_ROADMAP.md) §9 (C-1…C-8) и ждут решения владельца (ODM-06); здесь они не пересматриваются.
 
 ---
 
@@ -47,7 +47,7 @@
   * заголовок сохранения несёт `GameVersion`, `PackSet`, `IdMaps` (допустим экспериментальный формат TC-08, но поля заложены — дёшево);
   * запись игрока (позиция) — отдельная запись (VP-07).
 * **Зависимости:** PSL-1; D-K/ODM-11 (границы мира, `VoxelPos`); PS-11A (чистый генератор) и 11B (materialiser); PS-10 в форме base+snapshot (T-08); PS-12-срез; SRV-01.
-* **Критерии приёмки (предложение; AC-01…AC-16 из `M2T_ACCEPTANCE_CRITERIA.md` без изменений), плюс:**
+* **Критерии приёмки (предложение; AC-01…AC-16 из [`M2T_ACCEPTANCE_CRITERIA.md`](../archive/owner-decision-m2t-optimization/M2T_ACCEPTANCE_CRITERIA.md) без изменений), плюс:**
   * AC-C1: мир, созданный с пакетом `cube` версии X, загружается; при подмене версии на несовместимую — обычная загрузка отказывает, файл побайтно не изменён;
   * AC-C2: синтетическая фикстура-пакет добавляет материал; мир с этим материалом без фикстуры не загружается обычным путём, в режиме восстановления показывается заглушка и после сохранения payload неизвестного материала побайтно сохранён;
   * AC-C3: повторная регистрация полного id даёт диагностическую ошибку в журнале логов, не crash.
@@ -71,7 +71,7 @@
 * **Минимальный scope:** модуль `game-rules` (только после `GM-02` и решения ODM-05): персонаж, бой (1 hostile + 1 passive существо), лут, инвентарь, один слот экипировки со статами, смерть/возрождение, HUD (FIRST_PLAYABLE_SCOPE). Определения (предметы, существа, статы) — данные пакета `cube`; правила прогрессии (уровни и очки) — данные; формулы убывающей отдачи — параметры, не код.
 * **Новое от OC-2026-11-09:** не нужны классы/мультикласс/исследования/мастерство (CPR-RPG-01…07 — M4); достаточно, чтобы структура данных персонажа не исключала их (запись персонажа отдельная, VP-07; числовые поля — решение OPN-01 для ширины «бесконечного роста»).
 * **Зависимости:** PSL-2 (мир, сервер-runtime), `GM-02` (entity-модель, REF-13), владельцы gameplay/content/art (ODM-04), ODM-05.
-* **Критерии приёмки:** FPS-01…FPS-17 (`FIRST_PLAYABLE_SCOPE.md`; Proposed) без изменений; плюс «все определения предметов/существ загружены из пакета `cube`, а не зашиты в коде» (проверка тестом AC-C-подобного вида).
+* **Критерии приёмки:** FPS-01…FPS-17 ([`FIRST_PLAYABLE_SCOPE.md`](../archive/production/FIRST_PLAYABLE_SCOPE.md); Proposed) без изменений; плюс «все определения предметов/существ загружены из пакета `cube`, а не зашиты в коде» (проверка тестом AC-C-подобного вида).
 * **Тесты:** сценарные (бой → дроп → экипировка → стат), детерминизм боевых расчётов при одинаковом seed ввода (если принято), сохранение инвентаря/экипировки, тест «нет определений вне загрузчика».
 * **Риски:** нет владельца gameplay; entity-модель не выбрана; «игра» без арта; бой перегружается механиками.
 * **Параллельно:** контент-данные ∥ сценарии боя ∥ HUD после стабилизации интерфейса World Operations (TGAP-03a).
@@ -91,11 +91,11 @@
 
 * **Минимальный scope:** срез PSL-2…PSL-5 в виде связной игры на несколько часов: несколько окружений, типов существ, предметов, простая прогрессия с выбором билда (горизонтальный рост — начало), строительство и чертежи, сохранение/возврат, кооператив на dedicated.
 * **Зависимости:** контент (арт/аудио/дизайн), GDD/TDD (BLK-06), владельцы, M3-решения (ODM-15).
-* **Критерии приёмки:** `VERTICAL_SLICE_SCOPE.md` (Proposed) и player-facing доказательства (`GAME_TRACK_ROADMAP.md` §7): «outside tester plays without explanation», повторяемость цикла по собственному выбору.
+* **Критерии приёмки:** [`VERTICAL_SLICE_SCOPE.md`](../archive/production/VERTICAL_SLICE_SCOPE.md) (Proposed) и player-facing доказательства ([`GAME_TRACK_ROADMAP.md`](../archive/production/GAME_TRACK_ROADMAP.md) §7): «outside tester plays without explanation», повторяемость цикла по собственному выбору.
 * **Тесты:** playtest-ноты и записанные демонстрации, регресс сохранений (мир, сохранённый предыдущей сборкой, загружается; несовместимость даёт блок, не потерю), утечки/стабильность — измерения.
 * **Риски:** объём контента; «бесконечное проектирование» — каждое требование обязательно привязывается к PSL.
 * **Параллельно:** контент ∥ доводка боя ∥ интеграционные тесты.
-* **Сознательно не делается (до явного решения):** DF-01…DF-18 из `cube-product-vision.md` §4: сторонние моды и SDK, инженерия/автоматизация, торговля/экономика, динамическая физика построек, подвижные конструкции, фоновая симуляция регионов, мультиклассы целиком, перенос между серверами.
+* **Сознательно не делается (до явного решения):** DF-01…DF-18 из [`cube-product-vision.md`](cube-product-vision.md) §4: сторонние моды и SDK, инженерия/автоматизация, торговля/экономика, динамическая физика построек, подвижные конструкции, фоновая симуляция регионов, мультиклассы целиком, перенос между серверами.
 
 ---
 
@@ -106,7 +106,7 @@
 | ID | Решение | Почему блокирует | Варианты | Рекомендуемый | Последствия | Блокирует задачи | Можно отложить без ущерба? |
 |---|---|---|---|---|---|---|---|
 | B-1 | ODM-10: механизм подтверждения (в т. ч. решений из чата) | без него ни одна запись реестра не `CONFIRMED` (plan §3.3) ⇒ GOV-01/02 не закрыть | (a) PR-approval, (b) web-UI подтверждающий коммит, (c) подписанные коммиты, (d) запись рукой | (a) или (b) (OWNER_DECISION_REGISTER) | включает регистрацию OCC-01…08 и AOD-25/26 | GOV-01, GOV-02, всё далее | нет |
-| B-2 | GOV-01 №1…15 (Core-батч, D-E, ветка базы) | PS-1 entry criterion 1 (plan §14) | по `GOV-01-TECHNICAL-RECOMMENDATIONS.md` | как там | определяют P0-alpha | GOV-02, GOV-04…06, CORE-* | нет (это и есть PS-0) |
+| B-2 | GOV-01 №1…15 (Core-батч, D-E, ветка базы) | PS-1 entry criterion 1 (plan §14) | по [`GOV-01-TECHNICAL-RECOMMENDATIONS.md`](../archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md) | как там | определяют P0-alpha | GOV-02, GOV-04…06, CORE-* | нет (это и есть PS-0) |
 | B-3 | **Уточнения** к GOV-01 №12 (D-C: `MaterialIndex` непрозрачен), №5/ACR-004 A, D (расширяемый набор источников), №11 (D-T: поза вне Layer.transform) | дёшевы до P0-alpha и дороги после (R-1, R-8, R-9) | включить фразы M-1…M-3 / не включать | включить | никаких новых решений-пунктов, только формулировки | не блокируют PS-1 *по плану*, но удешевляют | **нет в смысле «безболезненно»**: можно отложить, цена — миграция сохраняемого enum/структуры при появлении 1-го мода |
 | B-4 | ODM-11/D-K: границы мира, `VoxelPos`, вертикальный экстент | CORE-02; CPR-BLD-11 «нет произвольного предела», PRN «практически бесконечный мир» | K-A…K-D | K-B или K-D при требовании бесконечности (ODM-11) | изменение ширин после появления persistence = миграция | CORE-02, WGEN-01 | нет |
 | B-5 | Формат сохранения M2: включать PackSet/IdMaps (концепция подтверждена, CPR-SAV-01) | блокирует **утверждение формата M2**, не PS-1 | включить / отложить | включить (VP-05) | иначе переформат | PERS-0x (M2), GOV-10 | да для M2-T, нет для M2 |
@@ -117,5 +117,5 @@
 ## 9. Ближайший практический шаг
 
 1. Владелец решает ODM-10 (механизм подтверждения) и подтверждает в рамках этого механизма: (i) OCC-01…08 как концепции; (ii) регистрацию AOD-25/AOD-26 (или отказ); (iii) включение трёх уточнений M-1…M-3 в карточки GOV-01 №12, №5, №11.
-2. Затем GOV-01 по `GOV-01-TECHNICAL-RECOMMENDATIONS.md` (9 личных выборов, 6 подтверждений).
+2. Затем GOV-01 по [`GOV-01-TECHNICAL-RECOMMENDATIONS.md`](../archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md) (9 личных выборов, 6 подтверждений).
 3. До этого ничего в коде и в production-документах не меняется.

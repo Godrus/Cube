@@ -1,9 +1,9 @@
 # Cube Production Plan Revision v2: Report
 
-> **SUPERSEDED by `production-plan-revision-v2.1-report.md`.** Kept for traceability. Counts, task ids and statements below describe the v2 set; where they differ from v2.1 (for example TEST-06 stage, 131 tasks, CORE-07 content), the v2.1 documents and report prevail.
+> **SUPERSEDED by [`production-plan-revision-v2.1-report.md`](production-plan-revision-v2.1-report.md).** Kept for traceability. Counts, task ids and statements below describe the v2 set; where they differ from v2.1 (for example TEST-06 stage, 131 tasks, CORE-07 content), the v2.1 documents and report prevail.
 
 **Status:** report on a **Proposed** revision. Nothing in the seven v2 documents is approved; no contract, ACR, AOD or blocker closure changed; no code, merge, commit or branch change was made; the repository was not touched (work done in a scratchpad workspace).
-**Set:** `production-architecture-plan.md`, `module-boundaries.md` (with the ADG), `implementation-roadmap.md`, `agent-task-breakdown.md`, `architecture-blocker-decisions.md`, `integration-and-qa-plan.md`, this report.
+**Set:** [`production-architecture-plan.md`](../../production/production-architecture-plan.md), [`module-boundaries.md`](../../production/module-boundaries.md) (with the ADG), [`implementation-roadmap.md`](../../production/implementation-roadmap.md), [`agent-task-breakdown.md`](../../production/agent-task-breakdown.md), [`architecture-blocker-decisions.md`](../../production/architecture-blocker-decisions.md), [`integration-and-qa-plan.md`](../../production/integration-and-qa-plan.md), this report.
 
 ## 1. Basis and limits of this revision
 
@@ -96,7 +96,7 @@ Finding ids `R` = your numbered requirement; `S` = my self-review of v1.
 7. The mutation-boundary design (capability handles).
 8. Processing gate G2 as a prerequisite for production integration (stricter than the QA Pack).
 9. The new crate `cube-integration-tests`, the new port `IBaseProvider`, `WorldSeed` and `GeneratorVersion` value types in Core.
-10. Owner assignments (GOV-03) and the choices listed in `architecture-blocker-decisions.md`.
+10. Owner assignments (GOV-03) and the choices listed in [`architecture-blocker-decisions.md`](../../production/architecture-blocker-decisions.md).
 
 ## 6. Provisional decisions in this revision
 
@@ -118,7 +118,7 @@ PC-1 (C-07, C-08, C-09 with baseline BL-1); every item marked "Proposed" in the 
 
 ## 8. Readiness assessment
 
-**PS-0 (Governance and Architecture Freeze): documents ready for review; the stage is NOT complete.** Exit conditions G0 and their state: GOV-01 (decisions) not done; GOV-02 (P0-alpha approval, PC-1 register) not done; GOV-03 (owners) not done; GOV-04 (docs-only baseline) not done; GOV-05 (CI specification) drafted in `integration-and-qa-plan.md` section 3, not approved; GOV-06 (CI running) not done; TEST-01 and XT-01 not done. 0 of 8 gate tasks are complete. Preparing documents does not complete the stage.
+**PS-0 (Governance and Architecture Freeze): documents ready for review; the stage is NOT complete.** Exit conditions G0 and their state: GOV-01 (decisions) not done; GOV-02 (P0-alpha approval, PC-1 register) not done; GOV-03 (owners) not done; GOV-04 (docs-only baseline) not done; GOV-05 (CI specification) drafted in [`integration-and-qa-plan.md`](../../production/integration-and-qa-plan.md) section 3, not approved; GOV-06 (CI running) not done; TEST-01 and XT-01 not done. 0 of 8 gate tasks are complete. Preparing documents does not complete the stage.
 **PS-1 (Geometry Core Foundation): NOT ready to start.** Unmet entry criteria (architecture plan section 14): owner-confirmed decisions (ACR-001, ACR-003, ACR-004 A and D, D-R1, D-R2, D-R6, D-R8, D-K, D-T, D-C, D-0); P0-alpha Owner-Approved; named Core Agent, Integration Owner and Agent I; docs-only baseline; running CI. Not required for PS-1: devices, emulator, the Geometry Processing Specification, WorldGen/server/client owners.
 
 ## 9. Recommendations

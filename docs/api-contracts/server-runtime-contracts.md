@@ -1,9 +1,9 @@
 # Cube — Server Runtime Contracts (Draft)
 
 **Status:** DRAFT 0.1.0-draft, **Proposed text, nothing approved.** Not part of the 45 numbered contracts and not assigned to a tier; P0/P1 are untouched (AOD-18).
-**Basis:** AOD-05 (separate headless Rust server), AOD-12 (no child processes), AOD-13, AOD-14, AOD-22 (one authoritative server runtime, embedded or dedicated; in-process transport for embedded, external transport for dedicated; identical semantics), `docs/architecture/system-boundaries-v1.md`.
+**Basis:** AOD-05 (separate headless Rust server), AOD-12 (no child processes), AOD-13, AOD-14, AOD-22 (one authoritative server runtime, embedded or dedicated; in-process transport for embedded, external transport for dedicated; identical semantics), [`docs/architecture/system-boundaries-v1.md`](../architecture/system-boundaries-v1.md).
 **Not decided here:** the external transport for the dedicated server (**OAM-05 Spike Required**; TCP and QUIC are *not* chosen), the module placement and owner of the runtime (OI-8), the protocol messages.
-Field order as in `worldgen-contracts.md`. No language-specific signatures.
+Field order as in [`worldgen-contracts.md`](worldgen-contracts.md). No language-specific signatures.
 
 ## SR-01 ServerRuntime
 
@@ -67,7 +67,7 @@ A transport implementation that fails the suite is not allowed to ship.
 
 ## SR-10 Persistence ownership and shutdown
 
-* **Rules:** the runtime owns the persistence service (`world-persistence-contracts.md`); shutdown flushes the journal before reporting `Stopped`; embedded and dedicated use the same store contracts.
+* **Rules:** the runtime owns the persistence service ([`world-persistence-contracts.md`](world-persistence-contracts.md)); shutdown flushes the journal before reporting `Stopped`; embedded and dedicated use the same store contracts.
 
 ## Not approved
 

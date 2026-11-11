@@ -1,7 +1,7 @@
 # M2-T and M2: scope review
 
-**Status:** **Proposed** / **Pending Owner Approval**. No official milestone is changed. Task ids refer to `M2_TASK_GRAPH.md`; contracts to `M2_MINIMUM_CONTRACTS.md` (TC-nn); decisions to `OWNER_DECISIONS_REQUIRED.md` (ODM-nn).
-**Reading rule:** existing text = `FIRST_PLAYABLE_SCOPE.md` (FPS-01...FPS-17, itself Proposed, commit `362a124`); this document reviews it and adds the technical checkpoint.
+**Status:** **Proposed** / **Pending Owner Approval**. No official milestone is changed. Task ids refer to [`M2_TASK_GRAPH.md`](M2_TASK_GRAPH.md); contracts to [`M2_MINIMUM_CONTRACTS.md`](../../api-contracts/M2_MINIMUM_CONTRACTS.md) (TC-nn); decisions to [`OWNER_DECISIONS_REQUIRED.md`](OWNER_DECISIONS_REQUIRED.md) (ODM-nn).
+**Reading rule:** existing text = [`FIRST_PLAYABLE_SCOPE.md`](../production/FIRST_PLAYABLE_SCOPE.md) (FPS-01...FPS-17, itself Proposed, commit `362a124`); this document reviews it and adds the technical checkpoint.
 
 ## 1. Two checkpoints, kept apart
 
@@ -56,7 +56,7 @@ Added (small, because they prevent rework): T-11 authority audit (no gameplay or
 
 ## 3. M2: review of FPS-01...FPS-17
 
-Columns: **M** = mandatory for M2 as proposed; **M2-T** = part of M2-T; **Deps** = graph tasks; **Modules**; **Owner** category (`M2_OWNERSHIP_MATRIX.md`); **Acceptance** (short); **Test** (S scripted, M manual, O outside tester); **Blocking decisions**; **Deferral**.
+Columns: **M** = mandatory for M2 as proposed; **M2-T** = part of M2-T; **Deps** = graph tasks; **Modules**; **Owner** category ([`M2_OWNERSHIP_MATRIX.md`](M2_OWNERSHIP_MATRIX.md)); **Acceptance** (short); **Test** (S scripted, M manual, O outside tester); **Blocking decisions**; **Deferral**.
 
 | ID | M | M2-T | Deps | Modules | Owner | Acceptance | Test | Blocking decisions | Can move later? |
 |---|---|---|---|---|---|---|---|---|---|
@@ -86,7 +86,7 @@ Scope remarks on M2:
 
 ## 4. Crash recovery: minimal reliability set
 
-AOD-21 (recorded, awaiting confirmation) fixes the architecture: seed plus generator version, a durable journal, compaction by snapshot-verify-publish-truncate. Two sources constrain the order: the journal is the primary record and snapshots an optimisation (`worldgen-core-boundary.md`); the temporary snapshot-only persistence of M2-T therefore **deviates** from the architecture and is allowed only as a registered temporary contract (TC-08) that expires at M2.
+AOD-21 (recorded, awaiting confirmation) fixes the architecture: seed plus generator version, a durable journal, compaction by snapshot-verify-publish-truncate. Two sources constrain the order: the journal is the primary record and snapshots an optimisation ([`worldgen-core-boundary.md`](../../decisions/worldgen-core-boundary.md)); the temporary snapshot-only persistence of M2-T therefore **deviates** from the architecture and is allowed only as a registered temporary contract (TC-08) that expires at M2.
 
 | Level | Contains | Not yet |
 |---|---|---|

@@ -11,7 +11,7 @@
 
 ## How it is verified afterwards
 
-The anonymous API must show `GET /repos/Godrus/Cube/branches/dev` -> `"protected": true` (same for `master`) and `GET /repos/Godrus/Cube/rulesets` -> one active ruleset. An agent re-checks this and then marks GOV-06 and XT-01 done in `ps-0-exit-checklist.md`.
+The anonymous API must show `GET /repos/Godrus/Cube/branches/dev` -> `"protected": true` (same for `master`) and `GET /repos/Godrus/Cube/rulesets` -> one active ruleset. An agent re-checks this and then marks GOV-06 and XT-01 done in [`ps-0-exit-checklist.md`](ps-0-exit-checklist.md).
 
 ## Verification 2026-11-09 (after the first import)
 

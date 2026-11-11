@@ -1,7 +1,7 @@
 # Reference Comparison: Veloren, CubeWorld-Reversal, Cube
 
-**Status:** research record, **Proposed**. Nothing here is a decision except where a cell cites an Approved Owner Decision (AOD, `docs/decisions/owner-architecture-decisions-v1.md`).
-**Evidence:** Veloren: the **upstream repository** https://gitlab.com/veloren/veloren (`master`, commit `7daa95fd`, 2026-10-30, GPL-3.0), read through GitLab raw-file and API endpoints and the official book; a first draft based on an older local clone was replaced after the owner pointed out the intended source; details in `veloren-notes.md`. CubeWorld-Reversal: https://github.com/qad3n/CubeWorld-Reversal (`master`, `cube/` and `server/`): README, the full file tree, folder listings and four declaration-only headers, **no implementation file read**; details and legal caveats in `cubeworld-reversal-notes.md`. Cube: `master` documentation and the experimental branches `spike/rust-godot`, `spike/rust-world-generation` (all spike results are experimental and desktop/emulator-only).
+**Status:** research record, **Proposed**. Nothing here is a decision except where a cell cites an Approved Owner Decision (AOD, [`docs/decisions/owner-architecture-decisions-v1.md`](../decisions/owner-architecture-decisions-v1.md)).
+**Evidence:** Veloren: the **upstream repository** https://gitlab.com/veloren/veloren (`master`, commit `7daa95fd`, 2026-10-30, GPL-3.0), read through GitLab raw-file and API endpoints and the official book; a first draft based on an older local clone was replaced after the owner pointed out the intended source; details in [`veloren-notes.md`](veloren-notes.md). CubeWorld-Reversal: https://github.com/qad3n/CubeWorld-Reversal (`master`, `cube/` and `server/`): README, the full file tree, folder listings and four declaration-only headers, **no implementation file read**; details and legal caveats in [`cubeworld-reversal-notes.md`](cubeworld-reversal-notes.md). Cube: `master` documentation and the experimental branches `spike/rust-godot`, `spike/rust-world-generation` (all spike results are experimental and desktop/emulator-only).
 **Rule:** another project's choice is never presented as proven for Cube. Every borrowed principle carries one status: **Accepted**, **Proposed**, **Needs spike**, **Rejected**.
 
 ## 1. Comparison table
@@ -72,11 +72,11 @@ The table in section 1 and the register in section 2 combine facts and interpret
 
 | Type | Where it lives | Rule |
 |---|---|---|
-| **Fact (upstream)** | the "Veloren" and "CubeWorld-Reversal" columns of section 1; section 2 of `veloren-notes.md` onwards; `cubeworld-reversal-notes.md` section 1 | observed in the remote repositories named in the headers; says nothing about Cube |
+| **Fact (upstream)** | the "Veloren" and "CubeWorld-Reversal" columns of section 1; section 2 of [`veloren-notes.md`](veloren-notes.md) onwards; [`cubeworld-reversal-notes.md`](cubeworld-reversal-notes.md) section 1 | observed in the remote repositories named in the headers; says nothing about Cube |
 | **Fact (Cube)** | the "Cube (today)" column | measured or observed in the Cube repository; spike data is experimental, desktop or emulator only |
 | **Agent inference** | "Observation" columns, "Agent inference" notes, section 3 | a conclusion by the agent; may be wrong |
 | **Recommendation** | principle statuses Proposed / Needs spike / Rejected in section 2 | a suggestion, never a decision |
 | **Owner decision** | cells that cite an AOD (for example AOD-05, AOD-10, AOD-17) and statuses "Accepted" justified by an AOD | only AOD-01…24 are Approved (AOD-24 conditionally); "Accepted" means consistent with an AOD or already true in Cube |
 | **Unconfirmed hypothesis** | statements marked "Hypothesis", "not examined" or "inferred" | not to be used in a decision |
 
-Veloren data are not evidence of suitability for Cube or for mobile platforms; neither reference contains mobile evidence. Owner-facing options and their consequences are in `docs/decisions/owner-approval-matrix-v1.md`.
+Veloren data are not evidence of suitability for Cube or for mobile platforms; neither reference contains mobile evidence. Owner-facing options and their consequences are in [`docs/decisions/owner-approval-matrix-v1.md`](../decisions/owner-approval-matrix-v1.md).

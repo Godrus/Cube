@@ -1,12 +1,12 @@
 # Development branch strategy (proposed)
 
-**Status:** **Proposed** / **Pending Owner Approval**. No branch is created, renamed, merged or protected by this document; commands are given for the owner or for an authorised agent and have **not** been run. Facts verified 2026-11-07 (see `REPOSITORY_AND_MERGE_REVIEW.md`).
+**Status:** **Proposed** / **Pending Owner Approval**. No branch is created, renamed, merged or protected by this document; commands are given for the owner or for an authorised agent and have **not** been run. Facts verified 2026-11-07 (see [`REPOSITORY_AND_MERGE_REVIEW.md`](REPOSITORY_AND_MERGE_REVIEW.md)).
 
 ## 1. Starting facts
 
 * `master` (`bf60534`, 13 documentation files) is not protected, has no required status checks and no workflow (GitHub API, unauthenticated read; repository public, no licence file).
 * `docs/architecture-roadmap-v1` is a fast-forward descendant of `master` (38 commits ahead, 0 behind); it carries documentation **and** spike code. Spike branches exist separately (`spike/rust-godot`, `spike/rust-world-generation`).
-* Existing rules: spike code never merges to production (roadmap-v1 section 7, `integration-and-qa-plan.md` section 1); production branches are `prod/ps<stage>-<crate>[-topic]`, a PR changes one crate; merge order follows the ADG; the docs branch itself needs the owner's explicit approval to enter `master`.
+* Existing rules: spike code never merges to production (roadmap-v1 section 7, [`integration-and-qa-plan.md`](../../production/integration-and-qa-plan.md) section 1); production branches are `prod/ps<stage>-<crate>[-topic]`, a PR changes one crate; merge order follows the ADG; the docs branch itself needs the owner's explicit approval to enter `master`.
 
 ## 2. Requirements to satisfy
 
@@ -35,7 +35,7 @@ Stable `master`; isolation of unfinished work; Technology and Game Tracks that p
 | Documentation | `docs/<topic>` | short | docs-only PR; the documentation check must pass |
 | Technology feature | `prod/ps<stage>-<crate>[-topic]` (existing convention) | short (one task/PR chain) | one crate per PR; ADG merge-after conditions satisfied before merge |
 | Game feature | `game/<area>-<topic>` (new, same spirit) | short | one module per PR (Game Rules, UI, content) |
-| Experiment | `spike/<topic>` | until the finding is written | never merged; outputs are knowledge, not code (`TECHNOLOGY-GAME-TRACK-INTEGRATION.md` section 3) |
+| Experiment | `spike/<topic>` | until the finding is written | never merged; outputs are knowledge, not code ([`TECHNOLOGY-GAME-TRACK-INTEGRATION.md`](../production/TECHNOLOGY-GAME-TRACK-INTEGRATION.md) section 3) |
 | Stabilisation | `release/m2` | only if needed, then deleted | only fixes, no features |
 | Milestone marker | tags `m2-t`, `m2`, `m3` | permanent | annotated tags made by the Integration Owner after the owner's acceptance entry |
 
@@ -44,7 +44,7 @@ No other permanent branch is proposed.
 ## 5. How unfinished work stays out of the way on `master`
 
 1. A new crate that is not yet referenced by the composition root (the server host / client build) cannot affect the product.
-2. Temporary contracts are registered with expiry (`M2_MINIMUM_CONTRACTS.md`); tests tagged `provisional`.
+2. Temporary contracts are registered with expiry ([`M2_MINIMUM_CONTRACTS.md`](../../api-contracts/M2_MINIMUM_CONTRACTS.md)); tests tagged `provisional`.
 3. Anything experimental stays on `spike/*`.
 4. Feature flags are not proposed: they add configuration surface without need at this size.
 
@@ -56,11 +56,11 @@ No other permanent branch is proposed.
 
 ## 7. Required checks and protection (what the repository can actually support)
 
-Real situation: **no workflow exists**; GitHub Actions is available for a public repository; branch protection on a public repository needs the owner's administrative action. A check that is only described is not a gate (`integration-and-qa-plan.md` section 3).
+Real situation: **no workflow exists**; GitHub Actions is available for a public repository; branch protection on a public repository needs the owner's administrative action. A check that is only described is not a gate ([`integration-and-qa-plan.md`](../../production/integration-and-qa-plan.md) section 3).
 
 | Stage | Required status checks (proposal) | Notes |
 |---|---|---|
-| Documentation only (first) | `docs-validate`: runs the audit scripts that are stable (see `REPOSITORY_AND_MERGE_REVIEW.md` section 6) on a clean checkout | needs two of the committed scripts fixed first (they encode state of one commit) |
+| Documentation only (first) | `docs-validate`: runs the audit scripts that are stable (see [`REPOSITORY_AND_MERGE_REVIEW.md`](REPOSITORY_AND_MERGE_REVIEW.md) section 6) on a clean checkout | needs two of the committed scripts fixed first (they encode state of one commit) |
 | After the CI skeleton (`GOV-06`) | `fmt` (rustfmt check), `build` (compile all crates), `unit-tests`, `integration-tests` (`cube-integration-tests`), `clippy -D warnings`, `deny` (licence and advisories), `archcheck` (`XT-01/02`), `adg-validate` (structure checks of `adg_check.py`, plus the cargo-metadata crate graph against Part B) | each is added as a required check only after it has run red on a seeded failure and green on the skeleton |
 | Later | benchmarks within recorded baselines (desktop), API snapshot test, device runs as non-required | |
 
@@ -70,10 +70,10 @@ Protection settings proposed for `master`: require a PR; require the checks abov
 
 | # | Step | Content | Needs |
 |---|---|---|---|
-| 1 | **Documentation integration** | new docs-only branches from `master`, tree-based (not cherry-pick), as the PR set of `REPOSITORY_AND_MERGE_REVIEW.md` section 5; the spike code and (by default) `docs/spike` stay out | owner decision ODM-01; owner approval of each PR; fixes listed in that document |
+| 1 | **Documentation integration** | new docs-only branches from `master`, tree-based (not cherry-pick), as the PR set of [`REPOSITORY_AND_MERGE_REVIEW.md`](REPOSITORY_AND_MERGE_REVIEW.md) section 5; the spike code and (by default) `docs/spike` stay out | owner decision ODM-01; owner approval of each PR; fixes listed in that document |
 | 2 | **CI and protection** | `docs-validate` workflow first; protect `master` with it; then the Rust skeleton PR (`GOV-06`) with the full check set | `GOV-04`, `GOV-05` (CI specification Owner-Approved), D-E parameters, owner action for settings |
 | 3 | **M2-T preparation** | closure of PS-0 (`GOV-01..06`, `TEST-01`, `XT-01`), owners, temporary contracts registered, M2-T/M2 scope accepted, ADG change proposals (slice, Game Rules, D-01/D-02) accepted | ODM-02..ODM-08 |
-| 4 | **Technology Track implementation** | `prod/ps...` branches by dependency level (`M2_TASK_GRAPH.md` section 7) | steps 2-3 |
+| 4 | **Technology Track implementation** | `prod/ps...` branches by dependency level ([`M2_TASK_GRAPH.md`](M2_TASK_GRAPH.md) section 7) | steps 2-3 |
 | 5 | **Game Track implementation** | `game/...` branches for Game Rules, UI, content; L1/L2 work (design, scenarios, spikes) may start before step 3, L3 only after it | owners; Game Rules module in the ADG |
 | 6 | **First playable integration** | `XI-01`, `XI-02` on `master` through PRs; tag `m2-t`; later `XI-03`, tag `m2` | all above |
 

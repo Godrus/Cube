@@ -4,7 +4,7 @@
 **Scope:** Geometry Editing v1.0\
 **Owner:** Integration Owner\
 **Revision:** 1.1 — aligned with Architecture Update v1.0 (AU-1.0). Supersedes the v1.0 dependency matrix, contract matrix and build pipeline.\
-**Related:** `docs/api-contracts/README.md`, `docs/api-contracts/revision-and-snapshot-semantics.md`
+**Related:** [`docs/api-contracts/README.md`](../api-contracts/README.md), [`docs/api-contracts/revision-and-snapshot-semantics.md`](../api-contracts/revision-and-snapshot-semantics.md)
 
 ---
 
@@ -107,7 +107,7 @@ Edges only go to lower layers or to L2 abstractions: L0←L1←L2←{L3, L4, L5,
 
 # 2. API Contract Matrix
 
-The authoritative matrix lives in `docs/api-contracts/README.md` §3 (contracts C-01…C-19, PR-01…PR-09, E-02…E-13, P-01…P-09, each with provider, consumers, state and blocking open decisions). All contracts are currently **Draft**; none is approved. Name mapping from the former v1.0 matrix is in the same file (§4).
+The authoritative matrix lives in [`docs/api-contracts/README.md`](../api-contracts/README.md) §3 (contracts C-01…C-19, PR-01…PR-09, E-02…E-13, P-01…P-09, each with provider, consumers, state and blocking open decisions). All contracts are currently **Draft**; none is approved. Name mapping from the former v1.0 matrix is in the same file (§4).
 
 Ownership corrections made by AU-1.0 alignment (single owner each):
 
@@ -120,7 +120,7 @@ Ownership corrections made by AU-1.0 alignment (single owner each):
 
 Detailed contract specifications moved to `docs/api-contracts/`. This section keeps only what QA must verify for the cross-cutting contracts:
 
-- **RevisionToken / Snapshot / Dirty:** `docs/api-contracts/revision-and-snapshot-semantics.md` (tests §8 there are mandatory QA suites).
+- **RevisionToken / Snapshot / Dirty:** [`docs/api-contracts/revision-and-snapshot-semantics.md`](../api-contracts/revision-and-snapshot-semantics.md) (tests §8 there are mandatory QA suites).
 - **AsyncJob states** (Processing Task): `Created, Queued, Running, Completed, Failed, Cancelled, Stale`; terminal states are final; `Stale` = finished but rejected at publish.
 - **GeometryOperationResult:** variants Success, ValidationFailure, Conflict, Unsupported, ConversionRequired, ResourceFailure, Cancelled; partial results only with an explicit per-operation contract.
 - **EditingTransaction:** identity, targets, read/write regions, expected tokens, operation sequence, commit/rollback policy, authorization context.
@@ -155,7 +155,7 @@ Order follows AU-1.0 §26. The dependency grid (Section 1.2) allows overlap: the
 
 | Stage | Module(s) | Validation | Exit condition | May start in parallel once |
 |---|---|---|---|---|
-| 0 | Decisions & tier approval | language decision recorded (AU-1.0 §24 #1; the engine decision is needed only for stage 12); **P0 approved** (C-01…C-19, gates stage 1); P1 under review; rule DEP-01 recorded (its test is required before stage 1 acceptance); tiers defined in `docs/api-contracts/README.md` §3 | Integration Owner approval of P0 | — |
+| 0 | Decisions & tier approval | language decision recorded (AU-1.0 §24 #1; the engine decision is needed only for stage 12); **P0 approved** (C-01…C-19, gates stage 1); P1 under review; rule DEP-01 recorded (its test is required before stage 1 acceptance); tiers defined in [`docs/api-contracts/README.md`](../api-contracts/README.md) §3 | Integration Owner approval of P0 | — |
 | 1 | Geometry Core | asset/layer model, Bounds, Region, Transform, Brick addressing (negative coords), BrickStorage with COW and missing-state distinction, channels, material mapping, revision primitives and commit primitive, brick export/import views (**not** a file format) | Core tests pass | stage 0 done (P0 approved) |
 | 2 | Processing foundations | snapshot capture, task state machine, scheduler, cancellation, dependency graph, revision validation, stale rejection, bounds/BVH slots | Concurrency and async tests pass | **P1 approved** and stage 1 contracts frozen |
 | 3 | Editing API & Contracts | public types, error model, ports (`IEditingService`, `IGeometryBackend`, `ITransactionObserver`; the storage ports `IDeltaStore`/`ISnapshotStore` are P2), threading/revision/async docs; finalises P1 | Contract tests pass | stages 1–2 contract drafts; P1 approved |
@@ -233,7 +233,7 @@ Additional required CI checks (AU-1.0 alignment):
 | Stress         | Required         | Required         | Required         | Required | Required | Required    |
 | Determinism    | Where applicable | Where applicable | Where applicable | Required | Required | Required    |
 
-Modules added by AU-1.0 follow the same rule: **Geometry Core, Processing, Resampling & Refinement and Composite** require every category above except where marked "Where applicable"; Core and Processing additionally require Concurrency and Revision-semantics suites (`docs/api-contracts/revision-and-snapshot-semantics.md` §8). The **Networking Adapter** requires the multiplayer suite. Engine Adapters require port-conformance tests only.
+Modules added by AU-1.0 follow the same rule: **Geometry Core, Processing, Resampling & Refinement and Composite** require every category above except where marked "Where applicable"; Core and Processing additionally require Concurrency and Revision-semantics suites ([`docs/api-contracts/revision-and-snapshot-semantics.md`](../api-contracts/revision-and-snapshot-semantics.md) §8). The **Networking Adapter** requires the multiplayer suite. Engine Adapters require port-conformance tests only.
 
 Multiplayer tests must additionally cover transaction conflicts, concurrent region edits, server rejection and reconnect.
 
@@ -508,11 +508,11 @@ Geometry Editing v1.0 is ready for release only when:
 
 # 13. Known Limitations and Deferred Decisions
 
-Authoritative list of open decisions: `docs/decisions/audit-resolution-report.md` §H (consolidating AU-1.0 §24, the Open items of every contract file and the new items O-1…O-6). Still implementation-dependent:
+Authoritative list of open decisions: [`docs/decisions/audit-resolution-report.md`](../decisions/audit-resolution-report.md) §H (consolidating AU-1.0 §24, the Open items of every contract file and the new items O-1…O-6). Still implementation-dependent:
 
 - Programming language and engine.
 - Integer and floating-point types.
-- Formal RevisionToken details and atomic commit algorithm (proposal in `revision-and-snapshot-semantics.md`).
+- Formal RevisionToken details and atomic commit algorithm (proposal in [`revision-and-snapshot-semantics.md`](../api-contracts/revision-and-snapshot-semantics.md)).
 - Exact API signatures.
 - Snapshot/COW implementation, conflict-resolution algorithm.
 - Boolean and refinement-transition algorithms.

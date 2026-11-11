@@ -1,8 +1,8 @@
 # Cube — Owner Decision Register (консолидирующий слой, Proposed)
 
-> **Erratum 2026-11-09 (decision registry now exists: `docs/decisions/decision-registry.md`).** (1) Statements here that unsigned commits mean 'no decision can be confirmed' are withdrawn: DEC-002 accepts an explicit owner chat statement as a source and makes signatures optional. (2) CPR-PRN-05…08 are not confirmed decisions: the owner stated them as context; they are `RECORDED` (DEC-052). CPR-PRN-01…04 repeat AOD-01…07 (`RECORDED`). (3) AOD-25/AOD-26 are **not assigned** as bundles; the content is split into DEC-030…DEC-035 (CONCEPT, CONFIRMED from the owner's message) and DEC-053/DEC-054 (RECORDED / PROPOSED). (4) 'M2' in CPR-SAV-01 is read as 'the first approved save format'; working terms: **M2-T** = technical slice (walk, edit, save/load; the old M2 of DEVELOPMENT_ROADMAP), **M2** = First Playable with the gameplay loop (Game Track); ODM-06 still fixes their acceptance. (5) Priority, stage, module and 'related decisions' columns are agent annotations, not confirmations; only the `statement` of a registry entry is the owner's wording. (6) 'owner-signed' means an explicit owner statement, PR approval or owner-written text; no cryptographic signature is required (DEC-002).
+> **Erratum 2026-11-09 (decision registry now exists: [`docs/decisions/decision-registry.md`](../decisions/decision-registry.md)).** (1) Statements here that unsigned commits mean 'no decision can be confirmed' are withdrawn: DEC-002 accepts an explicit owner chat statement as a source and makes signatures optional. (2) CPR-PRN-05…08 are not confirmed decisions: the owner stated them as context; they are `RECORDED` (DEC-052). CPR-PRN-01…04 repeat AOD-01…07 (`RECORDED`). (3) AOD-25/AOD-26 are **not assigned** as bundles; the content is split into DEC-030…DEC-035 (CONCEPT, CONFIRMED from the owner's message) and DEC-053/DEC-054 (RECORDED / PROPOSED). (4) 'M2' in CPR-SAV-01 is read as 'the first approved save format'; working terms: **M2-T** = technical slice (walk, edit, save/load; the old M2 of DEVELOPMENT_ROADMAP), **M2** = First Playable with the gameplay loop (Game Track); ODM-06 still fixes their acceptance. (5) Priority, stage, module and 'related decisions' columns are agent annotations, not confirmations; only the `statement` of a registry entry is the owner's wording. (6) 'owner-signed' means an explicit owner statement, PR approval or owner-written text; no cryptographic signature is required (DEC-002).
 
-**Статус:** **Proposed.** Это **не** `decision-registry.md` из плана §3.3 (тот файл не существует). Документ только классифицирует и сопоставляет; он не создаёт, не изменяет и не подтверждает решений. Существующие записи (AOD, OAM, ACR, OD/ODM, D-xx, GOV-01) **не перенумерованы и не изменены**; история утверждений не переписывалась.
+**Статус:** **Proposed.** Это **не** [`decision-registry.md`](../decisions/decision-registry.md) из плана §3.3 (тот файл не существует). Документ только классифицирует и сопоставляет; он не создаёт, не изменяет и не подтверждает решений. Существующие записи (AOD, OAM, ACR, OD/ODM, D-xx, GOV-01) **не перенумерованы и не изменены**; история утверждений не переписывалась.
 **База:** ветка `docs/architecture-roadmap-v1`, HEAD `16db379`, 2026-11-09.
 
 ---
@@ -19,15 +19,15 @@
 
 ### 0.1 Оговорка о подтверждении (проверено)
 
-* `docs/decisions/decision-registry.md` отсутствует; `.github` отсутствует; все **43** коммита ветки имеют `%G? = N` (не подписаны), автор один (`Godrus`).
-* Следовательно, по правилу плана §3.3 **ни одна запись пока не может быть `CONFIRMED` реестром**. Записи класса C — «Approved по инструкции владельца в чате, ожидают контрподписи» (формулировка самого `owner-architecture-decisions-v1.md`). Класс A — тем более концепция из чата.
+* [`docs/decisions/decision-registry.md`](../decisions/decision-registry.md) отсутствует; `.github` отсутствует; все **43** коммита ветки имеют `%G? = N` (не подписаны), автор один (`Godrus`).
+* Следовательно, по правилу плана §3.3 **ни одна запись пока не может быть `CONFIRMED` реестром**. Записи класса C — «Approved по инструкции владельца в чате, ожидают контрподписи» (формулировка самого [`owner-architecture-decisions-v1.md`](../decisions/owner-architecture-decisions-v1.md)). Класс A — тем более концепция из чата.
 * Решение ODM-10 (механизм подтверждения) — предпосылка для превращения любого класса A/C в запись реестра.
 
 ---
 
 ## 1. Класс A: концептуальные подтверждения OC-2026-11-09
 
-Одна строка = одна область сообщения владельца. Детализация по отдельным требованиям — `cube-product-vision.md` §2.
+Одна строка = одна область сообщения владельца. Детализация по отдельным требованиям — [`cube-product-vision.md`](cube-product-vision.md) §2.
 
 | ID | Область | Требования | Относится к существующим решениям | Нужна ли техническая ратификация |
 |---|---|---|---|---|
@@ -44,7 +44,7 @@
 
 ---
 
-## 2. Соответствие черновику `owner-decision-extensibility-v1.md`
+## 2. Соответствие черновику [`owner-decision-extensibility-v1.md`](../decisions/owner-decision-extensibility-v1.md)
 
 Черновик помечал большинство R-xx как PROPOSED. После OC-2026-11-09 прогресс статусов (текст черновика **не изменялся**; это предложение пометок для владельца):
 
@@ -150,8 +150,8 @@
 | Запись | Что | Предложение (не применено) |
 |---|---|---|
 | REF-16 «Rejected (out of scope)» (`reference-comparison.md:40`, `veloren-notes.md:86`) | основание «моды вне scope» заменено OC-2026-11-09 (моды — архитектурное требование); объект (WASM-плагины сейчас) остаётся не принятым (S-6) | вариант (a) черновика X-1: «Rejected for the current roadmap; rationale superseded; WASM = candidate» — решение владельца |
-| `AGENTS.md` ссылается на `.agent/` и `.cursor/rules`, которых нет; файл в `.gitignore` | расхождение «источник состояния» (ST-1, PB-7) | решение владельца по ST-1 |
-| `ps-0-exit-checklist.md` §5 «READY FOR OWNER APPROVAL» | ярлык вердикта расходится (F-3 PS-0-REMAINING-BLOCKERS) | косметика |
+| [`AGENTS.md`](../../AGENTS.md) ссылается на `.agent/` и `.cursor/rules`, которых нет; файл в `.gitignore` | расхождение «источник состояния» (ST-1, PB-7) | решение владельца по ST-1 |
+| [`ps-0-exit-checklist.md`](../production/ps-0-exit-checklist.md) §5 «READY FOR OWNER APPROVAL» | ярлык вердикта расходится (F-3 PS-0-REMAINING-BLOCKERS) | косметика |
 | ODM-13 «content data format — DEFERRED» | остаётся, но с граничным условием из §4 | уточнение при регистрации |
 
 **Ничего не объявлено устаревшим автоматически.**
@@ -160,6 +160,6 @@
 
 ## 7. Нумерация
 
-* Новые ID этого слоя: `OCC-nn`, `VP-nn`, `CPR-/AI-/DF-/OPN-` (в `cube-product-vision.md`). Конфликтов с существующими префиксами нет (проверено: `OD-R*`, `ODM-*`, `D-*`, `AOD-*`, `OAM-*`, `ACR-*`, `GOV-*` не использованы).
-* AOD-25 и AOD-26 **не присвоены** (предложены в черновике extensibility; присваиваются при подтверждении владельцем, правило §4 `owner-architecture-decisions-v1.md`).
+* Новые ID этого слоя: `OCC-nn`, `VP-nn`, `CPR-/AI-/DF-/OPN-` (в [`cube-product-vision.md`](cube-product-vision.md)). Конфликтов с существующими префиксами нет (проверено: `OD-R*`, `ODM-*`, `D-*`, `AOD-*`, `OAM-*`, `ACR-*`, `GOV-*` не использованы).
+* AOD-25 и AOD-26 **не присвоены** (предложены в черновике extensibility; присваиваются при подтверждении владельцем, правило §4 [`owner-architecture-decisions-v1.md`](../decisions/owner-architecture-decisions-v1.md)).
 * Если владелец решит зарегистрировать OCC-02/OCC-03 как AOD-25/26 — это отдельное действие владельца; ничего здесь не нужно переписывать.

@@ -1,6 +1,6 @@
 # Cube Architecture Blocker Decisions v2 (proposal for the owner)
 
-**Status:** **Proposed**. Revision v2.1. Nothing here is a decision and nothing is represented as approved. Each decision has: 1 Problem, 2 Current implementation, 3 Proposed solution, 4 Alternative, 5 Compatibility impact, 6 Affected modules, 7 Migration strategy, 8 Required owner approval. The owner approves, amends or rejects each item in a **decision-registry entry with a confirmation source** (`production-architecture-plan.md` section 3.3). ACR-001…004 stay `Pending`. Task ids and stages refer to the ADG (`module-boundaries.md`).
+**Status:** **Proposed**. Revision v2.1. Nothing here is a decision and nothing is represented as approved. Each decision has: 1 Problem, 2 Current implementation, 3 Proposed solution, 4 Alternative, 5 Compatibility impact, 6 Affected modules, 7 Migration strategy, 8 Required owner approval. The owner approves, amends or rejects each item in a **decision-registry entry with a confirmation source** ([`production-architecture-plan.md`](production-architecture-plan.md) section 3.3). ACR-001…004 stay `Pending`. Task ids and stages refer to the ADG ([`module-boundaries.md`](module-boundaries.md)).
 **Differences from v1:** D-0 is rewritten (no contradiction with the PS-1 exit); ACR-004 is split into five independent parts with owners, contracts, dependencies, stages and acceptance; the registry/status model is a decision; revalidation gates RG-1/RG-2 added; D-R8 and D-P extended.
 
 ## 1. Decisions needed before PS-1 (task GOV-01 / GOV-02)
@@ -17,7 +17,7 @@
 
 ### D-REG: contract status model and decision registry
 1. **Problem:** documents mix `Draft`, `Proposed`, `Approved`; agent-written records (AOD-01…24) look like owner decisions.
-2. **Current:** statuses defined in `docs/api-contracts/README.md`; AOD records written by an agent from chat.
+2. **Current:** statuses defined in [`docs/api-contracts/README.md`](../api-contracts/README.md); AOD records written by an agent from chat.
 3. **Proposed:** statuses Proposed, Provisional, Owner-Approved, Implemented, Frozen, Rejected, Superseded with assigners and evidence (architecture plan 3.1); a decision registry whose entries need an owner-signed repository confirmation; AOD-01…24 stay `recorded, awaiting confirmation` until countersigned.
 4. **Alternative:** keep the legacy words and a note per document (weaker, ambiguous).
 5. **Compatibility:** renames only; no contract text changes.
@@ -94,4 +94,4 @@ Open questions that stay open and visible: ABI of the handles (signature), wheth
 
 ## 5. Decisions registered (2026-11-09)
 
-All items of section 1 and the part A / part D principle of section 2 are decided in `docs/decisions/decision-registry.md` (engineering decisions under the owner's delegation, DEC-001; each may be amended by the owner): ACR-001 DEC-055, ACR-002 DEC-056, ACR-003 DEC-057, ACR-004 A DEC-058, OAM-10/part D DEC-059, OD-R1 DEC-060, OD-R2 DEC-061, OD-R6 DEC-062, D-R8 DEC-063, D-K DEC-064, D-T DEC-065, D-C DEC-066, D-0 DEC-067, D-E DEC-068 (project licence: DEFERRED, DEC-070), branch option DEC-069. This section records the pointer only; the registry entries hold the exact decisions.
+All items of section 1 and the part A / part D principle of section 2 are decided in [`docs/decisions/decision-registry.md`](../decisions/decision-registry.md) (engineering decisions under the owner's delegation, DEC-001; each may be amended by the owner): ACR-001 DEC-055, ACR-002 DEC-056, ACR-003 DEC-057, ACR-004 A DEC-058, OAM-10/part D DEC-059, OD-R1 DEC-060, OD-R2 DEC-061, OD-R6 DEC-062, D-R8 DEC-063, D-K DEC-064, D-T DEC-065, D-C DEC-066, D-0 DEC-067, D-E DEC-068 (project licence: DEFERRED, DEC-070), branch option DEC-069. This section records the pointer only; the registry entries hold the exact decisions.

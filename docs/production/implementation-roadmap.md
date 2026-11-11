@@ -1,6 +1,6 @@
 # Cube Implementation Roadmap v2 (proposal)
 
-**Status:** **Proposed**; no stage is authorised to start by this document, and no stage is complete because documents exist (PS-0 and PS-1 are **not** treated as complete). Stage names are the canonical `PS-n` (`production-architecture-plan.md` section 2). **Dependencies, start conditions, integration conditions and closing conditions are defined only in the ADG (`module-boundaries.md`, parts C and D); this document adds purpose, artifacts, tests and acceptance per stage and never restates an edge.** Task ids and owners are generated from the same data as the ADG.
+**Status:** **Proposed**; no stage is authorised to start by this document, and no stage is complete because documents exist (PS-0 and PS-1 are **not** treated as complete). Stage names are the canonical `PS-n` ([`production-architecture-plan.md`](production-architecture-plan.md) section 2). **Dependencies, start conditions, integration conditions and closing conditions are defined only in the ADG ([`module-boundaries.md`](module-boundaries.md), parts C and D); this document adds purpose, artifacts, tests and acceptance per stage and never restates an edge.** Task ids and owners are generated from the same data as the ADG.
 **Rule:** integration is per module and only after the module's acceptance criteria and the stage gate conditions; a stage closes when its gate `Gn` is satisfied; contract statuses change only by the owner's decision-registry entry.
 
 ## 1. Stage overview
@@ -23,7 +23,7 @@
 | PS-13 | Server Runtime and Networking | G13 | UNASSIGNED (Server Runtime, Networking Adapter) |
 | PS-14 | Full QA and Release Validation | G14 | Agent I, Integration Owner |
 
-Critical paths: see `production-architecture-plan.md` section 12 (computed chain and the owner-blocked chain through G2).
+Critical paths: see [`production-architecture-plan.md`](production-architecture-plan.md) section 12 (computed chain and the owner-blocked chain through G2).
 
 ## 2. Cross-cutting validation rules (fixes to the v1 QA coupling)
 
@@ -31,7 +31,7 @@ Critical paths: see `production-architecture-plan.md` section 12 (computed chain
 2. **Device validation is a separate track:** DG-1 (renderer: faces vs greedy), DG-2 (mobile determinism and durability), DG-3 (mobile release). They need `EXT-DEV`, do not block PS-1…PS-13, and gate only the decisions and releases named in their rows (GOV-13 renderer default, PS-14).
 3. **Backend conformance (G5) is independent of the renderer choice.** The renderer default is decided by GOV-13 after DG-1. `faces` stays the default and `greedy` experimental until then (AOD-10).
 4. **CI specification (GOV-05) and CI implementation (GOV-06) are separate deliverables** with separate evidence.
-5. **Mandatory tests by kind** (details in `integration-and-qa-plan.md`): concurrency (loom and stress) from PS-1, fault injection from PS-10, negative tests for forbidden mutation paths from PS-1 (TEST-06), property-based tests per crate, golden hashes and determinism on the CI host from PS-1 and across devices only in DG-2.
+5. **Mandatory tests by kind** (details in [`integration-and-qa-plan.md`](integration-and-qa-plan.md)): concurrency (loom and stress) from PS-1, fault injection from PS-10, negative tests for forbidden mutation paths from PS-1 (TEST-06), property-based tests per crate, golden hashes and determinism on the CI host from PS-1 and across devices only in DG-2.
 6. Golden hashes and determinism claims in a stage exit are limited to the CI host unless the row is a device gate.
 
 ## 3. Stages

@@ -2,11 +2,11 @@
 
 **Status:** DRAFT 0.1 — specified for approval; none approved.
 **Owner of this file:** Integration Owner. **Implementing module:** Geometry Core (Core Agent).
-**Basis:** AU-1.0 §4–§10, §23. Common conventions: see `README.md`.
+**Basis:** AU-1.0 §4–§10, §23. Common conventions: see [`README.md`](README.md).
 Notation is conceptual. No language-specific signature is final.
 
 Field order per contract: Purpose · Model · Ownership · Lifetime · Access · Revision · Dirty · Threading · Cancel · Errors · Serialization · Compat · Tests · Open.
-"Defaults" = the common conventions in `README.md` §2 apply unchanged.
+"Defaults" = the common conventions in [`README.md`](README.md) §2 apply unchanged.
 
 ---
 
@@ -180,7 +180,7 @@ Field order per contract: Purpose · Model · Ownership · Lifetime · Access ·
 
 ## C-16 RevisionToken (foundation) — ACR-001
 
-- Specified in `revision-and-snapshot-semantics.md`. **Owner:** Core Agent (primitive type and comparison); semantics owned by Integration Owner.
+- Specified in [`revision-and-snapshot-semantics.md`](revision-and-snapshot-semantics.md). **Owner:** Core Agent (primitive type and comparison); semantics owned by Integration Owner.
 - Placement note: AU-1.0 §23 lists this under Editing; it is consumed by Core and Processing, which cannot depend on Editing. Moved to Core foundation (ACR-001).
 
 ## C-17 OperationId (foundation) — ACR-001

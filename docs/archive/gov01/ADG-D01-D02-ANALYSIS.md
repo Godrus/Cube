@@ -1,7 +1,7 @@
 # ADG defects D-01 and D-02: analysis (corrective revision)
 
-**Status:** **Proposed.** The ADG (`docs/production/module-boundaries.md` Parts C, D, E) is **not modified**. `git diff 2c0c1f3 HEAD -- docs/production` is empty (verified), so the committed tables are the same as when the plan was produced.
-**What changed since the first version of this document:** the analysis now runs on the **real committed tables** through an importable module (`docs/archive/audit/adg.py`, CLI `docs/archive/audit/adg_check.py`), not through an `exec`/text-splitting copy of the parser; the exact change is given as a patch that was applied to a **copy** and re-checked (`ADG-D01-D02-PATCH-PROPOSAL.md`, `ADG-D01-D02.proposed.patch`); start eligibility and merge eligibility are separated; release closure no longer makes every stage mandatory automatically.
+**Status:** **Proposed.** The ADG ([`docs/production/module-boundaries.md`](../../production/module-boundaries.md) Parts C, D, E) is **not modified**. `git diff 2c0c1f3 HEAD -- docs/production` is empty (verified), so the committed tables are the same as when the plan was produced.
+**What changed since the first version of this document:** the analysis now runs on the **real committed tables** through an importable module (`docs/archive/audit/adg.py`, CLI `docs/archive/audit/adg_check.py`), not through an `exec`/text-splitting copy of the parser; the exact change is given as a patch that was applied to a **copy** and re-checked ([`ADG-D01-D02-PATCH-PROPOSAL.md`](ADG-D01-D02-PATCH-PROPOSAL.md), `ADG-D01-D02.proposed.patch`); start eligibility and merge eligibility are separated; release closure no longer makes every stage mandatory automatically.
 **Authority:** correcting the ADG changes the plan; it needs the Project Owner's acceptance (ST-2). The Integration Owner prepares and validates the change.
 
 ## 1. Edge semantics (verified in Part C and in `adg.py`)
@@ -68,7 +68,7 @@ The release scope is **the owner's decision**; the proposal therefore **does not
 
 ## 4. Predecessor table (generated from the real tables)
 
-Produced by `python docs/archive/audit/adg_check.py --table`. "Current" and "required" list predecessor **gates** (task rows show S and M edges). The table is reproduced in `ADG-D01-D02-PATCH-PROPOSAL.md` section 3.
+Produced by `python docs/archive/audit/adg_check.py --table`. "Current" and "required" list predecessor **gates** (task rows show S and M edges). The table is reproduced in [`ADG-D01-D02-PATCH-PROPOSAL.md`](ADG-D01-D02-PATCH-PROPOSAL.md) section 3.
 
 ## 5. Process notes
 

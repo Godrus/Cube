@@ -1,15 +1,15 @@
 # GOV-01 Decision Register (preparation)
 
 **Status:** **Proposed.** This is a preparation document. It decides nothing and sets no status. Nothing here is an owner decision until the owner writes it into the decision registry with a confirmation source.
-**Revision:** corrective pass (CR-01...CR-10), see `GOV-01-CORRECTIVE-REVIEW.md`. First version: commit `74566cd`.
+**Revision:** corrective pass (CR-01...CR-10), see [`GOV-01-CORRECTIVE-REVIEW.md`](GOV-01-CORRECTIVE-REVIEW.md). First version: commit `74566cd`.
 **Base:** branch `docs/architecture-roadmap-v1` (the requested name `architecure_roadmap` does not exist; this is the only branch containing `74566cd`, and its upstream `origin/docs/architecture-roadmap-v1` also contains it). Source HEAD of this pass: `74566cd975df656282d7844e98cea79a3329a18b` (verified; working tree before the pass: only the owner's ` M .gitignore`).
-**Where the 15 come from (verified):** `docs/production/ps-0-exit-checklist.md` section 2 (rows 1-15, all NOT DONE) = task `GOV-01` in `docs/production/agent-task-breakdown.md` row GOV-01 + `architecture-blocker-decisions.md` sections 1-2. The list in the task row and the checklist match item for item.
-**Companions:** `GOV-01-TECHNICAL-RECOMMENDATIONS.md` (recommendations, architecture check, prioritisation), `ADG-D01-D02-ANALYSIS.md`, `ST-1-CANONICAL-STATE-RECOMMENDATION.md`, `PS-0-REMAINING-BLOCKERS.md`.
+**Where the 15 come from (verified):** [`docs/production/ps-0-exit-checklist.md`](../../production/ps-0-exit-checklist.md) section 2 (rows 1-15, all NOT DONE) = task `GOV-01` in [`docs/production/agent-task-breakdown.md`](../../production/agent-task-breakdown.md) row GOV-01 + [`architecture-blocker-decisions.md`](../../production/architecture-blocker-decisions.md) sections 1-2. The list in the task row and the checklist match item for item.
+**Companions:** [`GOV-01-TECHNICAL-RECOMMENDATIONS.md`](GOV-01-TECHNICAL-RECOMMENDATIONS.md) (recommendations, architecture check, prioritisation), [`ADG-D01-D02-ANALYSIS.md`](ADG-D01-D02-ANALYSIS.md), [`ST-1-CANONICAL-STATE-RECOMMENDATION.md`](ST-1-CANONICAL-STATE-RECOMMENDATION.md), [`PS-0-REMAINING-BLOCKERS.md`](PS-0-REMAINING-BLOCKERS.md).
 
 ## 0. How a decision becomes effective (rule from the plan)
 
-`production-architecture-plan.md` section 3.3: only an entry in the decision registry with a **confirmation source** counts: (a) an owner-signed commit or pull-request approval in the repository, or (b) a decision text written by the owner in the repository. **A chat instruction alone is not a confirmation source.** Agents may transcribe a chat instruction only as `recorded, awaiting confirmation`.
-Registry path: the plan says `docs/decisions/decision-registry.md` (section 3.3); some later documents (including documents of the previous package) say `docs/production/decision-registry.md` or only `decision-registry.md`. See finding F-2 in `PS-0-REMAINING-BLOCKERS.md`; this register uses the plan's path.
+[`production-architecture-plan.md`](../../production/production-architecture-plan.md) section 3.3: only an entry in the decision registry with a **confirmation source** counts: (a) an owner-signed commit or pull-request approval in the repository, or (b) a decision text written by the owner in the repository. **A chat instruction alone is not a confirmation source.** Agents may transcribe a chat instruction only as `recorded, awaiting confirmation`.
+Registry path: the plan says [`docs/decisions/decision-registry.md`](../../decisions/decision-registry.md) (section 3.3); some later documents (including documents of the previous package) say `docs/production/decision-registry.md` or only [`decision-registry.md`](../../decisions/decision-registry.md). See finding F-2 in [`PS-0-REMAINING-BLOCKERS.md`](PS-0-REMAINING-BLOCKERS.md); this register uses the plan's path.
 
 Entry template (for the owner or for an agent quoting the owner):
 
@@ -26,35 +26,35 @@ Recorded by: <role>   (an agent never sets Owner-Approved without the source)
 
 * **Voxel position (`VoxelPos`)**: integer position of one voxel in a layer at a given level. Its integer width is **not specified in any source** (CORE-02 lists the type; the spike uses `i32`).
 * **Brick**: a 16x16x16 block of voxels (edge 16 proposed, D-K). **`BrickCoord`**: integer position of a brick, `floor_div(voxel, 16)` (spike: Euclidean division, verified in `crates/cube-core/src/coord.rs`).
-* **`CellKey` = `BrickKey`**: production plan 5.3 is titled "CellKey (BrickKey)": `CellKey { layer, level: i8, coord: [i32; 3] }` where `coord` is the **brick** coordinate. Elsewhere in the plan and in this register, "cell" in "per-cell revision" means **brick**, not voxel. Revisions exist per asset, layer and **brick** (`revision-and-snapshot-semantics.md` section 1 table); there is no per-voxel revision.
-* **`RegionStamp`**: derived, not stored; the contract text defines it as the set of `(BrickKey, BrickRevision)` for bricks intersecting a region (`revision-and-snapshot-semantics.md`, row "Region Revision").
+* **`CellKey` = `BrickKey`**: production plan 5.3 is titled "CellKey (BrickKey)": `CellKey { layer, level: i8, coord: [i32; 3] }` where `coord` is the **brick** coordinate. Elsewhere in the plan and in this register, "cell" in "per-cell revision" means **brick**, not voxel. Revisions exist per asset, layer and **brick** ([`revision-and-snapshot-semantics.md`](../../api-contracts/revision-and-snapshot-semantics.md) section 1 table); there is no per-voxel revision.
+* **`RegionStamp`**: derived, not stored; the contract text defines it as the set of `(BrickKey, BrickRevision)` for bricks intersecting a region ([`revision-and-snapshot-semantics.md`](../../api-contracts/revision-and-snapshot-semantics.md), row "Region Revision").
 
 ## 0.2 Authority: who decides what (CR-01)
 
-**Rule used throughout this package.** The **Project Owner** decides and approves: architecture decisions, ACRs, contract approval states (Provisional, Owner-Approved, Rejected, Superseded), formats, licences, assignment of owners, scope. The **Integration Owner** (an agent role, "Main Agent / Integration Owner") prepares, reviews, checks conformance and consistency, maintains the registry and the ADG, records a decision *only on the Project Owner's entry*, and gives *engineering* acceptance of modules. The Integration Owner never approves a contract or a decision on the Project Owner's behalf. This is the wording of the production plan (3.1: `Owner-Approved` is assigned by the "project owner only"; `integration-and-qa-plan.md` section 2: the Integration Owner "does not approve contracts or ACRs") and of AOD-18.
+**Rule used throughout this package.** The **Project Owner** decides and approves: architecture decisions, ACRs, contract approval states (Provisional, Owner-Approved, Rejected, Superseded), formats, licences, assignment of owners, scope. The **Integration Owner** (an agent role, "Main Agent / Integration Owner") prepares, reviews, checks conformance and consistency, maintains the registry and the ADG, records a decision *only on the Project Owner's entry*, and gives *engineering* acceptance of modules. The Integration Owner never approves a contract or a decision on the Project Owner's behalf. This is the wording of the production plan (3.1: `Owner-Approved` is assigned by the "project owner only"; [`integration-and-qa-plan.md`](../../production/integration-and-qa-plan.md) section 2: the Integration Owner "does not approve contracts or ACRs") and of AOD-18.
 
 **Four kinds of authority are kept apart (corrected after the post-review: the first version mixed them).**
 
 | Kind | Holder | Sources |
 |---|---|---|
-| Project Owner authority: decisions, ACRs, contract approval states, formats, licences, owner assignment, scope | Project Owner | AOD-18 (`owner-architecture-decisions-v1.md` line 28); plan 3.1 and 3.3 |
+| Project Owner authority: decisions, ACRs, contract approval states, formats, licences, owner assignment, scope | Project Owner | AOD-18 ([`owner-architecture-decisions-v1.md`](../../decisions/owner-architecture-decisions-v1.md) line 28); plan 3.1 and 3.3 |
 | Contract approval authority (setting a contract to Owner-Approved) | Project Owner per AOD-18 and plan 3.1; **Integration Owner per some older documents** (see conflicts below) | below |
-| Module acceptance authority (a module or task is *Accepted*; engineering) | Integration Owner. **Not a conflict**: the plan keeps it (`agent-task-breakdown.md`: "Acceptance authority: Integration Owner") | Agent Development Specification line 507 ("Only Integration Owner can mark a module Accepted") and line 520 (Definition of Done: "Integration Owner approves acceptance"); Geometry Editing Specification lines 846-860 (module acceptance conditions; item 12 "Integration Owner approves") |
+| Module acceptance authority (a module or task is *Accepted*; engineering) | Integration Owner. **Not a conflict**: the plan keeps it ([`agent-task-breakdown.md`](../../production/agent-task-breakdown.md): "Acceptance authority: Integration Owner") | Agent Development Specification line 507 ("Only Integration Owner can mark a module Accepted") and line 520 (Definition of Done: "Integration Owner approves acceptance"); Geometry Editing Specification lines 846-860 (module acceptance conditions; item 12 "Integration Owner approves") |
 | Integration Owner responsibilities | Integration Owner | Agent Development Specification 3.1 (lines 58-71): architecture consistency, shared API contracts, dependency graph, integration order, Pull Request approval, release acceptance; owns the composition root and the dependency matrix |
 
 **Genuinely supported conflicts (these are the only ones kept; the ruling is the owner's and is folded into X-2):**
 
 | Document (line) | Says | Why it conflicts | Strength |
 |---|---|---|---|
-| `specifications/cube-agent-development-specification-v1.0.md` line 69 | "Only the Integration Owner may approve changes to shared public contracts." | The sentence is about *changes* to shared contracts; AOD-18 is about the *approval status* of contracts. It conflicts only if "changes" includes first approval; plan 3.1 does not say who approves a text change to an Owner-Approved contract (a change to a Frozen one needs an ACR and the owner) | **partial / ambiguous** |
-| `agent-tasks/geometry-editing-agent-task-pack-v1.0.md` line 6 and line 710 | "Contract authority: Integration Owner"; "Integration Owner approves contracts by tier" | Contract *approval status* is assigned to the Integration Owner | **direct** |
-| `decisions/audit-resolution-report.md` lines 211 and 244 | blocker B-4 "Integration Owner approval"; step 4 "Integration Owner: approve P0, then P1 contracts; set status to Approved and version to 1.0.0" | Same; the report is a dated historical document that predates the owner's AOD records of 2026-11-04 | **direct (historical)** |
+| [`specifications/cube-agent-development-specification-v1.0.md`](../../specifications/cube-agent-development-specification-v1.0.md) line 69 | "Only the Integration Owner may approve changes to shared public contracts." | The sentence is about *changes* to shared contracts; AOD-18 is about the *approval status* of contracts. It conflicts only if "changes" includes first approval; plan 3.1 does not say who approves a text change to an Owner-Approved contract (a change to a Frozen one needs an ACR and the owner) | **partial / ambiguous** |
+| [`agent-tasks/geometry-editing-agent-task-pack-v1.0.md`](../../agent-tasks/geometry-editing-agent-task-pack-v1.0.md) line 6 and line 710 | "Contract authority: Integration Owner"; "Integration Owner approves contracts by tier" | Contract *approval status* is assigned to the Integration Owner | **direct** |
+| [`decisions/audit-resolution-report.md`](../../decisions/audit-resolution-report.md) lines 211 and 244 | blocker B-4 "Integration Owner approval"; step 4 "Integration Owner: approve P0, then P1 contracts; set status to Approved and version to 1.0.0" | Same; the report is a dated historical document that predates the owner's AOD records of 2026-11-04 | **direct (historical)** |
 
-**Not conflicts (checked against the text):** `api-contracts/README.md` line 3 ("Approval is recorded by the Integration Owner in `docs/decisions/`"): compatible if read as *recording*, ambiguous in wording; `decisions/acr-004-owner-review.md` line 62 (the Integration Owner reviews); AU-1.0 line 65 (responsible for architectural consistency); Agent Specification lines 507 and 520 and Geometry Editing Specification line 860 (module acceptance, see above). The Agent Development Specification never mentions a Project Owner, so it neither grants nor denies owner authority; it predates the owner records. A possible overlap that is **not asserted as a conflict**: "release acceptance" (Agent Specification 3.1) versus the owner's acceptance of release milestones in `RELEASE_CRITERIA.md`; to be clarified together with X-2.
+**Not conflicts (checked against the text):** [`api-contracts/README.md`](../../api-contracts/README.md) line 3 ("Approval is recorded by the Integration Owner in `docs/decisions/`"): compatible if read as *recording*, ambiguous in wording; [`decisions/acr-004-owner-review.md`](../../decisions/acr-004-owner-review.md) line 62 (the Integration Owner reviews); AU-1.0 line 65 (responsible for architectural consistency); Agent Specification lines 507 and 520 and Geometry Editing Specification line 860 (module acceptance, see above). The Agent Development Specification never mentions a Project Owner, so it neither grants nor denies owner authority; it predates the owner records. A possible overlap that is **not asserted as a conflict**: "release acceptance" (Agent Specification 3.1) versus the owner's acceptance of release milestones in [`RELEASE_CRITERIA.md`](../../RELEASE_CRITERIA.md); to be clarified together with X-2.
 
-Authority order stated in `api-contracts/README.md`: AU-1.0 > Geometry Editing Specification > Agent Development Specification > the contracts; the owner's AOD records are not in that list. **Owner ruling needed (folded into X-2, D-REG):** declare that for contract approval states "approve" means the Project Owner and that the Integration Owner reviews, validates, integrates, records and gives module acceptance; name the documents to amend (Agent Specification line 69, Task Pack lines 6 and 710; the audit-resolution lines by erratum); or delegate named classes of approval to the Integration Owner explicitly. Until then no agent treats an Integration Owner statement as a contract approval.
+Authority order stated in [`api-contracts/README.md`](../../api-contracts/README.md): AU-1.0 > Geometry Editing Specification > Agent Development Specification > the contracts; the owner's AOD records are not in that list. **Owner ruling needed (folded into X-2, D-REG):** declare that for contract approval states "approve" means the Project Owner and that the Integration Owner reviews, validates, integrates, records and gives module acceptance; name the documents to amend (Agent Specification line 69, Task Pack lines 6 and 710; the audit-resolution lines by erratum); or delegate named classes of approval to the Integration Owner explicitly. Until then no agent treats an Integration Owner statement as a contract approval.
 
-**Change-control difference (also for the owner):** `owner-architecture-decisions-v1.md` section 4 accepts the owner's "explicit approval in chat or in a signed-off pull request" to change an AOD, while plan 3.3 says a chat instruction alone is **not** a confirmation source for a registry entry. The registry rule (3.3) is the stricter one and is used here.
+**Change-control difference (also for the owner):** [`owner-architecture-decisions-v1.md`](../../decisions/owner-architecture-decisions-v1.md) section 4 accepts the owner's "explicit approval in chat or in a signed-off pull request" to change an AOD, while plan 3.3 says a chat instruction alone is **not** a confirmation source for a registry entry. The registry rule (3.3) is the stricter one and is used here.
 
 ## 1. Summary table
 
@@ -80,14 +80,14 @@ Totals: **15 decisions in GOV-01** (checked against the GOV-01 task row and chec
 
 ## 2. Decisions
 
-Common fields for every item: **Status:** Proposed; no registry entry; not confirmed. **Documents to change after approval (always):** `docs/decisions/decision-registry.md` (new entry), `docs/archive/PROJECT_STATUS.md` (5.5, 5.3), `docs/production/ps-0-exit-checklist.md` (row state); further documents are listed per item.
+Common fields for every item: **Status:** Proposed; no registry entry; not confirmed. **Documents to change after approval (always):** [`docs/decisions/decision-registry.md`](../../decisions/decision-registry.md) (new entry), [`docs/archive/PROJECT_STATUS.md`](../PROJECT_STATUS.md) (5.5, 5.3), [`docs/production/ps-0-exit-checklist.md`](../../production/ps-0-exit-checklist.md) (row state); further documents are listed per item.
 
 ---
 
 ### 1. ACR-001 — Foundation types in Core
 
 **Question:** Does Core own `RevisionToken` (C-16), `OperationId` (C-17), `DirtyRegion` (C-18) and `Result/Error` (C-19), although AU-1.0 section 23 lists them under Editing/Processing?
-**Sources:** `architecture-blocker-decisions.md` section 1 (ACR-001); `api-contracts/core-contracts.md` C-16…C-19; `api-contracts/README.md` (C-16 "OD-R1…R8"); AU-1.0 (reconstructed copy, not byte-verified; original absent, so the text of section 23 cannot be confirmed: **missing data**).
+**Sources:** [`architecture-blocker-decisions.md`](../../production/architecture-blocker-decisions.md) section 1 (ACR-001); [`api-contracts/core-contracts.md`](../../api-contracts/core-contracts.md) C-16…C-19; [`api-contracts/README.md`](../../api-contracts/README.md) (C-16 "OD-R1…R8"); AU-1.0 (reconstructed copy, not byte-verified; original absent, so the text of section 23 cannot be confirmed: **missing data**).
 **Why decide:** Core's commit produces revisions, dirty regions and operation ids and returns `Result`; P0-alpha (GOV-02) includes C-16…C-19.
 **Options:**
 * **A. Core owns them (as proposed).** + No upward dependency; commit is self-contained; already true in the spike (`cube-core` has `ids.rs`, `revision.rs`, `dirty.rs`, `error.rs`: verified). − Deviates from AU-1.0 section 23 wording.
@@ -96,34 +96,34 @@ Common fields for every item: **Status:** Proposed; no registry entry; not confi
 **Consequences:** A: none on code. B: new crate, ownership entry, renames in all contracts.
 **Impact on stages:** PS-1 (CORE-06/07/08/09), PS-2 (CORE-16), everything that consumes tokens.
 **Deferral consequence:** GOV-02 cannot approve C-16…C-19 (P0-alpha); G0 stays open.
-**Documents to change:** `docs/api-contracts/README.md` (status/owner notes), `docs/production/module-boundaries.md` (A.3 Core row, if B), `architecture-blocker-decisions.md` (state).
+**Documents to change:** [`docs/api-contracts/README.md`](../../api-contracts/README.md) (status/owner notes), [`docs/production/module-boundaries.md`](../../production/module-boundaries.md) (A.3 Core row, if B), [`architecture-blocker-decisions.md`](../../production/architecture-blocker-decisions.md) (state).
 
 ### 2. ACR-002 — Orchestration reaches backends through L2 ports
 
 **Question:** Are the Editing ports (`IEditingService`, `IGeometryBackend`, `ITransactionObserver`) defined in `cube-editing-api` (L2), with the backend registry in Orchestration?
-**Sources:** `architecture-blocker-decisions.md` (ACR-002); `api-contracts/editing-contracts.md`; QA Pack (rejected the direct dependency, per the blocker text); `module-boundaries.md` Part B.
+**Sources:** [`architecture-blocker-decisions.md`](../../production/architecture-blocker-decisions.md) (ACR-002); [`api-contracts/editing-contracts.md`](../../api-contracts/editing-contracts.md); QA Pack (rejected the direct dependency, per the blocker text); [`module-boundaries.md`](../../production/module-boundaries.md) Part B.
 **Why:** prevents a cycle Orchestration ⇄ backends and lets backends compile without Orchestration (API-02 acceptance).
 **Options:** **A.** ports in L2, registry in Orchestration (proposed). + one-directional graph; backends testable alone; matches layers. − one more crate. **B.** Orchestration depends directly on backends. + fewer crates. − cycle risk, test coupling, rejected in the QA Pack.
 **Consequences:** A requires moving spike voxel logic from `Editor` into a voxel backend (VOX-01).
 **Impact:** PS-3 API-02 freeze, PS-4, PS-5, archcheck v0 edge table (XT-01, see Recommendations 3.2).
 **Deferral consequence:** none before PS-3 *unless* archcheck v0 encodes the L2 edges at PS-0 (then it blocks XT-01); plan text puts it in GOV-01.
-**Documents to change:** `module-boundaries.md` (Part B), `docs/api-contracts/editing-contracts.md` (provider note), `architecture-blocker-decisions.md`.
+**Documents to change:** [`module-boundaries.md`](../../production/module-boundaries.md) (Part B), [`docs/api-contracts/editing-contracts.md`](../../api-contracts/editing-contracts.md) (provider note), [`architecture-blocker-decisions.md`](../../production/architecture-blocker-decisions.md).
 
 ### 3. ACR-003 — Composite data in Core, operations in Composite
 
 **Question:** Do `CompositePart` (C-14) and `AssemblyGraph` (C-15) data types live in Core, with operations in `cube-composite`?
-**Sources:** blocker decisions (ACR-003); AU-1.0 section 23 vs section 2 conflict (original absent: **missing data**); `core-contracts.md` C-14, C-15.
+**Sources:** blocker decisions (ACR-003); AU-1.0 section 23 vs section 2 conflict (original absent: **missing data**); [`core-contracts.md`](../../api-contracts/core-contracts.md) C-14, C-15.
 **Why:** Persistence must store composites; if the model lived in Composite, Persistence would depend on Composite.
 **Options:** **A.** passive data in Core, operations in Composite (proposed). **B.** whole model in Composite (adds a Persistence→Composite edge). **C.** everything in Core (puts operation behaviour in Core, violating ownership).
 **Consequences:** A: nothing now; C-14/C-15 deferred contracts anyway.
 **Impact:** CORE-14 (PS-8), COMP-*, PERS-09, GOV-19.
 **Deferral consequence:** none until PS-8 start.
-**Documents to change:** `module-boundaries.md`, `core-contracts.md` ownership note, `agent-task-breakdown.md` (only if B or C).
+**Documents to change:** [`module-boundaries.md`](../../production/module-boundaries.md), [`core-contracts.md`](../../api-contracts/core-contracts.md) ownership note, [`agent-task-breakdown.md`](../../production/agent-task-breakdown.md) (only if B or C).
 
 ### 4. ACR-004 part A — Core prerequisites for system commits
 
 **Question:** Approve: `ActorKind` (`User`, `System`, `Recovery`) on `OperationId`; commit-primitive capability handles `UserCommit`/`SystemCommit`/`RecoveryCommit` and their port types; minimal Core primitives; the authoritative-path rule (exactly three callers write: Editing service, Materialiser, persistence loader)?
-**Sources:** `architecture-blocker-decisions.md` section 2 (part A); `decisions/acr-004-owner-review.md` Part A/C; `api-contracts/system-commit-contracts.md` (SC-01, SC-02, SC-05, SC-10, Draft); AOD-20 (hybrid C3, Approved as recorded); production plan MB-1.
+**Sources:** [`architecture-blocker-decisions.md`](../../production/architecture-blocker-decisions.md) section 2 (part A); [`decisions/acr-004-owner-review.md`](../../decisions/acr-004-owner-review.md) Part A/C; [`api-contracts/system-commit-contracts.md`](../../api-contracts/system-commit-contracts.md) (SC-01, SC-02, SC-05, SC-10, Draft); AOD-20 (hybrid C3, Approved as recorded); production plan MB-1.
 **Why:** AOD-20 says system generation takes part in commit/revision semantics but is not an ordinary Editing-API operation; Core must supply the boundary before WorldGen exists, and P0-alpha includes these amendments.
 **Authority:** approval or rejection is the Project Owner's; the Integration Owner only reviews against sources (acr-004-owner-review.md line 62).
 **Options:** **A. Approve.** **B. Amend** (e.g. one `SystemCommit` handle with an enum instead of two handles; or different `ActorKind` names). **C. Reject** — then WorldGen would have to write as an ordinary Editing-API client, which contradicts AOD-20 (so C is valid only together with a changed AOD-20).
@@ -132,12 +132,12 @@ Common fields for every item: **Status:** Proposed; no registry entry; not confi
 **Impact:** CORE-07/08/09, TEST-06, XT-02, later WGEN/PERS/LEG.
 **Deferral consequence:** P0-alpha cannot be Owner-Approved; PS-1 cannot start.
 **Open items that stay open (not decided here):** ABI/signature of the handles, whether `Evict` is a commit for revision purposes, audit-log retention, `ChangeType` additions.
-**Documents to change:** `api-contracts/system-commit-contracts.md` (status), `core-contracts.md` (C-17 extension), `acr-004-owner-review.md` (Part A state), `owner-architecture-decisions-v1.md` (ACR-004 record), `module-boundaries.md`.
+**Documents to change:** [`api-contracts/system-commit-contracts.md`](../../api-contracts/system-commit-contracts.md) (status), [`core-contracts.md`](../../api-contracts/core-contracts.md) (C-17 extension), [`acr-004-owner-review.md`](../../decisions/acr-004-owner-review.md) (Part A state), [`owner-architecture-decisions-v1.md`](../../decisions/owner-architecture-decisions-v1.md) (ACR-004 record), [`module-boundaries.md`](../../production/module-boundaries.md).
 
 ### 5. OAM-10 / ACR-004 part D — Revision model for system changes
 
 **Question:** How do system (generation) changes interact with revisions?
-**Sources:** `decisions/owner-approval-matrix-v1.md` OAM-10 (lines ~355-370); `acr-004-owner-review.md`; `api-contracts/revision-and-snapshot-semantics.md`.
+**Sources:** [`decisions/owner-approval-matrix-v1.md`](../../decisions/owner-approval-matrix-v1.md) OAM-10 (lines ~355-370); [`acr-004-owner-review.md`](../../decisions/acr-004-owner-review.md); [`api-contracts/revision-and-snapshot-semantics.md`](../../api-contracts/revision-and-snapshot-semantics.md).
 **Why:** C-16 (P0-alpha) must define what a commit increments; part D is the only part that touches the P0 revision contract.
 **Options (labels as in OAM-10; the label "R-A" is also used by OAM-04 for the renderer option `faces`, so registry entries must write `OAM-10/R-A`):**
 * **R-A** same asset/layer/cell revision scopes for system commits, `ActorKind::System` marks the origin. + no new token kind; uniform undo/conflict rules; least code; journal records only user commits. − asset/layer revision advances during streaming (one per streamed chunk in the spike), so a coarse revision no longer means "a user changed something"; user edits must be validated with brick/region stamps, not asset-level tokens.
@@ -146,7 +146,7 @@ Common fields for every item: **Status:** Proposed; no registry entry; not confi
 **Consequences:** R-A makes OD-R6 (region stamp) mandatory, because asset-level tokens would give spurious conflicts.
 **Impact:** CORE-06, PERS recovery (ACR-004 C), WGEN materialiser, server replication filter.
 **Deferral consequence:** C-16 text cannot be approved; PS-1 CORE-06 cannot start.
-**Documents to change:** `revision-and-snapshot-semantics.md`, `core-contracts.md` C-16, `system-commit-contracts.md` SC-04, `module-boundaries.md` (A.3 core row mentions R-A as Proposed), `acr-004-owner-review.md`.
+**Documents to change:** [`revision-and-snapshot-semantics.md`](../../api-contracts/revision-and-snapshot-semantics.md), [`core-contracts.md`](../../api-contracts/core-contracts.md) C-16, [`system-commit-contracts.md`](../../api-contracts/system-commit-contracts.md) SC-04, [`module-boundaries.md`](../../production/module-boundaries.md) (A.3 core row mentions R-A as Proposed), [`acr-004-owner-review.md`](../../decisions/acr-004-owner-review.md).
 
 ### 6. OD-R1 — Revision token width
 
@@ -157,23 +157,23 @@ Common fields for every item: **Status:** Proposed; no registry entry; not confi
 **Consequences:** A: persisted schema carries named width constants (serialized form is separate from the in-memory layout).
 **Impact:** CORE-05/06, PERS, NET.
 **Deferral consequence:** C-16 cannot be approved.
-**Documents to change:** `core-contracts.md` C-16, `revision-and-snapshot-semantics.md`.
+**Documents to change:** [`core-contracts.md`](../../api-contracts/core-contracts.md) C-16, [`revision-and-snapshot-semantics.md`](../../api-contracts/revision-and-snapshot-semantics.md).
 
 ### 7. OD-R2 — Commit algorithm
 
 **Question:** Which concurrency shape implements atomic commit?
-**Sources:** blocker decisions (OD-R2); `crates/cube-core/src/asset.rs` (verified: `commit(&mut self, WriteSet)`, validate-then-apply); `revision-and-snapshot-semantics.md` section 4.1.
+**Sources:** blocker decisions (OD-R2); `crates/cube-core/src/asset.rs` (verified: `commit(&mut self, WriteSet)`, validate-then-apply); [`revision-and-snapshot-semantics.md`](../../api-contracts/revision-and-snapshot-semantics.md) section 4.1.
 **Why:** it fixes the shared-asset API (`SharedAsset`), the snapshot model and loom tests; needed before C-16/C-01.
 **Options:** **A.** immutable `Arc` state, per-asset commit gate, lock-free snapshot readers; finer-grained gating later behind the same API (proposed). + readers never block; matches immutable snapshots; validate-then-apply stays one atomic step. − copy-on-write cost per commit (mitigated by 16³ COW bricks); needs loom tests. **B.** cell-level compare-and-swap. + maximal write concurrency. − multi-brick atomic transactions become hard; validate-then-apply across bricks is no longer one step; much harder to test. **C.** keep `&mut` single-writer (spike). + simplest. − not shareable between server threads without an external lock; this is what A wraps.
 **Consequences:** A requires `SharedAsset`, loom dev-dependency (D-E).
 **Impact:** CORE-01, CORE-06, PROC (snapshots), ORCH, server.
 **Deferral consequence:** C-01 and C-16 cannot be approved.
-**Documents to change:** `core-contracts.md` C-01/C-16, `revision-and-snapshot-semantics.md` 4.1.
+**Documents to change:** [`core-contracts.md`](../../api-contracts/core-contracts.md) C-01/C-16, [`revision-and-snapshot-semantics.md`](../../api-contracts/revision-and-snapshot-semantics.md) 4.1.
 
 ### 8. OD-R6 — RegionStamp
 
 **Question:** What is the contract of `RegionStamp` (what is summarised, how it is encoded, hashed, versioned and compared), and which risk policy applies to a hash collision?
-**Sources:** `architecture-blocker-decisions.md` section 1 (OD-R6: "stable 128-bit hash over sorted `(CellKey, revision)` plus count; snapshots keep exact per-cell revisions"); `api-contracts/revision-and-snapshot-semantics.md` (section 1 table: `RegionStamp` = set of `(BrickKey, BrickRevision)`, derived, not stored; open item OD-R6 "set or hashed"); `processing-contracts.md` PR-02 (open: per-brick vs per-region stamp); CORE-05 and PROC-02 in `agent-task-breakdown.md`. The spike does not implement it.
+**Sources:** [`architecture-blocker-decisions.md`](../../production/architecture-blocker-decisions.md) section 1 (OD-R6: "stable 128-bit hash over sorted `(CellKey, revision)` plus count; snapshots keep exact per-cell revisions"); [`api-contracts/revision-and-snapshot-semantics.md`](../../api-contracts/revision-and-snapshot-semantics.md) (section 1 table: `RegionStamp` = set of `(BrickKey, BrickRevision)`, derived, not stored; open item OD-R6 "set or hashed"); [`processing-contracts.md`](../../api-contracts/processing-contracts.md) PR-02 (open: per-brick vs per-region stamp); CORE-05 and PROC-02 in [`agent-task-breakdown.md`](../../production/agent-task-breakdown.md). The spike does not implement it.
 **Why decide:** under R-A (item 5) asset and layer revisions advance with every streamed chunk, so conflict detection and derived-data staleness must rely on brick-level information; `RegionStamp` is the summary used for that. C-16 (P0-alpha) mentions it.
 **What the contract must specify (none of the values is decided):**
 
@@ -199,26 +199,26 @@ Common fields for every item: **Status:** Proposed; no registry entry; not confi
 
 **Algorithm candidates (none is chosen):** (a) **BLAKE3 truncated to 128 bits**: cryptographic design, fast, supports keyed and derive-key (context) modes useful for domain separation; needs an external crate in Core, which is a D-E dependency-policy question (the spike Core has no dependencies); its licence and `cargo deny` result must be checked at adoption, not assumed here. (b) a non-cryptographic 128-bit hash (for example xxh3-128): faster, no adversarial resistance; acceptable only for P-2 uses. (c) the standard-library default hasher: **excluded**, its algorithm is unspecified and may change between Rust versions. (d) an order-independent combination of per-brick hashes (XOR or addition): incremental but algebraically weak; not suitable for authoritative uses.
 **Different hash roles (one algorithm is not assumed to serve all):** (1) `RegionStamp` (this item); (2) content identity, `content_hash` of an asset view (CORE-11, a PS-1 task; algorithm **also unnamed**); (3) persistence integrity (checksums, snapshot and recovery-point hashes in PERS-01 and the manifest; decided with the format, GOV-10); (4) `OperationId` is **not a hash** (D-R8, item 9). Roles 2 and 3 are not among the 15 and are listed in section 3 as open items H-1 and H-2.
-**Options for what to approve now:** **A.** name algorithm, encoding and policy in the entry (needs the owner's algorithm choice). **B.** approve the *abstract* contract (rows 1, 3-9: opaque, versioned, comparison only within the same version, policy P-1 or P-3) and register the algorithm in a **later** entry that must exist before CORE-05 starts. B keeps GOV-02 unblocked but blocks CORE-05; the ADG has no task for that later entry (finding F-9 in `PS-0-REMAINING-BLOCKERS.md`).
+**Options for what to approve now:** **A.** name algorithm, encoding and policy in the entry (needs the owner's algorithm choice). **B.** approve the *abstract* contract (rows 1, 3-9: opaque, versioned, comparison only within the same version, policy P-1 or P-3) and register the algorithm in a **later** entry that must exist before CORE-05 starts. B keeps GOV-02 unblocked but blocks CORE-05; the ADG has no task for that later entry (finding F-9 in [`PS-0-REMAINING-BLOCKERS.md`](PS-0-REMAINING-BLOCKERS.md)).
 **Impact:** CORE-05, PROC snapshots/dependency revision (PR-02), NET, client cache, recovery check.
 **Deferral consequence:** with neither A nor B, C-16 cannot be approved (P0-alpha).
-**Documents to change:** `core-contracts.md` C-16, `revision-and-snapshot-semantics.md` (RegionStamp row and OD-R6), `processing-contracts.md` PR-02 note, `module-boundaries.md` (a task or a GOV-02 clause for the algorithm entry, if option B).
+**Documents to change:** [`core-contracts.md`](../../api-contracts/core-contracts.md) C-16, [`revision-and-snapshot-semantics.md`](../../api-contracts/revision-and-snapshot-semantics.md) (RegionStamp row and OD-R6), [`processing-contracts.md`](../../api-contracts/processing-contracts.md) PR-02 note, [`module-boundaries.md`](../../production/module-boundaries.md) (a task or a GOV-02 clause for the algorithm entry, if option B).
 
 ### 9. D-R8 — OperationId format
 
 **Question:** `OperationId = (actor scope u64, sequence u64)` with `ActorKind` separate; `Recovery` keeps original ids; the format carries a schema version?
-**Sources:** blocker decisions (D-R8; some contract tables call it OD-R8); `crates/cube-core/src/ids.rs` (verified `OperationId(pub u64)`); `core-contracts.md` C-17.
+**Sources:** blocker decisions (D-R8; some contract tables call it OD-R8); `crates/cube-core/src/ids.rs` (verified `OperationId(pub u64)`); [`core-contracts.md`](../../api-contracts/core-contracts.md) C-17.
 **Why:** idempotent retry, reconnect, journal replay need stable ids; needed before C-17.
 **Options:** **A.** composite id (proposed). + deterministic, ordered per actor, dedupe by (scope, sequence). − two words. **B.** 128-bit random. + no coordination. − unordered, no per-actor replay ordering, larger. **C.** client-supplied. + client retries trivially. − untrusted client input, must be remapped (AOD: client is not the source of truth).
 **Missing data:** dedupe window/retention policy for idempotent retry is not specified.
 **Impact:** CORE-07, ORCH, HIST, PERS journal, NET.
 **Deferral consequence:** C-17 cannot be approved.
-**Documents to change:** `core-contracts.md` C-17, `editing-contracts.md` E-01 note.
+**Documents to change:** [`core-contracts.md`](../../api-contracts/core-contracts.md) C-17, [`editing-contracts.md`](../../api-contracts/editing-contracts.md) E-01 note.
 
 ### 10. D-K — Cell key, widths, brick edge
 
 **Question:** `CellKey{layer, level: i8, coord: i32x3}` with brick edge 16 as a named constant, as the Provisional PC-1 basis?
-**Sources:** blocker decisions (D-K); `agent-task-breakdown.md` CORE-02 (`CellKey`, `Region`, `VoxelPos`; tests "negative-coordinate symmetry, level round trip"); production plan 5.3 and 4.3 (PC-1 basis BL-1); `core-contracts.md` C-07 open items "int width, refinement addressing"; spike `coord.rs` (verified: `BRICK_SIZE: i32 = 16`, `i32` coordinates, `div_euclid`/`rem_euclid`, test `negative_coordinates_floor`). Voxel Architecture **absent**.
+**Sources:** blocker decisions (D-K); [`agent-task-breakdown.md`](../../production/agent-task-breakdown.md) CORE-02 (`CellKey`, `Region`, `VoxelPos`; tests "negative-coordinate symmetry, level round trip"); production plan 5.3 and 4.3 (PC-1 basis BL-1); [`core-contracts.md`](../../api-contracts/core-contracts.md) C-07 open items "int width, refinement addressing"; spike `coord.rs` (verified: `BRICK_SIZE: i32 = 16`, `i32` coordinates, `div_euclid`/`rem_euclid`, test `negative_coordinates_floor`). Voxel Architecture **absent**.
 **Why decide:** every crate and every persisted byte depends on key widths and the brick edge; it is the assumption of Provisional PC-1.
 **What D-K must fix (checklist for the entry):**
 
@@ -237,12 +237,12 @@ Common fields for every item: **Status:** Proposed; no registry entry; not confi
 **Consequences:** whichever option is chosen is recorded as **Provisional PC-1** with revalidation gate **RG-1** (diff against the Voxel Architecture when supplied) and a benchmark review; formats do not depend on PC-1 until RG-1 (GOV-10).
 **Impact:** C-07, CORE-02/03, backends (PS-5), persistence format (PS-10), worldgen, network.
 **Deferral consequence:** CORE-01/02/03 (keys, bricks) cannot start; the PC-1 register entry has no basis.
-**Documents to change:** `core-contracts.md` C-07 (+ `VoxelPos`), `production-architecture-plan.md` 4.3 and 5.3, `api-contracts/README.md`.
+**Documents to change:** [`core-contracts.md`](../../api-contracts/core-contracts.md) C-07 (+ `VoxelPos`), [`production-architecture-plan.md`](../../production/production-architecture-plan.md) 4.3 and 5.3, [`api-contracts/README.md`](../../api-contracts/README.md).
 
 ### 11. D-T — Authoritative transform and numeric policy
 
 **Question:** Is the authoritative `GeometryTransform` an integer translation + one of the 24 axis-aligned rotations + power-of-two scale, and **to which data does "no floating point" apply**?
-**Sources:** blocker decisions (D-T: "no floating point in authoritative or persisted state"); `core-contracts.md` C-04 (open "f32/f64, epsilon"); spike `voxel_size_m: f32` (verified in `asset.rs`); `integration-and-qa-plan.md` section 3 (archcheck rule "no floating point in authoritative or world-defining code per D-T"); `agent-task-breakdown.md` (cube-worldgen forbidden scope "floats in world math"); plan 5.2 (closed `LayerData::{Voxel, Sdf, Mesh}`); the spike generator `crates/cube-worldgen/src/*.rs` contains **no `f32`/`f64`** (verified by grep, 0 matches).
+**Sources:** blocker decisions (D-T: "no floating point in authoritative or persisted state"); [`core-contracts.md`](../../api-contracts/core-contracts.md) C-04 (open "f32/f64, epsilon"); spike `voxel_size_m: f32` (verified in `asset.rs`); [`integration-and-qa-plan.md`](../../production/integration-and-qa-plan.md) section 3 (archcheck rule "no floating point in authoritative or world-defining code per D-T"); [`agent-task-breakdown.md`](../../production/agent-task-breakdown.md) (cube-worldgen forbidden scope "floats in world math"); plan 5.2 (closed `LayerData::{Voxel, Sdf, Mesh}`); the spike generator `crates/cube-worldgen/src/*.rs` contains **no `f32`/`f64`** (verified by grep, 0 matches).
 **Why decide:** determinism across platforms is required by server-authoritative play, cross-play, replay and stable hashes; C-04 is in P0-alpha.
 **The first wording of D-T is ambiguous.** "Authoritative or persisted state" can be read to cover mesh vertices, SDF samples, entity positions and gameplay physics. Seven classes must be kept apart:
 
@@ -260,18 +260,18 @@ Common fields for every item: **Status:** Proposed; no registry entry; not confi
 **Options:** **A.** integer transform for classes 1-2 as proposed, with the scope sentence "D-T covers coordinates and transforms; classes 3-5 need their own numeric policies" (recorded as an *amendment*). **B.** A with the original broad wording (risk: unimplementable for Mesh, unclear for gameplay). **C.** `f64` with an epsilon policy: + general transforms; - platform-dependent results, unstable hashes, epsilon rules in every comparison.
 **Impact:** C-04, CORE-02, archcheck rule text in XT-01/XT-02 (must name the data classes it forbids floats in), SDF/Mesh backends (PS-5), worldgen rule (the spike generator is already integer), client adapter (class 7 stays float).
 **Deferral consequence:** C-04 cannot be approved (P0-alpha).
-**Documents to change:** `core-contracts.md` C-04, `integration-and-qa-plan.md` section 3 (archcheck rule wording), `production-architecture-plan.md` (Core model), `agent-task-breakdown.md` (cube-worldgen forbidden scope wording).
+**Documents to change:** [`core-contracts.md`](../../api-contracts/core-contracts.md) C-04, [`integration-and-qa-plan.md`](../../production/integration-and-qa-plan.md) section 3 (archcheck rule wording), [`production-architecture-plan.md`](../../production/production-architecture-plan.md) (Core model), [`agent-task-breakdown.md`](../../production/agent-task-breakdown.md) (cube-worldgen forbidden scope wording).
 
 ### 12. D-C — Channel model
 
 **Question:** Built-in channel set: `Material(u16)`, quantised `Density`, `Attribute`, with Constant/Dense encodings and a per-layer quantisation scale?
-**Sources:** blocker decisions (D-C); `core-contracts.md` C-08, C-09 ("layout, index order, compression"; "attribute registry, widths" open); spike `BrickData::{Constant(u16),Dense}` (verified); Voxel Architecture **absent**.
+**Sources:** blocker decisions (D-C); [`core-contracts.md`](../../api-contracts/core-contracts.md) C-08, C-09 ("layout, index order, compression"; "attribute registry, widths" open); spike `BrickData::{Constant(u16),Dense}` (verified); Voxel Architecture **absent**.
 **Why:** minimal slice needed to store any cell; assumption of PC-1.
 **Options:** **A.** as proposed. **B.** fixed per-kind layout. + simplest. − no extensibility for attributes. **C.** float density. + simple SDF. − conflicts with D-T intent if read broadly, breaks hash stability.
 **Missing data:** quantisation widths and the attribute registry are unspecified.
 **Impact:** C-08/C-09, PS-5 SDF/mesh backends, PS-10 format.
 **Deferral consequence:** no basis for the PC-1 register entry; storage tasks cannot start.
-**Documents to change:** `core-contracts.md` C-08/C-09, PC-1 register.
+**Documents to change:** [`core-contracts.md`](../../api-contracts/core-contracts.md) C-08/C-09, PC-1 register.
 
 ### 13. D-0 — P0 scope: P0-alpha + PC-1
 
@@ -281,12 +281,12 @@ Common fields for every item: **Status:** Proposed; no registry entry; not confi
 **Options:** **A.** P0-alpha + PC-1 (proposed). + PS-1 can start; honest about Provisional. − PC-1 may change once at RG-1 (rework budget). **B.** wait for all sources. + no rework. − blocks the project indefinitely (no date for the sources). **C.** approve full P0 on baseline entries. − contradicts AOD-24.
 **Impact:** all of PS-1, the Provisional register, GOV-02, INT-01.
 **Deferral consequence:** nothing can be approved or started.
-**Documents to change:** `api-contracts/README.md` (status column), `production-architecture-plan.md` 4.x, `module-boundaries.md` Part D (G1 text), `ps-0-exit-checklist.md`.
+**Documents to change:** [`api-contracts/README.md`](../../api-contracts/README.md) (status column), [`production-architecture-plan.md`](../../production/production-architecture-plan.md) 4.x, [`module-boundaries.md`](../../production/module-boundaries.md) Part D (G1 text), [`ps-0-exit-checklist.md`](../../production/ps-0-exit-checklist.md).
 
 ### 14. D-E — Toolchain, execution model, dependency licences
 
 **Question:** What is the single development-environment policy: toolchain, edition, CI host, project licence, dependency-licence allow-list, panic strategy, FFI panic boundary, async/runtime policy and development dependencies?
-**Sources:** blocker decisions (D-E); `integration-and-qa-plan.md` section 3 (required checks); AOD-23 (licence policy for *references*, not for dependencies or for Cube itself); `agent-task-breakdown.md` ADP-03 ("Error wrapping, catch_unwind, panic policy test (including panic=abort decision)", PS-12); production plan risk table (line ~276: "`panic = "abort"` across GDExtension | crashes | ADP-03 test before adoption"); root `Cargo.toml` of the spike (verified: edition 2021, `[profile.release] panic = "abort"`, `license = "UNLICENSED"`, `publish = false`); godot-core 0.5.5 registry source (verified: `src/init/mod.rs` calls `std::panic::catch_unwind`); local `cargo 1.97.1` (an observation, not a decision).
+**Sources:** blocker decisions (D-E); [`integration-and-qa-plan.md`](../../production/integration-and-qa-plan.md) section 3 (required checks); AOD-23 (licence policy for *references*, not for dependencies or for Cube itself); [`agent-task-breakdown.md`](../../production/agent-task-breakdown.md) ADP-03 ("Error wrapping, catch_unwind, panic policy test (including panic=abort decision)", PS-12); production plan risk table (line ~276: "`panic = "abort"` across GDExtension | crashes | ADP-03 test before adoption"); root `Cargo.toml` of the spike (verified: edition 2021, `[profile.release] panic = "abort"`, `license = "UNLICENSED"`, `publish = false`); godot-core 0.5.5 registry source (verified: `src/init/mod.rs` calls `std::panic::catch_unwind`); local `cargo 1.97.1` (an observation, not a decision).
 **On the supposed contradiction.** D-E itself is consistent: it proposes `catch_unwind` at the FFI **and** says to test `panic = "abort"` *before adopting it* (abort is not adopted by default). The contradiction is between the proposal and the **spike's** `[profile.release] panic = "abort"`, under which `catch_unwind` cannot catch anything. The spike profile is not production policy; production has no `Cargo.toml` yet.
 **Parameters that need the owner's decision (no value is chosen here):**
 
@@ -306,23 +306,23 @@ Common fields for every item: **Status:** Proposed; no registry entry; not confi
 **Why decide:** GOV-05 (CI specification) must name tools, versions and checks; GOV-06 implements them; XT-01 relies on the dependency policy.
 **Impact:** GOV-05, GOV-06, XT-01, every crate, ADP-03.
 **Deferral consequence:** the CI specification cannot be approved; G0 stays open. Parameters f and g may be deferred in writing to ADP-03 (PS-12) **only if** CI and the production profile do not set `panic` before then.
-**Documents to change:** `integration-and-qa-plan.md` section 3, `rust-toolchain.toml` / `deny.toml` / workflow files (created later by GOV-06; not now), `module-boundaries.md` (execution-model notes).
+**Documents to change:** [`integration-and-qa-plan.md`](../../production/integration-and-qa-plan.md) section 3, `rust-toolchain.toml` / `deny.toml` / workflow files (created later by GOV-06; not now), [`module-boundaries.md`](../../production/module-boundaries.md) (execution-model notes).
 
 ### 15. Branch option for the docs-only baseline
 
 **Question:** How does `master` receive a docs-only baseline?
-**Sources:** `integration-and-qa-plan.md` section 1; GOV-04 (acceptance: "no file of the spike code list is on master"); roadmap-v1 section 7 (spike code not for `master`).
+**Sources:** [`integration-and-qa-plan.md`](../../production/integration-and-qa-plan.md) section 1; GOV-04 (acceptance: "no file of the spike code list is on master"); roadmap-v1 section 7 (spike code not for `master`).
 **Facts (verified):** `master` has 13 files; the docs branch is 35 commits ahead and changes 268 files; the docs branch contains the spike crates, `godot-client/`, `scripts/`, `docs/spike/` (170 files). Production crate names (`crates/cube-core`, ...) are the same as the spike crate names, so mixing them would collide.
 **Options:** **A.** a new docs-only branch from `master` with the docs commits (links into `docs/spike/` removed, or spike reports added by a separate docs commit). + clean base; spike stays on its own branches. − the docs commits must be re-created (cherry-pick of path-limited changes), so history differs from this branch. **B.** path-limited PRs. − GitHub PRs carry the whole branch diff; to limit paths you create separate branches that contain only those paths, which is option A by another mechanism. **C.** accept spike code as an explicit experimental directory. + no re-creation. − contradicts roadmap-v1 section 7 and the "spike never merges" rule; collides with production crate paths.
 **Impact:** GOV-04, GOV-06, every production PR base.
 **Deferral consequence:** no production base; GOV-04/06 blocked.
-**Documents to change:** `integration-and-qa-plan.md` section 1 (state), `PROJECT_STATUS.md` 5.2.
+**Documents to change:** [`integration-and-qa-plan.md`](../../production/integration-and-qa-plan.md) section 1 (state), [`PROJECT_STATUS.md`](../PROJECT_STATUS.md) 5.2.
 
 ---
 
 ## 3. X-1...X-4: where they live in the governance process (CR-02)
 
-**Check of the structure (verified in `agent-task-breakdown.md` and `module-boundaries.md` Part C):** the GOV-01 task row lists exactly 15 decisions (ACR-001/002/003, ACR-004 part A, OAM-10 principle, OD-R1, OD-R2, OD-R6, D-R8, D-K, D-T, D-C, D-0, D-E, the branch option) and `ps-0-exit-checklist.md` section 2 rows 1-15 match it item for item. The first version of this register called X-1...X-4 "adjacent decisions"; that wording is corrected: only X-1 has an unresolved place in GOV-01, and X-2...X-4 are outputs of other G0 tasks that already exist.
+**Check of the structure (verified in [`agent-task-breakdown.md`](../../production/agent-task-breakdown.md) and [`module-boundaries.md`](../../production/module-boundaries.md) Part C):** the GOV-01 task row lists exactly 15 decisions (ACR-001/002/003, ACR-004 part A, OAM-10 principle, OD-R1, OD-R2, OD-R6, D-R8, D-K, D-T, D-C, D-0, D-E, the branch option) and [`ps-0-exit-checklist.md`](../../production/ps-0-exit-checklist.md) section 2 rows 1-15 match it item for item. The first version of this register called X-1...X-4 "adjacent decisions"; that wording is corrected: only X-1 has an unresolved place in GOV-01, and X-2...X-4 are outputs of other G0 tasks that already exist.
 
 | Item | What | Where it lives in the ADG | In GOV-01's 15? | Own owner confirmation? | Written deferral allowed? | Blocks |
 |---|---|---|---|---|---|---|
@@ -351,4 +351,4 @@ Because the ADG gates GOV-02/04/05 on **all** of GOV-01, a partial answer unbloc
 |---|---|---|---|
 | H-1 | hash algorithm and encoding of `content_hash` (CORE-11, a **PS-1** task; golden hashes depend on it) | CORE-11 cannot be implemented without it | the OD-R6 entry (option B) or a sibling entry; before CORE-11 starts |
 | H-2 | persistence checksum / snapshot-hash algorithm | needed by PERS-01 and the AOD-21 verify step | GOV-10 (format approval), already in the ADG |
-| H-3 | Provisional status for PR-01...PR-08 and E-02...E-12 (CR-10): PS-2 and PS-3 production tasks implement contracts that are only **Proposed** until GOV-07/GOV-09 (which run after the implementation); plan 3.1 says a Proposed contract may be used for "design, review, mocks, spikes" and that "no production module may claim it" | see `GOV-01-CORRECTIVE-REVIEW.md` CR-10 | an owner entry registering a Provisional group (named PC-2 and PC-3 in the corrective review) at the start of PS-2 and PS-3, or a change of the ADG so that production merges wait for GOV-07/GOV-09 |
+| H-3 | Provisional status for PR-01...PR-08 and E-02...E-12 (CR-10): PS-2 and PS-3 production tasks implement contracts that are only **Proposed** until GOV-07/GOV-09 (which run after the implementation); plan 3.1 says a Proposed contract may be used for "design, review, mocks, spikes" and that "no production module may claim it" | see [`GOV-01-CORRECTIVE-REVIEW.md`](GOV-01-CORRECTIVE-REVIEW.md) CR-10 | an owner entry registering a Provisional group (named PC-2 and PC-3 in the corrective review) at the start of PS-2 and PS-3, or a change of the ADG so that production merges wait for GOV-07/GOV-09 |

@@ -155,7 +155,7 @@ G14 predecessor gates: G0 G1 G2 G3 G4 G5 G6 G7 G8 G9 G10 G11 G12 G13
 ### 2.3 Patch
 
 * `git apply --check --unidiff-zero docs/archive/gov01/ADG-D01-D02.proposed.patch`: clean on the real tree, nothing applied.
-* The patch was applied to a **copy** of `module-boundaries.md` in a scratch directory; `adg.load` of the copy: all 8 checks PASS, no cycle, longest path 25 tasks.
+* The patch was applied to a **copy** of [`module-boundaries.md`](../../production/module-boundaries.md) in a scratch directory; `adg.load` of the copy: all 8 checks PASS, no cycle, longest path 25 tasks.
 * Cycle check: none (in memory and on the patched copy). G1 ancestry: G1 is a predecessor of G2...G14 after the patch. G14 closure: every gate is a predecessor after the patch.
 
 ### 2.4 Status documents against the ADG (`docs/archive/audit/val.py`)
@@ -213,9 +213,9 @@ PASS audit/PROJECT-STATUS-VALIDATION.md [] [] []
 | Dependency cycle check | none |
 | G1 ancestry analysis | committed: G1 predecessor of no later gate; proposed: of G2...G14 |
 | G14 predecessor closure | committed: missing G1, G5-G9, G11, G12; proposed: complete |
-| P1 consumer/dependency analysis | in `GOV-01-CORRECTIVE-REVIEW.md` CR-10; facts re-checked by `gov01_check.py` |
+| P1 consumer/dependency analysis | in [`GOV-01-CORRECTIVE-REVIEW.md`](GOV-01-CORRECTIVE-REVIEW.md) CR-10; facts re-checked by `gov01_check.py` |
 | Git diff within the allowed scope | yes (section 1) |
 
 ## 5. Not started / not changed
 
-PS-1 not started; no production code; no contract, ACR, AOD, OAM or status changed; no ADG source changed; no commit, push or PR; `.gitignore` and `AGENTS.md` untouched.
+PS-1 not started; no production code; no contract, ACR, AOD, OAM or status changed; no ADG source changed; no commit, push or PR; `.gitignore` and [`AGENTS.md`](../../../AGENTS.md) untouched.

@@ -1,6 +1,6 @@
 # M2 First Playable: scope
 
-**Status:** **Proposed.** Every requirement, content item and criterion below is a [NP] proposal for the owner's review (labels as in `GAME_TRACK_ROADMAP.md`). Nothing here is approved, and nothing authorises implementation or the start of PS-1.
+**Status:** **Proposed.** Every requirement, content item and criterion below is a [NP] proposal for the owner's review (labels as in [`GAME_TRACK_ROADMAP.md`](GAME_TRACK_ROADMAP.md)). Nothing here is approved, and nothing authorises implementation or the start of PS-1.
 **Definition of the target.** A *minimum playable game*, not a technical demo: one complete, repeatable gameplay loop with deliberately limited content, played by a person through the real client on one desktop platform, on top of the authoritative runtime the architecture requires.
 
 ## 1. The player-experience statement
@@ -12,7 +12,7 @@
 | # | Requirement | Verdict | Rationale | If deferred, what First Playable would mean |
 |---|---|---|---|---|
 | 1 | Launch the game | **In** | entry point of every session | nothing to play |
-| 2 | Create a new world | **In, minimal**: world name and seed (text or number), no other options | deterministic generation is the core promise; a fixed test world would hide generator and persistence problems (`DEVELOPMENT_ROADMAP.md` allowed a fixture; this proposal removes that option) | a demo of a pre-made level, not a procedural game |
+| 2 | Create a new world | **In, minimal**: world name and seed (text or number), no other options | deterministic generation is the core promise; a fixed test world would hide generator and persistence problems ([`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md) allowed a fixture; this proposal removes that option) | a demo of a pre-made level, not a procedural game |
 | 3 | Enter the world | **In** | | |
 | 4 | Control a character in third person | **In** | a visible character and a follow camera carry combat readability and the identity of the game; first person would not exercise a character model | a fly camera = tech viewer |
 | 5 | Move, jump, interact | **In**: walk/run, jump, one interact action (pick up / use), collision with voxel terrain | no jump = no terrain traversal; interaction opens pickup and use | a walking simulator without agency |
@@ -112,7 +112,7 @@ Features essential to the loop are **not** excluded: inventory, equipment effect
 
 ## 7. Acceptance criteria and demonstrations
 
-Each criterion is a *player-facing* check with a recorded demonstration. A check marked **S** is a scripted run (automatable), **M** is a manual run by a person, **O** needs an outside tester. Performance numbers are **not** criteria: they are measured and reported on named hardware; thresholds are set by the owner after measurement (`RELEASE_CRITERIA.md` R0.2).
+Each criterion is a *player-facing* check with a recorded demonstration. A check marked **S** is a scripted run (automatable), **M** is a manual run by a person, **O** needs an outside tester. Performance numbers are **not** criteria: they are measured and reported on named hardware; thresholds are set by the owner after measurement ([`RELEASE_CRITERIA.md`](../../RELEASE_CRITERIA.md) R0.2).
 
 | ID | Criterion | Demonstration | Kind |
 |---|---|---|---|
@@ -134,11 +134,11 @@ Each criterion is a *player-facing* check with a recorded demonstration. A check
 | FPS-16 | Measured, not budgeted | frame time, edit latency, save and load time, memory are measured on the named desktop hardware and reported (B-5, B-6, B-10) | S |
 | FPS-17 | Mobile impact | a written statement per Game Track workstream of what would block a mobile build | M |
 
-**Definition of done for M2:** all FPS criteria demonstrated with recorded evidence, the owner records acceptance in the decision registry, and the milestone is then (and only then) marked reached in `PROJECT_STATUS.md`.
+**Definition of done for M2:** all FPS criteria demonstrated with recorded evidence, the owner records acceptance in the decision registry, and the milestone is then (and only then) marked reached in [`PROJECT_STATUS.md`](../PROJECT_STATUS.md).
 
 ## 8. Mobile impact statement (AOD-08)
 
-M2 is accepted on desktop. Every M2 system must be written so that a mobile client is a client-side change: authority and rules in Rust on the server side, input through intents, no OS process calls (AOD-12), no assumption of a large display or a mouse in rules. A physical-device smoke run is proposed as a checkpoint before M3 (conflict C-3 in `GAME_TRACK_ROADMAP.md`).
+M2 is accepted on desktop. Every M2 system must be written so that a mobile client is a client-side change: authority and rules in Rust on the server side, input through intents, no OS process calls (AOD-12), no assumption of a large display or a mouse in rules. A physical-device smoke run is proposed as a checkpoint before M3 (conflict C-3 in [`GAME_TRACK_ROADMAP.md`](GAME_TRACK_ROADMAP.md)).
 
 ## 9. Assumptions and open questions
 
@@ -152,6 +152,6 @@ M2 is accepted on desktop. Every M2 system must be written so that a mobile clie
 
 | Document | Existing | Proposed |
 |---|---|---|
-| `DEVELOPMENT_ROADMAP.md` M2 | six verbs, test world, "what is missing" lists combat, creatures, items | the scope of sections 1-7 |
-| `RELEASE_CRITERIA.md` 2.1 | FP-1...FP-10 | FP-1...FP-9 map to FPS-01...FPS-13; FP-10 becomes FPS-15; FPS-14, FPS-16, FPS-17 added |
+| [`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md) M2 | six verbs, test world, "what is missing" lists combat, creatures, items | the scope of sections 1-7 |
+| [`RELEASE_CRITERIA.md`](../../RELEASE_CRITERIA.md) 2.1 | FP-1...FP-10 | FP-1...FP-9 map to FPS-01...FPS-13; FP-10 becomes FPS-15; FPS-14, FPS-16, FPS-17 added |
 | roadmap-v1 gate 6 exit | desktop and a physical Android device | desktop for M2; device checkpoint before M3 |

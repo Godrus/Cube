@@ -1,6 +1,6 @@
 # Decisions only the Project Owner can make
 
-**Status:** **Proposed.** A compact list. Nothing here is decided. Details: `GOV-01-DECISION-REGISTER.md` (item numbers), `GOV-01-CORRECTIVE-REVIEW.md`. An answer becomes effective only as a registry entry with a confirmation source (plan 3.3).
+**Status:** **Proposed.** A compact list. Nothing here is decided. Details: [`GOV-01-DECISION-REGISTER.md`](GOV-01-DECISION-REGISTER.md) (item numbers), [`GOV-01-CORRECTIVE-REVIEW.md`](GOV-01-CORRECTIVE-REVIEW.md). An answer becomes effective only as a registry entry with a confirmation source (plan 3.3).
 
 ## A. The 15 GOV-01 decisions
 
@@ -37,12 +37,12 @@ Choose (C) or confirm (OK) the recommendation. "Needs data" means a value that n
 
 | ID | Question | Recommendation |
 |---|---|---|
-| ST-1 | Canonical state model and `AGENTS.md`: A (PROJECT_STATUS canonical; a short tracked `AGENTS.md`), B (`.agent/` canonical), C (status only, `AGENTS.md` untracked) | A; you edit `AGENTS.md`/`.gitignore` yourself or authorise it |
+| ST-1 | Canonical state model and [`AGENTS.md`](../../../AGENTS.md): A (PROJECT_STATUS canonical; a short tracked [`AGENTS.md`](../../../AGENTS.md)), B (`.agent/` canonical), C (status only, [`AGENTS.md`](../../../AGENTS.md) untracked) | A; you edit [`AGENTS.md`](../../../AGENTS.md)/`.gitignore` yourself or authorise it |
 | ST-2 | Accept the D-01/D-02 corrections (rule R-MERGE-G1 + release closure) | accept after your review of the patch |
 | REL-EXCL | Is any stage optional for release? G6 (sculpt/Boolean tools) and G8 (composite) are not traceable to a recorded requirement | none proposed; default is closure of all stages |
 | H-1 | Hash algorithm of `content_hash` (CORE-11, PS-1) | with item 8 |
 | H-3 | Register Provisional groups for PR-01...PR-08 (PS-2) and E-02...E-12 (PS-3), because production code merges before their approval | yes (option 1) |
 | P1 | Rename the tier P1 into P1-Processing and P1-Editing in the contract documents | label change only, no ADG change |
-| REG | Registry path: `docs/decisions/decision-registry.md` (plan 3.3) | yes |
+| REG | Registry path: [`docs/decisions/decision-registry.md`](../../decisions/decision-registry.md) (plan 3.3) | yes |
 | BR | Which branch is the target: `architecure_roadmap` does not exist; work was done on `docs/architecture-roadmap-v1` | confirm |
 | ORD | May GOV-01 be answered in two batches (14-15 first)? | yes, optional |

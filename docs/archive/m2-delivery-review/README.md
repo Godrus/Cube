@@ -8,15 +8,15 @@
 
 | File | Content |
 |---|---|
-| `REPOSITORY_AND_MERGE_REVIEW.md` | Git facts, merge readiness, PR split, audit scripts on a clean checkout, sources of truth, CI and protection, findings |
-| `M2_SCOPE_REVIEW.md` | M2-T versus M2; review of the ten M2-T items and of FPS-01...FPS-17; crash recovery levels; Android checkpoints |
-| `M2_TASK_GRAPH.md` | the proposed graph: 119 tasks (81 existing + 38 new), owners, dependencies, acceptance, tests, milestones; differences from the ADG; critical path |
-| `M2_OWNERSHIP_MATRIX.md` | owner categories, re-check of 65/20, matrix by module, the Game Rules module |
-| `M2_MINIMUM_CONTRACTS.md` | the ten contract areas, verdict A/B/C, temporary contracts TC-01...TC-10 |
-| `M3_SCOPE_REVIEW.md` | is M3 overloaded; Minimum / Recommended / Deferred |
-| `DEVELOPMENT_BRANCH_STRATEGY.md` | trunk with short-lived branches; order of steps; protection |
-| `M2_DELIVERY_PLAN.md` | pre-implementation, M2-T waves, M2 waves, parallel and sequential work, unknowns |
-| `OWNER_DECISIONS_REQUIRED.md` | ODM-01...ODM-15 and their order |
+| [`REPOSITORY_AND_MERGE_REVIEW.md`](REPOSITORY_AND_MERGE_REVIEW.md) | Git facts, merge readiness, PR split, audit scripts on a clean checkout, sources of truth, CI and protection, findings |
+| [`M2_SCOPE_REVIEW.md`](M2_SCOPE_REVIEW.md) | M2-T versus M2; review of the ten M2-T items and of FPS-01...FPS-17; crash recovery levels; Android checkpoints |
+| [`M2_TASK_GRAPH.md`](M2_TASK_GRAPH.md) | the proposed graph: 119 tasks (81 existing + 38 new), owners, dependencies, acceptance, tests, milestones; differences from the ADG; critical path |
+| [`M2_OWNERSHIP_MATRIX.md`](M2_OWNERSHIP_MATRIX.md) | owner categories, re-check of 65/20, matrix by module, the Game Rules module |
+| [`M2_MINIMUM_CONTRACTS.md`](../../api-contracts/M2_MINIMUM_CONTRACTS.md) | the ten contract areas, verdict A/B/C, temporary contracts TC-01...TC-10 |
+| [`M3_SCOPE_REVIEW.md`](M3_SCOPE_REVIEW.md) | is M3 overloaded; Minimum / Recommended / Deferred |
+| [`DEVELOPMENT_BRANCH_STRATEGY.md`](DEVELOPMENT_BRANCH_STRATEGY.md) | trunk with short-lived branches; order of steps; protection |
+| [`M2_DELIVERY_PLAN.md`](M2_DELIVERY_PLAN.md) | pre-implementation, M2-T waves, M2 waves, parallel and sequential work, unknowns |
+| [`OWNER_DECISIONS_REQUIRED.md`](OWNER_DECISIONS_REQUIRED.md) | ODM-01...ODM-15 and their order |
 
 ## The central findings
 
@@ -37,7 +37,7 @@
 | `M2_IMPLEMENTATION_READY` | **NO** | M2-T accepted; owners for Gameplay, WorldGen, Client, Engine Adapter, Server, Networking; Game Rules module accepted after the entity-model spike; ODM-02/03/07 decided; content tables and scenarios written |
 | `TECHNOLOGY_TRACK_READY` | **CONDITIONAL** | wave W1 (Core) can start with existing roles as soon as G0 and the Core decisions exist; waves W2-W5 need ODM-02, ODM-03, ODM-04, ODM-07; M2 pulls two absent documents unless the temporary contracts are accepted |
 | `GAME_TRACK_READY` | **CONDITIONAL** | ready now for L1 (design, tables, scenarios) and, with the owner's go-ahead, L2 (isolated experiments); **not ready** for production gameplay code: no owner, no module in the ADG, no entity-model decision, gates open |
-| `M3_SCOPE_READY` | **CONDITIONAL** | the scope is defined well enough to steer M2 choices (Minimum vs Recommended in `M3_SCOPE_REVIEW.md`); it is not ready to commit: owners, velocity from M2, content costs, and the mobile and co-op choices are missing |
+| `M3_SCOPE_READY` | **CONDITIONAL** | the scope is defined well enough to steer M2 choices (Minimum vs Recommended in [`M3_SCOPE_REVIEW.md`](M3_SCOPE_REVIEW.md)); it is not ready to commit: owners, velocity from M2, content costs, and the mobile and co-op choices are missing |
 
 ## Owner Action Plan
 
@@ -54,8 +54,8 @@
 **Before M2-T starts:** G0 closed with a running CI and archcheck v0; owners of the first waves are existing roles; Core decisions recorded; the temporary contracts registered; the M2-T scope and the graph accepted.
 
 **Smallest amount of work that gives a real playable result:**
-* *Fastest feedback, not a product:* an authorised throw-away prototype (ODM-12, "Game Prototype 0") on the existing spike client and server that adds a walking character, a camera and one fight to the terrain, streaming and edit that already run there. It answers whether the loop is enjoyable; its code is never promoted (`TECHNOLOGY-GAME-TRACK-INTEGRATION.md` section 3).
-* *Fastest production result:* the 18-task critical chain to M2-T (`M2_DELIVERY_PLAN.md` section 3); the first four tasks are governance. No schedule or effort can be stated: the inputs listed in `M2_DELIVERY_PLAN.md` section 6 do not exist.
+* *Fastest feedback, not a product:* an authorised throw-away prototype (ODM-12, "Game Prototype 0") on the existing spike client and server that adds a walking character, a camera and one fight to the terrain, streaming and edit that already run there. It answers whether the loop is enjoyable; its code is never promoted ([`TECHNOLOGY-GAME-TRACK-INTEGRATION.md`](../production/TECHNOLOGY-GAME-TRACK-INTEGRATION.md) section 3).
+* *Fastest production result:* the 18-task critical chain to M2-T ([`M2_DELIVERY_PLAN.md`](M2_DELIVERY_PLAN.md) section 3); the first four tasks are governance. No schedule or effort can be stated: the inputs listed in [`M2_DELIVERY_PLAN.md`](M2_DELIVERY_PLAN.md) section 6 do not exist.
 
 ## What was verified and what was not
 

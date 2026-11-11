@@ -1,9 +1,9 @@
 # Historical Decisions Reconciliation
 
-> **Update 2026-11-09:** the owner adopted the model of this proposal in simplified form (DEC-002 in `docs/decisions/decision-registry.md`): statuses `PROPOSED/RECORDED/CONFIRMED/DEFERRED/SUPERSEDED/REJECTED`, levels `CONCEPT/TECHNICAL`, chat confirmation as a permitted source, no mandatory signatures, no second confirmation cycle. ODM-10 is closed. Where this document differs (E1/E2/E3/E5 evidence ladder, G-GOV gate, ratification batch as a gate), the registry rules win. The historical analysis is kept unchanged.
+> **Update 2026-11-09:** the owner adopted the model of this proposal in simplified form (DEC-002 in [`docs/decisions/decision-registry.md`](../../decisions/decision-registry.md)): statuses `PROPOSED/RECORDED/CONFIRMED/DEFERRED/SUPERSEDED/REJECTED`, levels `CONCEPT/TECHNICAL`, chat confirmation as a permitted source, no mandatory signatures, no second confirmation cycle. ODM-10 is closed. Where this document differs (E1/E2/E3/E5 evidence ladder, G-GOV gate, ratification batch as a gate), the registry rules win. The historical analysis is kept unchanged.
 
-**Статус:** **Proposed.** Сопоставление OCC-01…08, предложенных AOD-25/26 и других ранее принятых решений с существующими записями. Ни одна запись не объявляется подтверждённой; ни один статус GOV-01 не меняется; существующие документы не правятся. Модель статусов — `owner-approval-procedure-proposal.md` §2 (`status` + `level`).
-**Дата проверки:** 2026-11-09; HEAD `8854a44` (см. `odm-10-governance-review.md` §1).
+**Статус:** **Proposed.** Сопоставление OCC-01…08, предложенных AOD-25/26 и других ранее принятых решений с существующими записями. Ни одна запись не объявляется подтверждённой; ни один статус GOV-01 не меняется; существующие документы не правятся. Модель статусов — [`owner-approval-procedure-proposal.md`](owner-approval-procedure-proposal.md) §2 (`status` + `level`).
+**Дата проверки:** 2026-11-09; HEAD `8854a44` (см. [`odm-10-governance-review.md`](odm-10-governance-review.md) §1).
 
 ---
 
@@ -11,9 +11,9 @@
 
 | Группа | Дата в источнике | Первоисточник | Где в репозитории | Доступность первоисточника | Регистрация по плану §3.3 |
 |---|---|---|---|---|---|
-| Rust + Godot | чат 2026-11-02 | сообщение владельца | `owner-decision-rust-godot.md` (коммит `8ac400a`, 2026-11-02) | чат — **недоступен в репозитории** | нет (RECORDED по смыслу) |
-| AOD-01…19 | чат 2026-11-04 | то же | `owner-architecture-decisions-v1.md` (коммит `05d7e7e`, 2026-11-04) | **недоступен** | нет |
-| AOD-20…24, OAM-01/02/03/07/08 | чат 2026-11-05 (две инструкции) | то же | AOD-файл §5; `owner-approval-matrix-v1.md` (коммит `a0f703e`, 2026-11-05) | **недоступен** | нет |
+| Rust + Godot | чат 2026-11-02 | сообщение владельца | [`owner-decision-rust-godot.md`](../../decisions/owner-decision-rust-godot.md) (коммит `8ac400a`, 2026-11-02) | чат — **недоступен в репозитории** | нет (RECORDED по смыслу) |
+| AOD-01…19 | чат 2026-11-04 | то же | [`owner-architecture-decisions-v1.md`](../../decisions/owner-architecture-decisions-v1.md) (коммит `05d7e7e`, 2026-11-04) | **недоступен** | нет |
+| AOD-20…24, OAM-01/02/03/07/08 | чат 2026-11-05 (две инструкции) | то же | AOD-файл §5; [`owner-approval-matrix-v1.md`](../../decisions/owner-approval-matrix-v1.md) (коммит `a0f703e`, 2026-11-05) | **недоступен** | нет |
 | Подтверждения «OC-2026-11-09» (разделы 2.1–2.7 сообщения владельца) | сообщение 2026-11-09, в котором владелец **сообщает** о решениях, принятых «в обсуждении» | сообщение владельца в сессии; сама **дата обсуждения не названа** | пересказано агентом в `docs/product-vision/*` (коммит `8854a44`) | сообщение — в транскрипте сессии, **не в репозитории**; исходное «обсуждение» **неизвестно** | нет |
 | Черновик extensibility (S-1…S-8, R-01…R-17) | «confirmed in chat on 2026-11-09» (текст агента) | то же | не отслеживается git | **недоступен** | нет |
 
@@ -78,7 +78,7 @@
 |---|---|---|---|
 | «AOD-25 Extensibility principle» | S-1…S-4, S-6, S-7 (+S-8) | склейка шести–семи **разных** решений (приоритет Cube; расширяемость с начала; общие механизмы; закрытость внутренностей; технология исполнения не выбрана; три вида расширений; S-8 `cube` — пакет) | не присваивать единый номер; внести как отдельные записи CONCEPT (S-1…S-7 помечены CONFIRMED в черновике, S-8 теперь подтверждён концептуально сообщением 2026-11-09; в черновике R-xx PROPOSED не переносятся как подтверждённые) |
 | «AOD-26 Modified-world saves» | S-5 + R-10…R-17 | смешивает CONFIRMED (R-10, R-12, R-13) и PROPOSED (R-11, R-14…R-17); R-17 (генерация и пакеты) и R-16 (миграции) **вообще не упоминались владельцем** | не присваивать; записи SAV из §3; R-16, R-17 — отдельные PROPOSED; R-15 backup — PROPOSED |
-| Нумерация | AOD-xx живёт в `owner-architecture-decisions-v1.md`; реестр вводит `DEC-nnn` с `aliases` | AOD-25/26 — **не присвоены** и в реестр попадут как `aliases: [AOD-25 (proposed)]` | решение владельца (Q-5): продолжать AOD-нумерацию как алиас или отказаться |
+| Нумерация | AOD-xx живёт в [`owner-architecture-decisions-v1.md`](../../decisions/owner-architecture-decisions-v1.md); реестр вводит `DEC-nnn` с `aliases` | AOD-25/26 — **не присвоены** и в реестр попадут как `aliases: [AOD-25 (proposed)]` | решение владельца (Q-5): продолжать AOD-нумерацию как алиас или отказаться |
 
 Также: черновик extensibility заявляет «Out of scope: building, world generation and multiplayer (separate topics)», а сообщение 2026-11-09 включает их. Это **расхождение объёма**: более позднее сообщение шире; текст черновика не правится, запись указывает на более широкий источник.
 
@@ -106,7 +106,7 @@
 | H-2 | ODM-13 «формат контента DEFERRED до GM-20» vs пакетная модель сохранений M2 | (a) считать, что формат файла пакета остаётся отложенным, а в M2 нужен лишь минимум манифеста (b) поднять ODM-13 | (a) |
 | H-3 | «Формат M2»: M2 определён по-разному (`DEVELOPMENT_ROADMAP`, Game Track, M2-T/M2); ODM-06 PENDING | (a) подтвердить: «формат первого утверждаемого сохранения» без привязки к веху (b) дождаться ODM-06 | (a) как уточнение записи |
 | H-4 | MP-04 общий прогресс доверенных серверов vs AOD-13 (авторитет на сервере) | (a) принять как CONCEPT «потенциально, контролируемый перенос», авторитет решить при проектировании (b) исключить «общий прогресс» до решения | (a) |
-| H-5 | BLD-04 («плавные поверхности не требование») vs столп «Universal Geometry (voxels, micro-voxels, SDF, polygon mesh)» в `PROJECT_STATUS.md` 5.1 | (a) оставить столп; объём SDF/Mesh решить позже (b) обновить столп | (a); решение владельца |
+| H-5 | BLD-04 («плавные поверхности не требование») vs столп «Universal Geometry (voxels, micro-voxels, SDF, polygon mesh)» в [`PROJECT_STATUS.md`](../PROJECT_STATUS.md) 5.1 | (a) оставить столп; объём SDF/Mesh решить позже (b) обновить столп | (a); решение владельца |
 | H-6 | BLD-11 («нет глобального предела размера сооружения») vs D-K/ODM-11 (границы мира) | разные предметы (структура vs мир); показать оба владельцу при D-K | показать |
 | H-7 | RPG-05 «потенциально бесконечно» | (a) «нет заданного потолка дизайна»; (b) «неограниченная числовая точность» | (a); решение владельца |
 | H-8 | Моё завышение: OCC-01 (`Confirmed` для принципов из «контекста») | перепометить PRN-05…08 как `RECORDED`/`PROPOSED` до подтверждения | перепометить |

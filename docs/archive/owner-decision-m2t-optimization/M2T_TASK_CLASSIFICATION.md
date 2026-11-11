@@ -1,8 +1,8 @@
 # M2-T task classification (proposed)
 
-**Status:** **Proposed.** Classification of the 75 M2-T tasks of the previous graph (`docs/archive/m2-delivery-review/M2_TASK_GRAPH.md`) plus two additional rows (`PERS-06` joins M2-T; `TGAP-09` is the M2 extension of it). Generator output for the dependency column; the classification text is the reviewer's. Classification is **not** a substitute for dependency analysis: the dependencies of every task are in `M2T_OPTIMIZED_TASK_GRAPH.md`.
+**Status:** **Proposed.** Classification of the 75 M2-T tasks of the previous graph ([`docs/archive/m2-delivery-review/M2_TASK_GRAPH.md`](../m2-delivery-review/M2_TASK_GRAPH.md)) plus two additional rows (`PERS-06` joins M2-T; `TGAP-09` is the M2 extension of it). Generator output for the dependency column; the classification text is the reviewer's. Classification is **not** a substitute for dependency analysis: the dependencies of every task are in [`M2T_OPTIMIZED_TASK_GRAPH.md`](M2T_OPTIMIZED_TASK_GRAPH.md).
 
-**Definitions** (from the brief). MUST_HAVE: without the task the M2-T acceptance criteria (`M2T_ACCEPTANCE_CRITERIA.md`) cannot be met. SHOULD_HAVE: useful for quality or efficiency, not required for the first successful M2-T result. DEFERRED: not needed for M2-T. ARCHITECTURE_COMPATIBILITY_ONLY: not needed as an implementation, but a contract or boundary must exist.
+**Definitions** (from the brief). MUST_HAVE: without the task the M2-T acceptance criteria ([`M2T_ACCEPTANCE_CRITERIA.md`](M2T_ACCEPTANCE_CRITERIA.md)) cannot be met. SHOULD_HAVE: useful for quality or efficiency, not required for the first successful M2-T result. DEFERRED: not needed for M2-T. ARCHITECTURE_COMPATIBILITY_ONLY: not needed as an implementation, but a contract or boundary must exist.
 
 ## Counts (of the 75)
 
@@ -101,6 +101,6 @@ Dependency change column: "v1" side is the corrected baseline B1.
 
 ## Notes
 
-* `GOV-nn` blocking decisions are shown as in the ADG; `ODM-nn` labels are in `OWNER_DECISION_REGISTER.md`. The "Owner" column shows the owner category from `docs/archive/m2-delivery-review/M2_OWNERSHIP_MATRIX.md` (role in the documents versus owner required).
+* `GOV-nn` blocking decisions are shown as in the ADG; `ODM-nn` labels are in [`OWNER_DECISION_REGISTER.md`](OWNER_DECISION_REGISTER.md). The "Owner" column shows the owner category from [`docs/archive/m2-delivery-review/M2_OWNERSHIP_MATRIX.md`](../m2-delivery-review/M2_OWNERSHIP_MATRIX.md) (role in the documents versus owner required).
 * SHOULD_HAVE does not mean optional forever: each has a target milestone and a stated trigger.
-* No task was removed because it was inconvenient: the two deferrals (`NET-02`, `CLI-05`) are multiplayer-only and their compatibility boundaries are kept in `NET-01`, `TGAP-03a` and the client contract (`M2T_CRITICAL_PATH_REVIEW.md` section 3).
+* No task was removed because it was inconvenient: the two deferrals (`NET-02`, `CLI-05`) are multiplayer-only and their compatibility boundaries are kept in `NET-01`, `TGAP-03a` and the client contract ([`M2T_CRITICAL_PATH_REVIEW.md`](M2T_CRITICAL_PATH_REVIEW.md) section 3).

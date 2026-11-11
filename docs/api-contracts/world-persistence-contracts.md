@@ -1,9 +1,9 @@
 # Cube — World Persistence Contracts (Draft)
 
-**Status:** DRAFT 0.1.0-draft, **Proposed text, nothing approved.** Not part of the 45 numbered contracts and not assigned to a tier; P0/P1 and the Draft P-01…P-07 in `persistence-contracts.md` are untouched. This file is the **reconciliation draft for OI-4** (alignment of persistence with AOD-17 and AOD-21); how it merges with P-01…P-07 is an owner/Integration Owner decision.
-**Basis:** AOD-21 (hybrid model, load order `base generation → snapshot → journal tail`, confirmed compaction protocol), AOD-17, AOD-20, `revision-and-snapshot-semantics.md`.
+**Status:** DRAFT 0.1.0-draft, **Proposed text, nothing approved.** Not part of the 45 numbered contracts and not assigned to a tier; P0/P1 and the Draft P-01…P-07 in [`persistence-contracts.md`](persistence-contracts.md) are untouched. This file is the **reconciliation draft for OI-4** (alignment of persistence with AOD-17 and AOD-21); how it merges with P-01…P-07 is an owner/Integration Owner decision.
+**Basis:** AOD-21 (hybrid model, load order `base generation → snapshot → journal tail`, confirmed compaction protocol), AOD-17, AOD-20, [`revision-and-snapshot-semantics.md`](revision-and-snapshot-semantics.md).
 **Approved vs not approved.** The *architecture* of AOD-21 (including the compaction protocol of WP-07) is Approved. **Binary formats, the concrete storage engine or database, exact record fields, file layout, hash algorithm and numeric limits are `Proposed` or `Spike Required`** and nothing below fixes them.
-Field order as in `worldgen-contracts.md`. No language-specific signatures.
+Field order as in [`worldgen-contracts.md`](worldgen-contracts.md). No language-specific signatures.
 
 ## WP-01 WorldRecord
 

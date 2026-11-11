@@ -1,12 +1,12 @@
 # M2 ownership matrix (proposed)
 
-**Status:** **Proposed** / **Pending Owner Approval**. No owner is assigned by this document. Task ids and counts come from `M2_TASK_GRAPH.md` (generator output).
+**Status:** **Proposed** / **Pending Owner Approval**. No owner is assigned by this document. Task ids and counts come from [`M2_TASK_GRAPH.md`](M2_TASK_GRAPH.md) (generator output).
 
 ## 1. Categories used
 
 | Category | Meaning |
 |---|---|
-| **Existing Owner (role)** | the module has an owner **role** in the documents (`module-boundaries.md` A.2: Core Agent, Processing Agent, Main Agent / Integration Owner, Agents A, B, H, I). These are agent roles defined by the architecture documents; no document names a person, and no confirmation that a role is staffed exists in the repository |
+| **Existing Owner (role)** | the module has an owner **role** in the documents ([`module-boundaries.md`](../../production/module-boundaries.md) A.2: Core Agent, Processing Agent, Main Agent / Integration Owner, Agents A, B, H, I). These are agent roles defined by the architecture documents; no document names a person, and no confirmation that a role is staffed exists in the repository |
 | **Proposed Owner** | this review suggests a role; it is shown inside "Owner Required (proposed: ...)" and decides nothing |
 | **Owner Required** | the Project Owner must decide (assign a role/person, or defer in writing) |
 | **Shared Responsibility** | allowed only where a single Integration Owner (Main Agent) is named; used for three integration tasks |
@@ -20,7 +20,7 @@
 | Game tasks are absent from the ADG | confirmed: `grep` of Part C finds no gameplay task; the module grid has no gameplay module |
 | No ownership for gameplay, content, art, UI | confirmed; GOV-03's list (WorldGen, Networking, Server, Client, Engine Adapter, Import/Export, O-1, O-2) contains none of them |
 
-The refined selection of this review (`M2_TASK_GRAPH.md`) has **81 existing tasks**, of which **18 have no owner** (all M2-T): `LEG-01` and `LEG-02` are dropped (D-5 there), the rest is unchanged. It adds **38 new tasks, of which 29 need an owner decision**. Totals over the 119 tasks: Existing Owner (role) 69, Owner Required 47, Shared Responsibility 3.
+The refined selection of this review ([`M2_TASK_GRAPH.md`](M2_TASK_GRAPH.md)) has **81 existing tasks**, of which **18 have no owner** (all M2-T): `LEG-01` and `LEG-02` are dropped (D-5 there), the rest is unchanged. It adds **38 new tasks, of which 29 need an owner decision**. Totals over the 119 tasks: Existing Owner (role) 69, Owner Required 47, Shared Responsibility 3.
 
 ## 3. Matrix by module
 

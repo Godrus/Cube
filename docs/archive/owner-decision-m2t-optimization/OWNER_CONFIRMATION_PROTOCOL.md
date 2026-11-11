@@ -1,9 +1,9 @@
 # Owner decision confirmation protocol (proposed)
 
-> **Superseded 2026-11-09** by DEC-002 in `docs/decisions/decision-registry.md` (ODM-10 closed). Kept as history; the registry rules there are the only process. Acts E1-E3 remain valid evidence types; chat confirmation by the owner is now also an accepted source.
+> **Superseded 2026-11-09** by DEC-002 in [`docs/decisions/decision-registry.md`](../../decisions/decision-registry.md) (ODM-10 closed). Kept as history; the registry rules there are the only process. Acts E1-E3 remain valid evidence types; chat confirmation by the owner is now also an accepted source.
 
 **Status:** **Proposed** (`PENDING_OWNER_DECISION` as ODM-10). Nothing here is in force until the owner adopts it. It describes a mechanism; it confirms no decision.
-**Basis (verified 2026-11-08):** plan 3.3 (`docs/production/production-architecture-plan.md`): a registry entry needs a *confirmation source*, accepted sources are "(a) an owner-signed commit or pull-request approval in the repository; (b) a decision text written by the owner in the repository"; "a chat instruction alone is not a confirmation source". `owner-architecture-decisions-v1.md` section 4 instead accepts the owner's "explicit approval in chat or in a signed-off pull request" to *change* an AOD (a difference already recorded as CR-01 in GOV-01). The registry file does not exist (`docs/decisions/decision-registry.md` absent; no file named `decision-registry` is tracked).
+**Basis (verified 2026-11-08):** plan 3.3 ([`docs/production/production-architecture-plan.md`](../../production/production-architecture-plan.md)): a registry entry needs a *confirmation source*, accepted sources are "(a) an owner-signed commit or pull-request approval in the repository; (b) a decision text written by the owner in the repository"; "a chat instruction alone is not a confirmation source". [`owner-architecture-decisions-v1.md`](../../decisions/owner-architecture-decisions-v1.md) section 4 instead accepts the owner's "explicit approval in chat or in a signed-off pull request" to *change* an AOD (a difference already recorded as CR-01 in GOV-01). The registry file does not exist ([`docs/decisions/decision-registry.md`](../../decisions/decision-registry.md) absent; no file named `decision-registry` is tracked).
 
 ## 1. What the repository can and cannot prove today
 
@@ -26,7 +26,7 @@
 
 ## 3. The registry (single place for decisions)
 
-File `docs/decisions/decision-registry.md` (path to be confirmed by the owner; the plan names it, several status documents name `docs/production/decision-registry.md`). **Append-only**: an entry is never rewritten; a change is a new entry that supersedes it.
+File [`docs/decisions/decision-registry.md`](../../decisions/decision-registry.md) (path to be confirmed by the owner; the plan names it, several status documents name `docs/production/decision-registry.md`). **Append-only**: an entry is never rewritten; a change is a new entry that supersedes it.
 
 Entry fields (all mandatory unless marked optional):
 

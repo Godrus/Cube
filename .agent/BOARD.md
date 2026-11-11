@@ -1,6 +1,6 @@
 # BOARD: задачи проекта
 
-Одна строка на задачу. Статусы: `todo`, `doing`, `review`, `done`, `blocked`. Взял задачу: `doing`, свой agent-id, сообщение в чат (`cargo xtask say`). Новая работа сначала сюда; веха ещё и в `docs/roadmap/PRODUCT-ROADMAP.md`. Подробности задач: `docs/roadmap/WORK-PACKAGES.md`. Последняя правка: 2026-11-11.
+Одна строка на задачу. Статусы: `todo`, `doing`, `review`, `done`, `blocked`. Взял задачу: `doing`, свой agent-id, сообщение в чат (`cargo xtask say`). Новая работа сначала сюда; веха ещё и в [`docs/roadmap/PRODUCT-ROADMAP.md`](../docs/roadmap/PRODUCT-ROADMAP.md). Подробности задач: [`docs/roadmap/WORK-PACKAGES.md`](../docs/roadmap/WORK-PACKAGES.md). Последняя правка: 2026-11-11.
 
 ## В работе
 
@@ -12,17 +12,17 @@
 
 | ID | Задача | Статус | Источник и критерий |
 |---|---|---|---|
-| QA-01 | Посмотреть глазами то, что видели только тесты: полоса XP, клавиши R и G, броня, спуск в камеру руин (генератор v6); прогнать `walk_smoke.py --play --combat` после F-GPL-008; разобрать странную камеру (feet y -36 на старте); сыграть цикл боя человеком и поправить, что неудобно; закрыть критерии первой играбельной версии, которых нет: FPS-14 (посторонний тестер, 20+ минут), FPS-16 (замеры кадра, правки, сохранения, памяти), FPS-17 (что мешает мобильной сборке), см. `docs/roadmap/PRODUCT-ROADMAP.md` | todo | `docs/archive/handoff/NEXT-EXECUTION.md` |
-| GP-01 | Предметы на земле и контейнеры добычи (заменяют правило «потеряно при переполнении»), затем сундук/алтарь в руинах | todo | `NEXT-EXECUTION.md`, F-GPL-006 |
+| QA-01 | Посмотреть глазами то, что видели только тесты: полоса XP, клавиши R и G, броня, спуск в камеру руин (генератор v6); прогнать `walk_smoke.py --play --combat` после F-GPL-008; разобрать странную камеру (feet y -36 на старте); сыграть цикл боя человеком и поправить, что неудобно; закрыть критерии первой играбельной версии, которых нет: FPS-14 (посторонний тестер, 20+ минут), FPS-16 (замеры кадра, правки, сохранения, памяти), FPS-17 (что мешает мобильной сборке), см. [`docs/roadmap/PRODUCT-ROADMAP.md`](../docs/roadmap/PRODUCT-ROADMAP.md) | todo | [`docs/archive/handoff/NEXT-EXECUTION.md`](../docs/archive/handoff/NEXT-EXECUTION.md) |
+| GP-01 | Предметы на земле и контейнеры добычи (заменяют правило «потеряно при переполнении»), затем сундук/алтарь в руинах | todo | [`NEXT-EXECUTION.md`](../docs/archive/handoff/NEXT-EXECUTION.md), F-GPL-006 |
 | M1-A1 | Выгрузка изменённых блоков: спайк варианта 2 или 3 в тесте, сначала воспроизвести провал «просто выгрузить» | todo | WORK-PACKAGES, раздел M1-A1 |
 | M1-A3 | Замер стоимости генерации на главном потоке (таблица кадров, debug и release) | todo | WORK-PACKAGES |
 | M1-A4 | `CharacterRecord` отдельно от мира (AI-15) | todo | WORK-PACKAGES |
-| M1-A5 | Полная матрица сбоев хранилища: обрезанный хвост журнала, повреждённые файлы, несовпадение версий, заполненный диск, ошибки прав, одновременные писатели, повторные сбои, миграция | todo | `docs/api-contracts/PROVISIONAL_CONTRACT_REVIEW.md`, прежний уровень «M3 и позже» |
-| PRES-01 | Сохранность git (ждёт согласия владельца на push): `spike/p-world` существует только локально (27 коммитов); локальная `dev` на 22 коммита впереди `origin/dev`; локальные ветки `prod/android-build`, `prod/android-spike`, `prod/chamber-guard`, `prod/dungeon-v6`, `prod/ruin-cache`, `prod/touch-controls`, `prod/weapons-craft`, `prod/xp-levels` не на сервере; пометить тегами `archive/<имя>` вершины веток, на которые ссылаются документы (`docs/architecture-roadmap-v1`, `spike/*`) | todo | `docs/archive/owner-decision-m2t-optimization/DOCUMENTATION_INTEGRATION_PLAN.md`, замечание I-5 |
-| DOC-05 | Расширить `cargo xtask docscheck`: все id решений (DEC, AOD, OAM) в документах существуют в реестре; контракт со зрелостью Frozen обязан быть Owner-Approved; запись CONFIRMED содержит доказательство; запрет повторного использования id | todo | `docs/archive/audit/Independent-Production-Audit.md` D-04, `docs/archive/owner-decision-m2t-optimization/OWNER_CONFIRMATION_PROTOCOL.md` раздел 6 |
-| PROV-01 | Проверить условия истечения временных контрактов TC-01..TC-11 (например TC-08 истекает при приёмке M2, TC-05 при втором провайдере или проверке на устройстве, TC-09 при игровых правилах M3 или мультиплеере) и вынести результат владельцу | todo | `docs/api-contracts/M2_MINIMUM_CONTRACTS.md` |
+| M1-A5 | Полная матрица сбоев хранилища: обрезанный хвост журнала, повреждённые файлы, несовпадение версий, заполненный диск, ошибки прав, одновременные писатели, повторные сбои, миграция | todo | [`docs/api-contracts/PROVISIONAL_CONTRACT_REVIEW.md`](../docs/api-contracts/PROVISIONAL_CONTRACT_REVIEW.md), прежний уровень «M3 и позже» |
+| PRES-01 | Сохранность git (ждёт согласия владельца на push): `spike/p-world` существует только локально (27 коммитов); локальная `dev` на 22 коммита впереди `origin/dev`; локальные ветки `prod/android-build`, `prod/android-spike`, `prod/chamber-guard`, `prod/dungeon-v6`, `prod/ruin-cache`, `prod/touch-controls`, `prod/weapons-craft`, `prod/xp-levels` не на сервере; пометить тегами `archive/<имя>` вершины веток, на которые ссылаются документы (`docs/architecture-roadmap-v1`, `spike/*`) | todo | [`docs/archive/owner-decision-m2t-optimization/DOCUMENTATION_INTEGRATION_PLAN.md`](../docs/archive/owner-decision-m2t-optimization/DOCUMENTATION_INTEGRATION_PLAN.md), замечание I-5 |
+| DOC-05 | Расширить `cargo xtask docscheck`: все id решений (DEC, AOD, OAM) в документах существуют в реестре; контракт со зрелостью Frozen обязан быть Owner-Approved; запись CONFIRMED содержит доказательство; запрет повторного использования id | todo | [`docs/archive/audit/Independent-Production-Audit.md`](../docs/archive/audit/Independent-Production-Audit.md) D-04, [`docs/archive/owner-decision-m2t-optimization/OWNER_CONFIRMATION_PROTOCOL.md`](../docs/archive/owner-decision-m2t-optimization/OWNER_CONFIRMATION_PROTOCOL.md) раздел 6 |
+| PROV-01 | Проверить условия истечения временных контрактов TC-01..TC-11 (например TC-08 истекает при приёмке M2, TC-05 при втором провайдере или проверке на устройстве, TC-09 при игровых правилах M3 или мультиплеере) и вынести результат владельцу | todo | [`docs/api-contracts/M2_MINIMUM_CONTRACTS.md`](../docs/api-contracts/M2_MINIMUM_CONTRACTS.md) |
 
-Таблицы ADG в `docs/production/module-boundaries.md` названы генерируемыми, но генератора в репозитории нет: источником считать сам markdown и править его вручную. Не написана таблица обязательных предшественников ворот по стадиям (какие ворота должны предшествовать каким: например G5 после G4 или параллельно), её должен составить интегратор и подтвердить владелец.
+Таблицы ADG в [`docs/production/module-boundaries.md`](../docs/production/module-boundaries.md) названы генерируемыми, но генератора в репозитории нет: источником считать сам markdown и править его вручную. Не написана таблица обязательных предшественников ворот по стадиям (какие ворота должны предшествовать каким: например G5 после G4 или параллельно), её должен составить интегратор и подтвердить владелец.
 
 Независимые инженерные задачи без владельца (из старого handoff, актуальность проверять по реестру и ADG перед началом): PERS-06..09; WGEN-02..04 (закрыты GOV-21 и GOV-11); CLI-03, CLI-04, ADP-01; TD-2 (порт проверки нужен слой, аддитивное изменение API со снимком); TD-1 (очередь доставки наблюдателей, только с моделями loom). Проверять условия старта и слияния ADG перед каждой.
 
@@ -45,9 +45,9 @@
 - Владельцы для WorldGen, Client Runtime, Engine Adapter, Server Runtime, Networking, владелец и модель геймплея.
 - Рендерер по умолчанию (GOV-13) и GOV-25 (история).
 - Формат данных контента (старый ODM-13): решить до роста объёма контента.
-- Выбор объёма вертикального среза (минимум или рекомендуемый, мобильное внутри или нет, кооператив отдельным спайком): см. `docs/roadmap/PRODUCT-ROADMAP.md`.
+- Выбор объёма вертикального среза (минимум или рекомендуемый, мобильное внутри или нет, кооператив отдельным спайком): см. [`docs/roadmap/PRODUCT-ROADMAP.md`](../docs/roadmap/PRODUCT-ROADMAP.md).
 - Модуль правил игры или отдельный игровой crate вместо `cube-app` (ODM-05, изменение ADG).
-- Напряжения между решениями, которые владелец не снимал: общий прогресс доверенных серверов и серверная авторитетность (H-4); объём SDF и мешей против столпа Universal Geometry (H-5); смысл «бесконечной прогрессии» (H-7). Подробности: `docs/archive/governance/historical-decisions-reconciliation.md`, раздел 6.
+- Напряжения между решениями, которые владелец не снимал: общий прогресс доверенных серверов и серверная авторитетность (H-4); объём SDF и мешей против столпа Universal Geometry (H-5); смысл «бесконечной прогрессии» (H-7). Подробности: [`docs/archive/governance/historical-decisions-reconciliation.md`](../docs/archive/governance/historical-decisions-reconciliation.md), раздел 6.
 - Собственная лицензия проекта (DEC-070, отложено): файла лицензии в репозитории нет.
 
 ## Недавно сделано (последние 10)
@@ -60,7 +60,7 @@
 | CLI-TOUCH | Сенсорное управление для телефонов | `28330ad` |
 | AND-EMU | Запуск в эмуляторе Android (x86_64, Vulkan mobile) | `d9cacbb` |
 
-Работы без плана (телеметрия и краш-отчёты, юридическое и магазины, локализация, античит, онлайн-сервисы) описаны в конце `docs/roadmap/PRODUCT-ROADMAP.md`: нужны владелец и план до Closed Alpha. ## Упрощения прототипа (каждое с условием замены)
+Работы без плана (телеметрия и краш-отчёты, юридическое и магазины, локализация, античит, онлайн-сервисы) описаны в конце [`docs/roadmap/PRODUCT-ROADMAP.md`](../docs/roadmap/PRODUCT-ROADMAP.md): нужны владелец и план до Closed Alpha. ## Упрощения прототипа (каждое с условием замены)
 
 | Что упрощено | Нельзя ломать | Заменить когда |
 |---|---|---|
@@ -74,4 +74,4 @@
 
 Эксперименты: спайки `spike/p-world`, `spike/pers-durability`, `spike/rust-godot`, `spike/rust-world-generation` (код и отчёты на ветках, частично в `docs/research/`), в продукт не переносятся без решения владельца; `feat/voxel-character-proto` отложен.
 
-Дальше задачи M5 и позже: `docs/roadmap/PRODUCT-ROADMAP.md`, в BOARD они попадают, когда их берут в работу.
+Дальше задачи M5 и позже: [`docs/roadmap/PRODUCT-ROADMAP.md`](../docs/roadmap/PRODUCT-ROADMAP.md), в BOARD они попадают, когда их берут в работу.

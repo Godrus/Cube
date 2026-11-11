@@ -1,6 +1,6 @@
 # CI Specification (GOV-05)
 
-**Status:** decided under delegation, DEC-073 in `docs/decisions/decision-registry.md`. Tool pins follow DEC-068. The running implementation is `.github/workflows/ci.yml` (GOV-06).
+**Status:** decided under delegation, DEC-073 in [`docs/decisions/decision-registry.md`](../decisions/decision-registry.md). Tool pins follow DEC-068. The running implementation is `.github/workflows/ci.yml` (GOV-06).
 
 ## 1. Required checks
 
@@ -24,7 +24,7 @@ Later additions (not required yet): public-API snapshots of `cube-core` and `cub
 
 1. A workflow run on the skeleton shows every job green.
 2. Seeded failures show red for each check: a format error (`fmt`), a clippy warning (`clippy`), a failing test (`test`), a forbidden dependency (`archcheck`, also covered by the xtask self-tests), a forbidden licence (`deny`).
-3. Branch protection lists the checks above as required status checks. **Enabling it is a GitHub administration act**; agents have no GitHub API access in the current environment, so this evidence needs the repository owner (see the PS-0 status in `ps-0-exit-checklist.md`).
+3. Branch protection lists the checks above as required status checks. **Enabling it is a GitHub administration act**; agents have no GitHub API access in the current environment, so this evidence needs the repository owner (see the PS-0 status in [`ps-0-exit-checklist.md`](ps-0-exit-checklist.md)).
 
 ## 4. Branches
 

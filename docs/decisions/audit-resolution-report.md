@@ -18,12 +18,12 @@ Format per item: Original Finding · Approved Resolution · Updated Document · 
 | 3 | No Composite owner | **Composite Agent** | same | operations as commands through `IEditingService` | Data-model placement: **ACR-003** |
 | 4 | No Resampling/Resolution owner | **Resolution Agent** | same | Resampling and Refinement are L5 tools | transition algorithm Open |
 | 5 | Processing in the wrong place in the pipeline (stage 8) | Processing is a base layer (§3.1 layer 2) | QA §5 (Processing = stage 2), Spec §22 | all async-dependent modules wait for Processing contracts only, not the whole implementation (contracts first) | none |
-| 6 | History ↔ Persistence cycle | Independent abstractions in a lower layer (§3.2) | QA §1.2 notes 2–3; `editing-contracts.md` §0 | `IDeltaStore`, `ISnapshotStore`, `ITransactionObserver`, `GeometryDelta`, `Checkpoint` in L2; neither module imports the other | durability ordering of observer vs ack (E-12), who owns the operation journal (**O-3**) |
+| 6 | History ↔ Persistence cycle | Independent abstractions in a lower layer (§3.2) | QA §1.2 notes 2–3; [`editing-contracts.md`](../api-contracts/editing-contracts.md) §0 | `IDeltaStore`, `ISnapshotStore`, `ITransactionObserver`, `GeometryDelta`, `Checkpoint` in L2; neither module imports the other | durability ordering of observer vs ack (E-12), who owns the operation journal (**O-3**) |
 | 7 | Orchestration dependencies insufficient / inconsistent | "Clarify in contracts" (§22) | QA §1.2 note 1, §1.3 rows 4–7; Task Pack Agent A | Orchestration: Core, Processing, API direct; Backends and History as abstractions only | nested / async transactions Open (E-04) |
 | 8 | Task Pack assumed existing Core | Fix the order (§22) | Task Pack §13 and §2.5; Agent H wording | no agent may assume Core; Phase 2 is a sequential gate | Core brick export view must be defined by Core Agent (C-08) |
 | 9 | Missing contracts: Transform, Bounds, Region, ModifierStack, Junction, RefinementRegion, BrickStorage, Delta, Checkpoint, AuthorizationContext, OperationId | "Add" (§22) | `api-contracts/` C-04, C-05, C-06, E-08, C-13, C-12, C-08, E-09, E-10, E-02, C-17 | all drafted at specified level; each has named Open decisions | not approved; ModifierStack evaluation has no owner (**O-2**) |
-| 10 | RevisionToken semantics undefined | Develop and agree (§22, §7.2) | `revision-and-snapshot-semantics.md` | proposal covers levels, increments, snapshot cut, atomic commit, conflicts, stale rejection, History/Persistence/Networking | **proposal only**; OD-R1…R8 |
-| 11 | No network architecture | Networking boundary (§20) | `editing-contracts.md` E-13; QA §1 L9, §5 stage 11 | boundary and server-authority semantics specified; no protocol | Networking Adapter has **no owner (O-3)**; protocol/transport Open |
+| 10 | RevisionToken semantics undefined | Develop and agree (§22, §7.2) | [`revision-and-snapshot-semantics.md`](../api-contracts/revision-and-snapshot-semantics.md) | proposal covers levels, increments, snapshot cut, atomic commit, conflicts, stale rejection, History/Persistence/Networking | **proposal only**; OD-R1…R8 |
+| 11 | No network architecture | Networking boundary (§20) | [`editing-contracts.md`](../api-contracts/editing-contracts.md) E-13; QA §1 L9, §5 stage 11 | boundary and server-authority semantics specified; no protocol | Networking Adapter has **no owner (O-3)**; protocol/transport Open |
 
 Additional contradictions found while aligning the documents (not in the first audit):
 
@@ -32,7 +32,7 @@ Additional contradictions found while aligning the documents (not in the first a
 | 12 | QA Pack §2 gave `RevisionToken` and `DirtyRegion` to "Core / Processing" (two owners) | Single owner Core (ACR-001) |
 | 13 | AU-1.0 §23 lists `Dirty Region`, and implicitly `OperationId`/`RevisionToken`, under Processing/Editing, but Core must track dirty inside Bricks and Core may not depend on them | Foundation types in Core (ACR-001) |
 | 14 | AU-1.0 §23 lists Composite Part and Assembly Graph under Geometry Core while §2 gives Composite its own agent | Data model in Core, operations in Composite (ACR-003, pending confirmation) |
-| 15 | QA Pack stage 1 asked Core for "serialization primitives", Task Pack H said "reuse Core serialization interfaces", AU-1.0 §23 lists Brick Serialization under Persistence | Core exports/imports views; Persistence owns format (updated in QA, Task Pack H, `persistence-contracts.md`) |
+| 15 | QA Pack stage 1 asked Core for "serialization primitives", Task Pack H said "reuse Core serialization interfaces", AU-1.0 §23 lists Brick Serialization under Persistence | Core exports/imports views; Persistence owns format (updated in QA, Task Pack H, [`persistence-contracts.md`](../api-contracts/persistence-contracts.md)) |
 | 16 | QA matrix listed QA as Required dependency of all modules, contradicting "QA is not a runtime dependency" | Clarified as test-time only |
 | 17 | Spec §16 module list omitted Resampling and Composite | Updated |
 | 18 | Task Pack required History for Sculpting/Boolean (old matrix) | Removed; History subscribes via `ITransactionObserver` |
@@ -57,11 +57,11 @@ QA Pack §1 (grid, provider/consumer/interface/direction/ownership/lifetime/revi
 
 # D. API Contract Matrix
 
-`docs/api-contracts/README.md` §3. 45 contracts + 3 interface boundaries (PR-09, E-13, P-09) + 2 unnumbered storage ports; all Draft; 5 tool-level contracts (BooleanPolicy, Sculpt/Brush, Resample/Refine ops, Composite ops, History interface) are outside this pass and marked Missing.
+[`docs/api-contracts/README.md`](../api-contracts/README.md) §3. 45 contracts + 3 interface boundaries (PR-09, E-13, P-09) + 2 unnumbered storage ports; all Draft; 5 tool-level contracts (BooleanPolicy, Sculpt/Brush, Resample/Refine ops, Composite ops, History interface) are outside this pass and marked Missing.
 
 # E. Revision & Snapshot Semantics
 
-`docs/api-contracts/revision-and-snapshot-semantics.md`. Key proposed rules: monotonic scoped counters with Epoch; exactly +1 per scope per commit; Region revision derived from brick stamps; commit validation at brick granularity under a short Asset commit gate; snapshots are consistent cuts of COW pins; publish validation is atomic with respect to commits; undo is a forward commit; recovery bumps Epoch; client predictions live in a separate epoch.
+[`docs/api-contracts/revision-and-snapshot-semantics.md`](../api-contracts/revision-and-snapshot-semantics.md). Key proposed rules: monotonic scoped counters with Epoch; exactly +1 per scope per commit; Region revision derived from brick stamps; commit validation at brick granularity under a short Asset commit gate; snapshots are consistent cuts of COW pins; publish validation is atomic with respect to commits; undo is a forward commit; recovery bumps Epoch; client predictions live in a separate epoch.
 
 # F. Updated Agent Task Pack
 
@@ -109,7 +109,7 @@ These do not change an approved decision; they place contracts where AU-1.0's ow
 
 ## ACR-004 — System-commit boundary for procedural generation
 
-**Status: PENDING** (prepared 2026-11-05 after the owner approved AOD-20; **not approved, not rejected**; AU-1.0, ACR-001/002/003 and all P0/P1 contracts are not edited). Draft contracts that elaborate it: `docs/api-contracts/worldgen-contracts.md`, `system-commit-contracts.md`, `world-persistence-contracts.md`, `server-runtime-contracts.md` (all Draft).
+**Status: PENDING** (prepared 2026-11-05 after the owner approved AOD-20; **not approved, not rejected**; AU-1.0, ACR-001/002/003 and all P0/P1 contracts are not edited). Draft contracts that elaborate it: [`docs/api-contracts/worldgen-contracts.md`](../api-contracts/worldgen-contracts.md), [`system-commit-contracts.md`](../api-contracts/system-commit-contracts.md), [`world-persistence-contracts.md`](../api-contracts/world-persistence-contracts.md), [`server-runtime-contracts.md`](../api-contracts/server-runtime-contracts.md) (all Draft).
 
 ### A. Architectural decision (already made; not decided by this ACR)
 
@@ -117,7 +117,7 @@ AOD-20 (Approved, 2026-11-05, variant C3): procedural generation creates the bas
 
 ### B. Proposal: a new public Core port (needs approval)
 
-A narrow **system-commit port** next to the commit primitive (materialise, evict, restore), callable only by the WorldGen Materialiser and the persistence loader, atomic and idempotent, never exposed to the network; plus a **WorldGen module** in the layer grid that depends on Core value types and ports only. Contract draft: `system-commit-contracts.md` SC-10 and `worldgen-contracts.md`.
+A narrow **system-commit port** next to the commit primitive (materialise, evict, restore), callable only by the WorldGen Materialiser and the persistence loader, atomic and idempotent, never exposed to the network; plus a **WorldGen module** in the layer grid that depends on Core value types and ports only. Contract draft: [`system-commit-contracts.md`](../api-contracts/system-commit-contracts.md) SC-10 and [`worldgen-contracts.md`](../api-contracts/worldgen-contracts.md).
 
 ### C. Proposal: OperationId origin (needs approval)
 
@@ -125,7 +125,7 @@ A narrow **system-commit port** next to the commit primitive (materialise, evict
 
 ### D. Open questions: revision semantics (B-6, not decided)
 
-Owner review package: `docs/decisions/acr-004-owner-review.md` (parts A to F with acceptance criteria, recommended statuses and a response sheet; ACR-004 stays Pending). The revision model is OAM-10 (`Proposed / Requires Owner Approval`; recommended: the same asset/layer scopes with `ActorKind::System`, no separate generation epoch); the Core layer model is OAM-09 (`Recommended / Requires Owner Approval`: C1 first baseline, C2 Deferred). Still open: whether a system commit advances the same revision scope as an edit or a separate generation epoch (options R-A, R-B, R-C); RevisionToken width and commit algorithm; whether `Evict` is a commit; new `ChangeType` values for generated and restored data (C-18); whether and how long system commits are audit-logged.
+Owner review package: [`docs/decisions/acr-004-owner-review.md`](acr-004-owner-review.md) (parts A to F with acceptance criteria, recommended statuses and a response sheet; ACR-004 stays Pending). The revision model is OAM-10 (`Proposed / Requires Owner Approval`; recommended: the same asset/layer scopes with `ActorKind::System`, no separate generation epoch); the Core layer model is OAM-09 (`Recommended / Requires Owner Approval`: C1 first baseline, C2 Deferred). Still open: whether a system commit advances the same revision scope as an edit or a separate generation epoch (options R-A, R-B, R-C); RevisionToken width and commit algorithm; whether `Evict` is a commit; new `ChangeType` values for generated and restored data (C-18); whether and how long system commits are audit-logged.
 
 ### E. Contracts not approved
 
@@ -144,7 +144,7 @@ The four Draft documents above (WG-01…WG-10, SC-01…SC-10, WP-01…WP-10, SR-
 
 # H. Remaining Open Decisions
 
-**Update 2026-11-05 (owner decisions AOD-20…24, `owner-architecture-decisions-v1.md` section 5):** the WorldGen/Core direction, the persistence model, the embedded-server model and the licence policy are Approved; the missing-sources handling is Conditionally Approved. None of them closes a blocker or approves a contract. ACR-004 was prepared (Pending). O-3 (networking owner and protocol), O-6 (sources) and the ACRs below remain open.
+**Update 2026-11-05 (owner decisions AOD-20…24, [`owner-architecture-decisions-v1.md`](owner-architecture-decisions-v1.md) section 5):** the WorldGen/Core direction, the persistence model, the embedded-server model and the licence policy are Approved; the missing-sources handling is Conditionally Approved. None of them closes a blocker or approves a contract. ACR-004 was prepared (Pending). O-3 (networking owner and protocol), O-6 (sources) and the ACRs below remain open.
 
 ## H.1 Requiring the project owner
 
@@ -157,7 +157,7 @@ The four Draft documents above (WG-01…WG-10, SC-01…SC-10, WP-01…WP-10, SR-
 | O-3 | Owner of Networking Adapter, operation journal, and the protocol decision | multiplayer cannot be validated |
 | O-4 | Owner of Import/Export adapters | AU-1.0 §17 |
 | O-5 | Owner of Engine Integration Adapters | blocked also by O-0b |
-| O-6 | Add Voxel Architecture v1.0, GDD/TDD v0.3 and the Geometry Processing Specification to the repository. (Architecture Update v1.0 is now saved as `docs/decisions/architecture-update-v1.0.md`.) | cannot update or cross-check them otherwise |
+| O-6 | Add Voxel Architecture v1.0, GDD/TDD v0.3 and the Geometry Processing Specification to the repository. (Architecture Update v1.0 is now saved as [`docs/decisions/architecture-update-v1.0.md`](architecture-update-v1.0.md).) | cannot update or cross-check them otherwise |
 | ACR-001/002/003 | approve or reject | placement of contracts |
 | ACR-004 | approve or reject (prepared 2026-11-05, Pending) | system-commit port, system OperationId, WorldGen module |
 
@@ -206,7 +206,7 @@ Each contract file lists its own Open items.
 | ID | Blocker | State | Closes when |
 |---|---|---|---|
 | B-1 | GDD/TDD v0.3, Voxel Architecture v1.0, Geometry Processing Specification absent from repository | **Open** (AOD-24 allows a limited temporary baseline; the documents still block final P0/P1 approval) | files added; Voxel Architecture and GDD/TDD sections then updated and cross-checked |
-| B-2 | Programming language not chosen (O-0a) | **Decided: Rust** (owner decision, `docs/decisions/owner-decision-rust-godot.md`; engine: Godot 4.x as first client only) | decision recorded; spike on branch `spike/rust-godot` |
+| B-2 | Programming language not chosen (O-0a) | **Decided: Rust** (owner decision, [`docs/decisions/owner-decision-rust-godot.md`](owner-decision-rust-godot.md); engine: Godot 4.x as first client only) | decision recorded; spike on branch `spike/rust-godot` |
 | B-3 | ACR-001/002/003 undecided (ACR-004 added as Pending on 2026-11-05) | **Open** | owner approves or rejects each |
 | B-4 | P0 contracts unapproved | **Open** | Integration Owner approval after B-2, B-3 |
 | B-5 | No owner for Networking, Engine Adapters, Import/Export, derived-data providers, modifier evaluation (O-1…O-5) | **Open** (not blocking Core/Processing) | owners assigned or deferred explicitly |
@@ -221,7 +221,7 @@ Each contract file lists its own Open items.
 
 # L. P0 / P1 Readiness
 
-Tier definitions are the single set in `docs/api-contracts/README.md` §3 (also used by the QA Pack stage gates and the Task Pack): **P0** gates Stage 1 (Core); **P1** gates Stages 2–5 (Processing, Editing API, Orchestration, Backends); **P2** gates the affected module in Stages 6–10; **P3** covers interface boundaries and unwritten tool contracts.
+Tier definitions are the single set in [`docs/api-contracts/README.md`](../api-contracts/README.md) §3 (also used by the QA Pack stage gates and the Task Pack): **P0** gates Stage 1 (Core); **P1** gates Stages 2–5 (Processing, Editing API, Orchestration, Backends); **P2** gates the affected module in Stages 6–10; **P3** covers interface boundaries and unwritten tool contracts.
 
 | Tier | Contracts | Specified | Approved | Ready to implement against? |
 |---|---|---|---|---|

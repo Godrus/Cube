@@ -1,6 +1,6 @@
 # Release Criteria
 
-> **Нумерация:** M0..M8 в этом файле это вехи готовности к релизу (Internal Alpha, Closed Alpha, Beta, RC, 1.0), а не продуктовые M0..M12 из `docs/roadmap/PRODUCT-ROADMAP.md`. Сводка пути к релизу: последний раздел того файла.
+> **Нумерация:** M0..M8 в этом файле это вехи готовности к релизу (Internal Alpha, Closed Alpha, Beta, RC, 1.0), а не продуктовые M0..M12 из [`docs/roadmap/PRODUCT-ROADMAP.md`](roadmap/PRODUCT-ROADMAP.md). Сводка пути к релизу: последний раздел того файла.
 
 **Status:** **Proposed.** No milestone is declared reached. A milestone is reached only when the owner records acceptance of its evidence. Words like "stable", "optimised enough", "ready" are not criteria; each item below is a check with a pass condition and evidence.
 
@@ -145,4 +145,4 @@ Each row: **ID | Check | Pass condition | Evidence**.
 
 1. The agent assembles an evidence list mapping each criterion to a reference.
 2. The Integration Owner reviews it; missing evidence keeps the milestone **Not reached**.
-3. The owner records acceptance in the decision registry. Only then is the milestone shown as Reached (in `.agent/BOARD.md` and `docs/FUNCTIONAL-ROADMAP.md`).
+3. The owner records acceptance in the decision registry. Only then is the milestone shown as Reached (in [`.agent/BOARD.md`](../.agent/BOARD.md) and [`docs/FUNCTIONAL-ROADMAP.md`](FUNCTIONAL-ROADMAP.md)).

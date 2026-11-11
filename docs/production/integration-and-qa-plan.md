@@ -1,6 +1,6 @@
 # Cube Integration and QA Plan v2 (proposal)
 
-**Status:** **Proposed**; nothing approved. Integration is **one module at a time**, only after its task acceptance criteria and the conditions in the ADG (`module-boundaries.md` parts C and D). Stage names are `PS-n`; this document restates no dependency.
+**Status:** **Proposed**; nothing approved. Integration is **one module at a time**, only after its task acceptance criteria and the conditions in the ADG ([`module-boundaries.md`](module-boundaries.md) parts C and D). Stage names are `PS-n`; this document restates no dependency.
 
 ## 1. PR and branch strategy
 
@@ -24,7 +24,7 @@
 | **CI specification** (what must run, required statuses, tool pins, pass conditions) | GOV-05 | an Owner-Approved document |
 | **CI implementation** (a running pipeline) | GOV-06 | workflow-run URL: green on the empty skeleton, red on seeded failures (format error, clippy warning, failing test, forbidden dependency, forbidden `use`, forbidden licence); **branch protection on `master` lists every check below as a required status check** (API output attached) |
 
-Required checks (specification): `cargo fmt --check`; `clippy -D warnings`; `cargo test` (workspace); `cargo deny` (licence allow-list set by the owner, advisories); `xtask archcheck` (crate graph equals ADG part B; `use`-level scan; mutation-boundary rules; no `std::process`, no `OS.execute` outside tests/tools; no floating point in authoritative or world-defining code per D-T); public-API snapshots for `cube-core` and `cube-editing-api`; contract-id check against `docs/api-contracts/README.md`; benchmarks within thresholds (desktop). **A check that is only described is not a gate:** each check counts only after it is registered as a required status check and has shown red on a seeded failure (`archcheck` included: XT-01, XT-02). **No check requires a device or an Android emulator.** Nightly jobs: loom, stress, soak.
+Required checks (specification): `cargo fmt --check`; `clippy -D warnings`; `cargo test` (workspace); `cargo deny` (licence allow-list set by the owner, advisories); `xtask archcheck` (crate graph equals ADG part B; `use`-level scan; mutation-boundary rules; no `std::process`, no `OS.execute` outside tests/tools; no floating point in authoritative or world-defining code per D-T); public-API snapshots for `cube-core` and `cube-editing-api`; contract-id check against [`docs/api-contracts/README.md`](../api-contracts/README.md); benchmarks within thresholds (desktop). **A check that is only described is not a gate:** each check counts only after it is registered as a required status check and has shown red on a seeded failure (`archcheck` included: XT-01, XT-02). **No check requires a device or an Android emulator.** Nightly jobs: loom, stress, soak.
 
 ## 4. Spike tests ported as acceptance cases
 
@@ -100,4 +100,4 @@ Physical Android ARM64 matrix (low, mid, high) and an iPhone; scripted runs with
 
 ## 12. Stage exit evidence (QA view)
 
-Each stage exit is its gate `Gn` (ADG part D). The evidence list per stage is in `implementation-roadmap.md` section 3 (tests and acceptance), restricted to what the CI host can show unless the row is a device gate.
+Each stage exit is its gate `Gn` (ADG part D). The evidence list per stage is in [`implementation-roadmap.md`](implementation-roadmap.md) section 3 (tests and acceptance), restricted to what the CI host can show unless the row is a device gate.

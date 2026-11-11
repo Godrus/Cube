@@ -1,17 +1,17 @@
 # Cube Production Architecture Plan v2 (proposal)
 
-**Status:** **Proposed**. Revision v2.1 (final consistency review) of `production-architecture-plan.md`. It is not a normative document and approves nothing: no contract, ACR, AOD, blocker closure, merge or start of implementation. All owner decisions it needs are listed in `architecture-blocker-decisions.md`; nothing in this plan becomes a decision without a decision-registry entry made by the project owner (section 3.3).
+**Status:** **Proposed**. Revision v2.1 (final consistency review) of `production-architecture-plan.md`. It is not a normative document and approves nothing: no contract, ACR, AOD, blocker closure, merge or start of implementation. All owner decisions it needs are listed in [`architecture-blocker-decisions.md`](architecture-blocker-decisions.md); nothing in this plan becomes a decision without a decision-registry entry made by the project owner (section 3.3).
 **Location:** prepared in a scratchpad workspace outside the repository; proposed repository path `docs/production/`.
-**Document set (all v2):** `production-architecture-plan.md` (this), `module-boundaries.md` (contains the **Authoritative Dependency Graph, ADG**), `implementation-roadmap.md`, `agent-task-breakdown.md`, `architecture-blocker-decisions.md`, `integration-and-qa-plan.md`, `production-plan-revision-v2-report.md`.
-**Single-source rule:** stage numbers, task ids, task dependencies and gate conditions are defined **only** in the ADG (`module-boundaries.md`, part C). Every other document refers to the ADG and never restates a dependency. The ADG is generated from one data file and machine-checked (acyclic, no unknown nodes, no stage inversion, one owner per crate); the check result is in the report.
+**Document set (all v2):** `production-architecture-plan.md` (this), [`module-boundaries.md`](module-boundaries.md) (contains the **Authoritative Dependency Graph, ADG**), [`implementation-roadmap.md`](implementation-roadmap.md), [`agent-task-breakdown.md`](agent-task-breakdown.md), [`architecture-blocker-decisions.md`](architecture-blocker-decisions.md), [`integration-and-qa-plan.md`](integration-and-qa-plan.md), [`production-plan-revision-v2-report.md`](../archive/production/production-plan-revision-v2-report.md).
+**Single-source rule:** stage numbers, task ids, task dependencies and gate conditions are defined **only** in the ADG ([`module-boundaries.md`](module-boundaries.md), part C). Every other document refers to the ADG and never restates a dependency. The ADG is generated from one data file and machine-checked (acyclic, no unknown nodes, no stage inversion, one owner per crate); the check result is in the report.
 **Evidence labels:** *Fact* (checked in code or documents), *INFERENCE*, *Proposal*.
 
 ## 1. Conventions and canonical identifiers
 
 * **Canonical stage names are `PS-0 … PS-14` (Production Stage).** A bare "Stage 11" or "Gate 7" is not used anywhere in v2; every reference names its system: `PS-n` (this plan), `QA-Pack stage n`, `Roadmap-v1 gate n`.
-* **Gate nodes** `G0 … G14` close the stages `PS-0 … PS-14` (membership and conditions: ADG parts C and D). **Device gates** `DG-1…DG-3` are separate tasks for physical-device validation (`implementation-roadmap.md` section 4). **Revalidation gates** `RG-1` (Voxel Architecture) and `RG-2` (Geometry Processing Specification) are external-input gates (section 4.4).
+* **Gate nodes** `G0 … G14` close the stages `PS-0 … PS-14` (membership and conditions: ADG parts C and D). **Device gates** `DG-1…DG-3` are separate tasks for physical-device validation ([`implementation-roadmap.md`](implementation-roadmap.md) section 4). **Revalidation gates** `RG-1` (Voxel Architecture) and `RG-2` (Geometry Processing Specification) are external-input gates (section 4.4).
 * **Edge kinds in the ADG:** `S` = *start-after* (the dependency's public interface is frozen, work may begin in a branch); `I` = *merge-after* (the dependency is merged and accepted). A task merges only after the union of its `S` and `I` dependencies.
-* **Contract ids:** C-xx (Core), PR-xx (Processing), E-xx (Editing), P-xx (Persistence), WG-xx, SC-xx, WP-xx, SR-xx (Draft additions). Decision ids: `D-…` in `architecture-blocker-decisions.md`.
+* **Contract ids:** C-xx (Core), PR-xx (Processing), E-xx (Editing), P-xx (Persistence), WG-xx, SC-xx, WP-xx, SR-xx (Draft additions). Decision ids: `D-…` in [`architecture-blocker-decisions.md`](architecture-blocker-decisions.md).
 
 ## 2. Canonical stage system and mapping from the old numberings
 
@@ -68,7 +68,7 @@
 | Roadmap-v1 gate 9 (MMO Systems) | | **outside this plan** |
 | Roadmap-v1 gate 10 (Mobile Production) | | PS-14 and DG-2, DG-3 |
 
-`docs/architecture/roadmap-v1.md` and the QA Pack are existing normative-candidate documents and are not edited by this revision; if the owner adopts the canonical names, those two documents receive a one-line pointer to this mapping.
+[`docs/architecture/roadmap-v1.md`](../architecture/roadmap-v1.md) and the QA Pack are existing normative-candidate documents and are not edited by this revision; if the owner adopts the canonical names, those two documents receive a one-line pointer to this mapping.
 
 ## 3. Contract Status Model and Decision Registry
 
@@ -78,7 +78,7 @@ A contract has an **approval status** and, independently, a **maturity status**.
 
 **Approval axis:** `Proposed` -> (`Provisional`) -> `Owner-Approved`; terminal states `Rejected`, `Superseded`.
 **Maturity axis:** `Implemented` -> `Frozen`. A contract that is only `Provisional` may be `Implemented` (written "Implemented under Provisional approval") but can never be `Frozen`: its approval status must first change to `Owner-Approved` through its revalidation gate and an owner registry entry.
-The legacy words of `docs/api-contracts/README.md` map as: `Draft` = `Proposed`; `Draft+OD` = `Proposed` with open decisions; `Approved` = `Owner-Approved`.
+The legacy words of [`docs/api-contracts/README.md`](../api-contracts/README.md) map as: `Draft` = `Proposed`; `Draft+OD` = `Proposed` with open decisions; `Approved` = `Owner-Approved`.
 
 | Status | Axis | Assigned by | Evidence required | Allowed | Restrictions |
 |---|---|---|---|---|---|
@@ -98,7 +98,7 @@ Every Provisional contract needs: (1) **basis** of the temporary decision; (2) *
 
 ### 3.3 Decision registry
 
-A single file `docs/decisions/decision-registry.md` records every decision: id, aliases, level (`CONCEPT` or `TECHNICAL`), status (`PROPOSED`, `RECORDED`, `CONFIRMED`, `DEFERRED`, `SUPERSEDED`, `REJECTED`), exact statement, dates (`decided_on`, `recorded_on`, `confirmed_on`, kept apart), source and its availability, and superseded ids. The recording rules are those of DEC-002 in that file (owner instruction of 2026-11-09, which replaced the earlier text of this section):
+A single file [`docs/decisions/decision-registry.md`](../decisions/decision-registry.md) records every decision: id, aliases, level (`CONCEPT` or `TECHNICAL`), status (`PROPOSED`, `RECORDED`, `CONFIRMED`, `DEFERRED`, `SUPERSEDED`, `REJECTED`), exact statement, dates (`decided_on`, `recorded_on`, `confirmed_on`, kept apart), source and its availability, and superseded ids. The recording rules are those of DEC-002 in that file (owner instruction of 2026-11-09, which replaced the earlier text of this section):
 
 * Accepted sources for `CONFIRMED`: an explicit owner statement in chat; a pull-request approval; an owner-written text in the repository; for `TECHNICAL` entries, an engineering decision by an agent under the owner's delegation (DEC-001), marked `AGENT_DELEGATED`. A commit under the owner's Git account is not itself a decision. **"Owner-signed" does not require a cryptographic signature**; signatures are optional unless a separate policy requires them.
 * An agent transcribing a decision from chat whose primary source cannot be verified in the repository records it as `RECORDED`, never `CONFIRMED`; it never invents a source. An agent never confirms product (`CONCEPT`) decisions on the owner's behalf.
@@ -206,7 +206,7 @@ No plugin registry for representations, no multi-asset commits, no non-box regio
 
 ## 7. ACR-004: split into five independent parts
 
-Detailed fields (owner, contracts, dependencies, stage, acceptance) are in `architecture-blocker-decisions.md`, section 2. Summary:
+Detailed fields (owner, contracts, dependencies, stage, acceptance) are in [`architecture-blocker-decisions.md`](architecture-blocker-decisions.md), section 2. Summary:
 
 | Part | Content | Stage | Closes in |
 |---|---|---|---|
@@ -305,4 +305,4 @@ Not required for PS-1: physical devices, Android emulator runs, the Geometry Pro
 
 ## 16. Open items kept visible
 
-Everything in section 3.3 (confirmation of AOD-01…24), the unassigned owners, O-1 (derived-data provider ownership), O-2 (modifier evaluation), Import/Export owner, the Geometry Processing Specification, the Voxel Architecture, GDD/TDD, the original AU-1.0, ACR decisions, the scope of gameplay/content/MMO beyond this plan, and the numeric performance thresholds (set from device data) remain open. See `architecture-blocker-decisions.md` and the report.
+Everything in section 3.3 (confirmation of AOD-01…24), the unassigned owners, O-1 (derived-data provider ownership), O-2 (modifier evaluation), Import/Export owner, the Geometry Processing Specification, the Voxel Architecture, GDD/TDD, the original AU-1.0, ACR decisions, the scope of gameplay/content/MMO beyond this plan, and the numeric performance thresholds (set from device data) remain open. See [`architecture-blocker-decisions.md`](architecture-blocker-decisions.md) and the report.

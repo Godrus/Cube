@@ -1,6 +1,6 @@
 # M3 Vertical Slice: scope
 
-**Status:** **Proposed** [NP]. Counts and features are scope proposals for the owner, not decisions; nothing authorises implementation. Labels as in `GAME_TRACK_ROADMAP.md`. Existing criteria: `RELEASE_CRITERIA.md` section 2.2 (VS-1...VS-7, also Proposed).
+**Status:** **Proposed** [NP]. Counts and features are scope proposals for the owner, not decisions; nothing authorises implementation. Labels as in [`GAME_TRACK_ROADMAP.md`](GAME_TRACK_ROADMAP.md). Existing criteria: [`RELEASE_CRITERIA.md`](../../RELEASE_CRITERIA.md) section 2.2 (VS-1...VS-7, also Proposed).
 
 ## 1. Purpose
 
@@ -59,7 +59,7 @@ Counts are proposals (design volume, not performance budgets).
 ## 5. Entry and exit
 
 * **Entry (proposal):** M2 accepted by the owner (or the owner explicitly starts content pre-production earlier). Design work and asset production may begin before M2 acceptance, because they do not touch production code.
-* **Exit:** the demonstrations of section 6 recorded, the owner's acceptance recorded; an updated estimate for M4 based on measured velocity, content costs and benchmark data (no dates are given in this repository; `DEVELOPMENT_ROADMAP.md` R-04 lists what an estimate needs).
+* **Exit:** the demonstrations of section 6 recorded, the owner's acceptance recorded; an updated estimate for M4 based on measured velocity, content costs and benchmark data (no dates are given in this repository; [`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md) R-04 lists what an estimate needs).
 
 ## 6. Acceptance criteria and demonstrations (player-facing)
 
@@ -80,7 +80,7 @@ Counts are proposals (design volume, not performance budgets).
 | VSG-13 (optional) | Co-op | two players, one world, edits and fights visible to both, recovery after a disconnect | S/M |
 | VSG-14 | Declared absences | exclusions listed (what is not in the slice) | M |
 
-## 7. Relationship to `RELEASE_CRITERIA.md` section 2.2
+## 7. Relationship to [`RELEASE_CRITERIA.md`](../../RELEASE_CRITERIA.md) section 2.2
 
 | Existing row | Covered by |
 |---|---|

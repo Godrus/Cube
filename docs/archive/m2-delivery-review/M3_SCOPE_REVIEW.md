@@ -1,6 +1,6 @@
 # M3 Vertical Slice: scope review
 
-**Status:** **Proposed** / **Pending Owner Approval**. Reviews `docs/archive/production/VERTICAL_SLICE_SCOPE.md` (Proposed, commit `362a124`). No official milestone changes. Counts are design volumes, not performance budgets; no effort is estimated (none is known).
+**Status:** **Proposed** / **Pending Owner Approval**. Reviews [`docs/archive/production/VERTICAL_SLICE_SCOPE.md`](../production/VERTICAL_SLICE_SCOPE.md) (Proposed, commit `362a124`). No official milestone changes. Counts are design volumes, not performance budgets; no effort is estimated (none is known).
 
 ## 1. Is the first Vertical Slice overloaded?
 
@@ -33,7 +33,7 @@ The reduction below is justified item by item by its effect on the slice's quali
 | Persistence | world, character, inventory, quests | same | same | cloud saves, multiple characters | non-negotiable for Q-6 |
 | Visual direction | style guide + set | style guide and **one finished region** | plus lighting/sky/water polish | wide asset library | direction is judged on one region (Q-7) |
 | Audio direction | music + SFX set | SFX for combat/UI/ambience, one music loop | adds variety | adaptive music | |
-| Platforms | desktop (+ device checkpoint) | desktop + MAC-2 device baseline | + a second device class | iOS | AOD-08/11: device evidence; see `M2_SCOPE_REVIEW.md` section 5 |
+| Platforms | desktop (+ device checkpoint) | desktop + MAC-2 device baseline | + a second device class | iOS | AOD-08/11: device evidence; see [`M2_SCOPE_REVIEW.md`](M2_SCOPE_REVIEW.md) section 5 |
 | Co-op | optional | **not in M3**; a technical co-op spike (two clients, one host, edits visible) runs separately | co-op included only if owners and `SRV-02/05`, `NET-04` exist | multiplayer features | removes network scope from the quality question; the spike de-risks M4 |
 
 ## 3. Proposed split

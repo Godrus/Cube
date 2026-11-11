@@ -6,11 +6,11 @@
 
 | Rule | Source (verified) | Content |
 |---|---|---|
-| Start condition of the first Core tasks | `docs/production/module-boundaries.md` Part C, rows `CORE-01`, `CORE-02`, `CORE-07`: start-after `G0` | `G0` is satisfied when all eight member tasks (`GOV-01...GOV-06`, `TEST-01`, `XT-01`) are merged and accepted (Part D) |
+| Start condition of the first Core tasks | [`docs/production/module-boundaries.md`](../../production/module-boundaries.md) Part C, rows `CORE-01`, `CORE-02`, `CORE-07`: start-after `G0` | `G0` is satisfied when all eight member tasks (`GOV-01...GOV-06`, `TEST-01`, `XT-01`) are merged and accepted (Part D) |
 | PS-1 start | Part D, stage table row PS-1: start-after `G0`, `TEST-01` | |
 | Closing condition of G0 | Part D | CI specification Owner-Approved **and**, separately, CI running with workflow-run URL and required-status-check settings; registry entries owner-confirmed |
-| PS-1 entry criteria | `production-architecture-plan.md` section 14 | (1) registry entries (owner-confirmed): ACR-001, ACR-003, ACR-004 A, OAM-10 principle, D-R1, D-R2, D-R6, D-R8, D-K, D-T, D-C, D-0; (2) P0-alpha Owner-Approved and PC-1 registered Provisional; (3) named owners for Core Agent, Integration Owner, Agent I (unassigned modules **not** required); (4) docs-only baseline on `master`; (5) CI specification approved and CI running with required checks, archcheck v0, testkit; (6) ADG adopted |
-| Agents may not start a stage early | `docs/archive/AGENT_HANDOFF.md` hard rules | "Never start the next Production Stage before its entry criteria hold." |
+| PS-1 entry criteria | [`production-architecture-plan.md`](../../production/production-architecture-plan.md) section 14 | (1) registry entries (owner-confirmed): ACR-001, ACR-003, ACR-004 A, OAM-10 principle, D-R1, D-R2, D-R6, D-R8, D-K, D-T, D-C, D-0; (2) P0-alpha Owner-Approved and PC-1 registered Provisional; (3) named owners for Core Agent, Integration Owner, Agent I (unassigned modules **not** required); (4) docs-only baseline on `master`; (5) CI specification approved and CI running with required checks, archcheck v0, testkit; (6) ADG adopted |
+| Agents may not start a stage early | [`docs/archive/AGENT_HANDOFF.md`](../AGENT_HANDOFF.md) hard rules | "Never start the next Production Stage before its entry criteria hold." |
 | Confirmation | plan 3.3 | a chat instruction alone is not a confirmation source |
 
 **Does PS-0 formally block implementation?** Yes. Searching the plan, the ADG, the checklist, the handoff and the integration plan for an exception, waiver or exemption clause finds **none**. A "limited exception" therefore does not exist and is not invented here.
@@ -24,7 +24,7 @@
 | A-2 | docs-only base (`GOV-04`, ODM-01) | D1 merged (or the owner's chosen base) | the PR set is flexible |
 | A-3 | CI specification approved (`GOV-05`; D-E a-e, i, j decided; ODM-09) | one-page specification | f, g may be deferred to `ADP-03` |
 | A-4 | CI running with required checks; archcheck v0; testkit skeleton (`GOV-06`, `XT-01`, `TEST-01`) | workflow-run URL green on skeleton and red on seeded failures; settings export | `TEST-01` and `XT-01` may overlap the *start* of Core (ODM-17) but gate the first merge |
-| A-5 | Core decisions recorded: ACR-001, ACR-003 (plan section 14), ACR-004 A, OAM-10, OD-R1, OD-R2, OD-R6, D-R8, D-T, D-0 | per `OWNER_DECISION_REGISTER.md` | ACR-003 is a formal PS-1 item although technically needed later |
+| A-5 | Core decisions recorded: ACR-001, ACR-003 (plan section 14), ACR-004 A, OAM-10, OD-R1, OD-R2, OD-R6, D-R8, D-T, D-0 | per [`OWNER_DECISION_REGISTER.md`](OWNER_DECISION_REGISTER.md) | ACR-003 is a formal PS-1 item although technically needed later |
 | A-6 | `P0-alpha` Owner-Approved and PC-1 registered Provisional (`GOV-02`; ODM-03, ODM-07) | registry entries with the five mandatory fields | no |
 | A-7 | coordinate decisions D-K, D-C with `VoxelPos` width, level semantics, world bound and vertical extent (ODM-11; TC-03, TC-04) | recorded before `CORE-02/03` | no |
 | A-8 | threading contract TC-10 accepted | rule set | needed before `PROC-03`, not before `CORE-01` |
@@ -41,7 +41,7 @@
 | `GM-01`, `GM-03`, `GM-04`, `TGAP-05` (design, tables, scenarios, threading contract text), `GM-16` (placeholder) | documents / assets | none |
 | naming owners (ODM-04) and benchmark plan | decisions | |
 | drafting of TC registry entries, the serialising-loopback design, registry lint | documents | |
-| optional "Game Prototype 0" on spike code | isolated experiment, never promoted | ODM-12 and the rules of `TECHNOLOGY-GAME-TRACK-INTEGRATION.md` section 3 |
+| optional "Game Prototype 0" on spike code | isolated experiment, never promoted | ODM-12 and the rules of [`TECHNOLOGY-GAME-TRACK-INTEGRATION.md`](../production/TECHNOLOGY-GAME-TRACK-INTEGRATION.md) section 3 |
 
 ## 4. C. What can safely wait until after M2-T (belongs to M2)
 
@@ -49,7 +49,7 @@ Journal, compaction and journal-tail recovery (`PERS-04`, `PERS-05`, `TGAP-09`, 
 
 ## 5. D. What must not be pulled into M2-T (multiplayer)
 
-`NET-02` wire protocol; `NET-04` external transport and `SPK-NET`, `GOV-12`; `SRV-02` session authentication; `SRV-05` reconnect; `SRV-06` permissions; `SRV-07` history integration; `SRV-08` dedicated host; `CLI-05` prediction and reconciliation; `TEST-03b`, `TEST-07`; 500-player architecture; cross-play; accounts. The compatibility boundaries that keep them additive are listed in `M2T_CRITICAL_PATH_REVIEW.md` section 2. **Condition to pull any of them:** the owner explicitly chooses option (b) of ODM-16, which adds `NET-02` and its owner to M2-T.
+`NET-02` wire protocol; `NET-04` external transport and `SPK-NET`, `GOV-12`; `SRV-02` session authentication; `SRV-05` reconnect; `SRV-06` permissions; `SRV-07` history integration; `SRV-08` dedicated host; `CLI-05` prediction and reconciliation; `TEST-03b`, `TEST-07`; 500-player architecture; cross-play; accounts. The compatibility boundaries that keep them additive are listed in [`M2T_CRITICAL_PATH_REVIEW.md`](M2T_CRITICAL_PATH_REVIEW.md) section 2. **Condition to pull any of them:** the owner explicitly chooses option (b) of ODM-16, which adds `NET-02` and its owner to M2-T.
 
 ## 6. Gate table
 

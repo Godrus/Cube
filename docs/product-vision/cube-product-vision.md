@@ -1,10 +1,10 @@
 # Cube — Product Vision (консолидация подтверждённых требований)
 
-> **Erratum 2026-11-09 (decision registry now exists: `docs/decisions/decision-registry.md`).** (1) Statements here that unsigned commits mean 'no decision can be confirmed' are withdrawn: DEC-002 accepts an explicit owner chat statement as a source and makes signatures optional. (2) CPR-PRN-05…08 are not confirmed decisions: the owner stated them as context; they are `RECORDED` (DEC-052). CPR-PRN-01…04 repeat AOD-01…07 (`RECORDED`). (3) AOD-25/AOD-26 are **not assigned** as bundles; the content is split into DEC-030…DEC-035 (CONCEPT, CONFIRMED from the owner's message) and DEC-053/DEC-054 (RECORDED / PROPOSED). (4) 'M2' in CPR-SAV-01 is read as 'the first approved save format'; working terms: **M2-T** = technical slice (walk, edit, save/load; the old M2 of DEVELOPMENT_ROADMAP), **M2** = First Playable with the gameplay loop (Game Track); ODM-06 still fixes their acceptance. (5) Priority, stage, module and 'related decisions' columns are agent annotations, not confirmations; only the `statement` of a registry entry is the owner's wording. (6) 'owner-signed' means an explicit owner statement, PR approval or owner-written text; no cryptographic signature is required (DEC-002).
+> **Erratum 2026-11-09 (decision registry now exists: [`docs/decisions/decision-registry.md`](../decisions/decision-registry.md)).** (1) Statements here that unsigned commits mean 'no decision can be confirmed' are withdrawn: DEC-002 accepts an explicit owner chat statement as a source and makes signatures optional. (2) CPR-PRN-05…08 are not confirmed decisions: the owner stated them as context; they are `RECORDED` (DEC-052). CPR-PRN-01…04 repeat AOD-01…07 (`RECORDED`). (3) AOD-25/AOD-26 are **not assigned** as bundles; the content is split into DEC-030…DEC-035 (CONCEPT, CONFIRMED from the owner's message) and DEC-053/DEC-054 (RECORDED / PROPOSED). (4) 'M2' in CPR-SAV-01 is read as 'the first approved save format'; working terms: **M2-T** = technical slice (walk, edit, save/load; the old M2 of DEVELOPMENT_ROADMAP), **M2** = First Playable with the gameplay loop (Game Track); ODM-06 still fixes their acceptance. (5) Priority, stage, module and 'related decisions' columns are agent annotations, not confirmations; only the `statement` of a registry entry is the owner's wording. (6) 'owner-signed' means an explicit owner statement, PR approval or owner-written text; no cryptographic signature is required (DEC-002).
 
 **Статус документа:** **Proposed** (предложение агента для технического ревью владельца). Документ ничего не утверждает: ни контракт, ни ACR, ни AOD, ни закрытие блокера, ни старт PS-1.
-**Дата / база:** 2026-11-09; ветка `docs/architecture-roadmap-v1`, HEAD `16db379` (проверено, см. `production-plan-alignment-report.md` §1).
-**Связанные документы:** `cube-owner-decision-register.md`, `production-plan-alignment-report.md`, `implementation-roadmap-alignment.md`.
+**Дата / база:** 2026-11-09; ветка `docs/architecture-roadmap-v1`, HEAD `16db379` (проверено, см. [`production-plan-alignment-report.md`](production-plan-alignment-report.md) §1).
+**Связанные документы:** [`cube-owner-decision-register.md`](cube-owner-decision-register.md), [`production-plan-alignment-report.md`](production-plan-alignment-report.md), [`implementation-roadmap-alignment.md`](implementation-roadmap-alignment.md).
 
 ---
 
@@ -12,9 +12,9 @@
 
 ### 0.1 Источник подтверждения
 
-Единственный источник «подтверждено владельцем» в этом документе — **OC-2026-11-09**: сообщение владельца в чате текущей сессии («Cube — Product Vision Consolidation & Production Plan Alignment», раздел 2, подпункты 2.1…2.7) и раздел 1 того же сообщения (принципы). Для 2.1–2.2 дополнительно существует черновик `docs/decisions/owner-decision-extensibility-v1.md` (не отслеживается git; подтверждения в нём пронумерованы S-1…S-7, R-10, R-12, R-13).
+Единственный источник «подтверждено владельцем» в этом документе — **OC-2026-11-09**: сообщение владельца в чате текущей сессии («Cube — Product Vision Consolidation & Production Plan Alignment», раздел 2, подпункты 2.1…2.7) и раздел 1 того же сообщения (принципы). Для 2.1–2.2 дополнительно существует черновик [`docs/decisions/owner-decision-extensibility-v1.md`](../decisions/owner-decision-extensibility-v1.md) (не отслеживается git; подтверждения в нём пронумерованы S-1…S-7, R-10, R-12, R-13).
 
-**Оговорка (важна):** по правилу плана §3.3 подтверждением считается запись в registry, а `decision-registry.md` **не существует** (ODM-10 открыт; все 43 коммита ветки не подписаны). Поэтому OC-2026-11-09 — это *концептуальное подтверждение из чата*, записанное агентом; оно **не** является записью реестра и **не** утверждает API, алгоритмы, форматы, ACR.
+**Оговорка (важна):** по правилу плана §3.3 подтверждением считается запись в registry, а [`decision-registry.md`](../decisions/decision-registry.md) **не существует** (ODM-10 открыт; все 43 коммита ветки не подписаны). Поэтому OC-2026-11-09 — это *концептуальное подтверждение из чата*, записанное агентом; оно **не** является записью реестра и **не** утверждает API, алгоритмы, форматы, ACR.
 
 ### 0.2 Четыре категории
 
@@ -30,8 +30,8 @@
 ### 0.3 Шкалы
 
 * **Приоритет:** `P0` — формирует первый утверждаемый формат сохранения или контракты P0-alpha (не противоречить с сегодняшнего дня); `P1` — нужен для M2/M3 (первая играбельная версия и вертикальный срез); `P2` — M4 и позже; `P3` — отложено, нужна только архитектурная «точка входа» (или не нужна вовсе).
-* **Целевой этап:** канонические `PS-0…PS-14` (Production Plan v2.1, `production-architecture-plan.md` §2.1) и релизные вехи `M2-T / M2 / M3 / M4…` (`DEVELOPMENT_ROADMAP.md`, `GAME_TRACK_ROADMAP.md`; Proposed). Новой нумерации этапов не вводится. «Срезы» PSL-1…PSL-6 — продуктовые срезы из `implementation-roadmap-alignment.md`, не этапы.
-* **Модули** — названия из ADG (`module-boundaries.md` Part A/B): core, processing, editing-api, orchestration, backends, tools, resolution, history, composite, persistence, worldgen, net, server, client, adapter; плюс **предлагаемые, не утверждённые**: `content` (реестры, см. AI-02) и `game-rules` (ODM-05, ожидает решения).
+* **Целевой этап:** канонические `PS-0…PS-14` (Production Plan v2.1, [`production-architecture-plan.md`](../production/production-architecture-plan.md) §2.1) и релизные вехи `M2-T / M2 / M3 / M4…` ([`DEVELOPMENT_ROADMAP.md`](../archive/DEVELOPMENT_ROADMAP.md), [`GAME_TRACK_ROADMAP.md`](../archive/production/GAME_TRACK_ROADMAP.md); Proposed). Новой нумерации этапов не вводится. «Срезы» PSL-1…PSL-6 — продуктовые срезы из [`implementation-roadmap-alignment.md`](implementation-roadmap-alignment.md), не этапы.
+* **Модули** — названия из ADG ([`module-boundaries.md`](../production/module-boundaries.md) Part A/B): core, processing, editing-api, orchestration, backends, tools, resolution, history, composite, persistence, worldgen, net, server, client, adapter; плюс **предлагаемые, не утверждённые**: `content` (реестры, см. AI-02) и `game-rules` (ODM-05, ожидает решения).
 * **Связанные решения** — существующие ID без перенумерации: AOD-xx, OAM-xx, ACR-00x, GOV-01#n, ODM-nn, D-xx/OD-Rx, C-/E-/WP-/WG-/SC-/SR-контракты; черновые AOD-25/26 из extensibility-записи упоминаются как «чернов. AOD-25/26» (ID не присвоены).
 
 ---
@@ -53,7 +53,7 @@ Cube — полноценная voxel RPG: практически бесконе
 | CPR-PRN-03 | World Core независим от UI, движка и сетевого транспорта | Confirmed (дублирует Approved) | P0 | PS-1 | core, processing, persistence | OC §1; AOD-04 | AOD-04; `dependency_rules.rs` |
 | CPR-PRN-04 | Чёткие границы: геометрические данные, processing, рендеринг, физика, persistence | Confirmed | P0 | PS-1…PS-13 | core, processing, backends, persistence, client | OC §1 | ADG Part B; см. AI-13 (физика не имеет модуля) |
 | CPR-PRN-05 | Продукт — Cube, а не универсальный движок | Confirmed | P0 | все | все | OC §1 | — (ограничение на AI-xx) |
-| CPR-PRN-06 | Technology Track и Game Track сходятся в вертикальных срезах | Confirmed | P1 | M2-T→M3 | все | OC §1 | `GAME_TRACK_ROADMAP.md` §1 (Proposed) |
+| CPR-PRN-06 | Technology Track и Game Track сходятся в вертикальных срезах | Confirmed | P1 | M2-T→M3 | все | OC §1 | [`GAME_TRACK_ROADMAP.md`](../archive/production/GAME_TRACK_ROADMAP.md) §1 (Proposed) |
 | CPR-PRN-07 | Полная поддержка модов и сложные игровые подсистемы можно отложить; их ключевые архитектурные требования учитываются заранее | Confirmed | P0 | PS-0/PS-1 | см. AI-01…AI-06 | OC §1; S-1/S-2 черновика | чернов. AOD-25 |
 | CPR-PRN-08 | Экспериментальный P-WORLD не является production-архитектурой и не переносится автоматически | Confirmed | P0 | PS-0 | — | OC §1 | AOD-18, AOD-24; GOV-04 |
 
@@ -164,7 +164,7 @@ Cube — полноценная voxel RPG: практически бесконе
 
 ## 3. Architecture Implications (предложения агента — не решения)
 
-Статус всех пунктов: **Proposed**, «требует проверки/проектирования». Каждый имеет обоснование в реальной потребности Cube. Подробный разбор и таблицы несоответствий — в `production-plan-alignment-report.md`.
+Статус всех пунктов: **Proposed**, «требует проверки/проектирования». Каждый имеет обоснование в реальной потребности Cube. Подробный разбор и таблицы несоответствий — в [`production-plan-alignment-report.md`](production-plan-alignment-report.md).
 
 | ID | Следствие | Выводится из | Прио | Этап | Затрагивает | Подтверждено владельцем? |
 |---|---|---|---|---|---|---|

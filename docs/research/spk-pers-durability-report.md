@@ -1,7 +1,7 @@
 # SPK-PERS — persistence durability spike report
 
 Status: **report accepted for the experimental protocol; no format approved (GOV-10 open); no device durability claimed (DG-2 open).**
-Task text (ADG `agent-task-breakdown.md`): "Persistence durability spike (fsync, directory fsync, atomic rename, crash points) on a spike branch; NO format approval. Acceptance: report states results per platform; never merged."
+Task text (ADG [`agent-task-breakdown.md`](../production/agent-task-breakdown.md)): "Persistence durability spike (fsync, directory fsync, atomic rename, crash points) on a spike branch; NO format approval. Acceptance: report states results per platform; never merged."
 
 Before this report no SPK-PERS report existed in the repository, in `docs/` or in any branch (searched `docs/`, `.agent`, all remote branches, decision registry, exit checklist). The spike code is therefore new.
 

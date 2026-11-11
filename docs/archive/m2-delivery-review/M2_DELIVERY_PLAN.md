@@ -1,6 +1,6 @@
 # Delivery plan: from the current state to M2 (and the shape of M3)
 
-**Status:** **Proposed** / **Pending Owner Approval**. It authorises nothing. **No dates and no effort figures are given: none exists in the repository** (the missing inputs are listed in section 6). Task ids are those of `M2_TASK_GRAPH.md`; contracts TC-nn of `M2_MINIMUM_CONTRACTS.md`; decisions ODM-nn of `OWNER_DECISIONS_REQUIRED.md`; GOV-nn of the Production Plan.
+**Status:** **Proposed** / **Pending Owner Approval**. It authorises nothing. **No dates and no effort figures are given: none exists in the repository** (the missing inputs are listed in section 6). Task ids are those of [`M2_TASK_GRAPH.md`](M2_TASK_GRAPH.md); contracts TC-nn of [`M2_MINIMUM_CONTRACTS.md`](../../api-contracts/M2_MINIMUM_CONTRACTS.md); decisions ODM-nn of [`OWNER_DECISIONS_REQUIRED.md`](OWNER_DECISIONS_REQUIRED.md); GOV-nn of the Production Plan.
 
 ## 1. Where we start (verified)
 
@@ -11,9 +11,9 @@ PS-0 is open (0 of 8 gate tasks), PS-1 is not started, milestone M0 is in progre
 | Step | Tasks / work | Depends on | Owner | Output | Completion criterion | Blocking decisions | Parallel? |
 |---|---|---|---|---|---|---|---|
 | 0.1 Decide the first batch | GOV-01 items 14 and 15 first (D-E parameters; branch option), then the Core items; ODM-01, ODM-10 | none | Project Owner | registry entries with a confirmation source | entries exist and are confirmed by the agreed mechanism | ODM-10 (how decisions are confirmed) | sequential at its start; the rest of GOV-01 can follow in batches |
-| 0.2 Integrate documentation | PRs D1...D4 (`REPOSITORY_AND_MERGE_REVIEW.md` section 4C) | 0.1 (ODM-01), fixes of two scripts | Integration Owner prepares, Project Owner approves | documentation on `master` as Proposed/records | PRs merged; `master` has no spike code | ODM-01 | D3 and D4 parallel after D1 and D2 |
+| 0.2 Integrate documentation | PRs D1...D4 ([`REPOSITORY_AND_MERGE_REVIEW.md`](REPOSITORY_AND_MERGE_REVIEW.md) section 4C) | 0.1 (ODM-01), fixes of two scripts | Integration Owner prepares, Project Owner approves | documentation on `master` as Proposed/records | PRs merged; `master` has no spike code | ODM-01 | D3 and D4 parallel after D1 and D2 |
 | 0.3 Protect `master` with the documentation check | workflow `docs-validate`, branch protection | 0.2 for the scripts, ODM-09 | Agent I (workflow), Project Owner (settings) | a required status check on `master` | the check ran red on a seeded failure and green on `master`; API shows `protected: true` | ODM-09 | parallel with 0.4 |
-| 0.4 Close PS-0 | GOV-02 (P0-alpha, PC-1, status model), GOV-03 (owners or deferral), GOV-04 (baseline), GOV-05 (CI specification), then GOV-06 (CI skeleton), TEST-01, XT-01 | 0.1; GOV-06 after GOV-04 and GOV-05 | Project Owner, Integration Owner, Agent I | registry entries, baseline, running CI with required checks, archcheck v0, testkit | gate G0: all 8 tasks merged and accepted with the evidence listed in `ps-0-exit-checklist.md` | the 15 GOV-01 decisions, X-1...X-4 | GOV-02 and GOV-03 parallel to GOV-04/05; GOV-06 then TEST-01 and XT-01 parallel |
+| 0.4 Close PS-0 | GOV-02 (P0-alpha, PC-1, status model), GOV-03 (owners or deferral), GOV-04 (baseline), GOV-05 (CI specification), then GOV-06 (CI skeleton), TEST-01, XT-01 | 0.1; GOV-06 after GOV-04 and GOV-05 | Project Owner, Integration Owner, Agent I | registry entries, baseline, running CI with required checks, archcheck v0, testkit | gate G0: all 8 tasks merged and accepted with the evidence listed in [`ps-0-exit-checklist.md`](../../production/ps-0-exit-checklist.md) | the 15 GOV-01 decisions, X-1...X-4 | GOV-02 and GOV-03 parallel to GOV-04/05; GOV-06 then TEST-01 and XT-01 parallel |
 | 0.5 Register temporary contracts | TC-01...TC-10 as Provisional entries | 0.1 | Project Owner | Provisional register in the registry | each TC has an expiry and an owner entry | ODM-02, ODM-03, ODM-07, ODM-11 | parallel with 0.4 |
 | 0.6 Accept the M2 scope and graph | M2-T/M2 split, acceptance criteria, ADG change proposals (M2 slice, Game Rules module, D-01/D-02 rule, relaxations) | none | Project Owner, Integration Owner | accepted scope; ADG change PR | scope recorded; ADG changes merged with regenerated tables | ODM-06, ODM-14, ODM-05 | parallel |
 | 0.7 Owners | owners or written deferral: WorldGen, Networking, Server, Client, Engine Adapter, Gameplay, Content, Art/Audio | none | Project Owner | ownership table | each unassigned module in the M2 graph has an owner or a dated deferral | ODM-04 | parallel; **needed per wave, not all at once** (section 3) |
@@ -61,7 +61,7 @@ Critical path to M2 (23 tasks): the M2-T path up to `SRV-03`, then `GM-12 -> GM-
 
 ## 5. Phase M3: shape only
 
-No M3 task graph is produced: velocity, content cost and several decisions (Minimum or Recommended slice, mobile in M3, co-op spike) are unknown (`M3_SCOPE_REVIEW.md`). Inputs: M2 accepted; owners for content and art; TC-01, TC-02, TC-08 expired or renewed; MAC-1 done if mobile is included; a plan for the Game Rules additions (abilities, crafting, quests, boss) and for the generator additions.
+No M3 task graph is produced: velocity, content cost and several decisions (Minimum or Recommended slice, mobile in M3, co-op spike) are unknown ([`M3_SCOPE_REVIEW.md`](M3_SCOPE_REVIEW.md)). Inputs: M2 accepted; owners for content and art; TC-01, TC-02, TC-08 expired or renewed; MAC-1 done if mobile is included; a plan for the Game Rules additions (abilities, crafting, quests, boss) and for the generator additions.
 
 ## 6. What is unknown
 
@@ -90,4 +90,4 @@ No M3 task graph is produced: velocity, content cost and several decisions (Mini
 | Owners are missing for W4/W5 | S-6 not met when W3 ends | name owners during W1-W3; the first three waves do not need them |
 | Provisional contracts are rejected | ODM-02 answer is "wait" | the path through `API-02` is blocked by a document; escalate the document |
 | Game Rules scope grows | stretch items (XP, dodge, audio) enter | acceptance list is fixed (FPS-01...FPS-17) |
-| Temporary contracts persist | TC expiry passes unnoticed | register plus CI check on expiry (`M2_MINIMUM_CONTRACTS.md` section 5) |
+| Temporary contracts persist | TC expiry passes unnoticed | register plus CI check on expiry ([`M2_MINIMUM_CONTRACTS.md`](../../api-contracts/M2_MINIMUM_CONTRACTS.md) section 5) |

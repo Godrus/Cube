@@ -1,12 +1,12 @@
 # Cube Product Roadmap (M0 to M12), engineering crosswalk, critical path
 
-**Status:** proposed execution order from the owner's directive of 2026-11-10. The strategic direction is the owner's; the milestone cut and order are an agent proposal that stays reversible. It changes **no** engineering gate, ADG edge or contract (those stay in `docs/production/`). Status words follow `docs/archive/AGENT-HANDOFF.md` rule list: implementation NOT_STARTED / IN_PROGRESS / IMPLEMENTED / TESTED / INTEGRATED, availability NOT_AVAILABLE / INTERNAL_ONLY / DEMO_AVAILABLE / PLAYER_AVAILABLE. Feature ids refer to `docs/features.json` (never a second registry); statuses are copied from it, not restated here. Vision: `docs/vision/GAME-VISION.md`. Tasks: `WORK-PACKAGES.md`.
+**Status:** proposed execution order from the owner's directive of 2026-11-10. The strategic direction is the owner's; the milestone cut and order are an agent proposal that stays reversible. It changes **no** engineering gate, ADG edge or contract (those stay in `docs/production/`). Status words follow [`docs/archive/AGENT-HANDOFF.md`](../archive/AGENT-HANDOFF.md) rule list: implementation NOT_STARTED / IN_PROGRESS / IMPLEMENTED / TESTED / INTEGRATED, availability NOT_AVAILABLE / INTERNAL_ONLY / DEMO_AVAILABLE / PLAYER_AVAILABLE. Feature ids refer to `docs/features.json` (never a second registry); statuses are copied from it, not restated here. Vision: [`docs/vision/GAME-VISION.md`](../vision/GAME-VISION.md). Tasks: [`WORK-PACKAGES.md`](WORK-PACKAGES.md).
 
 **Numbering.** `M0..M12` here are *product* milestones. The older Game Track uses `M2-T` (technical slice: walk, edit, save/load, done in the demo), `M2` (First Playable with a gameplay loop) and `M3` (Vertical Slice) in `docs/production/`. Proposed mapping: Game Track M2 = product M1 + M2 (+ minimal M3); Game Track M3 = product M3..M5 slice. The historical Phase 0..8 of GDD/TDD v0.3 are kept in section 2; PS-0..PS-14 are not renamed.
 
 ## 1. Milestones
 
-Status = what is true in the repository on `dev` 679e8d5 plus later commits (current tasks: `.agent/BOARD.md`). "Demo" means the Godot developer demo, run by hand on the developer machine, not in CI.
+Status = what is true in the repository on `dev` 679e8d5 plus later commits (current tasks: [`.agent/BOARD.md`](../../.agent/BOARD.md)). "Demo" means the Godot developer demo, run by hand on the developer machine, not in CI.
 
 | M | Goal and player outcome | Required features | Engineering stages | Main risks | Acceptance (playable) | Status |
 |---|---|---|---|---|---|---|
@@ -24,7 +24,7 @@ Status = what is true in the repository on `dev` 679e8d5 plus later commits (cur
 | **M11** Large-scale infrastructure | Toward 500 players | distributed simulation, regional servers, entity handoff, load balancing, monitoring, admin, accounts, stress tests | PS-13, 14 | only after M8 works | measured load tests | NOT_STARTED |
 | **M12** Production quality | Release quality | art, animation, sound, music, UX, accessibility, content, PC and mobile optimisation, mod support, user content editor, release prep | PS-14 | scope | release candidate checks | NOT_STARTED |
 
-**Visual direction (owner, 2026-11-11):** Cube World Alpha / Veloren style; micro-voxel character work is deferred and changes no milestone. See `docs/vision/VISUAL-STYLE-GUIDE.md`. Focus: mechanics, adventures, RPG progression, exploration, Android compatibility.
+**Visual direction (owner, 2026-11-11):** Cube World Alpha / Veloren style; micro-voxel character work is deferred and changes no milestone. See [`docs/vision/VISUAL-STYLE-GUIDE.md`](../vision/VISUAL-STYLE-GUIDE.md). Focus: mechanics, adventures, RPG progression, exploration, Android compatibility.
 
 **Do not** build the M11 infrastructure before M8 runs; **do not** wait for M8 to design the network contracts: gameplay state in M2 must be engine-neutral and server-authoritative in shape (intent in, validated result out).
 
@@ -46,7 +46,7 @@ The v0.3 text is not in the repository; this list is the owner's directive's own
 
 ## 3. Engineering crosswalk
 
-`Product capability -> original phase -> engineering stage -> modules -> status -> availability -> evidence`. Verified against `docs/features.json` on `dev` 679e8d5. Dependencies are the ADG's (`production/module-boundaries.md`), not new ones.
+`Product capability -> original phase -> engineering stage -> modules -> status -> availability -> evidence`. Verified against `docs/features.json` on `dev` 679e8d5. Dependencies are the ADG's ([`production/module-boundaries.md`](../production/module-boundaries.md)), not new ones.
 
 | Capability | Phase | Stage | Modules | Status | Availability | Evidence / feature ids |
 |---|---|---|---|---|---|---|
@@ -102,7 +102,7 @@ M11: after M8 only
 
 ## Путь к релизу и пробелы планирования (перенесено из прежнего DEVELOPMENT_ROADMAP)
 
-**Готовность к релизу** меряется отдельной шкалой: Internal Alpha, Closed Alpha, Beta, Release Candidate, 1.0. Критерии и тесты: `docs/RELEASE_CRITERIA.md` (её номера M0..M8 это вехи релиза, а не продуктовые M0..M12 выше). Суть шкалы:
+**Готовность к релизу** меряется отдельной шкалой: Internal Alpha, Closed Alpha, Beta, Release Candidate, 1.0. Критерии и тесты: [`docs/RELEASE_CRITERIA.md`](../RELEASE_CRITERIA.md) (её номера M0..M8 это вехи релиза, а не продуктовые M0..M12 выше). Суть шкалы:
 
 - **Internal Alpha:** основные циклы проходят сценариями, нет открытых Critical, серверная авторитетность подтверждена на встроенном и выделенном хосте, в CI есть регрессионный набор.
 - **Closed Alpha:** сборки стоят у тестеров на каждой заявленной платформе, краш-отчёты и метрики приходят, обновление N на N+1 сохраняет миры (тест миграции), повреждённый мир восстанавливается или отвергается.
@@ -110,7 +110,7 @@ M11: after M8 only
 - **Release Candidate:** объём заморожен, PC-1 Frozen через GOV-15, все форматы Owner-Approved, после заморозки нет feature-коммитов.
 - **1.0:** операционные инструкции отработаны, откат проверен.
 
-Числовые пороги не придумывать: бенчмарки B-1..B-11 описаны в `docs/RELEASE_CRITERIA.md`, значения задаёт владелец по результатам замеров.
+Числовые пороги не придумывать: бенчмарки B-1..B-11 описаны в [`docs/RELEASE_CRITERIA.md`](../RELEASE_CRITERIA.md), значения задаёт владелец по результатам замеров.
 
 **Работы без плана** (нет ни в M1..M12, ни в инженерных стадиях; нужны до Closed Alpha и Beta, требуют решения владельца и отдельного плана): телеметрия и краш-отчёты; юридические вопросы, приватность, соответствие требованиям магазинов; локализация; античит и безопасность эксплуатации; онлайн-сервисы (аккаунты, подбор игроков, список серверов, региональное распределение).
 
@@ -119,7 +119,7 @@ M11: after M8 only
 - Распределение одного логического мира на 500 игроков по регионам и серверам не спроектировано: сначала исследование и прототип-замер, потом детальный дизайн PS-13 и M11.
 - Сроки дать нельзя: для оценки нужны замеры B-1..B-9, оценки задач от владельцев областей, измеренная скорость работы и владельцы неназначенных областей.
 
-**Справка в архиве** (Proposed, по нужде): `docs/archive/production/VERTICAL_SLICE_SCOPE.md` (состав и критерии вертикального среза), `docs/archive/production/FIRST_PLAYABLE_SCOPE.md` (требования к первой играбельной версии), `docs/archive/production/GAME_TRACK_ROADMAP.md` (прежний трек игры), `docs/archive/DEVELOPMENT_ROADMAP.md` (спецификации вех по двенадцати полям).
+**Справка в архиве** (Proposed, по нужде): [`docs/archive/production/VERTICAL_SLICE_SCOPE.md`](../archive/production/VERTICAL_SLICE_SCOPE.md) (состав и критерии вертикального среза), [`docs/archive/production/FIRST_PLAYABLE_SCOPE.md`](../archive/production/FIRST_PLAYABLE_SCOPE.md) (требования к первой играбельной версии), [`docs/archive/production/GAME_TRACK_ROADMAP.md`](../archive/production/GAME_TRACK_ROADMAP.md) (прежний трек игры), [`docs/archive/DEVELOPMENT_ROADMAP.md`](../archive/DEVELOPMENT_ROADMAP.md) (спецификации вех по двенадцати полям).
 
 ## Вертикальный срез и контроль прогресса (перенесено из архивных планов Game Track)
 
@@ -162,4 +162,4 @@ M11: after M8 only
 
 FPS-01 запуск и меню. FPS-02 новый мир по seed (одинаковые хеши блоков при одном seed, разные при другом). FPS-03 управление (ходьба, бег, прыжок, ступенька в один воксель, камера не входит в рельеф). FPS-04 исследование (маршрут через границы блоков и двух видов местности без дыр и швов). FPS-05 встреча враждебного и мирного существа. FPS-06 бой (победа; поражение и возрождение). FPS-07 добыча и инвентарь. FPS-08 эффект экипировки (тот же бой заметно короче). FPS-09 изменение мира (каждая правка через Editing API, в журнале `UserCommit`). FPS-10 сохранение через меню. FPS-11 возобновление (правки, позиция, инвентарь, экипировка, статы как были). FPS-12 сбой при сохранении (убийство процесса на каждом шаге протокола уплотнения, следующий запуск восстанавливает проверенное состояние). FPS-13 авторитет (правил игры нет в GDScript, клиент не меняет состояние мира и инвентаря локально). FPS-14 понятный и повторяемый цикл (посторонний тестер играет 20+ минут без подсказок; отмечено, нашёл ли управление, дрался ли, надевал ли, строил ли, начал ли второй бой сам). FPS-15 заявленные отсутствия. FPS-16 замеры (кадр, задержка правки, время сохранения и загрузки, память). FPS-17 письменное заявление, что мешало бы мобильной сборке.
 
-Ещё не показаны (по состоянию на 2026-11-11): FPS-14 (человек не играл), FPS-12 на полном цикле «мир, журнал, инвентарь» (CB-1 открыт), FPS-16 замеры, FPS-17 как документ. Они входят в QA-01 на `.agent/BOARD.md`.
+Ещё не показаны (по состоянию на 2026-11-11): FPS-14 (человек не играл), FPS-12 на полном цикле «мир, журнал, инвентарь» (CB-1 открыт), FPS-16 замеры, FPS-17 как документ. Они входят в QA-01 на [`.agent/BOARD.md`](../../.agent/BOARD.md).

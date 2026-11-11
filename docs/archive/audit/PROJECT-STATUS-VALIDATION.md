@@ -8,7 +8,7 @@ Proof that the statuses, references, tasks and dependencies in the package are c
 |---|---|---|
 | branch `docs/architecture-roadmap-v1`, HEAD `2c0c1f37…` | `git rev-parse` | matches |
 | `2c0c1f3` touches only `docs/production/` (9 files, +476/-134) | `git diff --name-only 2c0c1f3~1 2c0c1f3 \| grep -v ^docs/production/` | empty output |
-| tree not clean: `.gitignore` +`AGENTS.md` | `git diff .gitignore` | matches |
+| tree not clean: `.gitignore` +[`AGENTS.md`](../../../AGENTS.md) | `git diff .gitignore` | matches |
 | `origin` branch = HEAD | `git log origin/docs/architecture-roadmap-v1 -1` | `2c0c1f3` |
 | 33 commits / 259 files ahead of `master` | `git rev-list --count master..HEAD`; `git diff --shortstat master HEAD` | 33; 259 files |
 | no CI | `ls .github` | not found |
@@ -19,7 +19,7 @@ Proof that the statuses, references, tasks and dependencies in the package are c
 
 ## 2. Independent ADG reproduction
 
-Script `ia.py` (parses only the published tables of `module-boundaries.md`; shipped with this package). Output:
+Script `ia.py` (parses only the published tables of [`module-boundaries.md`](../../production/module-boundaries.md); shipped with this package). Output:
 
 ```
 tasks 147 gates 15
@@ -46,11 +46,11 @@ Original validator (`production-plan-v2.1/_build/validate.py`): `tasks: 147 gate
 | every task/gate/external id mentioned in the five new documents exists in the ADG | PASS (`val.py`: 0 unknown ids; 24 / 142 / 20 / 6 / 2 ids checked) |
 | no `PS-n`/`Gn` above 14 | PASS |
 | no unfilled template placeholders | PASS (after table generation) |
-| relative repository paths in backticks exist | PASS except two **intended future** files: `docs/archive/PROJECT_STATUS.md` and `docs/production/decision-registry.md` (do not exist yet; the documents say so) |
+| relative repository paths in backticks exist | PASS except two **intended future** files: [`docs/archive/PROJECT_STATUS.md`](../PROJECT_STATUS.md) and `docs/production/decision-registry.md` (do not exist yet; the documents say so) |
 | stage table in PROJECT_STATUS generated from Part D, not hand-typed | `gen.py`; 15 rows; member counts 8,16,12,6,7,14,7,5,6,5,14,9,10,17,8 |
 | no status stronger than evidence | no task is marked Implemented/Verified/Accepted; no milestone Reached; every decision in 5.5 B shows "not confirmed" |
-| separation of task status and contract status | `AGENT_HANDOFF.md` section 6 keeps two systems; contract approval and maturity axes separate |
-| milestones vs stages not 1:1 | `DEVELOPMENT_ROADMAP.md` section 1, 2 |
+| separation of task status and contract status | [`AGENT_HANDOFF.md`](../AGENT_HANDOFF.md) section 6 keeps two systems; contract approval and maturity axes separate |
+| milestones vs stages not 1:1 | [`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md) section 1, 2 |
 | no invented dates or numeric budgets | numbers appear only as `[B-n]`; R0.2 procedure |
 
 ## 4. Not verified (Unknown)
@@ -67,6 +67,6 @@ On each status update, re-run from the repository root: the git commands in sect
 
 ## 6. Post-commit validation (2026-11-05)
 
-* `2c0c1f3..60d0bfc` = 8 files, +920/-0, all under `docs/` (`PROJECT_STATUS.md`, `DEVELOPMENT_ROADMAP.md`, `RELEASE_CRITERIA.md`, `AGENT_HANDOFF.md`, `audit/*` incl. `ia.py`, `gen.py`); no file under `crates/`, `godot-client/`, `scripts/`, `Cargo.*`, and none under `docs/production/`. Parent of `60d0bfc` is `2c0c1f3`.
+* `2c0c1f3..60d0bfc` = 8 files, +920/-0, all under `docs/` ([`PROJECT_STATUS.md`](../PROJECT_STATUS.md), [`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md), [`RELEASE_CRITERIA.md`](../../RELEASE_CRITERIA.md), [`AGENT_HANDOFF.md`](../AGENT_HANDOFF.md), `audit/*` incl. `ia.py`, `gen.py`); no file under `crates/`, `godot-client/`, `scripts/`, `Cargo.*`, and none under `docs/production/`. Parent of `60d0bfc` is `2c0c1f3`.
 * Defects found in the first version of the tools and fixed in the working tree: `ia.py` had a hard-coded absolute path; `gen.py` depended on the current directory and wrote to a scratchpad path with a placeholder that no longer exists; `val.py`, cited here, was not in the repository. Now: relative paths, `gen.py` prints, `val.py` added.
-* Status documents had no separation of baseline / documentation commit / HEAD; fixed in `PROJECT_STATUS.md` 5.2 and `AGENT_HANDOFF.md` section 1.
+* Status documents had no separation of baseline / documentation commit / HEAD; fixed in [`PROJECT_STATUS.md`](../PROJECT_STATUS.md) 5.2 and [`AGENT_HANDOFF.md`](../AGENT_HANDOFF.md) section 1.

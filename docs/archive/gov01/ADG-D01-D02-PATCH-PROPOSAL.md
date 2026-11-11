@@ -1,6 +1,6 @@
 # ADG D-01 / D-02: patch proposal
 
-**Status:** **Proposed.** Nothing is applied. `docs/production/module-boundaries.md` is unchanged (`git diff 2c0c1f3 HEAD -- docs/production` empty). Applying needs the Project Owner's acceptance (ST-2) and an Integration Owner review. This document is the exact change plus how it was checked.
+**Status:** **Proposed.** Nothing is applied. [`docs/production/module-boundaries.md`](../../production/module-boundaries.md) is unchanged (`git diff 2c0c1f3 HEAD -- docs/production` empty). Applying needs the Project Owner's acceptance (ST-2) and an Integration Owner review. This document is the exact change plus how it was checked.
 
 ## 1. What changes
 
@@ -109,4 +109,4 @@ longest path to G14: 25 tasks
 * The generator of the tables is not in the repository (F-5): after acceptance either commit it with the rule, or declare the markdown the source and apply the patch.
 * Which stages are optional for release (owner decision; no exclusion proposed).
 * The per-stage required-predecessor table (ANALYSIS 3.3).
-* Part E text in `module-boundaries.md` is not patched (the new checks are listed above, not written into the markdown).
+* Part E text in [`module-boundaries.md`](../../production/module-boundaries.md) is not patched (the new checks are listed above, not written into the markdown).

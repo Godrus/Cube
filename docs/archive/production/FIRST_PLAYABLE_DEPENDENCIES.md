@@ -1,11 +1,11 @@
 # M2 First Playable: technology dependencies
 
-**Status:** **Proposed** [NP]. The mapping is the preparer's reading of the architecture documents at HEAD `5c9a5c5`; it is not a plan of record and does not authorise any work. Task identifiers are those of the Authoritative Dependency Graph (ADG) in `module-boundaries.md`; the computation is reproducible with `python docs/archive/audit/m2_slice.py`.
-**Scope:** `FIRST_PLAYABLE_SCOPE.md`. **Principle:** M2 needs the *minimum technology subset* that makes its loop real; all other technology proceeds in parallel and does not block M2.
+**Status:** **Proposed** [NP]. The mapping is the preparer's reading of the architecture documents at HEAD `5c9a5c5`; it is not a plan of record and does not authorise any work. Task identifiers are those of the Authoritative Dependency Graph (ADG) in [`module-boundaries.md`](../../production/module-boundaries.md); the computation is reproducible with `python docs/archive/audit/m2_slice.py`.
+**Scope:** [`FIRST_PLAYABLE_SCOPE.md`](FIRST_PLAYABLE_SCOPE.md). **Principle:** M2 needs the *minimum technology subset* that makes its loop real; all other technology proceeds in parallel and does not block M2.
 
 ## 1. Game capability to technology
 
-Legend. Owner: the module owner in `module-boundaries.md` (A.1/A.2) or **UNASSIGNED**. Temporary: whether a simplified implementation is acceptable (see `FIRST_PLAYABLE_SCOPE.md` section 5). Blocks M2: **Yes** = needed for the loop; **No** = may be deferred.
+Legend. Owner: the module owner in [`module-boundaries.md`](../../production/module-boundaries.md) (A.1/A.2) or **UNASSIGNED**. Temporary: whether a simplified implementation is acceptable (see [`FIRST_PLAYABLE_SCOPE.md`](FIRST_PLAYABLE_SCOPE.md) section 5). Blocks M2: **Yes** = needed for the loop; **No** = may be deferred.
 
 | # | Game capability | Required technology | Required interface / contract (status) | Minimum implementation for M2 | ADG tasks (stage) | Owner | Temporary possible? | Blocks M2 |
 |---|---|---|---|---|---|---|---|---|
@@ -18,7 +18,7 @@ Legend. Owner: the module owner in `module-boundaries.md` (A.1/A.2) or **UNASSIG
 | 7 | Destroy and place voxels | Editing API, orchestration, voxel backend, user commit path | E-02..E-12 (Proposed, GOV-09); ACR-002 (undecided); ACR-004 A | `set/clear/fill region` through `IEditingService`, authorisation by origin, one user commit path | API-01..04 (PS-3), ORCH-01..05 (PS-4), VOX-01 (PS-5) | Main Agent / Integration Owner; Agent A; Agent B | no (AOD-15) | **Yes** |
 | 8 | Creatures and behaviour | entity model, server tick, deterministic spawning, simple AI | none exist (gameplay is outside the contracts) | state-machine creatures simulated on the server near the player, spawned by seeded rule | SRV-03 (PS-13) for the tick; **no gameplay tasks** | **UNASSIGNED** (gameplay) | yes | **Yes** |
 | 9 | Combat | hit resolution, damage rules, events to clients | none exist | server-side attack, damage, death, respawn; events replicated | **no gameplay tasks**; SRV-04 for replication | **UNASSIGNED** (gameplay) | yes | **Yes** |
-| 10 | Items, inventory, equipment, stats | gameplay data model, server-owned inventory, **player state persistence** | none exist; `system-boundaries-v1.md` lists "player, inventory, characters" under a server persistence service with the database undecided | item definitions as data, inventory list, one equip slot, derived stats; saved with the world | **no gameplay tasks; no persistence task for player state** | **UNASSIGNED** (gameplay); persistence: Agent H | yes (local file in the world save) | **Yes** |
+| 10 | Items, inventory, equipment, stats | gameplay data model, server-owned inventory, **player state persistence** | none exist; [`system-boundaries-v1.md`](../../architecture/system-boundaries-v1.md) lists "player, inventory, characters" under a server persistence service with the database undecided | item definitions as data, inventory list, one equip slot, derived stats; saved with the world | **no gameplay tasks; no persistence task for player state** | **UNASSIGNED** (gameplay); persistence: Agent H | yes (local file in the world save) | **Yes** |
 | 11 | Save, load, recovery | codec, manifest, snapshot store, journal, compaction, recovery | P-01..P-07 and WP-xx (Draft); persistence format approval GOV-10 needs the Voxel Architecture (RG-1) | AOD-21 protocol: snapshot, fsync, verify, atomic manifest, journal tail replay | PERS-01..06 (PS-10); SPK-PERS (PS-0); ITG-01 | Agent H | the format may be labelled experimental only with an owner ruling | **Yes** |
 | 12 | Single-player runtime (authority) | embedded authoritative server, tick loop, in-process transport | NET-01..03, SR-01..SR-10 (Draft, GOV-22) | embedded host over the in-process transport, single writer | SRV-01, SRV-03 (PS-13); NET-01..03 | **UNASSIGNED** (Server Runtime, Networking Adapter) | the in-process transport is the minimum; **no shortcut that bypasses the server** | **Yes** |
 | 13 | State to client (chunks, entities, inventory, events) | replication, interest management, client cache | NET-02 protocol and session types (Draft); **game messages are not in NET-02** | replicate chunk deltas and a small set of entity/inventory/combat events | SRV-04, NET-02 (PS-13), CLI-01, CLI-05 | **UNASSIGNED** | yes (small message set) | **Yes** |
@@ -28,16 +28,16 @@ Legend. Owner: the module owner in `module-boundaries.md` (A.1/A.2) or **UNASSIG
 | 17 | Mobile | device builds, touch, budgets | OAM-06; DG-1..DG-3 | statement only | DEV-01, DG-1..3 | owner / Agent I | n/a | **No** (before M3: checkpoint) |
 | 18 | Undo/redo, tools, composite, resampling, SDF/mesh backends | History, tools, composite, resolution, backends | E-09..E-10, tool contracts | none | HIST-*, SCU-*, BOO-*, COMP-*, RES-*, SDF-*, MSH-* | various | n/a | **No** |
 | 19 | Dedicated server, external transport | SRV-08, NET-04 | GOV-12 | none | SRV-08, NET-04 | **UNASSIGNED** | n/a | **No** |
-| 20 | Performance and device budgets | benchmarks on target hardware | `RELEASE_CRITERIA.md` B-1..B-11 | measure and report on named desktop hardware | TEST-02, TEST-05, benches | Agent I | n/a | measured, **not** thresholds |
+| 20 | Performance and device budgets | benchmarks on target hardware | [`RELEASE_CRITERIA.md`](../../RELEASE_CRITERIA.md) B-1..B-11 | measure and report on named desktop hardware | TEST-02, TEST-05, benches | Agent I | n/a | measured, **not** thresholds |
 
 ## 2. Gaps: technology the game needs that no task in the plan covers
 
 | Gap | Needed by | Proposal |
 |---|---|---|
-| Gameplay rules module (entities, combat, items, stats, spawning) | rows 4, 8, 9, 10 | a *Game Rules* module above the Editing API ports (`GAME_TRACK_ROADMAP.md` section 6); needs an owner, an ADG Part A/B change and an entity-model spike (REF-13) |
+| Gameplay rules module (entities, combat, items, stats, spawning) | rows 4, 8, 9, 10 | a *Game Rules* module above the Editing API ports ([`GAME_TRACK_ROADMAP.md`](GAME_TRACK_ROADMAP.md) section 6); needs an owner, an ADG Part A/B change and an entity-model spike (REF-13) |
 | Character controller and collision-based movement | row 4 | part of Game Rules; collision queries from the collision provider (VOX-05); determinism is an open decision (roadmap-v1 gate 6) |
 | Voxel ray/spatial query API | row 6 | decide the home of PR-08 queries (open in the contracts) |
-| Player state persistence (inventory, stats, position) | rows 10, 11 | a *player record* stored with the world save; needs a contract and a place in PS-10 (not in PERS-01..09); `system-boundaries-v1.md` leaves the storage open |
+| Player state persistence (inventory, stats, position) | rows 10, 11 | a *player record* stored with the world save; needs a contract and a place in PS-10 (not in PERS-01..09); [`system-boundaries-v1.md`](../../architecture/system-boundaries-v1.md) leaves the storage open |
 | Gameplay protocol messages | row 13 | extend the protocol scope beyond handshake and session messages (NET-02) |
 | Placeholder asset and UI pipeline | rows 1, 15 | an art/UI owner and a minimal pipeline; engine-side only |
 | Deterministic seeded randomness service for loot and spawning | rows 2, 8, 9 | a rule (seeded, replayable) rather than a module; to be written into the Game Rules contract |

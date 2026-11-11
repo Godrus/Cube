@@ -1,7 +1,7 @@
 # System Boundaries v1
 
-**Status:** **Proposed** architecture description for the owner, derived from the Approved Owner Decisions (AOD-01…24; AOD-20…23 approved on 2026-11-05, AOD-24 conditionally, `docs/decisions/owner-architecture-decisions-v1.md`). It does not change AU-1.0, ACR-001/002/003, any contract (all stay Draft, AOD-18) or the dependency grid in the QA Pack. Anything marked **(proposal)** is not decided. ACR-004 (system-commit boundary) is prepared as Pending in `audit-resolution-report.md`.
-**Scope:** processes, trust zones, modules, write paths, data ownership and the interfaces between them, from the current Rust + Godot spike to a client/server voxel RPG. Behaviour of individual features is out of scope (see `roadmap-v1.md`).
+**Status:** **Proposed** architecture description for the owner, derived from the Approved Owner Decisions (AOD-01…24; AOD-20…23 approved on 2026-11-05, AOD-24 conditionally, [`docs/decisions/owner-architecture-decisions-v1.md`](../decisions/owner-architecture-decisions-v1.md)). It does not change AU-1.0, ACR-001/002/003, any contract (all stay Draft, AOD-18) or the dependency grid in the QA Pack. Anything marked **(proposal)** is not decided. ACR-004 (system-commit boundary) is prepared as Pending in [`audit-resolution-report.md`](../decisions/audit-resolution-report.md).
+**Scope:** processes, trust zones, modules, write paths, data ownership and the interfaces between them, from the current Rust + Godot spike to a client/server voxel RPG. Behaviour of individual features is out of scope (see [`roadmap-v1.md`](roadmap-v1.md)).
 
 ## 1. Processes and trust zones
 
@@ -75,7 +75,7 @@ Current non-compliant spike code (documented, experimental): the streamer and `e
 | System-commit (materialise/evict) | WorldGen to Core | generated chunk values | **new, not written** (touches P0, ACR-001 area) |
 | Persistence ports (`IDeltaStore`, `ISnapshotStore`, P-series) | server-internal | world record, journal, snapshots | Draft; must be aligned with AOD-17 |
 | Replication protocol | server to client (and requests back) | chunk baselines or seed + version, journal deltas, revisions, interest changes | **not designed**; spike TCP protocol is Draft and unauthenticated |
-| Transport abstraction (client runtime to server runtime) | both | the same messages over an in-process carrier (embedded) or an external carrier (dedicated); identical semantics | **Draft** `api-contracts/server-runtime-contracts.md` (SR-05…SR-07); external carrier **Spike Required** |
+| Transport abstraction (client runtime to server runtime) | both | the same messages over an in-process carrier (embedded) or an external carrier (dedicated); identical semantics | **Draft** [`api-contracts/server-runtime-contracts.md`](../api-contracts/server-runtime-contracts.md) (SR-05…SR-07); external carrier **Spike Required** |
 | Runtime-to-frontend adapter | client runtime to Godot | read views of chunks, dirty sections, mesh arrays, input intents | spike: `CubeRuntime`/`CubeWorld` (experimental) |
 
 ## 6. Frontend boundary (Godot replaceable, AOD-06/07)

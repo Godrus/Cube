@@ -2,7 +2,7 @@
 
 **Status:** DRAFT 0.1 — specified for approval; none approved.
 **Owner:** Main Agent / Integration Owner. Basis: AU-1.0 §3.2, §13, §14, §20, §23; Spec §5–§6, §9, §12.
-Conventions: `README.md`. Field order: Purpose · Model · Ownership · Lifetime · Access · Revision · Dirty · Threading · Cancel · Errors · Serialization · Compat · Tests · Open.
+Conventions: [`README.md`](README.md). Field order: Purpose · Model · Ownership · Lifetime · Access · Revision · Dirty · Threading · Cancel · Errors · Serialization · Compat · Tests · Open.
 
 ## 0. Role of this layer
 

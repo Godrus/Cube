@@ -6,7 +6,7 @@
 
 | Specification | State in the repository | What exists instead |
 |---|---|---|
-| **Geometry Processing Specification** | absent (blocker B-1); AOD-24 states it "may not be replaced by a general assumption before PR-01..PR-08 are approved" | Draft contracts PR-01...PR-08 in `docs/api-contracts/processing-contracts.md` (Proposed; text derived from the reconstructed AU-1.0, not from the specification) |
+| **Geometry Processing Specification** | absent (blocker B-1); AOD-24 states it "may not be replaced by a general assumption before PR-01..PR-08 are approved" | Draft contracts PR-01...PR-08 in [`docs/api-contracts/processing-contracts.md`](processing-contracts.md) (Proposed; text derived from the reconstructed AU-1.0, not from the specification) |
 | **Voxel Architecture 1.0** | absent (blocker B-1) | the spike's brick model as candidate baseline BL-1 (AOD-24, not approved); Draft contracts C-07...C-12 (PC-1 is the Provisional minimum slice C-07, C-08, C-09) |
 
 Both statements are checked at HEAD `362a124`. The content of these two documents is **unknown** and is not reconstructed here. The "temporary contracts" therefore speak only about *what M2-T relies on* and *what it must not assume*.
@@ -40,7 +40,7 @@ Common fields for each: **scope**, **limits**, **forbidden assumptions**, **comp
 * **Compatibility:** the Draft text is unchanged; the implementation sits behind the Processing crate's public API; no other crate imports internals.
 * **Migration:** at the arrival of the specification, diff PR-01...PR-08 against it (gate RG-2); a budgeted rework task exists (not estimated).
 * **Expiry:** the earlier of (a) approval task `GOV-07` accepted, (b) the start of M3 content work.
-* **Approver:** Project Owner (ODM-02). **Open question for the owner:** does a Provisional registration satisfy AOD-24's condition? If not, only the supplied specification unblocks the path (`M2_TASK_GRAPH.md` section 6).
+* **Approver:** Project Owner (ODM-02). **Open question for the owner:** does a Provisional registration satisfy AOD-24's condition? If not, only the supplied specification unblocks the path ([`M2_TASK_GRAPH.md`](../archive/m2-delivery-review/M2_TASK_GRAPH.md) section 6).
 
 ### TC-02 Voxel representation baseline (PC-1 = C-07, C-08, C-09)
 * **Scope:** brick-of-cells storage with constant/dense encodings, `u16` material channel, optional quantised density; Euclidean division; named-constant brick edge 16 (BL-1).
@@ -130,11 +130,11 @@ Common fields for each: **scope**, **limits**, **forbidden assumptions**, **comp
 | Geometry Processing Specification | before PR-01...PR-08 are Owner-Approved (`GOV-07`) and before M3 content work | production merges that rely on Processing must eventually rest on an approved contract; TC-01 expires |
 | Voxel Architecture | before the first persistence format approval (`GOV-10`) and before M3 content that must survive versions | formats and PC-1 cannot be frozen without it |
 | Full persistence format | before any save is promised to be loadable by a later build (not M2) | |
-| Numeric policies for Mesh/SDF/gameplay (D-T classes 3-5) | before those representations or gameplay state are approved | `GOV-01-DECISION-REGISTER.md` item 11 |
+| Numeric policies for Mesh/SDF/gameplay (D-T classes 3-5) | before those representations or gameplay state are approved | [`GOV-01-DECISION-REGISTER.md`](../archive/gov01/GOV-01-DECISION-REGISTER.md) item 11 |
 
 ## 5. Guard against a temporary contract becoming permanent
 
-1. Every TC has an entry in the Provisional register with its expiry; the register is part of `PROJECT_STATUS.md`.
+1. Every TC has an entry in the Provisional register with its expiry; the register is part of [`PROJECT_STATUS.md`](../archive/PROJECT_STATUS.md).
 2. `archcheck` rule (proposal): production crates may reference only Owner-Approved or Provisional contracts, and a Provisional contract carries its expiry in a machine-readable list; a CI check fails when an expiry condition is met and the entry is still open.
 3. Provisional contracts never become Frozen without revalidation and the owner (plan 3.1).
 4. Tests that depend on a Provisional contract are tagged `provisional`.

@@ -2,7 +2,7 @@
 
 **Status:** DRAFT 0.1 — specified for approval; none approved.
 **Implementing module:** Persistence Integration (Agent H). Basis: AU-1.0 §15–§18, §23; Spec §14.
-Conventions: `README.md`. Field order: Purpose · Model · Ownership · Lifetime · Access · Revision · Dirty · Threading · Cancel · Errors · Serialization · Compat · Tests · Open.
+Conventions: [`README.md`](README.md). Field order: Purpose · Model · Ownership · Lifetime · Access · Revision · Dirty · Threading · Cancel · Errors · Serialization · Compat · Tests · Open.
 
 ## 0. Boundary rules
 

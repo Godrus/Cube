@@ -1,9 +1,9 @@
 # Owner Approval Procedure — Proposal
 
-> **Update 2026-11-09:** the owner adopted the model of this proposal in simplified form (DEC-002 in `docs/decisions/decision-registry.md`): statuses `PROPOSED/RECORDED/CONFIRMED/DEFERRED/SUPERSEDED/REJECTED`, levels `CONCEPT/TECHNICAL`, chat confirmation as a permitted source, no mandatory signatures, no second confirmation cycle. ODM-10 is closed. Where this document differs (E1/E2/E3/E5 evidence ladder, G-GOV gate, ratification batch as a gate), the registry rules win. The historical analysis is kept unchanged.
+> **Update 2026-11-09:** the owner adopted the model of this proposal in simplified form (DEC-002 in [`docs/decisions/decision-registry.md`](../../decisions/decision-registry.md)): statuses `PROPOSED/RECORDED/CONFIRMED/DEFERRED/SUPERSEDED/REJECTED`, levels `CONCEPT/TECHNICAL`, chat confirmation as a permitted source, no mandatory signatures, no second confirmation cycle. ODM-10 is closed. Where this document differs (E1/E2/E3/E5 evidence ladder, G-GOV gate, ratification batch as a gate), the registry rules win. The historical analysis is kept unchanged.
 
 **Статус:** **Proposed.** Ничего не действует, пока владелец не примет это решение сам (ODM-10). Документ не создаёт реестр в репозитории, не меняет планы и статусы, не отключает проверок. Каждое правило, отличающееся от действующего плана, помечено **Δ** (изменение правила, требует решения владельца).
-**Обоснование и противоречия:** `odm-10-governance-review.md`.
+**Обоснование и противоречия:** [`odm-10-governance-review.md`](odm-10-governance-review.md).
 
 ---
 
@@ -54,9 +54,9 @@
 
 ---
 
-## 3. Структура `decision-registry.md` (шаблон; в репозиторий не добавляется)
+## 3. Структура [`decision-registry.md`](../../decisions/decision-registry.md) (шаблон; в репозиторий не добавляется)
 
-Файл append-only, путь плана `docs/decisions/decision-registry.md`. Одна запись = один блок. Машиночитаемость (для будущего `registry-lint`): ключи `key: value`, один блок на `## DEC-nnn`.
+Файл append-only, путь плана [`docs/decisions/decision-registry.md`](../../decisions/decision-registry.md). Одна запись = один блок. Машиночитаемость (для будущего `registry-lint`): ключи `key: value`, один блок на `## DEC-nnn`.
 
 ```
 ## DEC-nnn  <название>
@@ -128,7 +128,7 @@ history:                         # только добавлять строки
 
 **Пакет ратификации** (`ratification batch`): один акт E3/E2 владельца над перечнем id; для каждого — Confirm/Amend/Reject/Leave RECORDED.
 
-* Что вносится: AOD-01…24; решение Rust+Godot (`owner-decision-rust-godot.md`, чат 2026-11-02); OAM-01/02/03/07/08 (2026-11-05); при желании — OCC-подтверждения 2026-11-09 (после отдельного просмотра, см. `historical-decisions-reconciliation.md`).
+* Что вносится: AOD-01…24; решение Rust+Godot ([`owner-decision-rust-godot.md`](../../decisions/owner-decision-rust-godot.md), чат 2026-11-02); OAM-01/02/03/07/08 (2026-11-05); при желании — OCC-подтверждения 2026-11-09 (после отдельного просмотра, см. [`historical-decisions-reconciliation.md`](historical-decisions-reconciliation.md)).
 * Начальный статус всех — `RECORDED`; `decided_on` — дата **из заголовка исходного документа** с `decided_on_basis` (документ + раздел) и `source_availability: UNAVAILABLE` для чата; `recorded_on` — SHA коммита документа (проверяется по `git log`); `confirmed_on` пусто.
 * Дата ратификации = дата акта. Никаких дат раньше акта в `confirmed_on`.
 * Слова «Approved» в AOD-файлах означают `RECORDED`, пока нет пакета (план §3.3, «Fact»); сами файлы не правятся.
@@ -159,7 +159,7 @@ history:                         # только добавлять строки
 
 | Документ | Место | Erratum |
 |---|---|---|
-| `docs/product-vision/cube-owner-decision-register.md` | §0.1 | «неподписанность коммитов не доказывает отсутствие решений; не зарегистрировано в реестре, потому что реестра и акта подтверждения нет» |
-| `docs/product-vision/cube-product-vision.md` | §0.1 | то же |
-| `docs/product-vision/production-plan-alignment-report.md` | §1 п.6 | то же |
-| `docs/archive/owner-decision-m2t-optimization/OWNER_DECISION_REGISTER.md` | §0.3 | то же |
+| [`docs/product-vision/cube-owner-decision-register.md`](../../product-vision/cube-owner-decision-register.md) | §0.1 | «неподписанность коммитов не доказывает отсутствие решений; не зарегистрировано в реестре, потому что реестра и акта подтверждения нет» |
+| [`docs/product-vision/cube-product-vision.md`](../../product-vision/cube-product-vision.md) | §0.1 | то же |
+| [`docs/product-vision/production-plan-alignment-report.md`](../../product-vision/production-plan-alignment-report.md) | §1 п.6 | то же |
+| [`docs/archive/owner-decision-m2t-optimization/OWNER_DECISION_REGISTER.md`](../owner-decision-m2t-optimization/OWNER_DECISION_REGISTER.md) | §0.3 | то же |

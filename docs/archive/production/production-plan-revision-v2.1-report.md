@@ -1,7 +1,7 @@
 # Cube Production Plan v2.1: Revision Report (final consistency review)
 
 **Status:** report on a **Proposed** revision. Nothing in the documents is approved; no contract, ACR, AOD, OD, OAM or D-decision changed status; no code, merge, commit, push or branch change was made; no implementation started. Work was done outside the repository and then written into the working tree of `docs/production/` **without committing**.
-**Set (v2.1):** `production-architecture-plan.md`, `module-boundaries.md` (with the ADG), `implementation-roadmap.md`, `agent-task-breakdown.md`, `architecture-blocker-decisions.md`, `integration-and-qa-plan.md`, this report, and the new `ps-0-exit-checklist.md`. The earlier `production-plan-revision-v2-report.md` stays as a historical record with a "superseded" banner.
+**Set (v2.1):** [`production-architecture-plan.md`](../../production/production-architecture-plan.md), [`module-boundaries.md`](../../production/module-boundaries.md) (with the ADG), [`implementation-roadmap.md`](../../production/implementation-roadmap.md), [`agent-task-breakdown.md`](../../production/agent-task-breakdown.md), [`architecture-blocker-decisions.md`](../../production/architecture-blocker-decisions.md), [`integration-and-qa-plan.md`](../../production/integration-and-qa-plan.md), this report, and the new [`ps-0-exit-checklist.md`](../../production/ps-0-exit-checklist.md). The earlier [`production-plan-revision-v2-report.md`](production-plan-revision-v2-report.md) stays as a historical record with a "superseded" banner.
 
 ## 1. Basis, method and limits
 
@@ -13,7 +13,7 @@
 ## 2. Verdict
 
 **READY FOR OWNER APPROVAL** (of this document set).
-Meaning, precisely: the seven documents are internally consistent after the corrections below; the dependency graph is complete and acyclic; the open items are owner decisions or external inputs and are listed, not hidden. It does **not** mean that PS-0 or PS-1 is complete or may start: **PS-0 is NOT complete (0 of 8 gate tasks done, 0 of 15 decisions confirmed) and PS-1 is NOT ready to start** (`ps-0-exit-checklist.md`).
+Meaning, precisely: the seven documents are internally consistent after the corrections below; the dependency graph is complete and acyclic; the open items are owner decisions or external inputs and are listed, not hidden. It does **not** mean that PS-0 or PS-1 is complete or may start: **PS-0 is NOT complete (0 of 8 gate tasks done, 0 of 15 decisions confirmed) and PS-1 is NOT ready to start** ([`ps-0-exit-checklist.md`](../../production/ps-0-exit-checklist.md)).
 Two conditions would change the verdict to NOT READY: (1) the owner rejects the canonical numbering or the ADG semantics (then the documents must be regenerated), (2) a check in section 10 fails after any later edit.
 
 ## 3. Contradictions found and corrected
@@ -33,7 +33,7 @@ Two conditions would change the verdict to NOT READY: (1) the owner rejects the 
 | V-11 | Part D (start, merge, closing conditions) was hand-written and could diverge from the task edges | Part D is generated from the edges; only extra closing text is hand-written | module-boundaries D | 6 |
 | V-12 | GOV-04 (baseline option) and GOV-05 (CI specification with licence allow-list) did not depend on the owner decisions they need | GOV-04 and GOV-05 depend on GOV-01 | module-boundaries C | 6 |
 | V-13 | CI and archcheck were described but nothing required them to be enforceable | GOV-06, XT-01, XT-02 acceptance: required status checks (branch-protection evidence) and red-on-seeded-failure evidence | integration-and-qa-plan 3; plan 14; checklist | 8 |
-| V-14 | broken cross-reference ("section 2.3 of the roadmap") | corrected to `implementation-roadmap.md` section 4 | plan 1 | 6 |
+| V-14 | broken cross-reference ("section 2.3 of the roadmap") | corrected to [`implementation-roadmap.md`](../../production/implementation-roadmap.md) section 4 | plan 1 | 6 |
 | V-15 | "at most four crates exist when PS-1 starts" contradicted the crate creation stages | "during PS-1" | module-boundaries A.1 | 6 |
 | V-16 | PS-1 Core model silently assumed the single-layer model (OAM-09 is decided later, in GOV-11) | explicit compatibility note: C1 baseline, C2 additive, PS-1 does not wait for OAM-09 | plan 5 | 7 |
 | V-17 | the contracts closing ACR-004 part A (SC-xx drafts) had no approval scope: P0-alpha lists only C-xx contracts | P0-alpha explicitly includes the part A amendments to C-01/C-16/C-17 (texts SC-01, SC-02, SC-05, SC-10); no other SC/WG/WP/SR contract | plan 4.1 | 2, 5 |
@@ -197,7 +197,7 @@ Tasks, gates, external inputs and tasks outside any gate are in the first line a
 
 ## 9. Recommendations
 
-1. Run GOV-01/GOV-02 as one owner session using `ps-0-exit-checklist.md`. 2. Start GOV-04 and GOV-06 in parallel. 3. Supply the Geometry Processing Specification early: it is the longest external dependency (it gates API-02 and everything after). 4. Name the Core Agent, Integration Owner and Agent I before anything else. 5. After approval of the document set, regenerate nothing by hand: edit `_build/data.py` and rebuild, so that the ADG stays the single source.
+1. Run GOV-01/GOV-02 as one owner session using [`ps-0-exit-checklist.md`](../../production/ps-0-exit-checklist.md). 2. Start GOV-04 and GOV-06 in parallel. 3. Supply the Geometry Processing Specification early: it is the longest external dependency (it gates API-02 and everything after). 4. Name the Core Agent, Integration Owner and Agent I before anything else. 5. After approval of the document set, regenerate nothing by hand: edit `_build/data.py` and rebuild, so that the ADG stays the single source.
 
 ## 10. Re-audit of the documents
 

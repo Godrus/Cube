@@ -1,9 +1,9 @@
 # Production Plan Alignment Report
 
-> **Erratum 2026-11-09 (decision registry now exists: `docs/decisions/decision-registry.md`).** (1) Statements here that unsigned commits mean 'no decision can be confirmed' are withdrawn: DEC-002 accepts an explicit owner chat statement as a source and makes signatures optional. (2) CPR-PRN-05…08 are not confirmed decisions: the owner stated them as context; they are `RECORDED` (DEC-052). CPR-PRN-01…04 repeat AOD-01…07 (`RECORDED`). (3) AOD-25/AOD-26 are **not assigned** as bundles; the content is split into DEC-030…DEC-035 (CONCEPT, CONFIRMED from the owner's message) and DEC-053/DEC-054 (RECORDED / PROPOSED). (4) 'M2' in CPR-SAV-01 is read as 'the first approved save format'; working terms: **M2-T** = technical slice (walk, edit, save/load; the old M2 of DEVELOPMENT_ROADMAP), **M2** = First Playable with the gameplay loop (Game Track); ODM-06 still fixes their acceptance. (5) Priority, stage, module and 'related decisions' columns are agent annotations, not confirmations; only the `statement` of a registry entry is the owner's wording. (6) 'owner-signed' means an explicit owner statement, PR approval or owner-written text; no cryptographic signature is required (DEC-002).
+> **Erratum 2026-11-09 (decision registry now exists: [`docs/decisions/decision-registry.md`](../decisions/decision-registry.md)).** (1) Statements here that unsigned commits mean 'no decision can be confirmed' are withdrawn: DEC-002 accepts an explicit owner chat statement as a source and makes signatures optional. (2) CPR-PRN-05…08 are not confirmed decisions: the owner stated them as context; they are `RECORDED` (DEC-052). CPR-PRN-01…04 repeat AOD-01…07 (`RECORDED`). (3) AOD-25/AOD-26 are **not assigned** as bundles; the content is split into DEC-030…DEC-035 (CONCEPT, CONFIRMED from the owner's message) and DEC-053/DEC-054 (RECORDED / PROPOSED). (4) 'M2' in CPR-SAV-01 is read as 'the first approved save format'; working terms: **M2-T** = technical slice (walk, edit, save/load; the old M2 of DEVELOPMENT_ROADMAP), **M2** = First Playable with the gameplay loop (Game Track); ODM-06 still fixes their acceptance. (5) Priority, stage, module and 'related decisions' columns are agent annotations, not confirmations; only the `statement` of a registry entry is the owner's wording. (6) 'owner-signed' means an explicit owner statement, PR approval or owner-written text; no cryptographic signature is required (DEC-002).
 
-**Статус:** **Proposed.** Анализ совместимости подтверждённых концептуальных требований (`cube-product-vision.md`) с Production Plan v2.1. Ничего не утверждается; код, документы репозитория, Git-топология не изменялись.
-**Дата:** 2026-11-09. Ссылки `AI-/CPR-/OPN-` — `cube-product-vision.md`; `VP-/OCC-` — `cube-owner-decision-register.md`.
+**Статус:** **Proposed.** Анализ совместимости подтверждённых концептуальных требований ([`cube-product-vision.md`](cube-product-vision.md)) с Production Plan v2.1. Ничего не утверждается; код, документы репозитория, Git-топология не изменялись.
+**Дата:** 2026-11-09. Ссылки `AI-/CPR-/OPN-` — [`cube-product-vision.md`](cube-product-vision.md); `VP-/OCC-` — [`cube-owner-decision-register.md`](cube-owner-decision-register.md).
 
 ---
 
@@ -12,19 +12,19 @@
 | # | Что проверялось | Результат | Как проверено |
 |---|---|---|---|
 | 1 | Ветка / HEAD | `docs/architecture-roadmap-v1`, `16db379` (= `origin/docs/architecture-roadmap-v1`); 40 коммитов впереди `master` (`bf60534`); всего 43 коммита, все с `%G?=N`, один автор | `git status -sb`, `rev-parse`, `rev-list`, `log --format=%G?` |
-| 2 | Рабочее дерево | `M .gitignore` (добавлены `AGENTS.md` и 20 путей `_build/*`); `?? docs/decisions/owner-decision-extensibility-v1.md` (черновик). Больше ничего. (Мой запуск `adg_check.py` создал `docs/archive/audit/__pycache__`; он **удалён**, дерево восстановлено) | `git status --short`, `git diff` |
+| 2 | Рабочее дерево | `M .gitignore` (добавлены [`AGENTS.md`](../../AGENTS.md) и 20 путей `_build/*`); `?? docs/decisions/owner-decision-extensibility-v1.md` (черновик). Больше ничего. (Мой запуск `adg_check.py` создал `docs/archive/audit/__pycache__`; он **удалён**, дерево восстановлено) | `git status --short`, `git diff` |
 | 3 | Комплект Production Plan | **v2.1**, статус **Proposed**; `docs/production/`: plan, module-boundaries (ADG), implementation-roadmap, agent-task-breakdown, architecture-blocker-decisions, integration-and-qa-plan, ps-0-exit-checklist, два отчёта ревизии; плюс Game Track: GAME_TRACK_ROADMAP, FIRST_PLAYABLE_SCOPE/DEPENDENCIES, VERTICAL_SLICE_SCOPE, TECHNOLOGY-GAME-TRACK-INTEGRATION (все Proposed) | чтение заголовков |
-| 4 | PS-0 / ACR / AOD / OAM / OD | присутствуют: `ps-0-exit-checklist.md`, `PS-0-REMAINING-BLOCKERS.md`; ACR: `audit-resolution-report.md` + `acr-004-owner-review.md`; AOD: `owner-architecture-decisions-v1.md` (AOD-01…24); OAM: `owner-approval-matrix-v1.md` (OAM-01…10); OD: `OWNER_DECISION_REGISTER.md` (ODM-01…17), `GOV-01-DECISION-REGISTER.md` (15 решений), `OWNER-DECISION-REQUIRED.md`, `m2-delivery-review/OWNER_DECISIONS_REQUIRED.md` | `ls`, чтение |
+| 4 | PS-0 / ACR / AOD / OAM / OD | присутствуют: [`ps-0-exit-checklist.md`](../production/ps-0-exit-checklist.md), [`PS-0-REMAINING-BLOCKERS.md`](../archive/gov01/PS-0-REMAINING-BLOCKERS.md); ACR: [`audit-resolution-report.md`](../decisions/audit-resolution-report.md) + [`acr-004-owner-review.md`](../decisions/acr-004-owner-review.md); AOD: [`owner-architecture-decisions-v1.md`](../decisions/owner-architecture-decisions-v1.md) (AOD-01…24); OAM: [`owner-approval-matrix-v1.md`](../decisions/owner-approval-matrix-v1.md) (OAM-01…10); OD: [`OWNER_DECISION_REGISTER.md`](../archive/owner-decision-m2t-optimization/OWNER_DECISION_REGISTER.md) (ODM-01…17), [`GOV-01-DECISION-REGISTER.md`](../archive/gov01/GOV-01-DECISION-REGISTER.md) (15 решений), [`OWNER-DECISION-REQUIRED.md`](../archive/gov01/OWNER-DECISION-REQUIRED.md), `m2-delivery-review/OWNER_DECISIONS_REQUIRED.md` | `ls`, чтение |
 | 5 | Статусы контрактов | все Draft 0.1.0 / Proposed; P0-alpha не утверждён; PC-1 не зарегистрирован Provisional; ACR-001…003 Pending, ACR-004 Pending; OAM-09/10 не утверждены | README контрактов, plan §3–4, OAM |
-| 6 | Реестр / CI | `decision-registry.md` **нет**; `.github` **нет**; CI **нет** | `ls` |
-| 7 | PS-0 | **0 из 8** gate-задач выполнено (GOV-01…06, TEST-01, XT-01); **0 из 15** решений GOV-01 подтверждено | `ps-0-exit-checklist.md` §5; `PS-0-REMAINING-BLOCKERS.md` (на 2026-11-05; новых записей реестра с тех пор не появилось — проверено отсутствием файла) |
+| 6 | Реестр / CI | [`decision-registry.md`](../decisions/decision-registry.md) **нет**; `.github` **нет**; CI **нет** | `ls` |
+| 7 | PS-0 | **0 из 8** gate-задач выполнено (GOV-01…06, TEST-01, XT-01); **0 из 15** решений GOV-01 подтверждено | [`ps-0-exit-checklist.md`](../production/ps-0-exit-checklist.md) §5; [`PS-0-REMAINING-BLOCKERS.md`](../archive/gov01/PS-0-REMAINING-BLOCKERS.md) (на 2026-11-05; новых записей реестра с тех пор не появилось — проверено отсутствием файла) |
 | 8 | Условия допуска к PS-1 | plan §14: 6 критериев (подтверждённые решения ACR-001, ACR-003, ACR-004 A и D, OD-R1, OD-R2, OD-R6, D-R8, D-K, D-T, D-C, D-0; P0-alpha Approved + PC-1 Provisional; named owners; docs-only baseline; CI + required checks; ADG adopted). **Ни один не выполнен** | чек-лист §3 |
-| 9 | Структурная проверка ADG | запуск `python -I docs/archive/audit/adg_check.py` (read-only): 147 задач, 15 gates; **PASS**: нет циклов, все узлы существуют, нет обратных ссылок по стадиям, согласованность gate; **FAIL (policy)**: G14 closure, G1 как предшественник G2…G14, G1 merge policy (102 задачи) — это известные дефекты D-01/D-02 (`docs/archive/gov01/ADG-D01-D02-ANALYSIS.md`), патч — Proposed, не применён | фактический запуск |
-| 10 | Актуальность аудитов | `Independent-Production-Audit.md` и `PROJECT_STATUS.md` датированы 2026-11-05 на базе `2c0c1f3`; с тех пор 7 коммитов (GOV-01 corrective review, Game Track, M2 delivery review, M2-T optimisation). Аудит **не перезапускался**: считать устаревшим по состоянию репозитория, не по выводам | `git rev-list --count 2c0c1f3..HEAD` = 7 |
+| 9 | Структурная проверка ADG | запуск `python -I docs/archive/audit/adg_check.py` (read-only): 147 задач, 15 gates; **PASS**: нет циклов, все узлы существуют, нет обратных ссылок по стадиям, согласованность gate; **FAIL (policy)**: G14 closure, G1 как предшественник G2…G14, G1 merge policy (102 задачи) — это известные дефекты D-01/D-02 ([`docs/archive/gov01/ADG-D01-D02-ANALYSIS.md`](../archive/gov01/ADG-D01-D02-ANALYSIS.md)), патч — Proposed, не применён | фактический запуск |
+| 10 | Актуальность аудитов | [`Independent-Production-Audit.md`](../archive/audit/Independent-Production-Audit.md) и [`PROJECT_STATUS.md`](../archive/PROJECT_STATUS.md) датированы 2026-11-05 на базе `2c0c1f3`; с тех пор 7 коммитов (GOV-01 corrective review, Game Track, M2 delivery review, M2-T optimisation). Аудит **не перезапускался**: считать устаревшим по состоянию репозитория, не по выводам | `git rev-list --count 2c0c1f3..HEAD` = 7 |
 | 11 | Код vs документы | на `master` — только документация (0 файлов `crates/`: GOV-04 по факту ближе всего выполнен там); на ветке — 42 отслеживаемых файла `crates/` (спайк, 7 crate: `cube-core, -processing, -editing, -persistence, -worldgen, -server, -godot-adapter`). Имена crate отличаются от плана (`cube-editing` vs `cube-editing-api` + `cube-orchestration`); `cube-godot-adapter` зависит напрямую от `worldgen` и `persistence` (план: adapter → core, processing, api, client). Core: `Material` = голый `u16` (`brick.rs`). Всё это **спайк (AOD-18, AOD-24), не production**; расхождение ожидаемо, ничего не переносится. Тесты и бенчмарки **не запускались** | чтение `Cargo.toml`, `brick.rs`, `git ls-tree` |
-| 12 | `AGENTS.md` | в `.gitignore` (не отслеживается), ссылается на `.agent/…` и `.cursor/rules`; **их нет**; `.agent/state/CURRENT_CONTEXT.md` отсутствует. Условия обязательного обновления CURRENT_CONTEXT (завершён этап/рефакторинг) не наступили: файлы репозитория не менялись; правило не применено | `ls -a` |
+| 12 | [`AGENTS.md`](../../AGENTS.md) | в `.gitignore` (не отслеживается), ссылается на `.agent/…` и `.cursor/rules`; **их нет**; `.agent/state/CURRENT_CONTEXT.md` отсутствует. Условия обязательного обновления CURRENT_CONTEXT (завершён этап/рефакторинг) не наступили: файлы репозитория не менялись; правило не применено | `ls -a` |
 
-**Вывод §1:** состояние — «PS-0 открыт, PS-1 не начат, реализации нет»; новые требования не меняют этого и не открывают новых блокеров PS-1 сверх перечисленных в `implementation-roadmap-alignment.md` §8.
+**Вывод §1:** состояние — «PS-0 открыт, PS-1 не начат, реализации нет»; новые требования не меняют этого и не открывают новых блокеров PS-1 сверх перечисленных в [`implementation-roadmap-alignment.md`](implementation-roadmap-alignment.md) §8.
 
 ---
 
@@ -159,14 +159,14 @@ Presentation по стабильным id; пакеты не требуют Godo
 
 | # | Изменение | Куда | Размер | Утверждает |
 |---|---|---|---|---|
-| M-1 | В D-C (GOV-01 №12): «`MaterialIndex` непрозрачен, ширина объявляется в формате» | `architecture-blocker-decisions.md` D-C | 1 фраза | owner |
+| M-1 | В D-C (GOV-01 №12): «`MaterialIndex` непрозрачен, ширина объявляется в формате» | [`architecture-blocker-decisions.md`](../production/architecture-blocker-decisions.md) D-C | 1 фраза | owner |
 | M-2 | В GOV-01 №5/ACR-004 A, D: набор источников коммита расширяем, резерв значения «симуляция мира» | там же | 1–2 строки | owner |
 | M-3 | В D-T: поза подвижной конструкции вне `Layer.transform` | там же | 1 фраза | owner |
-| M-4 | Строка `cube-content` в ADG Part A/B и задачи CONT-01…CONT-03 (Draft-контракты CR-01…05, базовая реализация, тест «нет определений вне загрузчика») в M2-T | `module-boundaries.md` | ≈3 задачи | Integration Owner → owner |
-| M-5 | Draft-ревизия WP-01/WP-02/WP-08 (PackSet, IdMaps, GenerationIdentity, исходы, порядок id-map) | `world-persistence-contracts.md` | Draft | Integration Owner |
+| M-4 | Строка `cube-content` в ADG Part A/B и задачи CONT-01…CONT-03 (Draft-контракты CR-01…05, базовая реализация, тест «нет определений вне загрузчика») в M2-T | [`module-boundaries.md`](../production/module-boundaries.md) | ≈3 задачи | Integration Owner → owner |
+| M-5 | Draft-ревизия WP-01/WP-02/WP-08 (PackSet, IdMaps, GenerationIdentity, исходы, порядок id-map) | [`world-persistence-contracts.md`](../api-contracts/world-persistence-contracts.md) | Draft | Integration Owner |
 | M-6 | PERS: запись персонажа отдельным доменом (`PERS-0x`, место отсутствует) | ADG, FIRST_PLAYABLE_DEPENDENCIES | ≈1 задача | owner |
-| M-7 | Требования к журналу: атомарная группа домена; требования к E-серии: крупные операции | `world-persistence-contracts.md`, `editing-contracts.md` | текст | owner при approval |
-| M-8 | Решение об объёме PS-5/PS-6 (SDF/Mesh/Sculpt/Boolean) и о микровоксельном режиме для PSL-3 | `implementation-roadmap.md` | порядок/scope | owner |
+| M-7 | Требования к журналу: атомарная группа домена; требования к E-серии: крупные операции | [`world-persistence-contracts.md`](../api-contracts/world-persistence-contracts.md), [`editing-contracts.md`](../api-contracts/editing-contracts.md) | текст | owner при approval |
+| M-8 | Решение об объёме PS-5/PS-6 (SDF/Mesh/Sculpt/Boolean) и о микровоксельном режиме для PSL-3 | [`implementation-roadmap.md`](../production/implementation-roadmap.md) | порядок/scope | owner |
 | M-9 | Аннотация REF-16 (вариант a) | `docs/research/*` | 1 строка | owner |
 
 **Не добавляется сознательно:** интерфейсы Mod SDK, script/WASM-хост, схемы типов контента, модуль физики, модуль энергии/логики, экономика, мультиклассы, плагины для representations (X-2 черновика: Core enum остаётся закрытым).
@@ -177,11 +177,11 @@ Presentation по стабильным id; пакеты не требуют Godo
 
 | # | Расхождение | Где |
 |---|---|---|
-| X-A | `AGENTS.md` ссылается на несуществующие `.agent/` и `.cursor/rules` и находится в `.gitignore` (ST-1/PB-7) | `AGENTS.md`, `.gitignore` |
-| X-B | «Registry path»: план `docs/decisions/decision-registry.md`; другие документы иначе (F-2) | `PS-0-REMAINING-BLOCKERS.md` |
-| X-C | `ps-0-exit-checklist.md` §5 — «READY FOR OWNER APPROVAL» vs метки пакета (F-3) | чек-лист |
-| X-D | `PROJECT_STATUS.md` и аудит — на базе `2c0c1f3` (7 коммитов назад) | статус/аудит |
-| X-E | Черновик extensibility не в git; `AGENTS.md`/`_build` — в незакоммиченном `.gitignore` | рабочее дерево |
+| X-A | [`AGENTS.md`](../../AGENTS.md) ссылается на несуществующие `.agent/` и `.cursor/rules` и находится в `.gitignore` (ST-1/PB-7) | [`AGENTS.md`](../../AGENTS.md), `.gitignore` |
+| X-B | «Registry path»: план [`docs/decisions/decision-registry.md`](../decisions/decision-registry.md); другие документы иначе (F-2) | [`PS-0-REMAINING-BLOCKERS.md`](../archive/gov01/PS-0-REMAINING-BLOCKERS.md) |
+| X-C | [`ps-0-exit-checklist.md`](../production/ps-0-exit-checklist.md) §5 — «READY FOR OWNER APPROVAL» vs метки пакета (F-3) | чек-лист |
+| X-D | [`PROJECT_STATUS.md`](../archive/PROJECT_STATUS.md) и аудит — на базе `2c0c1f3` (7 коммитов назад) | статус/аудит |
+| X-E | Черновик extensibility не в git; [`AGENTS.md`](../../AGENTS.md)/`_build` — в незакоммиченном `.gitignore` | рабочее дерево |
 
 ---
 
@@ -189,4 +189,4 @@ Presentation по стабильным id; пакеты не требуют Godo
 
 * Не запускались: `cargo build/test`, бенчмарки, CI (его нет). Результаты §1 п.9 — запуск существующего проверочного скрипта ADG; §5.7 — скрипт этой сессии по таблице Part B.
 * Документы «Voxel Architecture», «Geometry Processing Specification», GDD/TDD отсутствуют (B-1) — выводы по C-07…C-12 и PR-01…08 остаются при условии AOD-24.
-* «Блокер» здесь — только то, без чего этап нельзя начать; список — в `implementation-roadmap-alignment.md` §8.
+* «Блокер» здесь — только то, без чего этап нельзя начать; список — в [`implementation-roadmap-alignment.md`](implementation-roadmap-alignment.md) §8.

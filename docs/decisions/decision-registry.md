@@ -1,6 +1,6 @@
 # Cube Decision Registry
 
-The single place where Cube decisions are recorded. It replaces the competing recording rules of `production-architecture-plan.md` 3.3, `owner-architecture-decisions-v1.md` section 4, `owner-approval-matrix-v1.md` section 12 and the ODM-10 protocol drafts (they now refer here; see DEC-002). Existing labels (AOD-nn, OAM-nn, ACR-nnn, GOV-01#n, ODM-nn, OCC-nn) are kept as `aliases` and are not renumbered.
+The single place where Cube decisions are recorded. It replaces the competing recording rules of [`production-architecture-plan.md`](../production/production-architecture-plan.md) 3.3, [`owner-architecture-decisions-v1.md`](owner-architecture-decisions-v1.md) section 4, [`owner-approval-matrix-v1.md`](owner-approval-matrix-v1.md) section 12 and the ODM-10 protocol drafts (they now refer here; see DEC-002). Existing labels (AOD-nn, OAM-nn, ACR-nnn, GOV-01#n, ODM-nn, OCC-nn) are kept as `aliases` and are not renumbered.
 
 ## Rules (decided by DEC-002)
 
@@ -60,7 +60,7 @@ confirmation_evidence: E-CHAT
 source: OWNER-CHAT-2026-11-09 (instruction 'Close Governance, Complete PS-0, Start Production Development') section 3
 source_availability: UNAVAILABLE in repository (session transcript only)
 owner: Project Owner
-affected_documents: [docs/production/production-architecture-plan.md, docs/decisions/owner-architecture-decisions-v1.md, docs/decisions/owner-approval-matrix-v1.md, docs/archive/owner-decision-m2t-optimization/OWNER_DECISION_REGISTER.md]
+affected_documents: [[docs/production/production-architecture-plan.md](../production/production-architecture-plan.md), [docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md), [docs/decisions/owner-approval-matrix-v1.md](owner-approval-matrix-v1.md), [docs/archive/owner-decision-m2t-optimization/OWNER_DECISION_REGISTER.md](../archive/owner-decision-m2t-optimization/OWNER_DECISION_REGISTER.md)]
 history:
   - 2026-11-09 entry created
 
@@ -81,7 +81,7 @@ confirmation_evidence: E-CHAT
 source: OWNER-CHAT-2026-11-09 (instruction 'Close Governance, Complete PS-0, Start Production Development') section 8
 source_availability: UNAVAILABLE in repository (session transcript only)
 owner: Project Owner
-affected_documents: [docs/production/integration-and-qa-plan.md]
+affected_documents: [[docs/production/integration-and-qa-plan.md](../production/integration-and-qa-plan.md)]
 history:
   - 2026-11-09 entry created; dev created from master as a docs-only baseline (commit b9df5c4 on dev)
 
@@ -99,10 +99,10 @@ decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were
 recorded_on: 05d7e7e (2026-11-04)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
-source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-01
+source: [docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md), row AOD-01
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
+affected_documents: [[docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md)]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
   - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
@@ -120,10 +120,10 @@ decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were
 recorded_on: 05d7e7e (2026-11-04)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
-source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-02
+source: [docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md), row AOD-02
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
+affected_documents: [[docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md)]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
   - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
@@ -141,10 +141,10 @@ decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were
 recorded_on: 05d7e7e (2026-11-04)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
-source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-03
+source: [docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md), row AOD-03
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
+affected_documents: [[docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md)]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
   - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
@@ -162,10 +162,10 @@ decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were
 recorded_on: 05d7e7e (2026-11-04)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
-source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-04
+source: [docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md), row AOD-04
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
+affected_documents: [[docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md)]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
   - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
@@ -183,10 +183,10 @@ decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were
 recorded_on: 05d7e7e (2026-11-04)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
-source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-05
+source: [docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md), row AOD-05
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
+affected_documents: [[docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md)]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
   - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
@@ -204,10 +204,10 @@ decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were
 recorded_on: 05d7e7e (2026-11-04)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
-source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-06
+source: [docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md), row AOD-06
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
+affected_documents: [[docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md)]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
   - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
@@ -225,10 +225,10 @@ decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were
 recorded_on: 05d7e7e (2026-11-04)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
-source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-07
+source: [docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md), row AOD-07
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
+affected_documents: [[docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md)]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
   - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
@@ -246,10 +246,10 @@ decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were
 recorded_on: 05d7e7e (2026-11-04)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
-source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-08
+source: [docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md), row AOD-08
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
+affected_documents: [[docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md)]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
   - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
@@ -267,10 +267,10 @@ decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were
 recorded_on: 05d7e7e (2026-11-04)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
-source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-09
+source: [docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md), row AOD-09
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
+affected_documents: [[docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md)]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
   - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
@@ -288,10 +288,10 @@ decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were
 recorded_on: 05d7e7e (2026-11-04)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
-source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-10
+source: [docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md), row AOD-10
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
+affected_documents: [[docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md)]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
   - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
@@ -309,10 +309,10 @@ decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were
 recorded_on: 05d7e7e (2026-11-04)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
-source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-11
+source: [docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md), row AOD-11
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
+affected_documents: [[docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md)]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
   - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
@@ -330,10 +330,10 @@ decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were
 recorded_on: 05d7e7e (2026-11-04)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
-source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-12
+source: [docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md), row AOD-12
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
+affected_documents: [[docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md)]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
   - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
@@ -351,10 +351,10 @@ decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were
 recorded_on: 05d7e7e (2026-11-04)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
-source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-13
+source: [docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md), row AOD-13
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
+affected_documents: [[docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md)]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
   - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
@@ -372,10 +372,10 @@ decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were
 recorded_on: 05d7e7e (2026-11-04)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
-source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-14
+source: [docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md), row AOD-14
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
+affected_documents: [[docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md)]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
   - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
@@ -393,10 +393,10 @@ decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were
 recorded_on: 05d7e7e (2026-11-04)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
-source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-15
+source: [docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md), row AOD-15
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
+affected_documents: [[docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md)]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
   - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
@@ -414,10 +414,10 @@ decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were
 recorded_on: 05d7e7e (2026-11-04)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
-source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-16
+source: [docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md), row AOD-16
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
+affected_documents: [[docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md)]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
   - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
@@ -435,10 +435,10 @@ decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were
 recorded_on: 05d7e7e (2026-11-04)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
-source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-17
+source: [docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md), row AOD-17
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
+affected_documents: [[docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md)]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
   - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
@@ -456,10 +456,10 @@ decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were
 recorded_on: 05d7e7e (2026-11-04)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
-source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-18
+source: [docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md), row AOD-18
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
+affected_documents: [[docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md)]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
   - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
@@ -477,10 +477,10 @@ decided_on_basis: header of owner-architecture-decisions-v1.md ('AOD-01..19 were
 recorded_on: 05d7e7e (2026-11-04)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
-source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-19
+source: [docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md), row AOD-19
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
+affected_documents: [[docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md)]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
   - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
@@ -498,10 +498,10 @@ decided_on_basis: header and section 5 of owner-architecture-decisions-v1.md (20
 recorded_on: 8f487ef (2026-11-05)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
-source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-20
+source: [docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md), row AOD-20
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
+affected_documents: [[docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md)]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
   - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
@@ -519,10 +519,10 @@ decided_on_basis: header and section 5 of owner-architecture-decisions-v1.md (20
 recorded_on: 8f487ef (2026-11-05)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
-source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-21
+source: [docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md), row AOD-21
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
+affected_documents: [[docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md)]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
   - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
@@ -540,10 +540,10 @@ decided_on_basis: header and section 5 of owner-architecture-decisions-v1.md (20
 recorded_on: 8f487ef (2026-11-05)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
-source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-22
+source: [docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md), row AOD-22
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
+affected_documents: [[docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md)]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
   - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
@@ -561,10 +561,10 @@ decided_on_basis: header and section 5 of owner-architecture-decisions-v1.md (20
 recorded_on: 8f487ef (2026-11-05)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
-source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-23
+source: [docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md), row AOD-23
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
+affected_documents: [[docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md)]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
   - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
@@ -582,10 +582,10 @@ decided_on_basis: header and section 5 of owner-architecture-decisions-v1.md (20
 recorded_on: 8f487ef (2026-11-05)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09; see DEC-075)
-source: docs/decisions/owner-architecture-decisions-v1.md, row AOD-24
+source: [docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md), row AOD-24
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/decisions/owner-architecture-decisions-v1.md]
+affected_documents: [[docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md)]
 history:
   - 2026-11-09 entered into the registry as RECORDED; the word 'Approved' in the AOD file is read as RECORDED until countersigned (plan 3.3 Fact)
   - 2026-11-09 RECORDED -> CONFIRMED by the owner's explicit chat confirmation of AOD-01..24 under the conditions of DEC-075
@@ -603,10 +603,10 @@ decided_on_basis: owner-decision-rust-godot.md status line ('chat, 2026-11-02')
 recorded_on: 8ac400a (2026-11-02)
 confirmed_on: 
 confirmation_evidence: NONE (agent transcription)
-source: docs/decisions/owner-decision-rust-godot.md
+source: [docs/decisions/owner-decision-rust-godot.md](owner-decision-rust-godot.md)
 source_availability: chat UNAVAILABLE in repository; transcription IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/decisions/owner-decision-rust-godot.md]
+affected_documents: [[docs/decisions/owner-decision-rust-godot.md](owner-decision-rust-godot.md)]
 history:
   - 2026-11-09 entry created
 
@@ -624,10 +624,10 @@ decided_on_basis:
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-CHAT (explicit owner confirmation message, session 2026-11-09)
-source: docs/archive/gov01/GOV-01-DECISION-REGISTER.md item X-1; docs/production/ps-0-exit-checklist.md section 1 row 2
+source: [docs/archive/gov01/GOV-01-DECISION-REGISTER.md](../archive/gov01/GOV-01-DECISION-REGISTER.md) item X-1; [docs/production/ps-0-exit-checklist.md](../production/ps-0-exit-checklist.md) section 1 row 2
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/production/ps-0-exit-checklist.md]
+affected_documents: [[docs/production/ps-0-exit-checklist.md](../production/ps-0-exit-checklist.md)]
 history:
   - 2026-11-09 entry created
   - 2026-11-09 done: the owner confirmed AOD-01..24 in chat (DEC-004..DEC-027, conditions in DEC-075); no further ratification step
@@ -654,7 +654,7 @@ confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
 source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [[docs/product-vision/cube-product-vision.md](../product-vision/cube-product-vision.md)]
 history:
   - 2026-11-09 entry created
 
@@ -679,7 +679,7 @@ confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
 source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [[docs/product-vision/cube-product-vision.md](../product-vision/cube-product-vision.md)]
 history:
   - 2026-11-09 entry created
 
@@ -704,7 +704,7 @@ confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
 source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [[docs/product-vision/cube-product-vision.md](../product-vision/cube-product-vision.md)]
 history:
   - 2026-11-09 entry created
 
@@ -729,7 +729,7 @@ confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
 source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md, docs/api-contracts/world-persistence-contracts.md]
+affected_documents: [[docs/product-vision/cube-product-vision.md](../product-vision/cube-product-vision.md), [docs/api-contracts/world-persistence-contracts.md](../api-contracts/world-persistence-contracts.md)]
 history:
   - 2026-11-09 entry created
 
@@ -755,7 +755,7 @@ confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
 source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [[docs/product-vision/cube-product-vision.md](../product-vision/cube-product-vision.md)]
 history:
   - 2026-11-09 entry created
 
@@ -779,7 +779,7 @@ confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
 source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [[docs/product-vision/cube-product-vision.md](../product-vision/cube-product-vision.md)]
 history:
   - 2026-11-09 entry created
 
@@ -805,7 +805,7 @@ confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
 source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [[docs/product-vision/cube-product-vision.md](../product-vision/cube-product-vision.md)]
 history:
   - 2026-11-09 entry created
 
@@ -828,7 +828,7 @@ confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
 source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [[docs/product-vision/cube-product-vision.md](../product-vision/cube-product-vision.md)]
 history:
   - 2026-11-09 entry created
 
@@ -852,7 +852,7 @@ confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
 source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [[docs/product-vision/cube-product-vision.md](../product-vision/cube-product-vision.md)]
 history:
   - 2026-11-09 entry created
 
@@ -876,7 +876,7 @@ confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
 source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [[docs/product-vision/cube-product-vision.md](../product-vision/cube-product-vision.md)]
 history:
   - 2026-11-09 entry created
 
@@ -900,7 +900,7 @@ confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
 source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [[docs/product-vision/cube-product-vision.md](../product-vision/cube-product-vision.md)]
 history:
   - 2026-11-09 entry created
 
@@ -924,7 +924,7 @@ confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
 source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [[docs/product-vision/cube-product-vision.md](../product-vision/cube-product-vision.md)]
 history:
   - 2026-11-09 entry created
 
@@ -949,7 +949,7 @@ confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
 source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [[docs/product-vision/cube-product-vision.md](../product-vision/cube-product-vision.md)]
 history:
   - 2026-11-09 entry created
 
@@ -972,7 +972,7 @@ confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
 source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [[docs/product-vision/cube-product-vision.md](../product-vision/cube-product-vision.md)]
 history:
   - 2026-11-09 entry created
 
@@ -996,7 +996,7 @@ confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
 source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [[docs/product-vision/cube-product-vision.md](../product-vision/cube-product-vision.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1019,7 +1019,7 @@ confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
 source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [[docs/product-vision/cube-product-vision.md](../product-vision/cube-product-vision.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1043,7 +1043,7 @@ confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
 source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [[docs/product-vision/cube-product-vision.md](../product-vision/cube-product-vision.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1068,7 +1068,7 @@ confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
 source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [[docs/product-vision/cube-product-vision.md](../product-vision/cube-product-vision.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1091,7 +1091,7 @@ confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
 source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [[docs/product-vision/cube-product-vision.md](../product-vision/cube-product-vision.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1114,7 +1114,7 @@ confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
 source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [[docs/product-vision/cube-product-vision.md](../product-vision/cube-product-vision.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1138,7 +1138,7 @@ confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
 source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [[docs/product-vision/cube-product-vision.md](../product-vision/cube-product-vision.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1162,7 +1162,7 @@ confirmation_evidence: E-CHAT
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
 source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [[docs/product-vision/cube-product-vision.md](../product-vision/cube-product-vision.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1185,7 +1185,7 @@ confirmation_evidence: NONE
 source: owner message of 2026-11-09, previous stage 'Product Vision Consolidation', section 2 (bullets quoted); also in the user message that started the session
 source_availability: UNAVAILABLE in repository (session transcript only); quoted text IN_REPOSITORY in docs/product-vision
 owner: Project Owner
-affected_documents: [docs/product-vision/cube-product-vision.md]
+affected_documents: [[docs/product-vision/cube-product-vision.md](../product-vision/cube-product-vision.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1207,10 +1207,10 @@ decided_on_basis: draft text states 'confirmed in chat on 2026-11-09'
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 
 confirmation_evidence: NONE
-source: docs/decisions/owner-decision-extensibility-v1.md section 1 (S-1..S-7 marked CONFIRMED there by the agent)
+source: [docs/decisions/owner-decision-extensibility-v1.md](owner-decision-extensibility-v1.md) section 1 (S-1..S-7 marked CONFIRMED there by the agent)
 source_availability: chat UNAVAILABLE in repository; draft IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/decisions/owner-decision-extensibility-v1.md]
+affected_documents: [[docs/decisions/owner-decision-extensibility-v1.md](owner-decision-extensibility-v1.md)]
 history:
   - 2026-11-09 entered as RECORDED; AOD-25/26 are not assigned as bundles (see historical-decisions-reconciliation.md section 4)
 
@@ -1228,10 +1228,10 @@ decided_on_basis:
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 
 confirmation_evidence: NONE
-source: docs/decisions/owner-decision-extensibility-v1.md sections 2-5
+source: [docs/decisions/owner-decision-extensibility-v1.md](owner-decision-extensibility-v1.md) sections 2-5
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/decisions/owner-decision-extensibility-v1.md]
+affected_documents: [[docs/decisions/owner-decision-extensibility-v1.md](owner-decision-extensibility-v1.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1253,10 +1253,10 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 1; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 1
+source: [docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md](../archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md) row 1; [docs/archive/gov01/GOV-01-DECISION-REGISTER.md](../archive/gov01/GOV-01-DECISION-REGISTER.md) item 1
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/production/architecture-blocker-decisions.md]
+affected_documents: [[docs/production/architecture-blocker-decisions.md](../production/architecture-blocker-decisions.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1277,10 +1277,10 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 2; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 2
+source: [docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md](../archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md) row 2; [docs/archive/gov01/GOV-01-DECISION-REGISTER.md](../archive/gov01/GOV-01-DECISION-REGISTER.md) item 2
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/production/architecture-blocker-decisions.md]
+affected_documents: [[docs/production/architecture-blocker-decisions.md](../production/architecture-blocker-decisions.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1302,10 +1302,10 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 3; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 3
+source: [docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md](../archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md) row 3; [docs/archive/gov01/GOV-01-DECISION-REGISTER.md](../archive/gov01/GOV-01-DECISION-REGISTER.md) item 3
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/production/architecture-blocker-decisions.md]
+affected_documents: [[docs/production/architecture-blocker-decisions.md](../production/architecture-blocker-decisions.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1326,10 +1326,10 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 4; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 4
+source: [docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md](../archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md) row 4; [docs/archive/gov01/GOV-01-DECISION-REGISTER.md](../archive/gov01/GOV-01-DECISION-REGISTER.md) item 4
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/decisions/acr-004-owner-review.md]
+affected_documents: [[docs/decisions/acr-004-owner-review.md](acr-004-owner-review.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1350,10 +1350,10 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 5; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 5
+source: [docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md](../archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md) row 5; [docs/archive/gov01/GOV-01-DECISION-REGISTER.md](../archive/gov01/GOV-01-DECISION-REGISTER.md) item 5
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/production/architecture-blocker-decisions.md]
+affected_documents: [[docs/production/architecture-blocker-decisions.md](../production/architecture-blocker-decisions.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1374,10 +1374,10 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 6; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 6
+source: [docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md](../archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md) row 6; [docs/archive/gov01/GOV-01-DECISION-REGISTER.md](../archive/gov01/GOV-01-DECISION-REGISTER.md) item 6
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/production/architecture-blocker-decisions.md]
+affected_documents: [[docs/production/architecture-blocker-decisions.md](../production/architecture-blocker-decisions.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1398,10 +1398,10 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 7; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 7
+source: [docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md](../archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md) row 7; [docs/archive/gov01/GOV-01-DECISION-REGISTER.md](../archive/gov01/GOV-01-DECISION-REGISTER.md) item 7
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/production/architecture-blocker-decisions.md]
+affected_documents: [[docs/production/architecture-blocker-decisions.md](../production/architecture-blocker-decisions.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1423,10 +1423,10 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 8; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 8
+source: [docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md](../archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md) row 8; [docs/archive/gov01/GOV-01-DECISION-REGISTER.md](../archive/gov01/GOV-01-DECISION-REGISTER.md) item 8
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/production/architecture-blocker-decisions.md]
+affected_documents: [[docs/production/architecture-blocker-decisions.md](../production/architecture-blocker-decisions.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1447,10 +1447,10 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 9; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 9
+source: [docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md](../archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md) row 9; [docs/archive/gov01/GOV-01-DECISION-REGISTER.md](../archive/gov01/GOV-01-DECISION-REGISTER.md) item 9
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/production/architecture-blocker-decisions.md]
+affected_documents: [[docs/production/architecture-blocker-decisions.md](../production/architecture-blocker-decisions.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1472,10 +1472,10 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 10; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 10
+source: [docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md](../archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md) row 10; [docs/archive/gov01/GOV-01-DECISION-REGISTER.md](../archive/gov01/GOV-01-DECISION-REGISTER.md) item 10
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/api-contracts/core-contracts.md]
+affected_documents: [[docs/api-contracts/core-contracts.md](../api-contracts/core-contracts.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1496,10 +1496,10 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 11; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 11
+source: [docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md](../archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md) row 11; [docs/archive/gov01/GOV-01-DECISION-REGISTER.md](../archive/gov01/GOV-01-DECISION-REGISTER.md) item 11
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/production/architecture-blocker-decisions.md]
+affected_documents: [[docs/production/architecture-blocker-decisions.md](../production/architecture-blocker-decisions.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1521,10 +1521,10 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 12; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 12
+source: [docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md](../archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md) row 12; [docs/archive/gov01/GOV-01-DECISION-REGISTER.md](../archive/gov01/GOV-01-DECISION-REGISTER.md) item 12
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/production/architecture-blocker-decisions.md]
+affected_documents: [[docs/production/architecture-blocker-decisions.md](../production/architecture-blocker-decisions.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1545,10 +1545,10 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 13; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 13
+source: [docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md](../archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md) row 13; [docs/archive/gov01/GOV-01-DECISION-REGISTER.md](../archive/gov01/GOV-01-DECISION-REGISTER.md) item 13
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/production/architecture-blocker-decisions.md]
+affected_documents: [[docs/production/architecture-blocker-decisions.md](../production/architecture-blocker-decisions.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1570,10 +1570,10 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 14; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 14
+source: [docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md](../archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md) row 14; [docs/archive/gov01/GOV-01-DECISION-REGISTER.md](../archive/gov01/GOV-01-DECISION-REGISTER.md) item 14
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/production/architecture-blocker-decisions.md]
+affected_documents: [[docs/production/architecture-blocker-decisions.md](../production/architecture-blocker-decisions.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1594,10 +1594,10 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md row 15; docs/archive/gov01/GOV-01-DECISION-REGISTER.md item 15
+source: [docs/archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md](../archive/gov01/GOV-01-TECHNICAL-RECOMMENDATIONS.md) row 15; [docs/archive/gov01/GOV-01-DECISION-REGISTER.md](../archive/gov01/GOV-01-DECISION-REGISTER.md) item 15
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/production/integration-and-qa-plan.md]
+affected_documents: [[docs/production/integration-and-qa-plan.md](../production/integration-and-qa-plan.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1637,10 +1637,10 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/production/production-architecture-plan.md sections 3.1, 3.2, 4
+source: [docs/production/production-architecture-plan.md](../production/production-architecture-plan.md) sections 3.1, 3.2, 4
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/production/ps-0-exit-checklist.md]
+affected_documents: [[docs/production/ps-0-exit-checklist.md](../production/ps-0-exit-checklist.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1659,10 +1659,10 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/production/module-boundaries.md A.2; GOV-03 row
+source: [docs/production/module-boundaries.md](../production/module-boundaries.md) A.2; GOV-03 row
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/production/ps-0-exit-checklist.md]
+affected_documents: [[docs/production/ps-0-exit-checklist.md](../production/ps-0-exit-checklist.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1673,7 +1673,7 @@ category: PROCESS
 level: TECHNICAL
 status: CONFIRMED
 statement: >
-  The CI specification is docs/production/ci-specification.md on dev: required checks fmt, clippy -D warnings, test (workspace), deny, archcheck v0; tool pins from the D-E entry; pass conditions and the self-test of seeded failures. Required status checks on master and dev are named there; enabling branch protection is a GitHub administration act and is tracked as an external prerequisite.
+  The CI specification is [docs/production/ci-specification.md](../production/ci-specification.md) on dev: required checks fmt, clippy -D warnings, test (workspace), deny, archcheck v0; tool pins from the D-E entry; pass conditions and the self-test of seeded failures. Required status checks on master and dev are named there; enabling branch protection is a GitHub administration act and is tracked as an external prerequisite.
 decided_by: AGENT_DELEGATED
 delegation_basis: DEC-001 (owner instruction 2026-11-09, sections 2 and 6): reversible engineering decision inside the confirmed concept
 decided_on: 2026-11-09
@@ -1681,10 +1681,10 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend any entry)
-source: docs/production/integration-and-qa-plan.md section 3
+source: [docs/production/integration-and-qa-plan.md](../production/integration-and-qa-plan.md) section 3
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/production/ps-0-exit-checklist.md]
+affected_documents: [[docs/production/ps-0-exit-checklist.md](../production/ps-0-exit-checklist.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1695,7 +1695,7 @@ category: PROCESS
 level: TECHNICAL
 status: CONFIRMED
 statement: >
-  The patch docs/archive/gov01/ADG-D01-D02.proposed.patch is applied to docs/production/module-boundaries.md: every engineering task of PS-2..PS-14 gets G1 in its merge-after column (rule R-MERGE-G1) and QA-04 gets the gates G5, G6, G7, G8, G9, G11, G12. Verified by `python docs/archive/audit/adg_check.py --strict` (all 8 checks PASS, longest path 25 tasks). The M2-T task-graph optimisations OPT-01..OPT-08 of ODM-14 are not applied here.
+  The patch docs/archive/gov01/ADG-D01-D02.proposed.patch is applied to [docs/production/module-boundaries.md](../production/module-boundaries.md): every engineering task of PS-2..PS-14 gets G1 in its merge-after column (rule R-MERGE-G1) and QA-04 gets the gates G5, G6, G7, G8, G9, G11, G12. Verified by `python docs/archive/audit/adg_check.py --strict` (all 8 checks PASS, longest path 25 tasks). The M2-T task-graph optimisations OPT-01..OPT-08 of ODM-14 are not applied here.
 decided_by: AGENT_DELEGATED
 delegation_basis: DEC-001 (owner instruction 2026-11-09, section 7: defects found by checks are fixed within delegated authority)
 decided_on: 2026-11-09
@@ -1703,10 +1703,10 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend)
-source: docs/archive/gov01/ADG-D01-D02-PATCH-PROPOSAL.md; docs/archive/gov01/ADG-D01-D02-ANALYSIS.md
+source: [docs/archive/gov01/ADG-D01-D02-PATCH-PROPOSAL.md](../archive/gov01/ADG-D01-D02-PATCH-PROPOSAL.md); [docs/archive/gov01/ADG-D01-D02-ANALYSIS.md](../archive/gov01/ADG-D01-D02-ANALYSIS.md)
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/production/module-boundaries.md]
+affected_documents: [[docs/production/module-boundaries.md](../production/module-boundaries.md)]
 history:
   - 2026-11-09 entry created; patch applied in the same change set
 
@@ -1717,7 +1717,7 @@ category: PROCESS
 level: TECHNICAL
 status: CONFIRMED
 statement: >
-  The owner confirms the architectural decisions AOD-01..24 in the wording of docs/decisions/owner-architecture-decisions-v1.md (registry entries DEC-004..DEC-027). Conditions stated by the owner: AOD-01..23 are confirmed within their original scope; AOD-24 keeps the status Conditionally Approved and all related constraints; Godot stays the first client of Cube but is not a mandatory dependency of the Rust Core; `faces` stays the correctness reference until proper comparative measurements against `greedy`; the confirmation does not automatically approve missing specifications, unverified API contracts, experimental code or test results; previously recorded open questions stay open unless separately resolved.
+  The owner confirms the architectural decisions AOD-01..24 in the wording of [docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md) (registry entries DEC-004..DEC-027). Conditions stated by the owner: AOD-01..23 are confirmed within their original scope; AOD-24 keeps the status Conditionally Approved and all related constraints; Godot stays the first client of Cube but is not a mandatory dependency of the Rust Core; `faces` stays the correctness reference until proper comparative measurements against `greedy`; the confirmation does not automatically approve missing specifications, unverified API contracts, experimental code or test results; previously recorded open questions stay open unless separately resolved.
 not_decided:
   - missing specifications (Voxel Architecture, Geometry Processing Specification, GDD/TDD)
   - any API contract not otherwise approved
@@ -1733,7 +1733,7 @@ source: owner chat message, session 2026-11-09 (transcript outside the repositor
 source_availability: UNAVAILABLE in repository (session transcript only)
 owner: Project Owner
 refines: [DEC-029]
-affected_documents: [docs/decisions/owner-architecture-decisions-v1.md, docs/production/ps-0-exit-checklist.md]
+affected_documents: [[docs/decisions/owner-architecture-decisions-v1.md](owner-architecture-decisions-v1.md), [docs/production/ps-0-exit-checklist.md](../production/ps-0-exit-checklist.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1744,7 +1744,7 @@ category: PROCESS
 level: TECHNICAL
 status: CONFIRMED
 statement: >
-  The Integration Owner role records, with CI evidence, that the Core slice of the P0-alpha contracts (C-01, C-02, C-03, C-04, C-06, C-16, C-17, C-18, C-19) is Implemented and that the PC-1 contracts (C-07, C-08, C-09) are Implemented under Provisional approval; no contract is Frozen. The per-contract slice and the open parts are listed in docs/api-contracts/README.md. Gate G1 (PS-1 exit criteria, production-architecture-plan section 15) is evaluated in docs/production/ps-0-exit-checklist.md section 6.
+  The Integration Owner role records, with CI evidence, that the Core slice of the P0-alpha contracts (C-01, C-02, C-03, C-04, C-06, C-16, C-17, C-18, C-19) is Implemented and that the PC-1 contracts (C-07, C-08, C-09) are Implemented under Provisional approval; no contract is Frozen. The per-contract slice and the open parts are listed in [docs/api-contracts/README.md](../api-contracts/README.md). Gate G1 (PS-1 exit criteria, production-architecture-plan section 15) is evaluated in [docs/production/ps-0-exit-checklist.md](../production/ps-0-exit-checklist.md) section 6.
 decided_by: AGENT_DELEGATED
 delegation_basis: DEC-001 (owner instruction 2026-11-09: close tasks and gates on fulfilled criteria)
 decided_on: 2026-11-09
@@ -1752,10 +1752,10 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (decision by the agent under DEC-001; the owner may reject or amend). CI evidence - commits were admitted into dev by the ruleset only after the six required checks passed
-source: docs/production/agent-task-breakdown.md INT-01 row
+source: [docs/production/agent-task-breakdown.md](../production/agent-task-breakdown.md) INT-01 row
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/api-contracts/README.md, docs/production/ps-0-exit-checklist.md]
+affected_documents: [[docs/api-contracts/README.md](../api-contracts/README.md), [docs/production/ps-0-exit-checklist.md](../production/ps-0-exit-checklist.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1766,7 +1766,7 @@ category: PROCESS
 level: TECHNICAL
 status: CONFIRMED
 statement: >
-  The owner permits the Provisional contract TC-01 (PR-01...PR-05 subset, docs/api-contracts/M2_MINIMUM_CONTRACTS.md section 3) to be used to prepare and implement PS-2 Processing Foundation: a temporary technical specification, reversible engineering decisions within the approved principles, production code and tests that rest on explicitly marked provisional contracts, spike checks of disputed technical questions, and sequential integration where the entry and merge conditions of each task allow it. The implementation record is docs/production/processing-foundation-contract.md.
+  The owner permits the Provisional contract TC-01 (PR-01...PR-05 subset, [docs/api-contracts/M2_MINIMUM_CONTRACTS.md](../api-contracts/M2_MINIMUM_CONTRACTS.md) section 3) to be used to prepare and implement PS-2 Processing Foundation: a temporary technical specification, reversible engineering decisions within the approved principles, production code and tests that rest on explicitly marked provisional contracts, spike checks of disputed technical questions, and sequential integration where the entry and merge conditions of each task allow it. The implementation record is [docs/production/processing-foundation-contract.md](../production/processing-foundation-contract.md).
 not_decided: >
   Owner approval of PR-01...PR-08 (GOV-07); closing ODM-02 (whether a Provisional registration satisfies the condition of AOD-24); the Geometry Processing Specification (EXT-GPS); GOV-16 (C-05 approval); GOV-24 (OD-R4 snapshot lifetime and caps); closing gate G2; declaring any provisional contract Frozen; changing the product concept.
 decided_by: OWNER
@@ -1778,7 +1778,7 @@ confirmation_evidence: E-CHAT (explicit owner statement in chat; permitted sourc
 source: OWNER-CHAT-2026-11-09 (instruction 'PS-2 Processing Foundation, Provisional Track and Continuous Development') section 3
 source_availability: UNAVAILABLE in repository (session transcript only)
 owner: Project Owner
-affected_documents: [docs/production/processing-foundation-contract.md, docs/production/ps-0-exit-checklist.md]
+affected_documents: [[docs/production/processing-foundation-contract.md](../production/processing-foundation-contract.md), [docs/production/ps-0-exit-checklist.md](../production/ps-0-exit-checklist.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1801,7 +1801,7 @@ confirmation_evidence: E-CHAT (explicit owner statement in chat; permitted sourc
 source: OWNER-CHAT-2026-11-09 (instruction 'Finalize PS-2 / G2 and Start PS-3 Editing API') sections 2 and 6
 source_availability: UNAVAILABLE in repository (session transcript only)
 owner: Project Owner
-affected_documents: [docs/production/processing-foundation-contract.md, docs/production/ps-0-exit-checklist.md]
+affected_documents: [[docs/production/processing-foundation-contract.md](../production/processing-foundation-contract.md), [docs/production/ps-0-exit-checklist.md](../production/ps-0-exit-checklist.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1824,7 +1824,7 @@ confirmation_evidence: E-CHAT (explicit owner statement in chat; permitted sourc
 source: OWNER-CHAT-2026-11-09 (instruction 'Finalize PS-2 / G2 and Start PS-3 Editing API') section 3
 source_availability: UNAVAILABLE in repository (session transcript only)
 owner: Project Owner
-affected_documents: [docs/api-contracts/core-contracts.md, docs/api-contracts/README.md, crates/cube-core/src/bounds.rs]
+affected_documents: [[docs/api-contracts/core-contracts.md](../api-contracts/core-contracts.md), [docs/api-contracts/README.md](../api-contracts/README.md), crates/cube-core/src/bounds.rs]
 history:
   - 2026-11-09 entry created
 
@@ -1847,7 +1847,7 @@ confirmation_evidence: E-CHAT (explicit owner statement in chat; permitted sourc
 source: OWNER-CHAT-2026-11-09 (instruction 'Finalize PS-2 / G2 and Start PS-3 Editing API') section 4
 source_availability: UNAVAILABLE in repository (session transcript only)
 owner: Project Owner
-affected_documents: [docs/production/processing-foundation-contract.md, crates/cube-processing/src/caps.rs]
+affected_documents: [[docs/production/processing-foundation-contract.md](../production/processing-foundation-contract.md), crates/cube-processing/src/caps.rs]
 history:
   - 2026-11-09 entry created
 
@@ -1858,7 +1858,7 @@ category: PROCESS
 level: TECHNICAL
 status: CONFIRMED
 statement: >
-  Gate G2 (PS-2 Processing Foundation) is passed. All twelve member tasks are merged and accepted (CORE-15, CORE-16, PROC-01..PROC-06, TEST-08, GOV-07 through the owner alternative DEC-078, GOV-16 DEC-079, GOV-24 DEC-080). Evidence: required CI checks green on the integration commit d164d21 (run 42624528085), adg_check.py --strict PASS, evaluation in docs/production/ps-0-exit-checklist.md section 7. The provisional Processing contracts remain subject to RG-2.
+  Gate G2 (PS-2 Processing Foundation) is passed. All twelve member tasks are merged and accepted (CORE-15, CORE-16, PROC-01..PROC-06, TEST-08, GOV-07 through the owner alternative DEC-078, GOV-16 DEC-079, GOV-24 DEC-080). Evidence: required CI checks green on the integration commit d164d21 (run 42624528085), adg_check.py --strict PASS, evaluation in [docs/production/ps-0-exit-checklist.md](../production/ps-0-exit-checklist.md) section 7. The provisional Processing contracts remain subject to RG-2.
 decided_by: AGENT_DELEGATED
 delegation_basis: DEC-001 (owner instruction: close tasks and gates on fulfilled criteria)
 decided_on: 2026-11-09
@@ -1866,10 +1866,10 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (the owner may reject or amend); CI evidence as listed
-source: docs/production/ps-0-exit-checklist.md section 7
+source: [docs/production/ps-0-exit-checklist.md](../production/ps-0-exit-checklist.md) section 7
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/production/ps-0-exit-checklist.md, docs/archive/PROJECT_STATUS.md]
+affected_documents: [[docs/production/ps-0-exit-checklist.md](../production/ps-0-exit-checklist.md), [docs/archive/PROJECT_STATUS.md](../archive/PROJECT_STATUS.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1880,7 +1880,7 @@ category: PROCESS
 level: TECHNICAL
 status: CONFIRMED
 statement: >
-  The owner approves the implemented Editing API interfaces E-02, E-03, E-04, E-05, E-06, E-07, E-09, E-11, E-12 and the storage ports, and E-10 as the minimal checkpoint contract the storage ports need. The seven provisional resolutions of docs/production/editing-api-contract.md are accepted as the current implementation basis: (1) backends get read-only views and return write sets; (2) operation parameters are opaque versioned data owned by the kind owners; (3) the facade is synchronous; (4) atomic commit and rollback without partial application; (5) conflicts are returned explicitly with resources and revisions, no automatic resolution; (6) delta payload and serialisation stay abstract until Persistence; (7) the journal uses a monotonic sequence of confirmed records, storage details belong to Persistence. Approval covers the PS-3 scope only.
+  The owner approves the implemented Editing API interfaces E-02, E-03, E-04, E-05, E-06, E-07, E-09, E-11, E-12 and the storage ports, and E-10 as the minimal checkpoint contract the storage ports need. The seven provisional resolutions of [docs/production/editing-api-contract.md](../production/editing-api-contract.md) are accepted as the current implementation basis: (1) backends get read-only views and return write sets; (2) operation parameters are opaque versioned data owned by the kind owners; (3) the facade is synchronous; (4) atomic commit and rollback without partial application; (5) conflicts are returned explicitly with resources and revisions, no automatic resolution; (6) delta payload and serialisation stay abstract until Persistence; (7) the journal uses a monotonic sequence of confirmed records, storage details belong to Persistence. Approval covers the PS-3 scope only.
 not_decided: >
   No contract is Frozen. The provisional parts stay provisional. E-08 (ModifierStack) and E-13 (networking boundary) are not approved. Further checks: contract tests, API snapshot (api-snapshot.txt) and the real Orchestration path (PS-4).
 decided_by: OWNER
@@ -1892,7 +1892,7 @@ confirmation_evidence: E-CHAT (explicit owner statement in chat; permitted sourc
 source: OWNER-CHAT-2026-11-09 (instruction 'Close GOV-09 / G3, Implement PS-4 and Continue Production Development') section 3
 source_availability: UNAVAILABLE in repository (session transcript only)
 owner: Project Owner
-affected_documents: [docs/production/editing-api-contract.md, docs/api-contracts/README.md, crates/cube-editing-api]
+affected_documents: [[docs/production/editing-api-contract.md](../production/editing-api-contract.md), [docs/api-contracts/README.md](../api-contracts/README.md), crates/cube-editing-api]
 history:
   - 2026-11-09 entry created
 
@@ -1938,7 +1938,7 @@ confirmation_evidence: E-CHAT (explicit owner statement in chat; permitted sourc
 source: OWNER-CHAT-2026-11-09 (instruction 'Close GOV-09 / G3, Implement PS-4 and Continue Production Development') section 3
 source_availability: UNAVAILABLE in repository (session transcript only)
 owner: Project Owner
-affected_documents: [docs/production/editing-api-contract.md]
+affected_documents: [[docs/production/editing-api-contract.md](../production/editing-api-contract.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1961,7 +1961,7 @@ confirmation_evidence: E-CHAT (explicit owner statement in chat; permitted sourc
 source: OWNER-CHAT-2026-11-09 (instruction 'Close GOV-09 / G3, Implement PS-4 and Continue Production Development') section 3
 source_availability: UNAVAILABLE in repository (session transcript only)
 owner: Project Owner
-affected_documents: [docs/production/editing-api-contract.md]
+affected_documents: [[docs/production/editing-api-contract.md](../production/editing-api-contract.md)]
 history:
   - 2026-11-09 entry created
 
@@ -1984,7 +1984,7 @@ confirmation_evidence: E-CHAT (explicit owner statement in chat; permitted sourc
 source: OWNER-CHAT-2026-11-09 (instruction 'Close GOV-09 / G3, Implement PS-4 and Continue Production Development') section 3
 source_availability: UNAVAILABLE in repository (session transcript only)
 owner: Project Owner
-affected_documents: [docs/production/editing-api-contract.md, crates/cube-editing-api/src/storage.rs, crates/cube-editing-api/src/types/result.rs]
+affected_documents: [[docs/production/editing-api-contract.md](../production/editing-api-contract.md), crates/cube-editing-api/src/storage.rs, crates/cube-editing-api/src/types/result.rs]
 history:
   - 2026-11-09 entry created
 
@@ -1995,7 +1995,7 @@ category: PROCESS
 level: TECHNICAL
 status: CONFIRMED
 statement: >
-  Gate G3 (PS-3 Editing API and Contracts) is passed. All six member tasks are merged and accepted (API-01..API-05 on dev, GOV-09 through DEC-082..DEC-086). Evidence: required CI checks green on the integration commit (see docs/production/ps-0-exit-checklist.md section 8), API snapshot, contract tests, archcheck including the new conflict-marker rule. The contracts are Owner-Approved for the PS-3 scope and are not Frozen.
+  Gate G3 (PS-3 Editing API and Contracts) is passed. All six member tasks are merged and accepted (API-01..API-05 on dev, GOV-09 through DEC-082..DEC-086). Evidence: required CI checks green on the integration commit (see [docs/production/ps-0-exit-checklist.md](../production/ps-0-exit-checklist.md) section 8), API snapshot, contract tests, archcheck including the new conflict-marker rule. The contracts are Owner-Approved for the PS-3 scope and are not Frozen.
 decided_by: AGENT_DELEGATED
 delegation_basis: DEC-001 (owner instruction: close tasks and gates on fulfilled criteria)
 decided_on: 2026-11-09
@@ -2003,10 +2003,10 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (the owner may reject or amend); CI evidence as listed
-source: docs/production/ps-0-exit-checklist.md section 8
+source: [docs/production/ps-0-exit-checklist.md](../production/ps-0-exit-checklist.md) section 8
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/production/ps-0-exit-checklist.md, docs/archive/PROJECT_STATUS.md]
+affected_documents: [[docs/production/ps-0-exit-checklist.md](../production/ps-0-exit-checklist.md), [docs/archive/PROJECT_STATUS.md](../archive/PROJECT_STATUS.md)]
 history:
   - 2026-11-09 entry created
 
@@ -2017,7 +2017,7 @@ category: PROCESS
 level: TECHNICAL
 status: CONFIRMED
 statement: >
-  Gate G4 (PS-4 Editing Orchestration) is passed. All seven member tasks (ORCH-01..ORCH-05, TEST-03a, TEST-10) are merged and accepted. Evidence: required CI checks green on 920f632 (run 42630261984; the integration commit adds only documentation and the merge of dev), real-path mutation tests, backend conformance with self-checks, compile-fail boundary tests, archcheck rules ARCH-HANDLE and ARCH-USER-COMMIT-PATH, evaluation in docs/production/ps-0-exit-checklist.md section 9. No crash durability is claimed (journal is PS-10, boundary CB-1 of DEC-086).
+  Gate G4 (PS-4 Editing Orchestration) is passed. All seven member tasks (ORCH-01..ORCH-05, TEST-03a, TEST-10) are merged and accepted. Evidence: required CI checks green on 920f632 (run 42630261984; the integration commit adds only documentation and the merge of dev), real-path mutation tests, backend conformance with self-checks, compile-fail boundary tests, archcheck rules ARCH-HANDLE and ARCH-USER-COMMIT-PATH, evaluation in [docs/production/ps-0-exit-checklist.md](../production/ps-0-exit-checklist.md) section 9. No crash durability is claimed (journal is PS-10, boundary CB-1 of DEC-086).
 decided_by: AGENT_DELEGATED
 delegation_basis: DEC-001 (owner instruction: close tasks and gates on fulfilled criteria)
 decided_on: 2026-11-09
@@ -2025,10 +2025,10 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (the owner may reject or amend); CI evidence as listed
-source: docs/production/ps-0-exit-checklist.md section 9
+source: [docs/production/ps-0-exit-checklist.md](../production/ps-0-exit-checklist.md) section 9
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/production/ps-0-exit-checklist.md, docs/archive/PROJECT_STATUS.md]
+affected_documents: [[docs/production/ps-0-exit-checklist.md](../production/ps-0-exit-checklist.md), [docs/archive/PROJECT_STATUS.md](../archive/PROJECT_STATUS.md)]
 history:
   - 2026-11-09 entry created
 
@@ -2047,10 +2047,10 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-09 (this registry)
 confirmed_on: 2026-11-09
 confirmation_evidence: E-DELEGATION (the owner may reject or amend); the roles are the ones DEC-072 already names (Core Agent, Integration Owner, Agent I) plus the backend roles of the ADG ownership column
-source: docs/production/agent-task-breakdown.md VOX-02..VOX-05 rows ('pending O-1')
+source: [docs/production/agent-task-breakdown.md](../production/agent-task-breakdown.md) VOX-02..VOX-05 rows ('pending O-1')
 source_availability: IN_REPOSITORY
 owner: Project Owner
-affected_documents: [docs/production/ps-0-exit-checklist.md]
+affected_documents: [[docs/production/ps-0-exit-checklist.md](../production/ps-0-exit-checklist.md)]
 history:
   - 2026-11-09 entry created
 
@@ -2073,7 +2073,7 @@ confirmation_evidence: E-CHAT (explicit owner statement in chat; permitted sourc
 source: OWNER-CHAT-2026-11-09 ('record GOV-08/GOV-17 and integrate CORE-12')
 source_availability: UNAVAILABLE in repository (session transcript only)
 owner: Project Owner
-affected_documents: [docs/api-contracts/README.md, docs/api-contracts/core-contracts.md, docs/production/ps-0-exit-checklist.md, crates/cube-core/src/palette.rs]
+affected_documents: [[docs/api-contracts/README.md](../api-contracts/README.md), [docs/api-contracts/core-contracts.md](../api-contracts/core-contracts.md), [docs/production/ps-0-exit-checklist.md](../production/ps-0-exit-checklist.md), crates/cube-core/src/palette.rs]
 history:
   - 2026-11-09 entry created
 
@@ -2094,10 +2094,10 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-10 (this registry)
 confirmed_on: 2026-11-10
 confirmation_evidence: E-DELEGATION (the owner may reject or amend)
-source: OWNER-CHAT-2026-11-10 (sections 7.1 and 8); docs/production/module-boundaries.md rule R-UNOWNED
+source: OWNER-CHAT-2026-11-10 (sections 7.1 and 8); [docs/production/module-boundaries.md](../production/module-boundaries.md) rule R-UNOWNED
 source_availability: UNAVAILABLE in repository (session transcript only)
 owner: Project Owner
-affected_documents: [docs/production/module-boundaries.md, docs/production/ps-0-exit-checklist.md]
+affected_documents: [[docs/production/module-boundaries.md](../production/module-boundaries.md), [docs/production/ps-0-exit-checklist.md](../production/ps-0-exit-checklist.md)]
 history:
   - 2026-11-10 entry created
 
@@ -2118,9 +2118,9 @@ decided_on_basis: date of this registry commit (agent decision under delegation)
 recorded_on: 2026-11-10 (this registry)
 confirmed_on: 2026-11-10
 confirmation_evidence: E-DELEGATION (the owner may reject or amend)
-source: OWNER-CHAT-2026-11-10 (sections 4, 5); docs/production/module-boundaries.md rule R-UNOWNED
+source: OWNER-CHAT-2026-11-10 (sections 4, 5); [docs/production/module-boundaries.md](../production/module-boundaries.md) rule R-UNOWNED
 source_availability: UNAVAILABLE in repository (session transcript only)
 owner: Project Owner
-affected_documents: [docs/production/module-boundaries.md, docs/production/ps-0-exit-checklist.md, xtask/src/archcheck.rs]
+affected_documents: [[docs/production/module-boundaries.md](../production/module-boundaries.md), [docs/production/ps-0-exit-checklist.md](../production/ps-0-exit-checklist.md), xtask/src/archcheck.rs]
 history:
   - 2026-11-10 entry created

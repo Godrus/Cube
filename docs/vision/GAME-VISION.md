@@ -2,9 +2,9 @@
 
 **Status of this document:** the owner's production directive of 2026-11-10 (E-CHAT, "Master Game Vision, Product Roadmap and Autonomous Production Execution") restated for the repository so that no agent depends on chat history. It adds no approved contract and no frozen game rule. Where it says *approved* it means "stated by the owner in that directive"; numbers and formulas are prototype values until the owner approves them.
 
-**Source note (verified):** the original GDD/TDD v0.3 and "Voxel Architecture" documents are **not in the repository** (blocker B-1, `docs/archive/README.md`, `product-vision/production-plan-alignment-report.md` section 8). The only sources of this vision are the owner's directive above, the earlier owner statements recorded in `docs/decisions/decision-registry.md` and `docs/product-vision/cube-product-vision.md` (CPR-xxx, the confirmed product requirements, which stay valid and are not repeated here), and the reference notes in `docs/research/`. Nothing here was reconstructed from documents that cannot be read.
+**Source note (verified):** the original GDD/TDD v0.3 and "Voxel Architecture" documents are **not in the repository** (blocker B-1, [`docs/archive/README.md`](../archive/README.md), [`product-vision/production-plan-alignment-report.md`](../product-vision/production-plan-alignment-report.md) section 8). The only sources of this vision are the owner's directive above, the earlier owner statements recorded in [`docs/decisions/decision-registry.md`](../decisions/decision-registry.md) and [`docs/product-vision/cube-product-vision.md`](../product-vision/cube-product-vision.md) (CPR-xxx, the confirmed product requirements, which stay valid and are not repeated here), and the reference notes in `docs/research/`. Nothing here was reconstructed from documents that cannot be read.
 
-Related: `docs/roadmap/PRODUCT-ROADMAP.md` (what is built in which order), `docs/production/` (engineering plan, ADG), `docs/handoff/NEW-CHAT-START.md` (start here as an agent).
+Related: [`docs/roadmap/PRODUCT-ROADMAP.md`](../roadmap/PRODUCT-ROADMAP.md) (what is built in which order), `docs/production/` (engineering plan, ADG), [`docs/handoff/NEW-CHAT-START.md`](../handoff/NEW-CHAT-START.md) (start here as an agent).
 
 ## 1. What Cube is
 
@@ -26,7 +26,7 @@ Rule: Cube aims at **comparable depth of systems and its own identity**, not at 
 
 ### 2.1 Capability comparison (qualitative, documented features only)
 
-This is **not a quality ranking**. Entries for the references come from `docs/research/reference-comparison.md`, `cubeworld-reversal-notes.md`, `veloren-notes.md` (written earlier; the references change and were **not re-verified in this session**). "Cube" is today's honest state. Legend: `+` documented in the reference or exists in Cube; `~` partial; `-` absent; `?` not verified.
+This is **not a quality ranking**. Entries for the references come from [`docs/research/reference-comparison.md`](../research/reference-comparison.md), [`cubeworld-reversal-notes.md`](../research/cubeworld-reversal-notes.md), [`veloren-notes.md`](../research/veloren-notes.md) (written earlier; the references change and were **not re-verified in this session**). "Cube" is today's honest state. Legend: `+` documented in the reference or exists in Cube; `~` partial; `-` absent; `?` not verified.
 
 | Category | Cube World Alpha | Veloren | Trove | Cube today |
 |---|---|---|---|---|
@@ -69,7 +69,7 @@ Eight stable principles. For each: what the player gets, what contradicts it, ho
 
 ## 3a. Visual direction
 
-Cube World Alpha and Veloren: stylised, cohesive, playable voxel RPG; not maximum voxel complexity. Canonical text and the explicit priority change (micro-voxel character work deferred) are in `VISUAL-STYLE-GUIDE.md`.
+Cube World Alpha and Veloren: stylised, cohesive, playable voxel RPG; not maximum voxel complexity. Canonical text and the explicit priority change (micro-voxel character work deferred) are in [`VISUAL-STYLE-GUIDE.md`](VISUAL-STYLE-GUIDE.md).
 
 ## 4. Gameplay loops
 

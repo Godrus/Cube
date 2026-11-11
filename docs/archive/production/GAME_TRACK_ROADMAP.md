@@ -1,8 +1,8 @@
 # Cube Game Track Roadmap
 
 **Status:** **Proposed.** Nothing in this document is an owner decision, a contract approval or a change of the Production Plan. It does not authorise implementation or the start of PS-1.
-**Source state:** branch `docs/architecture-roadmap-v1`, HEAD `5c9a5c5` (verified), PS-0 open (0 of 8 tasks), PS-1 not started, milestone M0 in progress (`docs/archive/PROJECT_STATUS.md`).
-**Companions:** `FIRST_PLAYABLE_SCOPE.md` (M2), `FIRST_PLAYABLE_DEPENDENCIES.md`, `VERTICAL_SLICE_SCOPE.md` (M3), `TECHNOLOGY-GAME-TRACK-INTEGRATION.md`.
+**Source state:** branch `docs/architecture-roadmap-v1`, HEAD `5c9a5c5` (verified), PS-0 open (0 of 8 tasks), PS-1 not started, milestone M0 in progress ([`docs/archive/PROJECT_STATUS.md`](../PROJECT_STATUS.md)).
+**Companions:** [`FIRST_PLAYABLE_SCOPE.md`](FIRST_PLAYABLE_SCOPE.md) (M2), [`FIRST_PLAYABLE_DEPENDENCIES.md`](FIRST_PLAYABLE_DEPENDENCIES.md), [`VERTICAL_SLICE_SCOPE.md`](VERTICAL_SLICE_SCOPE.md) (M3), [`TECHNOLOGY-GAME-TRACK-INTEGRATION.md`](TECHNOLOGY-GAME-TRACK-INTEGRATION.md).
 
 **Labels used in all Game Track documents** (so that approved, proposed and new things are never mixed):
 * **[REC]** a decision recorded from the owner (AOD/OAM) that still awaits the owner's countersignature (plan 3.3); treated as a constraint, not as a confirmed registry entry.
@@ -11,7 +11,7 @@
 
 ## 1. Why there is a Game Track
 
-Technology exists to enable the game. The Production Plan v2.1 (147 tasks, PS-0...PS-14) is deliberately a *geometry and runtime* plan: it states that gameplay, content and MMO scope are outside it (`production-architecture-plan.md` section 12 and the "outside this plan" row for roadmap-v1 gate 6) and `DEVELOPMENT_ROADMAP.md` lists the unplanned packages G-1...G-13. Left alone, the plan can be completed in full without a single enemy to fight. The Game Track fills that gap and is measured by what a player can do, not by task counts.
+Technology exists to enable the game. The Production Plan v2.1 (147 tasks, PS-0...PS-14) is deliberately a *geometry and runtime* plan: it states that gameplay, content and MMO scope are outside it ([`production-architecture-plan.md`](../../production/production-architecture-plan.md) section 12 and the "outside this plan" row for roadmap-v1 gate 6) and [`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md) lists the unplanned packages G-1...G-13. Left alone, the plan can be completed in full without a single enemy to fight. The Game Track fills that gap and is measured by what a player can do, not by task counts.
 
 | Track | Content | Measured by |
 |---|---|---|
@@ -24,12 +24,12 @@ Technology exists to enable the game. The Production Plan v2.1 (147 tasks, PS-0.
 
 | Item | State |
 |---|---|
-| GDD/TDD 0.3 | **absent** (`docs/archive/README.md`, blocker B-1). AOD-24 candidate baseline BL-2 would use AOD-01...24 as product constraints in its place; BL-2 is a candidate, not approved |
-| Game concept in the repository | only the project requirements list (`docs/archive/PROJECT_STATUS.md` 5.1), the reference studies (`docs/research/*`) and the roadmap-v1 gates 6 and 8; no character, combat, item or progression design |
+| GDD/TDD 0.3 | **absent** ([`docs/archive/README.md`](../README.md), blocker B-1). AOD-24 candidate baseline BL-2 would use AOD-01...24 as product constraints in its place; BL-2 is a candidate, not approved |
+| Game concept in the repository | only the project requirements list ([`docs/archive/PROJECT_STATUS.md`](../PROJECT_STATUS.md) 5.1), the reference studies (`docs/research/*`) and the roadmap-v1 gates 6 and 8; no character, combat, item or progression design |
 | Production code | none; the spike has terrain generation with one biome, chunk streaming, voxel edit, a Godot client with a marker that is moved by buttons, HUD, save/load (`docs/spike/*`, `godot-client/world.gd`: no controller, no collision, no inventory) |
 | Gameplay owner | **unassigned** (roadmap-v1 gate 6 "unassigned gameplay owner (OI-8)"); not among the owners GOV-03 must decide (WorldGen, Networking, Server, Client, Engine Adapter, Import/Export, O-1, O-2) |
 | Content, art, audio owners | none named anywhere |
-| Gameplay module in the module grid | none (`module-boundaries.md` Part A/B); the server is the composition root |
+| Gameplay module in the module grid | none ([`module-boundaries.md`](../../production/module-boundaries.md) Part A/B); the server is the composition root |
 
 ## 3. Cube's identity [NP]
 
@@ -71,12 +71,12 @@ Enter the world -> Explore -> Discover (location, resource, creature) -> Fight /
 
 ## 5. Milestones from the player's point of view
 
-The release milestones M0...M8 already exist in `docs/archive/DEVELOPMENT_ROADMAP.md` and `docs/RELEASE_CRITERIA.md` (both Proposed). This section adds the game view. Differences from the existing definitions are collected in section 9 and are **proposals**.
+The release milestones M0...M8 already exist in [`docs/archive/DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md) and [`docs/RELEASE_CRITERIA.md`](../../RELEASE_CRITERIA.md) (both Proposed). This section adds the game view. Differences from the existing definitions are collected in section 9 and are **proposals**.
 
 | Milestone | Player experience | Scope document |
 |---|---|---|
-| **M2 First Playable** | one coherent loop with limited content: create a world, explore, fight one kind of enemy, collect, equip, change the world, save, reload, continue | `FIRST_PLAYABLE_SCOPE.md` |
-| **M3 Vertical Slice** | a small, representative piece of the final game: several environments, creature types, items, progression, building, persistence, a visual and audio direction | `VERTICAL_SLICE_SCOPE.md` |
+| **M2 First Playable** | one coherent loop with limited content: create a world, explore, fight one kind of enemy, collect, equip, change the world, save, reload, continue | [`FIRST_PLAYABLE_SCOPE.md`](FIRST_PLAYABLE_SCOPE.md) |
+| **M3 Vertical Slice** | a small, representative piece of the final game: several environments, creature types, items, progression, building, persistence, a visual and audio direction | [`VERTICAL_SLICE_SCOPE.md`](VERTICAL_SLICE_SCOPE.md) |
 | **M4 Internal Alpha** | broader systems and content; sustained playability for hours; multiplayer on dedicated and embedded servers | existing M4 + gameplay breadth (unplanned packages G-1...G-13 get plans) |
 | **M5 Closed Alpha** | controlled external testers; telemetry; update and recovery | existing M5 |
 | **M6 Beta** | feature-complete or nearly; stabilisation; platforms and cross-play | existing M6 |
@@ -87,7 +87,7 @@ The release milestones M0...M8 already exist in `docs/archive/DEVELOPMENT_ROADMA
 * Authoritative state lives on the server, the client is never the source of truth (AOD-13/14); single-player runs the same authoritative runtime in-process (AOD-22). **Gameplay rules (combat, inventory, creatures) are therefore authoritative Rust logic, not engine scripts** (AOD-07: GDScript is UI and glue only).
 * User changes to geometry go through the Editing API (AOD-15); procedural generation goes through the WorldGen/System boundary (AOD-16/20).
 * Mobile impact must be stated for every gate that touches runtime (AOD-08); an emulator never replaces a device (AOD-11).
-* Contracts stay Draft until the owner approves them (AOD-18); no production module may rely on a Proposed contract (plan 3.1), see the open problem H-3 in `docs/archive/gov01/GOV-01-DECISION-REGISTER.md`.
+* Contracts stay Draft until the owner approves them (AOD-18); no production module may rely on a Proposed contract (plan 3.1), see the open problem H-3 in [`docs/archive/gov01/GOV-01-DECISION-REGISTER.md`](../gov01/GOV-01-DECISION-REGISTER.md).
 * **Owners needed for the Game Track [NP]:** gameplay/rules owner (OI-8, unassigned), content/design owner, art and audio owner, game-UI owner. They should be added to the GOV-03 list or deferred in writing.
 * **Placement of gameplay in the architecture [NP]:** the module grid has no gameplay module. Proposal: a server-side *Game Rules* module (name to be chosen) above the Editing API ports and below the server composition root: it owns entities, combat, inventory, items and progression rules; reads the world through Core/Processing read views and changes terrain only through `IEditingService`. Adding it changes ADG Parts A/B and needs the owner and the Integration Owner (not done here).
 * The entity model (ECS or explicit domain model, REF-13 "Needs spike") is open (roadmap-v1 gate 6, open decisions). It must be decided by a spike before the Game Rules module is built.
@@ -107,7 +107,7 @@ Progress is **not** measured by task counts, contract counts, test counts, modul
 | Is the loop understandable and repeatable? | an outside tester plays without explanation; the facilitator records where they stopped, what they said, how many loops they repeated by choice | M2 (first reading), M3 (full) |
 | Does the world feel varied and purposeful? | per-environment tour with points of interest; checklist from the Vertical Slice scope | M3 |
 
-**Lightweight reporting rule:** each month-independent increment ends with a *demo build* and a one-page *playtest note* (what the player could do, what broke, what they said). The status document records, for each player-facing question, one of: *not demonstrable*, *demonstrated by developers*, *demonstrated by an outside tester*. A milestone is reached only when the owner records acceptance (`RELEASE_CRITERIA.md` section 4). **No performance budgets are invented:** timing, frame rate and memory are *measured and reported* on target hardware (benchmarks B-5, B-6, B-10 of `RELEASE_CRITERIA.md`) and become thresholds only by the owner's approval.
+**Lightweight reporting rule:** each month-independent increment ends with a *demo build* and a one-page *playtest note* (what the player could do, what broke, what they said). The status document records, for each player-facing question, one of: *not demonstrable*, *demonstrated by developers*, *demonstrated by an outside tester*. A milestone is reached only when the owner records acceptance ([`RELEASE_CRITERIA.md`](../../RELEASE_CRITERIA.md) section 4). **No performance budgets are invented:** timing, frame rate and memory are *measured and reported* on target hardware (benchmarks B-5, B-6, B-10 of [`RELEASE_CRITERIA.md`](../../RELEASE_CRITERIA.md)) and become thresholds only by the owner's approval.
 
 ## 8. Mapping to the unplanned packages of the development roadmap [NP]
 
@@ -130,16 +130,16 @@ Differences are listed so that nothing is silently rewritten. "Existing" = the c
 
 | # | Existing statement | New proposal | Impact / handling |
 |---|---|---|---|
-| C-1 | `DEVELOPMENT_ROADMAP.md` M2: launch, create **or load a test world**, move a character, interact with voxels, edit, save/load; "what is still missing": combat, creatures, items, progression | M2 additionally requires a third-person character with jump, one hostile creature type with combat, loot, one equipment effect, inventory, new-world creation by seed | M2 becomes larger; the old M2 acceptance rows FP-1...FP-9 (`RELEASE_CRITERIA.md`) remain a subset; FP-10 ("missing items listed") is replaced by the exclusion list of `FIRST_PLAYABLE_SCOPE.md`; the owner decides whether to keep the old M2 as an internal checkpoint **M2-T** (technical slice, walk and edit, no combat) |
-| C-2 | `DEVELOPMENT_ROADMAP.md` M2 test-world source: PS-11 slice **or** a fixed fixture | New: world creation uses generation, so a WGEN slice is mandatory | fixture alternative removed for M2 |
+| C-1 | [`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md) M2: launch, create **or load a test world**, move a character, interact with voxels, edit, save/load; "what is still missing": combat, creatures, items, progression | M2 additionally requires a third-person character with jump, one hostile creature type with combat, loot, one equipment effect, inventory, new-world creation by seed | M2 becomes larger; the old M2 acceptance rows FP-1...FP-9 ([`RELEASE_CRITERIA.md`](../../RELEASE_CRITERIA.md)) remain a subset; FP-10 ("missing items listed") is replaced by the exclusion list of [`FIRST_PLAYABLE_SCOPE.md`](FIRST_PLAYABLE_SCOPE.md); the owner decides whether to keep the old M2 as an internal checkpoint **M2-T** (technical slice, walk and edit, no combat) |
+| C-2 | [`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md) M2 test-world source: PS-11 slice **or** a fixed fixture | New: world creation uses generation, so a WGEN slice is mandatory | fixture alternative removed for M2 |
 | C-3 | roadmap-v1 gate 6 exit: playable local loop **on desktop and a physical Android device** | New: M2 acceptance on desktop; a physical-device checkpoint is scheduled before M3 and is non-blocking for M2 | needs the owner's ruling (AOD-08 makes mobile mandatory, AOD-11 forbids claiming it without a device) |
-| C-4 | `DEVELOPMENT_ROADMAP.md` R-02: no gameplay stages; "until GDD/TDD is supplied M3+ are scope Unknown" | New: a scope proposal for M2 and M3 built from the recorded constraints and the references | a proposal only; the missing GDD/TDD remains a blocker for final scope approval |
-| C-5 | `RELEASE_CRITERIA.md` M3 rows VS-1...VS-7 | `VERTICAL_SLICE_SCOPE.md` section 8 maps them and adds player-facing demonstrations | extension, not a replacement |
-| C-6 | ADG has no milestone slices (R-01) | `FIRST_PLAYABLE_DEPENDENCIES.md` shows that under the published ADG the M2 slice pulls 100 of 147 tasks and two external inputs | needs a slice definition (proposal there) |
+| C-4 | [`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md) R-02: no gameplay stages; "until GDD/TDD is supplied M3+ are scope Unknown" | New: a scope proposal for M2 and M3 built from the recorded constraints and the references | a proposal only; the missing GDD/TDD remains a blocker for final scope approval |
+| C-5 | [`RELEASE_CRITERIA.md`](../../RELEASE_CRITERIA.md) M3 rows VS-1...VS-7 | [`VERTICAL_SLICE_SCOPE.md`](VERTICAL_SLICE_SCOPE.md) section 8 maps them and adds player-facing demonstrations | extension, not a replacement |
+| C-6 | ADG has no milestone slices (R-01) | [`FIRST_PLAYABLE_DEPENDENCIES.md`](FIRST_PLAYABLE_DEPENDENCIES.md) shows that under the published ADG the M2 slice pulls 100 of 147 tasks and two external inputs | needs a slice definition (proposal there) |
 | C-7 | module grid has no gameplay module; GOV-03 has no gameplay/content owner | proposals in section 6 | ADG and owner decisions needed |
 | C-8 | AOD-07 GDScript is UI and glue only | prototypes in engine scripts are allowed only as labelled, non-production experiments (integration document, level 2) | no conflict if the rule is kept |
 | C-9 | AOD-24 BL-2 (AOD-01...24 stand in for the GDD/TDD) is a candidate baseline | the Game Track relies on it for scope; the reliance is written here | the candidate needs approval before any scope document is called approved |
-| C-10 | `PROJECT_STATUS.md` M0 in progress, no milestone reached | unchanged | no change |
+| C-10 | [`PROJECT_STATUS.md`](../PROJECT_STATUS.md) M0 in progress, no milestone reached | unchanged | no change |
 
 ## 10. Open questions for the owner (Game Track)
 
@@ -148,4 +148,4 @@ Differences are listed so that nothing is silently rewritten. "Existing" = the c
 3. Desktop-only M2 acceptance with a device checkpoint before M3 (C-3), or a device in M2.
 4. Owners: gameplay, content, art/audio, game UI; add them to GOV-03 or defer in writing.
 5. Entity model spike (REF-13) and the Game Rules module placement (section 6).
-6. Supply or replace the GDD/TDD, the Voxel Architecture and the Geometry Processing Specification: M2 on the published ADG depends on the last two (`FIRST_PLAYABLE_DEPENDENCIES.md` section 4).
+6. Supply or replace the GDD/TDD, the Voxel Architecture and the Geometry Processing Specification: M2 on the published ADG depends on the last two ([`FIRST_PLAYABLE_DEPENDENCIES.md`](FIRST_PLAYABLE_DEPENDENCIES.md) section 4).

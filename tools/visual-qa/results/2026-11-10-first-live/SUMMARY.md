@@ -1,6 +1,6 @@
 # First live run, 2026-11-10 (scene-smoke, Jev 1.14.0)
 
-5 requests (one per fixture, no retries), all HTTP 200. Tokens: **14,573 input, 721 output** in total (about 2,915 input and 143 output per request). The API reports no price. Raw answers: `*.response.json`; per-question results: `*.report.json`; confusion matrices: `analysis.md`.
+5 requests (one per fixture, no retries), all HTTP 200. Tokens: **14,573 input, 721 output** in total (about 2,915 input and 143 output per request). The API reports no price. Raw answers: `*.response.json`; per-question results: `*.report.json`; confusion matrices: [`analysis.md`](analysis.md).
 
 | image | label | verdict | notes |
 |---|---|---|---|

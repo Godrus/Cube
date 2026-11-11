@@ -1,10 +1,10 @@
-> **Архив, не читать без причины.** Актуально: `AGENTS.md`, `.agent/BOARD.md`, `docs/handoff/NEW-CHAT-START.md`.
+> **Архив, не читать без причины.** Актуально: [`AGENTS.md`](../../AGENTS.md), [`.agent/BOARD.md`](../../.agent/BOARD.md), [`docs/handoff/NEW-CHAT-START.md`](../handoff/NEW-CHAT-START.md).
 
 # PROJECT STATUS: Cube
 
 **Document status:** **Proposed** (prepared for owner review; not yet in the repository). Once the owner accepts it, it lives at `docs/archive/PROJECT_STATUS.md` and is the **single source of the current development state**.
 **State as of the last check:** 2026-11-05, audited baseline `2c0c1f3`; this documentation set is commit `60d0bfc` (see 5.2). Everything below is a **snapshot of verified facts**, not a plan. A claim without evidence in section 4 is not a fact.
-**Evidence vocabulary:** Verified / Reported / Inferred / Unknown (see `Independent-Production-Audit.md`).
+**Evidence vocabulary:** Verified / Reported / Inferred / Unknown (see [`Independent-Production-Audit.md`](audit/Independent-Production-Audit.md)).
 **Status ladder for work (never skip a rung):** documented/specified → Implemented → Verified → Accepted. A specification is not an implementation; an implementation is not verified; verified is not accepted.
 
 ---
@@ -22,14 +22,14 @@
 | GDD/TDD 0.3 | absent | **MISSING (blocker B-1)** |
 | Voxel Architecture 1.0 | absent | **MISSING (blocker B-1)**; revalidation gate RG-1 |
 | Geometry Processing Specification | absent | **MISSING (blocker B-1)**; revalidation gate RG-2 |
-| Architecture Update AU-1.0 | `docs/decisions/architecture-update-v1.0.md` | reconstructed copy, not byte-verified |
+| Architecture Update AU-1.0 | [`docs/decisions/architecture-update-v1.0.md`](../decisions/architecture-update-v1.0.md) | reconstructed copy, not byte-verified |
 | Geometry Editing Specification, Agent Spec, Task Pack, QA Pack | `docs/architecture/`, `docs/specifications/`, `docs/agent-tasks/` | present |
 | Owner decisions (AOD-01…24), approval matrix, ACR-004 package | `docs/decisions/` | recorded, awaiting countersignature |
 | Contracts | `docs/api-contracts/` | all **Proposed** (none Owner-Approved) |
-| Architecture roadmap and reference study | `docs/architecture/roadmap-v1.md`, `system-boundaries-v1.md`, `docs/research/` | Proposed |
+| Architecture roadmap and reference study | [`docs/architecture/roadmap-v1.md`](../architecture/roadmap-v1.md), [`system-boundaries-v1.md`](../architecture/system-boundaries-v1.md), `docs/research/` | Proposed |
 | **Production Plan v2.1** | `docs/production/` (9 files) | **Proposed** |
-| Release path | `DEVELOPMENT_ROADMAP.md`, `RELEASE_CRITERIA.md` (this package) | Proposed |
-| Agent entry | `AGENT_HANDOFF.md` (this package) | Proposed |
+| Release path | [`DEVELOPMENT_ROADMAP.md`](DEVELOPMENT_ROADMAP.md), [`RELEASE_CRITERIA.md`](../RELEASE_CRITERIA.md) (this package) | Proposed |
+| Agent entry | [`AGENT_HANDOFF.md`](AGENT_HANDOFF.md) (this package) | Proposed |
 
 ## 5.2 Repository Baseline
 
@@ -40,7 +40,7 @@
 | **Commit holding this status documentation** | `60d0bfc837f135b48e7e86163de8bf9eeb2b2a1f`; `2c0c1f3..60d0bfc` verified: 8 files, +920/-0, docs only, no production, spike or configuration change | Verified |
 | **Current HEAD** | **not recorded here by design** (a file cannot contain the hash of the commit that contains it). Read it with `git rev-parse HEAD`. Any commit after `60d0bfc` must be inspected with `git diff 60d0bfc..HEAD --stat` before this file is trusted | rule |
 | Pushed | `origin/docs/architecture-roadmap-v1` equals HEAD | Verified |
-| Working tree | **not clean:** `.gitignore` modified (adds `AGENTS.md`); this is the owner's own change and is not part of any commit | Verified |
+| Working tree | **not clean:** `.gitignore` modified (adds [`AGENTS.md`](../../AGENTS.md)); this is the owner's own change and is not part of any commit | Verified |
 | Production code | **none** (no `xtask`, no `cube-editing-api`, no `cube-integration-tests`, no toolchain pin, no `deny.toml`) | Verified |
 | Spike code | present on this branch: 7 crates, ~5 900 Rust lines, `godot-client/`; 131 tests pass (desktop, experimental; never for `master`) | Verified |
 | CI | **none** (`.github/` does not exist) | Verified |
@@ -53,7 +53,7 @@
 
 | Question | Answer |
 |---|---|
-| Release milestone | **M0 Architecture & Governance: in progress, not reached.** No milestone M0…M8 is reached (`DEVELOPMENT_ROADMAP.md`). |
+| Release milestone | **M0 Architecture & Governance: in progress, not reached.** No milestone M0…M8 is reached ([`DEVELOPMENT_ROADMAP.md`](DEVELOPMENT_ROADMAP.md)). |
 | Project phase | **Architecture & governance preparation. No production implementation exists.** Documentation preparation, architecture approval and implementation are separate phases; only the first is under way. |
 | Production Stage | **PS-0 Governance and Architecture Freeze: open, 0 of 8 gate tasks done.** (PS-1…PS-14 not started.) |
 | Current Gate | **G0** (not satisfied). Satisfied gates: none. |
@@ -65,7 +65,7 @@
 
 ## 5.4 Development Progress
 
-Task counts come from the ADG in `module-boundaries.md` Part C/D. **Statuses:** *Not Started* means no artefact in the repository. No task of the 147 has reached Implemented, Verified or Accepted. Those words may be used only with evidence recorded in section 4.
+Task counts come from the ADG in [`module-boundaries.md`](../production/module-boundaries.md) Part C/D. **Statuses:** *Not Started* means no artefact in the repository. No task of the 147 has reached Implemented, Verified or Accepted. Those words may be used only with evidence recorded in section 4.
 
 | Stage / Gate | Name | Status | Done | Remaining | Acceptance (closing condition, ADG Part D) | Evidence | Blockers | Dependencies (start-after / merge-after) | To pass on |
 |---|---|---|---|---|---|---|---|---|---|
@@ -97,13 +97,13 @@ Three classes are kept apart. Nothing in B or C is a decision of the owner.
 
 | ID | Title | Status | Source |
 |---|---|---|---|
-| AOD-01…19 | Rust Core, Godot first client, GDExtension, authoritative server, client not truth, contracts stay Draft until separately approved (AOD-18), etc. | **Approved (recorded 2026-11-04 from chat); countersignature pending** | `docs/decisions/owner-architecture-decisions-v1.md` |
+| AOD-01…19 | Rust Core, Godot first client, GDExtension, authoritative server, client not truth, contracts stay Draft until separately approved (AOD-18), etc. | **Approved (recorded 2026-11-04 from chat); countersignature pending** | [`docs/decisions/owner-architecture-decisions-v1.md`](../decisions/owner-architecture-decisions-v1.md) |
 | AOD-20 | WorldGen to Core: hybrid C3 | Approved (recorded 2026-11-05); countersignature pending | same, section 5.1 |
 | AOD-21 | Persistence: WorldSeed + GeneratorVersion, durable journal, compaction protocol | Approved; no binary format approved | section 5.2 |
 | AOD-22 | Embedded in-process server + dedicated server, same runtime/semantics, conformance on both transports | Approved | section 5.3 |
 | AOD-23 | Licence policy | Approved | section 5.4 |
 | AOD-24 | Missing sources: temporary baseline allowed for limited parts | **Conditionally Approved** | section 5.5 |
-| OAM-01/02/03/07 | Approval matrix items | Approved; OAM-08 Conditionally Approved | `docs/decisions/owner-approval-matrix-v1.md` |
+| OAM-01/02/03/07 | Approval matrix items | Approved; OAM-08 Conditionally Approved | [`docs/decisions/owner-approval-matrix-v1.md`](../decisions/owner-approval-matrix-v1.md) |
 
 ### B. Decisions awaiting the owner (PS-0, in GOV-01/GOV-02): 0 of 15 confirmed
 
@@ -125,7 +125,7 @@ Three classes are kept apart. Nothing in B or C is a decision of the owner.
 | 14 | D-E | toolchain, execution model, licence allow-list | pinned stable, no async in lower layers / alternatives | as proposed | CI, all crates | entry |
 | 15 | branch option | docs-only baseline | new docs-only branch / path-limited PRs / accept spike code | new docs-only branch | GOV-04 | entry |
 
-**Source of B:** `docs/production/ps-0-exit-checklist.md` section 2; options in `architecture-blocker-decisions.md` section 1. **Consequence of inaction:** G0 stays open; no production task can start.
+**Source of B:** [`docs/production/ps-0-exit-checklist.md`](../production/ps-0-exit-checklist.md) section 2; options in [`architecture-blocker-decisions.md`](../production/architecture-blocker-decisions.md) section 1. **Consequence of inaction:** G0 stays open; no production task can start.
 
 ### C. Later decisions (Proposed; each has an owning GOV task)
 
@@ -135,14 +135,14 @@ GOV-03 owners (WorldGen, Networking Adapter, Server Runtime, Client Runtime, Eng
 
 | ID | Question | Options | Recommendation |
 |---|---|---|---|
-| ST-1 | Where does the canonical project state live, given `AGENTS.md` mandates `.agent/state/CURRENT_CONTEXT.md` (absent) and `AGENTS.md` is about to be git-ignored? | (a) `docs/archive/PROJECT_STATUS.md` canonical + `.agent/state/CURRENT_CONTEXT.md` as a short pointer; (b) create `.agent/` per `AGENTS.md` and make `CURRENT_CONTEXT.md` canonical; (c) PROJECT_STATUS only, amend `AGENTS.md` | (a) |
+| ST-1 | Where does the canonical project state live, given [`AGENTS.md`](../../AGENTS.md) mandates `.agent/state/CURRENT_CONTEXT.md` (absent) and [`AGENTS.md`](../../AGENTS.md) is about to be git-ignored? | (a) `docs/archive/PROJECT_STATUS.md` canonical + `.agent/state/CURRENT_CONTEXT.md` as a short pointer; (b) create `.agent/` per [`AGENTS.md`](../../AGENTS.md) and make `CURRENT_CONTEXT.md` canonical; (c) PROJECT_STATUS only, amend [`AGENTS.md`](../../AGENTS.md) | (a) |
 | ST-2 | Accept audit defects D-01/D-02 as corrections to the ADG (stage-gate chain) | accept / waive a stage as optional | accept |
 
 ## 5.6 Blockers
 
 | ID | Description | Cause | Blocks | How to remove | Who | Evidence for closing |
 |---|---|---|---|---|---|---|
-| BLK-01 | 15 PS-0 decisions unconfirmed | no registry, no owner entries | G0, all PS-1+ | owner confirms each in `decision-registry.md` | project owner | registry entries with owner confirmation source |
+| BLK-01 | 15 PS-0 decisions unconfirmed | no registry, no owner entries | G0, all PS-1+ | owner confirms each in [`decision-registry.md`](../decisions/decision-registry.md) | project owner | registry entries with owner confirmation source |
 | BLK-02 | No docs-only baseline branch | docs branch carries spike code; `master` has 13 files | GOV-04, GOV-06, PS-1 | choose branch option (#15), execute GOV-04 | owner, Integration Owner | baseline PR/branch; no spike file under `crates/` |
 | BLK-03 | No CI, no archcheck | none implemented | G0, every merge | GOV-05 spec Owner-Approved; GOV-06, XT-01 implemented | Integration Owner, Agent I | workflow-run URL green/red; branch protection lists required checks |
 | BLK-04 | Geometry Processing Specification absent (B-1) | external input | G2 and everything after | supply spec; RG-2; GOV-07 | owner | spec in repo; GOV-07 entry |
@@ -150,7 +150,7 @@ GOV-03 owners (WorldGen, Networking Adapter, Server Runtime, Client Runtime, Eng
 | BLK-06 | GDD/TDD absent | external input | scope beyond the plan; M3+ scope definition | supply or decide scope baseline | owner | document in repo |
 | BLK-07 | Unassigned owners (WorldGen, Networking, Server, Client, Engine Adapter, ...) | no decision | PS-11…PS-13 tasks, SPK-NET | GOV-03 | owner | ownership table updated |
 | BLK-08 | ADG defects D-01/D-02 | audit finding | correct scheduling of PS-2+ | correct graph, re-validate | Integration Owner, with owner acceptance (ST-2) | regenerated Part C/D, extended validator |
-| BLK-09 | State-source conflict (ST-1) | `AGENTS.md` vs this package | reliable agent handoff | decide ST-1 | owner | decision entry |
+| BLK-09 | State-source conflict (ST-1) | [`AGENTS.md`](../../AGENTS.md) vs this package | reliable agent handoff | decide ST-1 | owner | decision entry |
 | BLK-10 | Physical devices / macOS (DEV-01, NB-1/2) | not acquired | DG-1…3, G14, M5+ device claims | acquire | owner | device inventory |
 | BLK-11 | GitHub settings unknown | `gh` unavailable | confidence in required checks | read-only export of branch protection | owner / agent with `gh` | JSON export attached |
 
@@ -164,12 +164,12 @@ GOV-03 owners (WorldGen, Networking Adapter, Server Runtime, Client Runtime, Eng
 | Title | Decide ACR-001/002/003, ACR-004 part A, OAM-10 principle, OD-R1, OD-R2, OD-R6, D-R8, D-K, D-T, D-C, D-0, D-E and the branch option |
 | Owner | Project owner (the agent may only prepare and record) |
 | Dependencies | none (ADG: S and I empty) |
-| Preconditions | the owner has read `architecture-blocker-decisions.md` section 1 and `ps-0-exit-checklist.md` section 2; the audit defects are known |
+| Preconditions | the owner has read [`architecture-blocker-decisions.md`](../production/architecture-blocker-decisions.md) section 1 and [`ps-0-exit-checklist.md`](../production/ps-0-exit-checklist.md) section 2; the audit defects are known |
 | Allowed actions (agent) | present each decision with options/recommendation; ask the owner for a verdict; write an entry in `docs/production/decision-registry.md` **only** quoting an explicit owner statement and its source (chat date or signed commit); update this status file |
 | Forbidden actions | deciding, "approving" or implying approval; setting any contract to Owner-Approved; starting any PS-1 task; creating production crates; moving spike code; committing or pushing without explicit owner permission |
 | Expected result | 15 registry entries, each Approved / Amended / Rejected with the owner's confirmation source |
 | Acceptance criteria | every one of the 15 decisions has an entry with decision, options considered, confirmation source and date; none inferred |
-| Required tests | none (documentation); a link check that every entry cites a source and an ID from `architecture-blocker-decisions.md` |
+| Required tests | none (documentation); a link check that every entry cites a source and an ID from [`architecture-blocker-decisions.md`](../production/architecture-blocker-decisions.md) |
 | Evidence | the registry file in the repository, commit hash; the owner's confirmation |
 | Completion condition | all 15 entries present and owner-confirmed; `GOV-01` marked Accepted here with that evidence |
 
@@ -179,11 +179,11 @@ GOV-03 owners (WorldGen, Networking Adapter, Server Runtime, Client Runtime, Eng
 
 | Claim | Evidence |
 |---|---|
-| Branch/HEAD/status/commit content | git commands in `Independent-Production-Audit.md` section 1 |
+| Branch/HEAD/status/commit content | git commands in [`Independent-Production-Audit.md`](audit/Independent-Production-Audit.md) section 1 |
 | 131 spike tests passing | `cargo test --workspace --offline`, 2026-11-05 |
-| ADG integrity | `PROJECT-STATUS-VALIDATION.md` |
+| ADG integrity | [`PROJECT-STATUS-VALIDATION.md`](audit/PROJECT-STATUS-VALIDATION.md) |
 | No CI / no production code | file listing |
 
 ## 6. How this file is maintained
 
-See `AGENT_HANDOFF.md` section "Updating status" and `RELEASE_CRITERIA.md` section 0. Every change of a status needs a row in the evidence index with a verifiable reference (command output, commit hash, workflow-run URL, registry entry).
+See [`AGENT_HANDOFF.md`](AGENT_HANDOFF.md) section "Updating status" and [`RELEASE_CRITERIA.md`](../RELEASE_CRITERIA.md) section 0. Every change of a status needs a row in the evidence index with a verifiable reference (command output, commit hash, workflow-run URL, registry entry).

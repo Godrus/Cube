@@ -1,13 +1,13 @@
 # Cube — WorldGen Contracts (Draft)
 
-**Status:** DRAFT 0.1.0-draft, **Proposed text, nothing approved.** Not part of the 45 numbered contracts of `README.md` and not assigned to a tier (P0/P1 are untouched, AOD-18). No language-specific signatures.
-**Basis:** AOD-09 (pure deterministic Rust generation), AOD-16 and AOD-20 (separate WorldGen/System-commit boundary, variant C3), AOD-21, `docs/decisions/worldgen-core-boundary.md`. Writing generated data into Core is specified in `system-commit-contracts.md`; storage in `world-persistence-contracts.md`; hosting in `server-runtime-contracts.md`.
+**Status:** DRAFT 0.1.0-draft, **Proposed text, nothing approved.** Not part of the 45 numbered contracts of [`README.md`](README.md) and not assigned to a tier (P0/P1 are untouched, AOD-18). No language-specific signatures.
+**Basis:** AOD-09 (pure deterministic Rust generation), AOD-16 and AOD-20 (separate WorldGen/System-commit boundary, variant C3), AOD-21, [`docs/decisions/worldgen-core-boundary.md`](../decisions/worldgen-core-boundary.md). Writing generated data into Core is specified in [`system-commit-contracts.md`](system-commit-contracts.md); storage in [`world-persistence-contracts.md`](world-persistence-contracts.md); hosting in [`server-runtime-contracts.md`](server-runtime-contracts.md).
 **Owner of the module:** unassigned (OI-8). **Layer:** not defined in AU-1.0; placement is part of ACR-004 (Pending).
 Field order: Purpose · Model · Ownership · Lifetime · Access · Revision · Dirty · Threading · Cancel · Errors · Serialization · Compat · Tests · Open.
 
 ## 0. Role
 
-WorldGen produces the **base world** as pure values. It has no write handle to Core. The only way generated data enters the authoritative asset is the Materialiser through the system-commit port (`system-commit-contracts.md`). Everything marked "spike" below is evidence from the experimental `cube-worldgen` crate, not a decision.
+WorldGen produces the **base world** as pure values. It has no write handle to Core. The only way generated data enters the authoritative asset is the Materialiser through the system-commit port ([`system-commit-contracts.md`](system-commit-contracts.md)). Everything marked "spike" below is evidence from the experimental `cube-worldgen` crate, not a decision.
 
 ## WG-01 WorldSeed
 
@@ -55,7 +55,7 @@ WorldGen produces the **base world** as pure values. It has no write handle to C
 
 ## WG-07 GeneratorFailure
 
-* **Model:** `StableCode ∈ {Cancelled, GeneratorVersionUnknown, GeneratorVersionRetired, InvalidCoord, ResourceLimit, InternalFault}` with the common Error envelope (`README.md` convention 2).
+* **Model:** `StableCode ∈ {Cancelled, GeneratorVersionUnknown, GeneratorVersionRetired, InvalidCoord, ResourceLimit, InternalFault}` with the common Error envelope ([`README.md`](README.md) convention 2).
 * **Rules:** a failure marks only that chunk Failed; it never corrupts neighbours or authoritative state; retry policy belongs to the service; clients never see a half-built chunk.
 * **Tests:** injected failure isolates to one chunk; error codes are stable.
 

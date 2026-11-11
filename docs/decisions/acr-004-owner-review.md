@@ -1,7 +1,7 @@
 # ACR-004 Owner Review Package
 
-**Status of ACR-004: `Pending`.** This document prepares the owner's decision; it **approves nothing**. ACR-004 changes status only when the owner explicitly approves or rejects it in a recorded decision (`owner-architecture-decisions-v1.md`, section 4). AU-1.0, ACR-001/002/003, all P0/P1 contracts and the Draft contracts named below are not changed by this document.
-**Prepared:** 2026-11-05, from commit `bef9bda`. **Companions:** ACR-004 text in `audit-resolution-report.md`; AOD-20 (`owner-architecture-decisions-v1.md` section 5.1); `worldgen-core-boundary.md`; `owner-approval-matrix-v1.md` (OAM-01, OAM-09, OAM-10); drafts `../api-contracts/worldgen-contracts.md`, `system-commit-contracts.md`, `world-persistence-contracts.md`, `server-runtime-contracts.md`.
+**Status of ACR-004: `Pending`.** This document prepares the owner's decision; it **approves nothing**. ACR-004 changes status only when the owner explicitly approves or rejects it in a recorded decision ([`owner-architecture-decisions-v1.md`](owner-architecture-decisions-v1.md), section 4). AU-1.0, ACR-001/002/003, all P0/P1 contracts and the Draft contracts named below are not changed by this document.
+**Prepared:** 2026-11-05, from commit `bef9bda`. **Companions:** ACR-004 text in [`audit-resolution-report.md`](audit-resolution-report.md); AOD-20 ([`owner-architecture-decisions-v1.md`](owner-architecture-decisions-v1.md) section 5.1); [`worldgen-core-boundary.md`](worldgen-core-boundary.md); [`owner-approval-matrix-v1.md`](owner-approval-matrix-v1.md) (OAM-01, OAM-09, OAM-10); drafts [`../api-contracts/worldgen-contracts.md`](../api-contracts/worldgen-contracts.md), [`system-commit-contracts.md`](../api-contracts/system-commit-contracts.md), [`world-persistence-contracts.md`](../api-contracts/world-persistence-contracts.md), [`server-runtime-contracts.md`](../api-contracts/server-runtime-contracts.md).
 
 ## 0. Recommendation in one table
 
@@ -29,7 +29,7 @@ Order if the owner wants to approve in steps: A, then B and C together, then D; 
 ## Part B: new public Core port (system-commit port)
 
 * **Already accepted by AOD-20:** that generated data reaches Core only through a public system-commit port and never around it. The port's existence follows from AOD-20; **its shape does not.**
-* **Needs separate approval:** the port as a new public Core interface: operations `Materialise`, `Evict`, `Restore`; callers limited to the Materialiser and the persistence loader; atomic and idempotent; never reachable from the network (draft: `system-commit-contracts.md` SC-05, SC-10). Signature, error set and thread-safety stay open.
+* **Needs separate approval:** the port as a new public Core interface: operations `Materialise`, `Evict`, `Restore`; callers limited to the Materialiser and the persistence loader; atomic and idempotent; never reachable from the network (draft: [`system-commit-contracts.md`](../api-contracts/system-commit-contracts.md) SC-05, SC-10). Signature, error set and thread-safety stay open.
 * **Effect on AU-1.0:** adds a Core port that AU-1.0 does not list; the foundation placement of related types is already the subject of ACR-001 (Pending).
 * **Effect on P0/P1:** extends the surface around the commit primitive and C-16/C-18 (P0). No P0 text is edited; P0 approval must include the port or explicitly exclude it. Editing contracts (P1) gain the rule that generated data is excluded from history.
 * **Reversibility:** moderate: a port can be narrowed or renamed while Draft; once P0 is approved and implemented, changing it is a breaking change needing an ACR.
@@ -47,7 +47,7 @@ Order if the owner wants to approve in steps: A, then B and C together, then D; 
 ## Part D: revision semantics
 
 * **Already accepted by AOD-20:** that system generation takes part in revision/commit semantics (not which model).
-* **Needs separate approval:** the revision model. Options and recommendation: OAM-10 in `owner-approval-matrix-v1.md`. **Recommended (`Proposed / Requires Owner Approval`):** system commits use the **same asset and layer revision scopes** as other commits, identified by `ActorKind::System`; **no separate generation epoch** is introduced without demonstrated necessity.
+* **Needs separate approval:** the revision model. Options and recommendation: OAM-10 in [`owner-approval-matrix-v1.md`](owner-approval-matrix-v1.md). **Recommended (`Proposed / Requires Owner Approval`):** system commits use the **same asset and layer revision scopes** as other commits, identified by `ActorKind::System`; **no separate generation epoch** is introduced without demonstrated necessity.
 * **Effect on AU-1.0:** none if the recommendation is chosen (AU-1.0 §7 revision levels are used as they are); a separate epoch or domain would add a revision kind that AU-1.0 does not describe.
 * **Effect on P0/P1:** the recommendation changes **no** RevisionToken field (the existing `Epoch` keeps its meaning of re-creation or recovery); B-6 (token width, commit algorithm) stays open and independent. A separate epoch or domain would change C-16 and the comparison rules.
 * **Reversibility:** the recommended model is the easiest to extend later (an added scope is additive); removing a separate epoch after release would be breaking, which is the argument for not introducing one first.

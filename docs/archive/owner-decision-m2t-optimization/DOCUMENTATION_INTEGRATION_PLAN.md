@@ -1,12 +1,12 @@
 # Documentation integration plan (corrected, proposed)
 
-**Status:** **Proposed** / `PENDING_OWNER_DECISION` (ODM-01). Nothing was merged, committed, pushed, branched or changed in the repository. Corrects the D1-D4 plan of `docs/archive/m2-delivery-review/REPOSITORY_AND_MERGE_REVIEW.md` using facts re-verified on 2026-11-08.
+**Status:** **Proposed** / `PENDING_OWNER_DECISION` (ODM-01). Nothing was merged, committed, pushed, branched or changed in the repository. Corrects the D1-D4 plan of [`docs/archive/m2-delivery-review/REPOSITORY_AND_MERGE_REVIEW.md`](../m2-delivery-review/REPOSITORY_AND_MERGE_REVIEW.md) using facts re-verified on 2026-11-08.
 
 ## 1. Facts (verified)
 
 | Item | Result |
 |---|---|
-| Branch / HEAD | `docs/architecture-roadmap-v1`, `a8584cdd8a6377fbec1a5e8d2d8a6d06c54d4609`, equal to `origin`; working tree: only ` M .gitignore` (the owner's local additions: `AGENTS.md` and a list of `docs/archive/m2-delivery-review/_build/...` paths) |
+| Branch / HEAD | `docs/architecture-roadmap-v1`, `a8584cdd8a6377fbec1a5e8d2d8a6d06c54d4609`, equal to `origin`; working tree: only ` M .gitignore` (the owner's local additions: [`AGENTS.md`](../../../AGENTS.md) and a list of `docs/archive/m2-delivery-review/_build/...` paths) |
 | `master` | `bf60534`, 13 files; the branch is **39 commits ahead, 0 behind**: fast-forward possible, no conflicts |
 | New since the previous review | commit `a8584cd` adds `docs/archive/m2-delivery-review/` (the ten documents of the previous package, identical to the scratchpad originals); the generator `_build/` is **not** committed (ignored locally) |
 | CI / protection | no `.github/`; `master` unprotected (GitHub API, 2026-11-07) |
@@ -19,13 +19,13 @@ Packages are created tree-based from `master` (not by cherry-picking the mixed h
 
 **D1 Recorded decisions, architecture proposals, research, contract drafts**: 24 files in the package; 14 new, 3 modified on `master`, 7 identical to `master` (not part of the PR).
 
-Modified: `docs/archive/README.md`, `docs/api-contracts/README.md`, `docs/decisions/audit-resolution-report.md`
+Modified: [`docs/archive/README.md`](../README.md), [`docs/api-contracts/README.md`](../../api-contracts/README.md), [`docs/decisions/audit-resolution-report.md`](../../decisions/audit-resolution-report.md)
 
-New: `api-contracts/server-runtime-contracts.md`, `api-contracts/system-commit-contracts.md`, `api-contracts/world-persistence-contracts.md`, `api-contracts/worldgen-contracts.md`, `architecture/roadmap-v1.md`, `architecture/system-boundaries-v1.md`, `decisions/acr-004-owner-review.md`, `decisions/owner-approval-matrix-v1.md`, `decisions/owner-architecture-decisions-v1.md`, `decisions/owner-decision-rust-godot.md`, `decisions/worldgen-core-boundary.md`, `research/cubeworld-reversal-notes.md`, `research/reference-comparison.md`, `research/veloren-notes.md`
+New: [`api-contracts/server-runtime-contracts.md`](../../api-contracts/server-runtime-contracts.md), [`api-contracts/system-commit-contracts.md`](../../api-contracts/system-commit-contracts.md), [`api-contracts/world-persistence-contracts.md`](../../api-contracts/world-persistence-contracts.md), [`api-contracts/worldgen-contracts.md`](../../api-contracts/worldgen-contracts.md), [`architecture/roadmap-v1.md`](../../architecture/roadmap-v1.md), [`architecture/system-boundaries-v1.md`](../../architecture/system-boundaries-v1.md), [`decisions/acr-004-owner-review.md`](../../decisions/acr-004-owner-review.md), [`decisions/owner-approval-matrix-v1.md`](../../decisions/owner-approval-matrix-v1.md), [`decisions/owner-architecture-decisions-v1.md`](../../decisions/owner-architecture-decisions-v1.md), [`decisions/owner-decision-rust-godot.md`](../../decisions/owner-decision-rust-godot.md), [`decisions/worldgen-core-boundary.md`](../../decisions/worldgen-core-boundary.md), [`research/cubeworld-reversal-notes.md`](../../research/cubeworld-reversal-notes.md), [`research/reference-comparison.md`](../../research/reference-comparison.md), [`research/veloren-notes.md`](../../research/veloren-notes.md)
 
 **D2 Production plan and status documents**: 13 files in the package; 13 new, 0 modified on `master`, 0 identical to `master` (not part of the PR).
 
-New: `AGENT_HANDOFF.md`, `DEVELOPMENT_ROADMAP.md`, `PROJECT_STATUS.md`, `RELEASE_CRITERIA.md`, `production/agent-task-breakdown.md`, `production/architecture-blocker-decisions.md`, `production/implementation-roadmap.md`, `production/integration-and-qa-plan.md`, `production/module-boundaries.md`, `production/production-architecture-plan.md`, `production/production-plan-revision-v2-report.md`, `production/production-plan-revision-v2.1-report.md`, `production/ps-0-exit-checklist.md`
+New: [`AGENT_HANDOFF.md`](../AGENT_HANDOFF.md), [`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md), [`PROJECT_STATUS.md`](../PROJECT_STATUS.md), [`RELEASE_CRITERIA.md`](../../RELEASE_CRITERIA.md), [`production/agent-task-breakdown.md`](../../production/agent-task-breakdown.md), [`production/architecture-blocker-decisions.md`](../../production/architecture-blocker-decisions.md), [`production/implementation-roadmap.md`](../../production/implementation-roadmap.md), [`production/integration-and-qa-plan.md`](../../production/integration-and-qa-plan.md), [`production/module-boundaries.md`](../../production/module-boundaries.md), [`production/production-architecture-plan.md`](../../production/production-architecture-plan.md), `production/production-plan-revision-v2-report.md`, `production/production-plan-revision-v2.1-report.md`, [`production/ps-0-exit-checklist.md`](../../production/ps-0-exit-checklist.md)
 
 **D3 Audit package and GOV-01 package**: 22 files in the package; 22 new, 0 modified on `master`, 0 identical to `master` (not part of the PR).
 
@@ -45,7 +45,7 @@ Counts are references in backticks from a package to a file of another package (
 | From | To | References | Consequence |
 |---|---|---|---|
 | D2 | D1 | 10 | D2 cites decisions and contracts; merging D2 first leaves 10 dangling references |
-| D3 | D2 | 14 | the ADG tools read `docs/production/module-boundaries.md`; they cannot run without D2 |
+| D3 | D2 | 14 | the ADG tools read [`docs/production/module-boundaries.md`](../../production/module-boundaries.md); they cannot run without D2 |
 | D3 | D1 | 8 | |
 | D4 | D1 / D2 / D3 | 7 / 5 / 4 | |
 | D1 | (none) | 0 | **D1 merges independently** (after the spike-link policy below) |
@@ -53,20 +53,20 @@ Counts are references in backticks from a package to a file of another package (
 
 Order: **D1 -> D2 -> D3 -> D4**; no cycle. Each package after D1 is independently *reviewable* but is *mergeable* only after its predecessors. D3 and D4 could be reordered only if the references from D4 to D3 (4) are marked "forthcoming".
 
-References to missing documents: the only targets that do not exist are the two spellings of the registry (`docs/decisions/decision-registry.md`, `docs/production/decision-registry.md`; future files), the future crate `crates/cube-editing-api` named in the first audit report, and the token `docs/architecture-roadmap-v1` which is a **branch name** (appears in 16 documents; not a file).
+References to missing documents: the only targets that do not exist are the two spellings of the registry ([`docs/decisions/decision-registry.md`](../../decisions/decision-registry.md), `docs/production/decision-registry.md`; future files), the future crate `crates/cube-editing-api` named in the first audit report, and the token `docs/architecture-roadmap-v1` which is a **branch name** (appears in 16 documents; not a file).
 
 ## 4. Consistency of the status documents (findings, none corrected)
 
 | # | Finding | Evidence | Needed before merge |
 |---|---|---|---|
-| I-1 | `PROJECT_STATUS.md` names `2c0c1f3` as the verified baseline and `60d0bfc` as the documentation commit; HEAD is `a8584cd` and the GOV-01, Game Track and M2-delivery packages are not mentioned | text | refresh in D2 (a dated baseline note, the "never write HEAD" rule stays) |
-| I-2 | the decision registry is named `docs/production/decision-registry.md` in `PROJECT_STATUS.md`, the first audit reports, `val.py` and GOV-01 files, and `docs/decisions/decision-registry.md` in plan 3.3 | `grep` | owner confirms the path (ODM-10); live documents corrected, dated reports get an erratum |
-| I-3 | two M2 definitions (`DEVELOPMENT_ROADMAP.md`, `RELEASE_CRITERIA.md` versus `FIRST_PLAYABLE_SCOPE.md` and the M2-T/M2 split) | `docs/archive/production/GAME_TRACK_ROADMAP.md` C-1 | the owner decides ODM-06 before D2 and D4 are labelled consistent |
-| I-4 | `integration-and-qa-plan.md` section 1 states "31 commits ahead, 247 files" (now 39 commits) | text | replace by a pointer to `git` |
+| I-1 | [`PROJECT_STATUS.md`](../PROJECT_STATUS.md) names `2c0c1f3` as the verified baseline and `60d0bfc` as the documentation commit; HEAD is `a8584cd` and the GOV-01, Game Track and M2-delivery packages are not mentioned | text | refresh in D2 (a dated baseline note, the "never write HEAD" rule stays) |
+| I-2 | the decision registry is named `docs/production/decision-registry.md` in [`PROJECT_STATUS.md`](../PROJECT_STATUS.md), the first audit reports, `val.py` and GOV-01 files, and [`docs/decisions/decision-registry.md`](../../decisions/decision-registry.md) in plan 3.3 | `grep` | owner confirms the path (ODM-10); live documents corrected, dated reports get an erratum |
+| I-3 | two M2 definitions ([`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md), [`RELEASE_CRITERIA.md`](../../RELEASE_CRITERIA.md) versus [`FIRST_PLAYABLE_SCOPE.md`](../production/FIRST_PLAYABLE_SCOPE.md) and the M2-T/M2 split) | [`docs/archive/production/GAME_TRACK_ROADMAP.md`](../production/GAME_TRACK_ROADMAP.md) C-1 | the owner decides ODM-06 before D2 and D4 are labelled consistent |
+| I-4 | [`integration-and-qa-plan.md`](../../production/integration-and-qa-plan.md) section 1 states "31 commits ahead, 247 files" (now 39 commits) | text | replace by a pointer to `git` |
 | I-5 | the commit hashes cited in documents (`2c0c1f3` in 5 documents, `74566cd` in 6, `5c9a5c5` in 4, `362a124` in 6, `60d0bfc` in 3, `64e8a76` in 2, `22c70c7`, `05d7e7e` and others) refer to **commits of this branch**; tree-based PRs create new commits, so on `master` these hashes do not exist | `git rev-list`, `docscan.py` | **keep the branch** (and tag its tip, for example `archive/docs-roadmap-v1`, an owner action) and add one sentence to the packages: "commit hashes refer to the history of `docs/architecture-roadmap-v1`" |
-| I-6 | `owner-architecture-decisions-v1.md` is headed "Approved Owner Decisions" while plan 3.3 says transcribed decisions are "recorded, awaiting confirmation" | text | in D1 the owner's approval of the PR is the natural confirmation if ODM-10 accepts it; otherwise add a status banner "recorded, awaiting confirmation" |
-| I-7 | `docs/architecture/geometry-editing-specification-v1.0.md` on `master` says "Architecture approved"; origin of that approval is not in the repository | text | unchanged (already on `master`) |
-| I-8 | `AGENTS.md` (untracked, ignored) references `.agent/` which does not exist | `ls` | ST-1 (owner) |
+| I-6 | [`owner-architecture-decisions-v1.md`](../../decisions/owner-architecture-decisions-v1.md) is headed "Approved Owner Decisions" while plan 3.3 says transcribed decisions are "recorded, awaiting confirmation" | text | in D1 the owner's approval of the PR is the natural confirmation if ODM-10 accepts it; otherwise add a status banner "recorded, awaiting confirmation" |
+| I-7 | [`docs/architecture/geometry-editing-specification-v1.0.md`](../../architecture/geometry-editing-specification-v1.0.md) on `master` says "Architecture approved"; origin of that approval is not in the repository | text | unchanged (already on `master`) |
+| I-8 | [`AGENTS.md`](../../../AGENTS.md) (untracked, ignored) references `.agent/` which does not exist | `ls` | ST-1 (owner) |
 | I-9 | terminology: a scan of the branch documents found no document asserting a completed PS-0, an allowed PS-1, or a status "Owner-Approved" as a fact (`gov01_check.py`, `gametrack_check.py` scans pass in a clean checkout after the fixes below) | executed | none |
 
 Proposed-versus-approved terminology rule for every package: each document keeps its status line; no package PR description says "approved"; the PR description says "records and proposals; not decisions".
@@ -77,7 +77,7 @@ Re-run on a **fresh clone checked out at `a8584cd`** (scratchpad), then on patch
 
 | Script | As committed (clean clone) | Cause | Portable correction (proposed) | Patched copy, clean clone |
 |---|---|---|---|---|
-| `gov01_check.py` | 29 checks, **1 failed**: "module-boundaries.md unchanged since 2c0c1f3" | the assertion compares the **whole `docs/production` directory** with `2c0c1f3`; documents added there later (Game Track) make it fail. It also **passes falsely in a shallow clone** because the reference commit is missing and `git diff` prints nothing | compare only `docs/production/module-boundaries.md`; **fail closed** when `2c0c1f3` is not available (`git cat-file -e 2c0c1f3^{commit}`) | **29 checks, 0 failed** (full clone); in a shallow clone (`--depth 1`) it fails closed with that check, as intended |
+| `gov01_check.py` | 29 checks, **1 failed**: "module-boundaries.md unchanged since 2c0c1f3" | the assertion compares the **whole `docs/production` directory** with `2c0c1f3`; documents added there later (Game Track) make it fail. It also **passes falsely in a shallow clone** because the reference commit is missing and `git diff` prints nothing | compare only [`docs/production/module-boundaries.md`](../../production/module-boundaries.md); **fail closed** when `2c0c1f3` is not available (`git cat-file -e 2c0c1f3^{commit}`) | **29 checks, 0 failed** (full clone); in a shallow clone (`--depth 1`) it fails closed with that check, as intended |
 | `gametrack_check.py` | 23 checks, **1 failed**: ".gitignore change is still the owner's single added line" | the assertion encodes a **local, uncommitted state** (the owner's one added line); in a clean clone the diff is empty, and the owner's local list has since grown | assert only that `.gitignore` is unmodified **or** has only added lines | **23 checks, 0 failed** (full clone and shallow clone) |
 
 Diff of the proposed corrections (applied nowhere in the repository):

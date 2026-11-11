@@ -1,6 +1,6 @@
 # Development Roadmap: from the current state to Release 1.0
 
-**Status:** **Proposed.** No milestone is reached; none may be declared reached before the owner agrees the criteria in `RELEASE_CRITERIA.md` and accepts evidence. **No dates are given:** there is no benchmark, prototype or estimate in the repository that could support one (see section 4 for what is needed).
+**Status:** **Proposed.** No milestone is reached; none may be declared reached before the owner agrees the criteria in [`RELEASE_CRITERIA.md`](../RELEASE_CRITERIA.md) and accepts evidence. **No dates are given:** there is no benchmark, prototype or estimate in the repository that could support one (see section 4 for what is needed).
 
 ## 1. Two planning levels (not one-to-one)
 
@@ -27,7 +27,7 @@ Legend for "Depends on": PS-n = stage gate Gn satisfied; "slice" = only part of 
 
 ## 3. Milestone specifications
 
-Twelve fields each. "Req" = requirement. Numeric thresholds are **never invented here**; they are "TBD by benchmark B-n" and become binding only through the procedure in `RELEASE_CRITERIA.md` section 1.
+Twelve fields each. "Req" = requirement. Numeric thresholds are **never invented here**; they are "TBD by benchmark B-n" and become binding only through the procedure in [`RELEASE_CRITERIA.md`](../RELEASE_CRITERIA.md) section 1.
 
 ### M0: Architecture & Governance
 
@@ -137,7 +137,7 @@ Twelve fields each. "Req" = requirement. Numeric thresholds are **never invented
 1. **Goal:** scope frozen; shippable build.
 2. **Content:** only fixes; release builds; update path; release infrastructure ready.
 3. **Depends on:** M6; GOV-15 (PC-1 frozen after RG-1); all formats Owner-Approved; G14.
-4. **Acceptance:** every Release Criteria item for RC in `RELEASE_CRITERIA.md` passed; changelog shows no feature commits after freeze.
+4. **Acceptance:** every Release Criteria item for RC in [`RELEASE_CRITERIA.md`](../RELEASE_CRITERIA.md) passed; changelog shows no feature commits after freeze.
 5. **Tests:** full regression, upgrade matrix, clean-install matrix, recovery matrix.
 6. **Performance/7/8/9:** as approved; unchanged from M6 or better.
 10. **Blockers:** open Critical/Major defects; legal.

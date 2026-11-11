@@ -17,7 +17,7 @@ All agents must read:
 - Geometry Processing decisions.
 - Architecture Update v1.0 (AU-1.0).
 - Geometry Editing Specification v1.0 (rev 1.1).
-- API Contracts index: `docs/api-contracts/README.md` and the file for each contract you consume.
+- API Contracts index: [`docs/api-contracts/README.md`](../api-contracts/README.md) and the file for each contract you consume.
 - Cube Agent Development Specification v1.0.
 - Their individual task below.
 
@@ -707,7 +707,7 @@ All agents:
 
 ## Phase 1 — Shared Contracts
 
-Integration Owner approves contracts by tier (`docs/api-contracts/README.md` §3): **P0** (C-01…C-19) before Core starts; **P1** (PR-01…PR-08, E-02…E-07, E-09, E-11, E-12) before Processing, Orchestration and backends start; **P2** before History, Persistence and modifier work start. Agent I starts test infrastructure.
+Integration Owner approves contracts by tier ([`docs/api-contracts/README.md`](../api-contracts/README.md) §3): **P0** (C-01…C-19) before Core starts; **P1** (PR-01…PR-08, E-02…E-07, E-09, E-11, E-12) before Processing, Orchestration and backends start; **P2** before History, Persistence and modifier work start. Agent I starts test infrastructure.
 
 ## Phase 2 — Foundations (sequential gate)
 

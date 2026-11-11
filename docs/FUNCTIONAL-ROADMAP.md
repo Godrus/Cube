@@ -1,10 +1,10 @@
 # Cube functional roadmap
 
-Human-readable view of what Cube can do, what is being built and what is still only a plan. The complete list with stable ids is `FEATURE-REGISTRY.md` (generated from `features.json`). The technical plan, dependencies and gates stay in `production/` (ADG in `production/module-boundaries.md`); this file does not replace them and never changes them.
+Human-readable view of what Cube can do, what is being built and what is still only a plan. The complete list with stable ids is [`FEATURE-REGISTRY.md`](FEATURE-REGISTRY.md) (generated from `features.json`). The technical plan, dependencies and gates stay in `production/` (ADG in [`production/module-boundaries.md`](production/module-boundaries.md)); this file does not replace them and never changes them.
 
 **Last verified state:** `dev` at `c248bce` (CI green; includes the Godot first world, world record, greedy without T-junctions); `dev` at `c87534e`, CI 42720748823 green. Gates passed: G0, G1, G2 (RG-2 still mandatory), G3, G4. Open: G5 (PS-5), G10 (PS-10). RG-1 not passed.
 
-**Product view:** the player-facing order of work (milestones M0..M12, crosswalk to PS-0..PS-14) is `roadmap/PRODUCT-ROADMAP.md`; the vision is `vision/GAME-VISION.md`. Inventory and world are reconciled after a crash (F-GPL-002, Rust-tested, branch `prod/m1-reconcile`).
+**Product view:** the player-facing order of work (milestones M0..M12, crosswalk to PS-0..PS-14) is [`roadmap/PRODUCT-ROADMAP.md`](roadmap/PRODUCT-ROADMAP.md); the vision is [`vision/GAME-VISION.md`](vision/GAME-VISION.md). Inventory and world are reconciled after a crash (F-GPL-002, Rust-tested, branch `prod/m1-reconcile`).
 
 **One rule above all:** integrated Rust code is *not* a player feature. Today **no feature is player available**. One thing is a **developer demo (DEMO_AVAILABLE)**: a Godot 4 scene (`godot/`) that shows a generated, editable and savable voxel terrain; it needs a Rust build and a local Godot and is not part of CI. Everything else marked integrated is reachable only through Rust APIs and tests.
 
@@ -29,13 +29,13 @@ Status words: Decision (IDEA, PROPOSED, APPROVED, DEFERRED, REJECTED), Implement
 | Server / Multiplayer | **in-process local host of one world** (DEC-092; not the networked server) | authoritative server, replication (PS-13) | PROPOSED; owners unassigned |
 | Gameplay, Characters, Inventory, Crafting, Combat, NPC / AI | **a walking player in the Godot demo**: gravity, jump, collision with the voxel world, first and third person camera that stops in front of walls, place and remove blocks, the world generated around the player as they move (finite, about 770 voxels each way), far bricks unloaded (resident bricks stay flat on a walk out and back), a hotbar and inventory with creative/survival rules (prototype), mining and placing with a target outline and placement preview, one objective (mine 8, place 12), world, player, inventory and progress saved on quit and continued on the next start (crafting and ground drops do not exist; **combat prototype, run with `--creatures`**: health, a wooden sword on `E`, slimes that chase and hurt you, loot into the inventory, kills saved; developer demo, see F-CLI-005) | everything; a minimal slice is *proposed* in `production/FIRST_PLAYABLE_SCOPE.md` | **product detail still required**; not approved |
 | Content / Mods | palette model only | packages, mod loading (no Mod SDK planned yet) | PROPOSED |
-| Platforms / QA | **Visual QA of Godot screenshots with TypeSafe Jev (experimental, advisory only; v2 measured on 37 real Godot pictures: deterministic code found every partial load and stale update, TypeSafe found missing geometry and wrong materials without a false positive but missed the one-block edits; counts in `tools/visual-qa/V2-RESULTS.md`). v3 adds one command (`python cube_visual_qa.py suite ...`) that generates reproducible scenarios, runs them in Godot (20 of 20 executed, identical on a second run), checks them in code, and plans batched TypeSafe questions (one live comparison of 8 requests with no errors; limits and plans in `tools/visual-qa/V3.md`)**, CI (Linux and Windows), loom, cargo-deny, architecture checks, API snapshots, fault injection model | mobile device validation (DG-1..3) | approved; needs physical devices |
+| Platforms / QA | **Visual QA of Godot screenshots with TypeSafe Jev (experimental, advisory only; v2 measured on 37 real Godot pictures: deterministic code found every partial load and stale update, TypeSafe found missing geometry and wrong materials without a false positive but missed the one-block edits; counts in [`tools/visual-qa/V2-RESULTS.md`](../tools/visual-qa/V2-RESULTS.md)). v3 adds one command (`python cube_visual_qa.py suite ...`) that generates reproducible scenarios, runs them in Godot (20 of 20 executed, identical on a second run), checks them in code, and plans batched TypeSafe questions (one live comparison of 8 requests with no errors; limits and plans in [`tools/visual-qa/V3.md`](../tools/visual-qa/V3.md))**, CI (Linux and Windows), loom, cargo-deny, architecture checks, API snapshots, fault injection model | mobile device validation (DG-1..3) | approved; needs physical devices |
 
 ## 2. In development and next
 
 * PS-5 remaining: the T-junction criterion for greedy inside a brick, and RG-1/EXT-VA-RG1 handling (owner exception exists only for CORE-12); SDF and Mesh are done at TESTED level.
 * PS-11/12 foundation: WGEN-01 and CLI-00..02 (engine-neutral) are done; next WGEN-02..04 (gated by GOV-21, GOV-11), ADP-01 (no owner), CLI-03/04.
-* PS-10: PERS-04, PERS-02, PERS-03, PERS-05 are implemented and tested (SPK-PERS report: `research/spk-pers-durability-report.md`). Remaining: PERS-06..09 (recovery orchestration, world record, migration), GOV-10 and GOV-11 (owner), device validation (DG-2).
+* PS-10: PERS-04, PERS-02, PERS-03, PERS-05 are implemented and tested (SPK-PERS report: [`research/spk-pers-durability-report.md`](research/spk-pers-durability-report.md)). Remaining: PERS-06..09 (recovery orchestration, world record, migration), GOV-10 and GOV-11 (owner), device validation (DG-2).
 * Independent anytime: TD-2 (validation port needs a layer), TD-1 (observer queue, needs loom models), more backend conformance.
 
 ## 3. Blockers (owner or external)
@@ -51,7 +51,7 @@ Status words: Decision (IDEA, PROPOSED, APPROVED, DEFERRED, REJECTED), Implement
 
 ## 4. First playable vertical slice (proposed orientation, not an approved specification)
 
-Source of the proposal: `archive/production/FIRST_PLAYABLE_SCOPE.md` and `FIRST_PLAYABLE_DEPENDENCIES.md` (M2-T is not confirmed as final M2).
+Source of the proposal: [`archive/production/FIRST_PLAYABLE_SCOPE.md`](archive/production/FIRST_PLAYABLE_SCOPE.md) and [`FIRST_PLAYABLE_DEPENDENCIES.md`](archive/production/FIRST_PLAYABLE_DEPENDENCIES.md) (M2-T is not confirmed as final M2).
 
 | # | Scenario | Exists | Missing | Depends on | How it will be checked | Status |
 |---|---|---|---|---|---|---|
@@ -71,6 +71,6 @@ Characters, inventory, crafting, combat, creatures, NPC behaviour, multiplayer a
 
 ## 6. Known inconsistencies between sources
 
-* `archive/PROJECT_STATUS.md` is a historical snapshot of 2026-11-05. The current state is this roadmap, `production/ps-0-exit-checklist.md` (sections 6 to 14) and `.agent/BOARD.md`.
-* The old handoff files (`archive/AGENT_HANDOFF.md`, `archive/AGENT-HANDOFF.md`) are archived; their valid rules live in `handoff/NEW-CHAT-START.md`.
+* [`archive/PROJECT_STATUS.md`](archive/PROJECT_STATUS.md) is a historical snapshot of 2026-11-05. The current state is this roadmap, [`production/ps-0-exit-checklist.md`](production/ps-0-exit-checklist.md) (sections 6 to 14) and [`.agent/BOARD.md`](../.agent/BOARD.md).
+* The old handoff files ([`archive/AGENT_HANDOFF.md`](archive/AGENT_HANDOFF.md), [`archive/AGENT-HANDOFF.md`](archive/AGENT-HANDOFF.md)) are archived; their valid rules live in [`handoff/NEW-CHAT-START.md`](handoff/NEW-CHAT-START.md).
 * Decision status of ADG-planned but not yet started features (history, tools, server) is PROPOSED here because only the engineering plan names them, not a feature-level owner decision.

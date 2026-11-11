@@ -1,7 +1,7 @@
 # Owner Approval Matrix v1
 
-**Status:** decision package for the project owner. First issued 2026-11-04 as a proposal; **updated 2026-11-05** to record the owner's decisions: OAM-01, OAM-02, OAM-03 and OAM-07 are **Approved**, OAM-08 is **Conditionally Approved** (full records, scope and limits: `owner-architecture-decisions-v1.md`, AOD-20…24, section 5). OAM-04 stays Proposed, OAM-05 Spike Required, OAM-06 Proposed. The options, pros and cons below are kept as the reasoning behind each decision; text that is still a recommendation says so. No contract, ACR-001/002/003, format or transport changes because of this file.
-**Inputs:** the Approved Owner Decisions AOD-01…24 (`owner-architecture-decisions-v1.md`), the roadmap (`../architecture/roadmap-v1.md`), the WorldGen frame (`worldgen-core-boundary.md`), the system boundaries (`../architecture/system-boundaries-v1.md`), the reference study (`../research/`), the audit record (`audit-resolution-report.md`) and the spike reports in `../spike/`.
+**Status:** decision package for the project owner. First issued 2026-11-04 as a proposal; **updated 2026-11-05** to record the owner's decisions: OAM-01, OAM-02, OAM-03 and OAM-07 are **Approved**, OAM-08 is **Conditionally Approved** (full records, scope and limits: [`owner-architecture-decisions-v1.md`](owner-architecture-decisions-v1.md), AOD-20…24, section 5). OAM-04 stays Proposed, OAM-05 Spike Required, OAM-06 Proposed. The options, pros and cons below are kept as the reasoning behind each decision; text that is still a recommendation says so. No contract, ACR-001/002/003, format or transport changes because of this file.
+**Inputs:** the Approved Owner Decisions AOD-01…24 ([`owner-architecture-decisions-v1.md`](owner-architecture-decisions-v1.md)), the roadmap ([`../architecture/roadmap-v1.md`](../architecture/roadmap-v1.md)), the WorldGen frame ([`worldgen-core-boundary.md`](worldgen-core-boundary.md)), the system boundaries ([`../architecture/system-boundaries-v1.md`](../architecture/system-boundaries-v1.md)), the reference study (`../research/`), the audit record ([`audit-resolution-report.md`](audit-resolution-report.md)) and the spike reports in `../spike/`.
 **Untouched by this package:** P0/P1 contracts (Draft, AOD-18), AU-1.0 and ACR-001/002/003 (AOD-19), the persistence format, the TCP protocol, the spike code and `master`.
 
 ## 0. How to read this document
@@ -31,7 +31,7 @@
 
 | ID | Decision | Status | Recorded decision or recommendation | Still needed from the owner |
 |---|---|---|---|---|
-| OAM-01 | WorldGen to Core boundary | **Approved** (AOD-20, 2026-11-05) | hybrid option C, variant C3; **ACR-004 prepared, Pending** | decision on ACR-004 (review package `acr-004-owner-review.md`), OAM-09 (C1 / C2), OAM-10 (revision model) |
+| OAM-01 | WorldGen to Core boundary | **Approved** (AOD-20, 2026-11-05) | hybrid option C, variant C3; **ACR-004 prepared, Pending** | decision on ACR-004 (review package [`acr-004-owner-review.md`](acr-004-owner-review.md)), OAM-09 (C1 / C2), OAM-10 (revision model) |
 | OAM-02 | Persistence | **Approved** (AOD-21, 2026-11-05) | `WorldSeed + GeneratorVersion`, durable journal, compaction into chunk snapshots, load order base generation, snapshot, journal tail | binary formats, concrete database, exact fields, journal granularity, retention numbers, per-world generator-version policy (all not approved) |
 | OAM-03 | Embedded server | **Approved** (AOD-22, 2026-11-05; transport rule confirmed) | one authoritative Rust server runtime, embedded (in-process transport) or dedicated (external transport); no client-only authoritative mode | dedicated transport (OAM-05), runtime placement in the module grid, mobile measurement |
 | OAM-04 | Renderer | Proposed (`faces` reference/default, `greedy` experimental per AOD-10) | no change; mobile decision needs a physical device | the default after a device benchmark |
@@ -52,7 +52,7 @@ Relation to roadmap open items: OAM-01 = OI-12 (and OI-7 for the system-commit p
 
 | Field | Content |
 |---|---|
-| **ID** | OAM-01 (also O-WG-1…3 in `worldgen-core-boundary.md`) |
+| **ID** | OAM-01 (also O-WG-1…3 in [`worldgen-core-boundary.md`](worldgen-core-boundary.md)) |
 | **Current state** | **Approved 2026-11-05 as AOD-20.** Earlier: AOD-09, AOD-15, AOD-16 (Approved) left the write path open. The spike still writes generated chunks and edits through the direct commit primitive (documented as non-compliant, experimental). |
 | **Options** | **A** WorldGen writes straight into Core. **B** WorldGen works only through the Editing API. **C** hybrid: pure Generator, WorldGen service, a Materialiser that writes generated data through a narrow Core system-commit port, user edits through the Editing API. The variants of C (C1, C2, C3) are defined in 1.1; C3 is the approved one. |
 | **Recommended** | **Decision (Approved): option C, variant C3.** Not decided: the Core layer model (OAM-09, `Recommended / Requires Owner Approval`) and the revision model (OAM-10, `Proposed / Requires Owner Approval`). |
@@ -65,7 +65,7 @@ Relation to roadmap open items: OAM-01 = OI-12 (and OI-7 for the system-commit p
 | **Impact on Mobile** | A: fine. B: risky (overhead per operation). C: fine; baseline can be regenerated or received. The mobile cost of C2 (two layers in memory) is a **Hypothesis** until measured. |
 | **Reversibility** | Direction A to C is cheap before production Core code exists and expensive afterwards (it changes P0 surface and the save format). The C1 versus C2 choice (OAM-09) is cheap while the journal schema is independent of it and expensive once a save format is frozen. |
 | **Blocks** | The system-commit port and generation-revision contracts (Gate 2), production `cube-worldgen` (Gate 3), journal schema (Gate 5), replication of chunk baselines (Gate 7). |
-| **Owner decision required** | Recorded: direction C3 with the seven points of AOD-20 (system generation through a WorldGen/System-commit boundary; not an Editing-API operation; user changes only through the Editing API; server owns the world; initial generation outside ordinary undo/redo; system OperationId and revision/commit semantics; no bypass of the public Core ports). **Still required:** decision on **ACR-004 (prepared, Pending; owner review package: `acr-004-owner-review.md`)**; OAM-09; OAM-10. |
+| **Owner decision required** | Recorded: direction C3 with the seven points of AOD-20 (system generation through a WorldGen/System-commit boundary; not an Editing-API operation; user changes only through the Editing API; server owns the world; initial generation outside ordinary undo/redo; system OperationId and revision/commit semantics; no bypass of the public Core ports). **Still required:** decision on **ACR-004 (prepared, Pending; owner review package: [`acr-004-owner-review.md`](acr-004-owner-review.md))**; OAM-09; OAM-10. |
 
 ### 1.1 Variants of C and the resulting position
 
@@ -128,7 +128,7 @@ Relation to roadmap open items: OAM-01 = OI-12 (and OI-7 for the system-commit p
 `write snapshot → fsync snapshot → verify snapshot → atomically update manifest → fsync manifest → compact/truncate journal only after successful verification`
 
 * a snapshot is not the only source of truth before verification; the previous snapshot is kept until the new one is activated; the journal tail is kept until the new recovery point is confirmed;
-* a crash between any steps leaves a recoverable state (crash table in `../api-contracts/world-persistence-contracts.md`, WP-07);
+* a crash between any steps leaves a recoverable state (crash table in [`../api-contracts/world-persistence-contracts.md`](../api-contracts/world-persistence-contracts.md), WP-07);
 * a snapshot contains its base generator version and revision boundary; a generator change never alters an existing world silently; compaction is idempotent; recovery checks hash, epoch, revision and generator version.
 
 Status: the **architecture is Approved**. Binary format, concrete database, exact file fields, hash algorithm, platform durability mechanism and retention numbers remain `Proposed` or `Spike Required`.
@@ -170,7 +170,7 @@ The migration is possible only if the persisted world is transport- and process-
 
 * the embedded server uses an **in-process transport**; the dedicated server uses an **external transport**; the implementations may differ;
 * protocol, authority, authentication, authorization, OperationId, revision and conflict rules are identical on both; the embedded mode has no special rights and is not client-authoritative;
-* the conformance tests run on **both** transport implementations (`../api-contracts/server-runtime-contracts.md`, SR-09).
+* the conformance tests run on **both** transport implementations ([`../api-contracts/server-runtime-contracts.md`](../api-contracts/server-runtime-contracts.md), SR-09).
 
 The external transport of the dedicated server is **not chosen** (OAM-05 stays `Spike Required`).
 
@@ -294,7 +294,7 @@ The frame floor (30 FPS low-end, 60 FPS target on mid-range) and the other roadm
 | Veloren book (codebase structure) | https://book.veloren.net | page `contributors/developers/codebase-structure` |
 | CubeWorld-Reversal (GitHub) | https://github.com/qad3n/CubeWorld-Reversal (tree: https://github.com/qad3n/CubeWorld-Reversal/tree/master/cube) | `master`: README, file tree, folder listings, four declaration-only headers; no implementation file read; no licence shown |
 
-The study notes are `../research/veloren-notes.md`, `../research/cubeworld-reversal-notes.md` and `../research/reference-comparison.md`.
+The study notes are [`../research/veloren-notes.md`](../research/veloren-notes.md), [`../research/cubeworld-reversal-notes.md`](../research/cubeworld-reversal-notes.md) and [`../research/reference-comparison.md`](../research/reference-comparison.md).
 
 ---
 
@@ -303,7 +303,7 @@ The study notes are `../research/veloren-notes.md`, `../research/cubeworld-rever
 | Field | Content |
 |---|---|
 | **ID** | OAM-08 (OI-1, OI-2, OI-3, B-1, B-13) |
-| **Current state** | **Conditionally Approved 2026-11-05 as AOD-24.** Four inputs are absent (`audit-resolution-report.md` O-6, B-1, B-13). Architecture Update v1.0 is stored (`architecture-update-v1.0.md`). B-1 and B-13 stay open. |
+| **Current state** | **Conditionally Approved 2026-11-05 as AOD-24.** Four inputs are absent ([`audit-resolution-report.md`](audit-resolution-report.md) O-6, B-1, B-13). Architecture Update v1.0 is stored ([`architecture-update-v1.0.md`](architecture-update-v1.0.md)). B-1 and B-13 stay open. |
 | **Options** | **X-A** the owner supplies the files. **X-B** the owner approves named, temporary assumptions per item (table below). **X-C** proceed without either (not recommended). |
 | **Recommended** | **Decision (Conditionally Approved):** a temporary owner-approved baseline for limited parts of Geometry Core, WorldGen and the roadmap; the original AU-1.0 stays preferred and the reconstructed copy is not regarded as byte-verified; the Geometry Processing Specification is **not** replaced by a general assumption before PR-01…PR-08 are approved; the missing documents remain a blocker for final P0/P1 approval. |
 | **Pros** | X-A: contracts can be cross-checked and approved. X-B: lets non-dependent work continue. |
@@ -358,7 +358,7 @@ The column "Temporary owner-approved assumption" shows what the analysis of 2026
 | **Options** | **R-A** system operations use the same asset and layer revision scopes as other commits. **R-B** a separate generation epoch. **R-C** separate revision domains for the generated base and for user overrides. |
 | **Recommended** | **R-A**, with `ActorKind::System` on the OperationId (ACR-004 part C). Do not introduce a separate generation epoch without proven necessity. Recorded as a recommendation only. |
 | **Pros** | R-A: uses AU-1.0's existing revision levels (asset, layer, brick) and the invariant `Brick ⇒ Layer ⇒ Asset`; no new token kind; undo-as-forward-commit and conflict rules stay uniform; simplest to test; extendable later. R-B: terrain updates and user edits are told apart by the token. R-C: strongest separation of data sources. |
-| **Cons** | R-A: streaming advances asset and layer revisions (Fact (Cube): one asset revision per streamed chunk in the spike), so a coarse revision no longer means "a user changed something"; clients must use the commit's `ActorKind`/`ChangeType`, and user edits must be validated with brick or region stamps (`revision-and-snapshot-semantics.md` section 2), not asset-level tokens, to avoid spurious conflicts. R-B: a new revision kind, more comparison rules (the existing `Epoch` already means re-creation or recovery and would be overloaded or duplicated), more tests. R-C: two domains per layer, cross-domain consistency and conflict rules, effectively requires C2. |
+| **Cons** | R-A: streaming advances asset and layer revisions (Fact (Cube): one asset revision per streamed chunk in the spike), so a coarse revision no longer means "a user changed something"; clients must use the commit's `ActorKind`/`ChangeType`, and user edits must be validated with brick or region stamps ([`revision-and-snapshot-semantics.md`](../api-contracts/revision-and-snapshot-semantics.md) section 2), not asset-level tokens, to avoid spurious conflicts. R-B: a new revision kind, more comparison rules (the existing `Epoch` already means re-creation or recovery and would be overloaded or duplicated), more tests. R-C: two domains per layer, cross-domain consistency and conflict rules, effectively requires C2. |
 | **Impact on Core** | R-A: none to RevisionToken; the commit result carries `ActorKind`. R-B/R-C: change C-16 and the comparison rules. |
 | **Impact on WorldGen** | R-A: materialisation is a normal commit. R-B/R-C: the Materialiser needs its own revision handling. |
 | **Impact on Persistence** | R-A: the journal records only user commits; system commits are regenerable. Recovery uses the existing `Epoch` rule. R-B/R-C: more state to record. |
@@ -370,7 +370,7 @@ The column "Temporary owner-approved assumption" shows what the analysis of 2026
 
 ## 9. Decisions that can be taken in parallel (remaining)
 
-Independent of each other: Cube's own licence (OAM-07 remainder), supply of the missing sources (OAM-08), device and iOS access with the mobile criteria (OAM-06), owner assignments (OI-8), the transport spike approval (OAM-05), and the persistence durability spike (OAM-02). ACR-004 (parts A to C), OAM-09 and OAM-10 can be decided together in one review (`acr-004-owner-review.md`).
+Independent of each other: Cube's own licence (OAM-07 remainder), supply of the missing sources (OAM-08), device and iOS access with the mobile criteria (OAM-06), owner assignments (OI-8), the transport spike approval (OAM-05), and the persistence durability spike (OAM-02). ACR-004 (parts A to C), OAM-09 and OAM-10 can be decided together in one review ([`acr-004-owner-review.md`](acr-004-owner-review.md)).
 
 Sequential: OAM-10 and ACR-004 before the system-commit port contract is put up for approval; OAM-09 before the journal record design and the meshing design for generated data; the persistence spike before any persistence format; the transport spike before any protocol approval; the sources before P0/P1 approval; physical-device data before the renderer default.
 
@@ -395,7 +395,7 @@ Sequential: OAM-10 and ACR-004 before the system-commit port contract is put up 
 
 ## 11. Next decisions to take (recommendation)
 
-1. **Decide ACR-004 (parts A to C), OAM-10 (revision model) and OAM-09 (C1 or C2)** in one review with `acr-004-owner-review.md`: they unblock the P0 review of the commit primitive, the journal record design and the meshing design.
+1. **Decide ACR-004 (parts A to C), OAM-10 (revision model) and OAM-09 (C1 or C2)** in one review with [`acr-004-owner-review.md`](acr-004-owner-review.md): they unblock the P0 review of the commit primitive, the journal record design and the meshing design.
 2. **Supply the missing sources** (OAM-08) or confirm the baseline entries BL-1…BL-3: it is the only item that blocks final P0/P1 approval.
 3. **Approve the two spikes** (persistence durability; transport) and assign the networking and WorldGen owners.
 
@@ -403,4 +403,4 @@ Not a decision but an action to start at once: acquire a physical Android ARM64 
 
 ## 12. Recording decisions
 
-Decisions are recorded in `docs/decisions/decision-registry.md` (rules: DEC-002). The earlier text of this section, which pointed to `owner-architecture-decisions-v1.md`, is replaced so that there is one recording process. A matrix row changes status only through a registry entry; nothing in this file is to be read as approved by itself.
+Decisions are recorded in [`docs/decisions/decision-registry.md`](decision-registry.md) (rules: DEC-002). The earlier text of this section, which pointed to [`owner-architecture-decisions-v1.md`](owner-architecture-decisions-v1.md), is replaced so that there is one recording process. A matrix row changes status only through a registry entry; nothing in this file is to be read as approved by itself.

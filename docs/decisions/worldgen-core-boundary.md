@@ -1,6 +1,6 @@
 # Decision Record: WorldGen / Geometry Core Boundary
 
-**Status:** The direction (option C, variant C3) is **Approved** by AOD-20 (2026-11-05, `owner-architecture-decisions-v1.md` section 5.1); everything below that AOD-20 lists as "not approved" remains **Proposed** or **Spike Required**. It follows AOD-15, AOD-16, AOD-17 and AOD-21 and does not change any contract, ACR-001/002/003, RevisionToken rule or AU-1.0 text; ACR-004 is prepared as **Pending** in `audit-resolution-report.md`. No code is added. Supersedes nothing; extends the spike analysis in `docs/spike/rust-world-generation/worldgen-core-boundary.md` (options A and B only) with option C and a decision frame.
+**Status:** The direction (option C, variant C3) is **Approved** by AOD-20 (2026-11-05, [`owner-architecture-decisions-v1.md`](owner-architecture-decisions-v1.md) section 5.1); everything below that AOD-20 lists as "not approved" remains **Proposed** or **Spike Required**. It follows AOD-15, AOD-16, AOD-17 and AOD-21 and does not change any contract, ACR-001/002/003, RevisionToken rule or AU-1.0 text; ACR-004 is prepared as **Pending** in [`audit-resolution-report.md`](audit-resolution-report.md). No code is added. Supersedes nothing; extends the spike analysis in `docs/spike/rust-world-generation/worldgen-core-boundary.md` (options A and B only) with option C and a decision frame.
 
 ## 1. Question
 
@@ -17,7 +17,7 @@ How does procedurally generated terrain enter the authoritative geometry, how do
 | An edit changes revisions the same way a streamed chunk does, so a client cannot tell "terrain streamed" from "the user changed something" | design note in the spike report |
 | Regeneration after a generator change alters saved worlds: the terrain function and layout are part of the save contract | `GENERATOR_VERSION`, README "Not production-ready" |
 
-### External evidence (upstream Veloren, `docs/research/veloren-notes.md`; not proof for Cube)
+### External evidence (upstream Veloren, [`docs/research/veloren-notes.md`](../research/veloren-notes.md); not proof for Cube)
 
 * Veloren keeps the generated world out of its save: only **block-level overrides** of modified chunks are persisted (per chunk, versioned files with fallback readers) and they are **re-applied over regenerated terrain**, dropping any override equal to the generated block. That is the C1 idea (one layer, block-level overrides re-applied over a regenerated base) in practice; Cube's approved architecture (C3 with the AOD-21 journal) keeps a durable journal and verified snapshots as the record instead of files written on unload.
 * Its writes happen only when a chunk is unloaded and the source acknowledges this is not durable across power loss; Cube's journal-first design (AOD-17) avoids that gap by construction.
@@ -149,5 +149,5 @@ New or revised Draft contracts: WorldGen port (generator, chunk lifecycle, cance
 1. Core layer model, C1 or C2 (O-WG-1, OAM-09): recommended C1 for the first baseline, C2 Deferred; awaiting owner approval.
 2. Generator-version policy per world (O-WG-2): AOD-21 requires pin or explicit bake/migration and forbids silent change; the recommendation remains pin by default, bake on retirement.
 3. Chunk delivery to clients (O-WG-3): chunk data by default, seed + version only for matched generators (Proposed).
-4. The decision on ACR-004 (review package `acr-004-owner-review.md`) and the revision model (OAM-10; B-6 token width and algorithm separately).
+4. The decision on ACR-004 (review package [`acr-004-owner-review.md`](acr-004-owner-review.md)) and the revision model (OAM-10; B-6 token width and algorithm separately).
 5. Where the server runtime and WorldGen sit in the module grid and who owns them.

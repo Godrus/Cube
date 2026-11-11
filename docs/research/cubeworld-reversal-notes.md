@@ -6,7 +6,7 @@
 **Evidence level (important):** the README and the tree are factual. The four headers contain **declarations only** (signatures without member layouts), so they show shape, not data structures; their summaries below are limited to what the declarations imply and are marked "inferred". Everything about roles of the other folders is inferred from file names. This repository cannot answer questions about sizes, memory layout, threading or streaming policy.
 **Legal and clean-room policy:** the project is derived from a proprietary binary. Cube will not copy code, assets, data formats or class/function names from it, will not use it as a specification, and will not treat its contents as proven. Class and function names are deliberately **not recorded** here. Whether studying such a repository is acceptable for the project is a Gate 0 license-policy question for the owner (open item OI-5 in the roadmap).
 
-Applicability labels: **Accepted**, **Proposed**, **Needs spike**, **Rejected** (as in `veloren-notes.md`).
+Applicability labels: **Accepted**, **Proposed**, **Needs spike**, **Rejected** (as in [`veloren-notes.md`](veloren-notes.md)).
 
 ## 1. What the repository is (from the README)
 
@@ -75,7 +75,7 @@ Evidence here is weak (README, file tree, folder listings, four declaration-only
 * Use the source only as a feature and structure checklist (section 4); REF statuses in section 5.
 
 **Owner decisions**
-* None. Whether studying a reverse-engineered repository is acceptable at all is an open owner decision (OAM-07 in `docs/decisions/owner-approval-matrix-v1.md`). No class, function or data-format name is recorded in Cube documents.
+* None. Whether studying a reverse-engineered repository is acceptable at all is an open owner decision (OAM-07 in [`docs/decisions/owner-approval-matrix-v1.md`](../decisions/owner-approval-matrix-v1.md)). No class, function or data-format name is recorded in Cube documents.
 
 **Unconfirmed hypotheses**
 * Any claim about memory layout, streaming policy, threading, performance, gameplay design intent or correctness of the reconstruction.

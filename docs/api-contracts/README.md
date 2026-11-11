@@ -3,7 +3,7 @@
 **Status:** DRAFT 0.1. **No contract in this directory is approved.** Approval is recorded by the Integration Owner in `docs/decisions/`.
 **Implementation status (INT-01, 2026-11-09):** the Core slice of the P0-alpha contracts is **Implemented** in `crates/cube-core` (merged into `dev`, required CI checks green, contract tests in the crate); PC-1 contracts are **Implemented under Provisional approval**; **no contract is Frozen** (approval axis unchanged; see registry DEC-071 and DEC-076).
 
-**Временные контракты TC-01..TC-11** (подмножества для технического среза: Processing, воксельная основа PC-1, координаты, адресация мира, рендеринг, коллизии, генерация, хранилище v0, взаимодействие игрока с миром, потоки, World Operations; у каждого условие истечения и путь миграции) описаны в `M2_MINIMUM_CONTRACTS.md`, их разбор по пригодности, неоднозначностям и запретным допущениям в `PROVISIONAL_CONTRACT_REVIEW.md`. Реестр решений ссылается на них (DEC-077 и соседние). Условия истечения нужно проверять при каждой смене этапа.
+**Временные контракты TC-01..TC-11** (подмножества для технического среза: Processing, воксельная основа PC-1, координаты, адресация мира, рендеринг, коллизии, генерация, хранилище v0, взаимодействие игрока с миром, потоки, World Operations; у каждого условие истечения и путь миграции) описаны в [`M2_MINIMUM_CONTRACTS.md`](M2_MINIMUM_CONTRACTS.md), их разбор по пригодности, неоднозначностям и запретным допущениям в [`PROVISIONAL_CONTRACT_REVIEW.md`](PROVISIONAL_CONTRACT_REVIEW.md). Реестр решений ссылается на них (DEC-077 и соседние). Условия истечения нужно проверять при каждой смене этапа.
 
 | Contract | Implemented slice | Not implemented (open) |
 |---|---|---|
@@ -27,20 +27,20 @@
 
 | File | Owner (module) | Layer |
 |---|---|---|
-| `core-contracts.md` | Core Agent | 0 |
-| `processing-contracts.md` | Processing Agent | 1 |
-| `editing-contracts.md` | Main Agent / Integration Owner | 2 |
-| `persistence-contracts.md` | Agent H | 8 |
-| `revision-and-snapshot-semantics.md` | Integration Owner (semantics) | cross-cutting |
+| [`core-contracts.md`](core-contracts.md) | Core Agent | 0 |
+| [`processing-contracts.md`](processing-contracts.md) | Processing Agent | 1 |
+| [`editing-contracts.md`](editing-contracts.md) | Main Agent / Integration Owner | 2 |
+| [`persistence-contracts.md`](persistence-contracts.md) | Agent H | 8 |
+| [`revision-and-snapshot-semantics.md`](revision-and-snapshot-semantics.md) | Integration Owner (semantics) | cross-cutting |
 
 ### 1.1 Draft additions of 2026-11-05 (outside the 45 + 3 count, no tier assigned)
 
 | File | Contracts | Status |
 |---|---|---|
-| `worldgen-contracts.md` | WG-01…WG-10 | Draft 0.1.0-draft, Proposed |
-| `system-commit-contracts.md` | SC-01…SC-10 (proposes extensions of C-16/C-17/C-18; see ACR-004, Pending) | Draft, Proposed |
-| `world-persistence-contracts.md` | WP-01…WP-10 (reconciliation draft for OI-4; P-01…P-07 untouched) | Draft, Proposed |
-| `server-runtime-contracts.md` | SR-01…SR-10 | Draft, Proposed |
+| [`worldgen-contracts.md`](worldgen-contracts.md) | WG-01…WG-10 | Draft 0.1.0-draft, Proposed |
+| [`system-commit-contracts.md`](system-commit-contracts.md) | SC-01…SC-10 (proposes extensions of C-16/C-17/C-18; see ACR-004, Pending) | Draft, Proposed |
+| [`world-persistence-contracts.md`](world-persistence-contracts.md) | WP-01…WP-10 (reconciliation draft for OI-4; P-01…P-07 untouched) | Draft, Proposed |
+| [`server-runtime-contracts.md`](server-runtime-contracts.md) | SR-01…SR-10 | Draft, Proposed |
 
 None is approved; the matrix counts, tiers and P0/P1 below are unchanged.
 
