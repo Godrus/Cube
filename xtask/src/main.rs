@@ -2,6 +2,7 @@
 //! `cargo xtask features` checks the feature registry and regenerates its overview.
 
 mod archcheck;
+mod chat;
 mod features;
 
 use std::path::PathBuf;
@@ -61,8 +62,29 @@ fn main() -> ExitCode {
                 }
             }
         }
+        Some(cmd @ ("say" | "chat")) => {
+            let rest: Vec<String> = args.collect();
+            let root = workspace_root();
+            let res = if cmd == "say" {
+                chat::say(&root, &rest)
+            } else {
+                chat::chat(&root, &rest)
+            };
+            match res {
+                Ok(text) => {
+                    println!("{text}");
+                    ExitCode::SUCCESS
+                }
+                Err(e) => {
+                    eprintln!("{cmd}: {e}");
+                    ExitCode::from(2)
+                }
+            }
+        }
         _ => {
-            eprintln!("usage: cargo xtask archcheck | features [--check|--write]");
+            eprintln!(
+                "usage: cargo xtask archcheck | features [--check|--write] | say [--as <id>] <text> | chat [N]"
+            );
             ExitCode::from(2)
         }
     }

@@ -1,3 +1,5 @@
+> **Устарело:** вход для агентов теперь `AGENTS.md`, задачи в `.agent/BOARD.md`. Файл оставлен как справка.
+
 # Bootstrap prompt for a new agent chat (copy everything below the line)
 
 ---

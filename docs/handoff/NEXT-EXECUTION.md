@@ -1,3 +1,5 @@
+> **Справка, не обновлять.** Состояние задач ведётся в `.agent/BOARD.md`, история работ в `.agent/LOG.md` (схема DOC-01, 2026-11-11). Здесь остаются подробности прошлых итераций.
+
 # Next execution (snapshot, updated at the end of each major iteration)
 
 **Written:** 2026-11-10, after the first iteration of the product-roadmap directive. Replace the facts below when you finish yours; do not append a log.

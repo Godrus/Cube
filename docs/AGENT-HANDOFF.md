@@ -1,3 +1,5 @@
+> **Действуют только разделы Hard constraints и Rules for features.** Состояние и задачи: `.agent/BOARD.md`. Вход: `AGENTS.md`.
+
 # Agent handoff (current state, short)
 
 Read this, then `FUNCTIONAL-ROADMAP.md`. Product vision, product roadmap (M0..M12) and the new-chat entry point: `vision/GAME-VISION.md`, `roadmap/PRODUCT-ROADMAP.md`, `roadmap/WORK-PACKAGES.md`, `handoff/NEW-CHAT-START.md`, `handoff/NEXT-EXECUTION.md`. The long procedural guide is `AGENT_HANDOFF.md`; the full plan is `production/`. State comes from the repository, tests and CI, never from chat memory.

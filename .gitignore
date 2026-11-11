@@ -9,3 +9,4 @@ __pycache__/
 /godot/bin/
 /godot/build/
 /godot/*.uid
+/.agent/live/

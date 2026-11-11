@@ -1,3 +1,5 @@
+> **Вход для агентов: `AGENTS.md`.** Текущие задачи: `.agent/BOARD.md`; вместо `NEXT-EXECUTION.md` и handoff-обновлений в разделах 6 и 7 теперь BOARD, LOG и `cargo xtask say/chat`. Остальные правила ниже действуют.
+
 # Cube: start here (new agent chat)
 
 You do not have the previous chat. Everything you need is in the repository. Dynamic facts (HEAD, gates, CI) must be read from the files and commands named below, not from this page. Last written against `dev` 679e8d5 plus branch `prod/m1-reconcile` (see `NEXT-EXECUTION.md`).

@@ -1,3 +1,5 @@
+> **Исторический снимок 2026-11-05.** Текущее состояние: `.agent/BOARD.md`.
+
 # PROJECT STATUS: Cube
 
 **Document status:** **Proposed** (prepared for owner review; not yet in the repository). Once the owner accepts it, it lives at `docs/PROJECT_STATUS.md` and is the **single source of the current development state**.

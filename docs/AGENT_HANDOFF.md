@@ -1,3 +1,5 @@
+> **Устарело** (старая процедура). Вход: `AGENTS.md`, задачи: `.agent/BOARD.md`. Правило «не коммитить без разрешения» отменено, см. NEW-CHAT-START.
+
 # AGENT HANDOFF: start here
 
 **Status:** Proposed. Read this file and then `PROJECT_STATUS.md`. State is defined by the repository and verifiable evidence, **never** by chat memory or another agent's summary.
