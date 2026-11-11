@@ -51,7 +51,7 @@ pub fn placeable(i: usize) -> Option<&'static ItemDefinition> {
 }
 
 /// All items of the prototype.
-pub const ITEMS: [ItemDefinition; 12] = [
+pub const ITEMS: [ItemDefinition; 13] = [
     ItemDefinition {
         id: ItemId(1),
         name: "Stone",
@@ -124,7 +124,57 @@ pub const ITEMS: [ItemDefinition; 12] = [
         max_stack: MAX_STACK,
         places: Some(12),
     },
+    ItemDefinition {
+        id: IRON_SWORD_ITEM,
+        name: "Iron sword",
+        max_stack: 1,
+        places: None,
+    },
 ];
+
+/// The iron sword (a weapon: the selected hotbar item decides which weapon a swing uses).
+pub const IRON_SWORD_ITEM: ItemId = ItemId(13);
+
+/// The weapon a swing uses when `item` is the selected hotbar item (anything else: the wooden
+/// sword the player always has).
+pub fn weapon_of(item: Option<ItemId>) -> &'static crate::combat::WeaponDef {
+    if item == Some(IRON_SWORD_ITEM) {
+        &crate::combat::IRON_SWORD
+    } else {
+        &crate::combat::WOODEN_SWORD
+    }
+}
+
+/// A crafting recipe (data): inputs consumed, one output made.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Recipe {
+    /// Display name.
+    pub name: &'static str,
+    /// Items and counts consumed.
+    pub inputs: &'static [(ItemId, u32)],
+    /// Item and count made.
+    pub output: (ItemId, u32),
+}
+
+/// The recipes of the prototype (no stations, no skill): prototype values, not a balance.
+pub const RECIPES: [Recipe; 1] = [Recipe {
+    name: "Iron sword",
+    inputs: &[(ItemId(12), 3), (ItemId(8), 2)],
+    output: (IRON_SWORD_ITEM, 1),
+}];
+
+/// Why a craft did not happen.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CraftRefused {
+    /// Creative mode has no use for crafting (it creates and consumes nothing).
+    Creative,
+    /// No such recipe.
+    Unknown,
+    /// Not enough of an input.
+    Missing,
+    /// The result would not fit into the inventory.
+    NoRoom,
+}
 
 /// The definition of an item, if it exists.
 pub fn definition(id: ItemId) -> Option<ItemDefinition> {
@@ -242,6 +292,31 @@ impl Inventory {
             }
         }
         count
+    }
+
+    /// Removes `count` items of a kind (across stacks); `false` and nothing changed if there are
+    /// fewer.
+    pub fn remove(&mut self, item: ItemId, count: u32) -> bool {
+        if self.count_of(item) < count {
+            return false;
+        }
+        let mut left = count;
+        for slot in self.slots.iter_mut().rev() {
+            if left == 0 {
+                break;
+            }
+            if let Some(st) = slot
+                && st.item == item
+            {
+                let take = st.count.min(left);
+                st.count -= take;
+                left -= take;
+                if st.count == 0 {
+                    *slot = None;
+                }
+            }
+        }
+        true
     }
 
     /// Takes one item out of the selected slot, if it holds any.
@@ -459,6 +534,30 @@ impl GameState {
         let was = self.objective.done();
         self.objective.placed += 1;
         (!was && self.objective.done()).then(|| "Objective complete: shelter built!".to_owned())
+    }
+
+    /// Crafts recipe `i`: all inputs are consumed and the output added, or nothing changes.
+    pub fn craft(&mut self, i: usize) -> Result<(), CraftRefused> {
+        if self.mode == Mode::Creative {
+            return Err(CraftRefused::Creative);
+        }
+        let r = RECIPES.get(i).ok_or(CraftRefused::Unknown)?;
+        if r.inputs
+            .iter()
+            .any(|&(it, n)| self.inventory.count_of(it) < n)
+        {
+            return Err(CraftRefused::Missing);
+        }
+        // Try on a copy: the output must fit once the inputs are gone.
+        let mut trial = self.inventory.clone();
+        for &(it, n) in r.inputs {
+            trial.remove(it, n);
+        }
+        if trial.add(r.output.0, r.output.1) > 0 {
+            return Err(CraftRefused::NoRoom);
+        }
+        self.inventory = trial;
+        Ok(())
     }
 
     /// Puts loot into the inventory (survival only: creative creates and consumes nothing).
@@ -1110,5 +1209,88 @@ objective shelter-1 8 12 3 4
             })
             .collect();
         assert!(GameState::decode(&old).unwrap().looted.is_empty());
+    }
+
+    #[test]
+    fn crafting_consumes_inputs_makes_the_output_and_refuses_cleanly() {
+        let mut g = GameState::default();
+        assert_eq!(g.craft(0), Err(CraftRefused::Missing));
+        assert_eq!(g.craft(5), Err(CraftRefused::Unknown));
+        g.inventory.add(ItemId(12), 3);
+        g.inventory.add(ItemId(8), 1);
+        let before = g.inventory.clone();
+        assert_eq!(g.craft(0), Err(CraftRefused::Missing));
+        assert_eq!(g.inventory, before, "a refused craft changes nothing");
+        g.inventory.add(ItemId(8), 1);
+        assert_eq!(g.craft(0), Ok(()));
+        assert_eq!(g.inventory.count_of(ItemId(12)), 0);
+        assert_eq!(g.inventory.count_of(ItemId(8)), 0);
+        assert_eq!(g.inventory.count_of(IRON_SWORD_ITEM), 1);
+        // The result must fit: a full inventory with the inputs in the only slots still works
+        // (the inputs free room), a full one without room refuses.
+        let mut full = GameState::default();
+        for i in 0..SLOTS {
+            full.inventory.slots[i] = Some(ItemStack {
+                item: ItemId(1),
+                count: 1,
+            });
+        }
+        full.inventory.slots[0] = Some(ItemStack {
+            item: ItemId(12),
+            count: 3,
+        });
+        full.inventory.slots[1] = Some(ItemStack {
+            item: ItemId(8),
+            count: 2,
+        });
+        assert_eq!(full.craft(0), Ok(()), "inputs freed two slots");
+        let mut stuck = GameState::default();
+        for i in 0..SLOTS {
+            stuck.inventory.slots[i] = Some(ItemStack {
+                item: ItemId(1),
+                count: 1,
+            });
+        }
+        stuck.inventory.slots[0] = Some(ItemStack {
+            item: ItemId(12),
+            count: 4,
+        });
+        stuck.inventory.slots[1] = Some(ItemStack {
+            item: ItemId(8),
+            count: 4,
+        });
+        let before = stuck.inventory.clone();
+        assert_eq!(
+            stuck.craft(0),
+            Err(CraftRefused::NoRoom),
+            "leftovers keep both slots"
+        );
+        assert_eq!(stuck.inventory, before, "a refused craft changes nothing");
+        let mut c = GameState {
+            mode: Mode::Creative,
+            ..GameState::default()
+        };
+        assert_eq!(c.craft(0), Err(CraftRefused::Creative));
+    }
+
+    #[test]
+    fn the_selected_item_picks_the_weapon_and_remove_spans_stacks() {
+        assert_eq!(weapon_of(None).name, "Wooden sword");
+        assert_eq!(weapon_of(Some(ItemId(1))).name, "Wooden sword");
+        assert_eq!(weapon_of(Some(IRON_SWORD_ITEM)).name, "Iron sword");
+        let mut inv = Inventory::new();
+        inv.add(ItemId(2), MAX_STACK + 5);
+        assert!(
+            !inv.remove(ItemId(2), MAX_STACK + 6),
+            "too many: nothing removed"
+        );
+        assert_eq!(inv.count_of(ItemId(2)), MAX_STACK + 5);
+        assert!(inv.remove(ItemId(2), MAX_STACK + 1));
+        assert_eq!(inv.count_of(ItemId(2)), 4);
+        let sword = GameState::default();
+        assert!(
+            definition(IRON_SWORD_ITEM).is_some_and(|d| d.max_stack == 1 && d.places.is_none())
+        );
+        let _ = sword;
     }
 }

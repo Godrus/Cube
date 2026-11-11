@@ -116,6 +116,14 @@ pub const WOODEN_SWORD: WeaponDef = WeaponDef {
     cooldown_ticks: 24,
 };
 
+/// The iron sword: one hit kills a slime (8 health), a little longer reach, a quicker swing.
+pub const IRON_SWORD: WeaponDef = WeaponDef {
+    name: "Iron sword",
+    damage: 8,
+    reach_milli: 2600,
+    cooldown_ticks: 20,
+};
+
 /// The attacker's attack timer.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct AttackTimer {

@@ -12,7 +12,7 @@ use cube_core::{CellKey, WorldSeed};
 use cube_persistence::{STRUCTURE_VERSION, WorldRecord};
 use cube_server::{LocalHost, StaticArea};
 
-use crate::combat::{AttackRefused, AttackTimer, WOODEN_SWORD};
+use crate::combat::{AttackRefused, AttackTimer};
 use crate::creature::TICK;
 use crate::game::{GameState, Mode, Reconciled, SLOTS, placeable};
 use crate::loot::loot_key;
@@ -186,7 +186,8 @@ impl PortSession {
         let Some(pop) = self.creatures.as_mut() else {
             return Err(AttackRefused::OutOfReach);
         };
-        let strike = pop.player_attack(&WOODEN_SWORD, &mut self.attack_timer, feet)?;
+        let weapon = crate::game::weapon_of(self.game.inventory.selected_item());
+        let strike = pop.player_attack(weapon, &mut self.attack_timer, feet)?;
         if strike.hit.killed {
             // The kill and its loot are one change of one file: both reach the disk or neither.
             self.game.killed.insert(strike.column);
@@ -275,6 +276,33 @@ impl PortSession {
         if self.try_save_game().is_err() {
             text.push_str(" (could not save)");
         }
+        self.say(text.clone());
+        text
+    }
+
+    /// Crafts the first recipe the player can afford (prototype: one recipe, no menu). Returns what
+    /// the player is told. The result is saved with the inventory in one file write.
+    pub fn craft(&mut self) -> String {
+        use crate::game::{CraftRefused, RECIPES};
+        let mut refused = CraftRefused::Missing;
+        for (i, r) in RECIPES.iter().enumerate() {
+            match self.game.craft(i) {
+                Ok(()) => {
+                    let mut text = format!("Crafted {}", r.name);
+                    if self.try_save_game().is_err() {
+                        text.push_str(" (could not save)");
+                    }
+                    self.say(text.clone());
+                    return text;
+                }
+                Err(e) => refused = e,
+            }
+        }
+        let text = match refused {
+            CraftRefused::Creative => "Crafting is for survival mode".to_owned(),
+            CraftRefused::NoRoom => "No room for the result".to_owned(),
+            _ => "Not enough materials (Iron sword: 3 Iron ore + 2 Wood)".to_owned(),
+        };
         self.say(text.clone());
         text
     }
@@ -580,6 +608,10 @@ impl SessionPort for PortSession {
 
     fn interact(&mut self) -> String {
         PortSession::interact(self)
+    }
+
+    fn craft(&mut self) -> String {
+        PortSession::craft(self)
     }
 
     fn attack(&mut self) -> Result<bool, String> {

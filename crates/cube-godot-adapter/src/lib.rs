@@ -317,6 +317,17 @@ impl CubeWorld {
         )
     }
 
+    /// Crafts the first recipe the player can afford. Returns the message for the player.
+    #[func]
+    fn craft(&mut self) -> GString {
+        GString::from(
+            self.session
+                .as_mut()
+                .map_or(String::new(), |s| s.craft())
+                .as_str(),
+        )
+    }
+
     /// Searches the altar of the ruin in reach. Returns the message for the player ("" if none).
     #[func]
     fn interact(&mut self) -> GString {
@@ -393,6 +404,9 @@ impl CubeWorld {
     /// The colour of a material or item id (the palette the bricks are drawn with).
     #[func]
     fn item_colour(&self, item: i32) -> Color {
+        if item == i32::from(cube_app::game::IRON_SWORD_ITEM.0) {
+            return Color::from_rgb(0.72, 0.76, 0.84); // a weapon, not a material: steel
+        }
         let c = material_colour(item.clamp(0, i32::from(u16::MAX)) as u16);
         Color::from_rgb(c[0], c[1], c[2])
     }

@@ -478,6 +478,10 @@ func _input(event: InputEvent) -> void:
 			var ra: String = world.attack()
 			if ra != "ok" and ra != "none":
 				_say(ra)
+		elif event.keycode == KEY_G:
+			var rc: String = world.craft()
+			if rc != "":
+				_say(rc)
 		elif event.keycode == KEY_R and world.is_walking():
 			var ri: String = world.interact()
 			if ri != "":

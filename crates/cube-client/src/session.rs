@@ -204,6 +204,10 @@ pub trait SessionPort: Send {
     fn interact(&mut self) -> String {
         String::new()
     }
+    /// Crafts the first affordable recipe. Returns the message for the player.
+    fn craft(&mut self) -> String {
+        String::new()
+    }
     /// QA only (scenario runs): puts the free camera at `eye` looking along `yaw` and `pitch`.
     /// A normal game never calls it.
     fn qa_teleport(&mut self, _eye: [f64; 3], _yaw: f32, _pitch: f32) {}

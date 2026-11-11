@@ -19,6 +19,14 @@ fn dir(tag: &str) -> PathBuf {
 }
 
 fn start(tag: &str, near_creature: bool) -> (PortSession, PathBuf, [f64; 3]) {
+    start_with(tag, near_creature, cube_app::game::GameState::default())
+}
+
+fn start_with(
+    tag: &str,
+    near_creature: bool,
+    game: cube_app::game::GameState,
+) -> (PortSession, PathBuf, [f64; 3]) {
     let d = dir(tag);
     let rec = WorldRecord {
         world_id: 1,
@@ -58,7 +66,7 @@ fn start(tag: &str, near_creature: bool) -> (PortSession, PathBuf, [f64; 3]) {
         walking: true,
         third_person: false,
     });
-    (PortSession::new(session, d.clone()), d, spot)
+    (PortSession::with_game(session, d.clone(), game), d, spot)
 }
 
 fn run(p: &mut PortSession, frames: usize) {
@@ -344,5 +352,55 @@ fn a_kill_gives_experience_that_is_saved_with_it_and_never_given_twice() {
     drop(p); // a crash: no shutdown save
     let saved = cube_app::port::load_game(&d).expect("written at the kill");
     assert_eq!(saved.progress.xp(), got, "kill, loot and XP in one write");
+    let _ = std::fs::remove_dir_all(d);
+}
+
+#[test]
+fn the_selected_iron_sword_kills_a_slime_in_one_hit_and_the_wooden_one_needs_two() {
+    use cube_app::game::{GameState, IRON_SWORD_ITEM, ItemId};
+    let hits_to_kill = |iron: bool, tag: &str| {
+        let mut g = GameState::default();
+        if iron {
+            g.inventory.add(IRON_SWORD_ITEM, 1);
+            g.inventory.select(0);
+            assert_eq!(g.inventory.selected_item(), Some(IRON_SWORD_ITEM));
+        } else {
+            g.inventory.add(ItemId(1), 1); // a block selected: the wooden sword is used
+        }
+        let (mut p, d, _) = start_with(tag, true, g);
+        p.enable_creatures();
+        let mut hits = 0;
+        for _ in 0..2000 {
+            run(&mut p, 1);
+            if let Ok(st) = p.attack() {
+                hits += 1;
+                if st.hit.killed {
+                    break;
+                }
+            }
+        }
+        let _ = std::fs::remove_dir_all(d);
+        hits
+    };
+    assert_eq!(hits_to_kill(true, "iron"), 1);
+    assert_eq!(hits_to_kill(false, "wood"), 2);
+}
+
+#[test]
+fn crafting_makes_the_sword_once_per_materials_and_saves_it() {
+    use cube_app::game::{GameState, IRON_SWORD_ITEM, ItemId};
+    let mut g = GameState::default();
+    g.inventory.add(ItemId(12), 7); // iron ore
+    g.inventory.add(ItemId(8), 2); // wood
+    let (mut p, d, _) = start_with("craft", false, g);
+    assert!(p.craft().starts_with("Crafted Iron sword"));
+    assert_eq!(p.game().inventory.count_of(IRON_SWORD_ITEM), 1);
+    assert_eq!(p.game().inventory.count_of(ItemId(12)), 4);
+    assert_eq!(p.game().inventory.count_of(ItemId(8)), 0);
+    assert!(p.craft().starts_with("Not enough"), "no wood left");
+    drop(p); // a crash: no shutdown save
+    let saved = cube_app::port::load_game(&d).expect("written at the craft");
+    assert_eq!(saved.inventory.count_of(IRON_SWORD_ITEM), 1);
+    assert_eq!(saved.inventory.count_of(ItemId(12)), 4);
     let _ = std::fs::remove_dir_all(d);
 }
