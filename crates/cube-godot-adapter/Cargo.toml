@@ -16,6 +16,7 @@ crate-type = ["lib", "cdylib"]
 [dependencies]
 cube-client = { path = "../cube-client" }
 cube-app = { path = "../cube-app" }
+cube-character = { path = "../cube-character" }
 godot = { version = "=0.5.5", features = ["api-4-2"] }
 
 [lints.rust]

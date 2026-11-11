@@ -72,6 +72,9 @@ pub fn allowed_edges() -> BTreeMap<&'static str, BTreeSet<&'static str>> {
     adapter.push("cube-client");
     // The adapter reaches the world only through the composition root (DEC-092).
     adapter.push("cube-app");
+    // The character asset (CHAR-01) is engine neutral; the adapter only copies its meshes.
+    adapter.push("cube-character");
+    put("cube-character", &["cube-core"]);
     put("cube-godot-adapter", &adapter);
     // Composition root of the first world (DEC-092): joins the local host and the client.
     put(

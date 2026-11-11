@@ -32,6 +32,8 @@ extends Node3D
 ##                                    time step, save pictures and write telemetry.json next to them.
 ##                                    Never active in a normal game start.
 
+const Rig = preload("res://character_rig.gd")
+
 @onready var world = $World
 @onready var cam: Camera3D = $Camera3D
 
@@ -54,6 +56,17 @@ var down_frames := 0
 var start_flying := false
 var third_person := false
 var player_body: MeshInstance3D
+var rig  # CubeCharacterRig: the voxel traveller (CHAR-01), drawn from the authoritative state
+var char_res := 0
+var char_lod := -1
+var hud_layer: CanvasLayer
+var cs_view := ""      # --char-shot <view> <png>: developer preview in the real world scene
+var cs_path := ""
+var cs_feet := Vector3.ZERO
+var cs_have := false
+var bench_n := -1      # --char-bench <n>: n instances, frame-time and draw-call measurement
+var bench_times := []
+var bench_rigs := []
 var creatures_on := false
 var creature_nodes := []
 var creature_prev := []
@@ -134,6 +147,19 @@ func _ready() -> void:
 			"--scenario":
 				i += 1
 				_load_scenario(args[i])
+			"--char-shot":
+				cs_view = args[i + 1]
+				cs_path = args[i + 2]
+				i += 2
+			"--char-bench":
+				i += 1
+				bench_n = int(args[i])
+			"--char-res":
+				i += 1
+				char_res = int(args[i])
+			"--lod":
+				i += 1
+				char_lod = int(args[i])
 			"--fly":
 				start_flying = true
 			"--creatures":
@@ -147,6 +173,21 @@ func _ready() -> void:
 		return
 	print("CUBE world opened: dir=", dir, " create=", create)
 	var qa_mode := smoke or shot_path != "" or before_path != "" or scen_active
+	if cs_view != "" or bench_n >= 0:
+		world.set_walk(true)
+		third_person = true
+		world.set_third_person(true)
+		_build_player_and_hud()
+		for ch in get_children():
+			if ch is CanvasLayer:
+				hud_layer = ch
+		if cs_view != "" and cs_view != "game" and cs_view != "move" and cs_view != "attack":
+			hud_layer.visible = false
+			$Sun.shadow_enabled = true
+		if bench_n >= 0:
+			hud_layer.visible = false
+			DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
+		return
 	if not qa_mode:
 		if not start_flying and not world.is_walking():
 			world.set_walk(true)
@@ -172,6 +213,15 @@ func _build_player_and_hud() -> void:
 	player_body.material_override = m
 	player_body.visible = false
 	add_child(player_body)
+	rig = Rig.new()
+	if not rig.setup(char_res):
+		push_error("voxel character failed to build; falling back to the box")
+		rig = null
+	else:
+		if char_lod >= 0:
+			rig.forced_lod = char_lod
+		add_child(rig)
+		print("CUBE character: ", character_stats_text())
 	# Target outline and placement ghost (cubes of one voxel, drawn slightly larger).
 	target_box = _make_marker(Color(1, 1, 1, 0.22))
 	ghost_box = _make_marker(Color(0.2, 1, 0.2, 0.45))
@@ -335,6 +385,8 @@ func _update_creatures_and_health(g: Dictionary) -> void:
 	health_label.text = "HP %d/%d" % [hp, mx] if mx > 0 else ""
 	if prev_health >= 0 and hp < prev_health:
 		hurt_overlay.color = Color(1, 0, 0, 0.35)
+		if rig != null:
+			rig.trigger_hit()
 	hurt_overlay.color.a = max(0.0, hurt_overlay.color.a - 1.5 * get_process_delta_time())
 	prev_health = hp
 	if not creatures_on:
@@ -383,9 +435,16 @@ func _update_player_and_hud() -> void:
 		return
 	_update_creatures_and_health(world.game_view())
 	var feet: Vector3 = world.player_feet()
-	player_body.visible = third_person and world.is_walking()
-	player_body.position = feet + Vector3(0, 0.9, 0)
-	player_body.rotation = Vector3(0, cam.rotation.y, 0)
+	var show_body: bool = third_person and world.is_walking()
+	if rig != null:
+		rig.visible = show_body
+		player_body.visible = false
+		rig.update_state(feet, cam.rotation.y, world.is_grounded(), get_process_delta_time())
+		rig.auto_lod(cam.position)
+	else:
+		player_body.visible = show_body
+		player_body.position = feet + Vector3(0, 0.9, 0)
+		player_body.rotation = Vector3(0, cam.rotation.y, 0)
 	var p: Vector3 = cam.position
 	var st: Dictionary = world.stream_stats()
 	hud.text = "%s | %s | %s | %s | x %.0f y %.0f z %.0f | bricks %d" % [
@@ -450,6 +509,8 @@ func _input(event: InputEvent) -> void:
 				world.set_third_person(false)
 		elif event.keycode == KEY_E and creatures_on:
 			var ra: String = world.attack()
+			if rig != null:
+				rig.trigger_attack()
 			if ra != "ok" and ra != "none":
 				_say(ra)
 		elif event.keycode == KEY_V and world.is_walking():
@@ -490,7 +551,23 @@ func _input(event: InputEvent) -> void:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 
+func character_stats_text() -> String:
+	var st: Dictionary = rig.asset.stats(0)
+	var l1: Dictionary = rig.asset.stats(1)
+	var l2: Dictionary = rig.asset.stats(2)
+	return "res=%d/unit voxels=%d/%d/%d tris=%d/%d/%d mesh_bytes=%d/%d/%d build_ms=%.1f rig_setup_ms=%.1f id=%x hash=%s height=%.2f" % [
+		int(st["res"]), st["voxels"], l1["voxels"], l2["voxels"], st["triangles"], l1["triangles"],
+		l2["triangles"], st["mesh_bytes"], l1["mesh_bytes"], l2["mesh_bytes"], st["build_ms"],
+		rig.setup_ms, st["asset_id"], st["content_hash"], st["height"]]
+
+
 func _process(delta: float) -> void:
+	if cs_view != "":
+		_charshot_frame(delta)
+		return
+	if bench_n >= 0:
+		_bench_frame(delta)
+		return
 	if scen_active:
 		_scenario_frame()
 		return
@@ -818,6 +895,8 @@ func _scenario_frame() -> void:
 				up = 1 if frames % 40 == 0 else 0
 			else:
 				fight_last = world.attack()
+				if rig != null:
+					rig.trigger_attack()
 				if fight_last == "ok":
 					scen_hits += 1
 					scen_last_hit_pos = [bp.x, bp.y, bp.z]
@@ -885,6 +964,8 @@ func _scenario_action(op: String) -> void:
 		"fight":
 			_event("fight", {"hits": scen_hits, "last_hit_pos": scen_last_hit_pos, "result": fight_result if fight_result != "" else "timeout", "trace": fight_trace, "states": fight_states, "frames_used": frames - fight_start_frame + 1})
 		"attack":
+			if rig != null:
+				rig.trigger_attack()
 			_event("attack", {"result": world.attack()})
 		"mode":
 			world.set_walk(bool(scen_cmd.get("walk", true)))
@@ -931,3 +1012,142 @@ func _scenario_finish(code: int) -> void:
 	print("CUBE scenario done: events=", scen_events.size(), " bricks=", world.brick_count())
 	world.close()
 	get_tree().quit(code)
+
+
+# ---- developer preview of the voxel character (real world scene, real renderer) -------------
+
+const CS_LAND := 220  # frames until the walking player has landed and the terrain is resident
+
+
+func _flat_spot() -> Vector2i:
+	# a 9 x 9 patch of equal ground height (real terrain heights from Rust) near the origin
+	for r in range(0, 60, 2):
+		for ang in range(0, 360, 20):
+			var cx := int(r * cos(deg_to_rad(ang)))
+			var cz := int(r * sin(deg_to_rad(ang)))
+			var h0: int = world.ground_height(cx, cz)
+			var ok := true
+			for dx in range(-4, 5):
+				for dz in range(-4, 5):
+					if world.ground_height(cx + dx, cz + dz) != h0:
+						ok = false
+						break
+				if not ok:
+					break
+			if ok:
+				return Vector2i(cx, cz)
+	return Vector2i.ZERO
+
+
+func _charshot_frame(delta: float) -> void:
+	frames += 1
+	if frames == 2 and cs_view != "game" and cs_view != "move" and cs_view != "attack":
+		var fs := _flat_spot()
+		var gh: int = world.ground_height(fs.x, fs.y)
+		world.qa_teleport(fs.x + 0.5, gh + 3.0, fs.y + 0.5, 0.0, 0.0)
+		print("CUBE char-shot flat spot ", fs, " height ", gh)
+	var fwd := 0
+	var game_view: bool = cs_view == "game" or cs_view == "move" or cs_view == "attack"
+	if (cs_view == "move" or cs_view == "attack") and frames > CS_LAND and frames < CS_LAND + 26:
+		fwd = 1
+	world.frame(fwd, 0, 0, 0.0, 0.0, delta)
+	cam.position = world.camera_position()
+	cam.rotation = world.camera_rotation()
+	_update_player_and_hud()
+	if frames < CS_LAND:
+		return
+	if not cs_have:
+		cs_feet = world.player_feet()
+		cs_have = true
+	if cs_view == "attack" and frames == CS_LAND + 8:
+		rig.trigger_attack()
+	if not game_view:
+		# studio views: the rig stands on the real terrain, facing -Z, camera placed around it
+		rig.update_state(cs_feet, 0.0, true, delta)
+		target_box.visible = false
+		ghost_box.visible = false
+		rig.visible = true
+		var look_at_p := cs_feet + Vector3(0, 0.9, 0)
+		var cp := cs_feet
+		cam.fov = 38.0
+		match cs_view:
+			"front", "lod0", "lod1", "lod2":
+				cp += Vector3(0.0, 1.15, -3.6)
+			"side":
+				cp += Vector3(3.6, 1.15, 0.0)
+			"back":
+				cp += Vector3(0.0, 1.15, 3.6)
+			"face":
+				cp += Vector3(0.5, 1.72, -0.95)
+				look_at_p = cs_feet + Vector3(0, 1.64, 0)
+				cam.fov = 28.0
+			"armor":
+				cp += Vector3(-1.05, 1.55, -1.1)
+				look_at_p = cs_feet + Vector3(-0.1, 1.30, 0)
+				cam.fov = 34.0
+			"torso":
+				cp += Vector3(0.9, 1.3, -1.9)
+				look_at_p = cs_feet + Vector3(0, 1.1, 0)
+		match cs_view:
+			"lod0": rig.forced_lod = 0
+			"lod1": rig.forced_lod = 1
+			"lod2": rig.forced_lod = 2
+		rig.auto_lod(cp)
+		cam.position = cp
+		cam.look_at(look_at_p, Vector3.UP)
+	var shoot := CS_LAND + 30
+	if cs_view == "attack":
+		shoot = CS_LAND + 8 + 8
+	if cs_view == "game":
+		shoot = CS_LAND + 12
+	if frames == shoot:
+		get_viewport().get_texture().get_image().save_png(cs_path)
+		print("CUBE char-shot saved: ", cs_path, " view=", cs_view, " lod=", rig.lod)
+		world.close()
+		get_tree().quit(0)
+
+
+func _bench_frame(delta: float) -> void:
+	frames += 1
+	world.frame(0, 0, 0, 0.0, 0.0, delta)
+	cam.position = world.camera_position()
+	cam.rotation = world.camera_rotation()
+	_update_player_and_hud()
+	if frames == 100:
+		cs_feet = world.player_feet()
+		for i in range(bench_n):
+			var r = Rig.new()
+			r.setup(char_res)
+			r.forced_lod = char_lod
+			add_child(r)
+			var gx := (i % 8) - 4
+			var gz := int(i / 8)
+			r.position = cs_feet + Vector3(gx * 1.4, 0, -3.0 - gz * 1.4)
+			r.set_lod(maxi(char_lod, 0))
+			bench_rigs.append(r)
+	if frames > 130:
+		bench_times.append(delta * 1000.0)
+		for r in bench_rigs:
+			r.update_state(r.position, 0.0, true, delta)
+			r.speed = 3.0
+			r.phase += delta * 8.0
+	if frames == 330:
+		var sum := 0.0
+		var worst := 0.0
+		for t in bench_times:
+			sum += t
+			worst = maxf(worst, t)
+		var avg: float = sum / bench_times.size()
+		var draws := RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME)
+		var prims := RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME)
+		var objs := RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_OBJECTS_IN_FRAME)
+		var vmem := RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_VIDEO_MEM_USED)
+		var t0 := Time.get_ticks_usec()
+		for k in range(30):
+			for r in bench_rigs:
+				r.set_lod(k % 3)
+		var sw: float = (Time.get_ticks_usec() - t0) / 1000.0 / maxf(30.0 * bench_rigs.size(), 1.0)
+		print("CUBE bench: instances=%d(+player) lod=%d avg_frame_ms=%.2f worst_ms=%.2f fps=%.0f draw_calls=%d primitives=%d objects=%d vram_bytes=%d lod_switch_ms_per_instance=%.4f" % [
+			bench_n, char_lod, avg, worst, 1000.0 / avg, draws, prims, objs, vmem, sw])
+		world.close()
+		get_tree().quit(0)

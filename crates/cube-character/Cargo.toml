@@ -1,0 +1,17 @@
+[package]
+name = "cube-character"
+version = "0.0.0"
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+description = "High-detail unsmoothed voxel character asset: sculpt, LOD chain and flat-shaded meshes (CHAR-01)"
+
+# Engine-neutral. Depends on Core only (stable AssetId). It owns no world state and no gameplay:
+# it turns a fixed, deterministic sculpt into per-part voxel grids and CPU meshes that an engine
+# adapter copies into scene nodes. One asset, three LODs (coarsened voxel data, not scaled meshes).
+
+[dependencies]
+cube-core = { path = "../cube-core" }
+
+[lints]
+workspace = true

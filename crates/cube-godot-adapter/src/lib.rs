@@ -9,6 +9,8 @@
 //! Failures never cross the FFI boundary as panics: every entry point reports `false`, `-1` or an
 //! empty result and logs the reason with `godot_error!`.
 
+mod character;
+
 use std::collections::HashMap;
 
 use cube_client::{CellKeyExt as _, Controls, FrameOut, SessionPort};

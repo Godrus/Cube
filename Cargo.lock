@@ -68,6 +68,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "cube-character"
+version = "0.0.0"
+dependencies = [
+ "cube-core",
+]
+
+[[package]]
 name = "cube-client"
 version = "0.0.0"
 dependencies = [
@@ -98,6 +105,7 @@ name = "cube-godot-adapter"
 version = "0.0.0"
 dependencies = [
  "cube-app",
+ "cube-character",
  "cube-client",
  "godot",
 ]
