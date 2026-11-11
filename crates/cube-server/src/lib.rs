@@ -525,6 +525,39 @@ impl LocalHost {
         }
     }
 
+    /// `true` if the untouched base world has air at the voxel (the generator's answer; edits
+    /// by the player are not consulted). Unknown versions count as not free.
+    pub fn is_air(&self, x: i64, y: i64, z: i64) -> bool {
+        cube_worldgen::voxel_at(self.record.seed, self.record.generator_version, x, y, z)
+            .is_ok_and(|m| m == 0)
+    }
+
+    /// The den (two voxels off the middle of a ruin's floor) in the 16 x 16 column `(cx, cz)`, if there is one:
+    /// the feet position of the creature that lives there.
+    pub fn den_site(&self, cx: i64, cz: i64) -> Option<[f64; 3]> {
+        let (rx, rz) = ((cx * 16).div_euclid(40), (cz * 16).div_euclid(40));
+        for dz in 0..=1 {
+            for dx in 0..=1 {
+                let r = cube_worldgen::ruin_of_region(
+                    self.record.seed,
+                    self.record.generator_version,
+                    rx + dx,
+                    rz + dz,
+                )
+                .ok()
+                .flatten();
+                // The den is two voxels off the middle (the altar stands in the middle).
+                if let Some(r) = r
+                    && (r.x + 2).div_euclid(16) == cx
+                    && (r.z + 2).div_euclid(16) == cz
+                {
+                    return Some([r.x as f64 + 2.5, (r.floor + 1) as f64, r.z as f64 + 2.5]);
+                }
+            }
+        }
+        None
+    }
+
     /// The record of this world.
     pub fn record(&self) -> &WorldRecord {
         &self.record

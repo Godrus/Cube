@@ -16,7 +16,7 @@ use crate::combat::{AttackRefused, AttackTimer, WOODEN_SWORD};
 use crate::creature::TICK;
 use crate::game::{GameState, Mode, Reconciled, SLOTS, placeable};
 use crate::loot::loot_key;
-use crate::spawn::{Population, SpawnArea};
+use crate::spawn::{Land, Population, SpawnArea};
 use crate::{PlayerState, REACH, Session};
 
 /// Radius of the static bounded area of the first world, in bricks.
@@ -108,6 +108,25 @@ pub fn save_game(dir: &Path, g: &GameState) -> std::io::Result<()> {
 /// The saved game state of the world in `dir`, if there is a valid one.
 pub fn load_game(dir: &Path) -> Option<GameState> {
     GameState::decode(&std::fs::read_to_string(dir.join(GAME_FILE)).ok()?)
+}
+
+/// The land as the spawn rule sees it: the session's world.
+struct SessionLand<'a>(&'a Session);
+
+impl Land for SessionLand<'_> {
+    fn in_world(&self, cx: i64, cz: i64) -> bool {
+        let limit = cube_server::WORLD_LIMIT_BRICKS;
+        cx.abs() <= limit && cz.abs() <= limit
+    }
+    fn height(&self, x: i64, z: i64) -> i64 {
+        self.0.ground_height(x, z)
+    }
+    fn is_air(&self, x: i64, y: i64, z: i64) -> bool {
+        self.0.host().is_air(x, y, z)
+    }
+    fn den(&self, cx: i64, cz: i64) -> Option<[f64; 3]> {
+        self.0.host().den_site(cx, cz)
+    }
 }
 
 /// A session behind the port an adapter drives.
@@ -210,7 +229,6 @@ impl PortSession {
             (feet[0].floor() as i64).div_euclid(16),
             (feet[2].floor() as i64).div_euclid(16),
         );
-        let limit = cube_server::WORLD_LIMIT_BRICKS;
         pop.update(
             self.session.world_seed(),
             SpawnArea {
@@ -219,8 +237,7 @@ impl PortSession {
                 despawn_radius: 6,
                 max: 8,
             },
-            |x, z| x.abs() <= limit && z.abs() <= limit,
-            |x, z| self.session.ground_height(x, z),
+            &SessionLand(&self.session),
         );
         self.creature_time = (self.creature_time + dt).min(5.0 * TICK);
         let mut died = false;

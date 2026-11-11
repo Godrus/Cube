@@ -52,6 +52,22 @@ pub fn spawn_point(
     Some([x as f64 + 0.5, (height(x, z) + 1) as f64, z as f64 + 0.5])
 }
 
+/// What the population needs to know about the land.
+pub trait Land {
+    /// Does the voxel column `(x, z)` exist (the world is finite)?
+    fn in_world(&self, cx: i64, cz: i64) -> bool;
+    /// Ground height of the voxel column `(x, z)`.
+    fn height(&self, x: i64, z: i64) -> i64;
+    /// Is the voxel `(x, y, z)` free air (no tree, no wall)? A creature needs two such voxels.
+    fn is_air(&self, _x: i64, _y: i64, _z: i64) -> bool {
+        true
+    }
+    /// A fixed creature site (a den) in the 16 x 16 column `(cx, cz)`: the feet position.
+    fn den(&self, _cx: i64, _cz: i64) -> Option<[f64; 3]> {
+        None
+    }
+}
+
 /// The creatures near the player.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Population {
@@ -126,13 +142,7 @@ impl Population {
     /// creatures of the columns within `spawn_radius` (nearest first) that have none, are not
     /// killed and fit under `max`. `in_world(cx, cz)` says whether the column exists (the world
     /// is finite). Returns how many were spawned.
-    pub fn update(
-        &mut self,
-        seed: u64,
-        area: SpawnArea,
-        in_world: impl Fn(i64, i64) -> bool,
-        height: impl Fn(i64, i64) -> i64,
-    ) -> usize {
+    pub fn update(&mut self, seed: u64, area: SpawnArea, land: &dyn Land) -> usize {
         let SpawnArea {
             centre,
             spawn_radius,
@@ -153,12 +163,24 @@ impl Population {
             if self.alive.len() >= max {
                 break;
             }
-            if self.alive.contains_key(&c) || self.killed.contains(&c) || !in_world(c.0, c.1) {
+            if self.alive.contains_key(&c) || self.killed.contains(&c) || !land.in_world(c.0, c.1) {
                 continue;
             }
-            if let Some(p) = spawn_point(seed, c.0, c.1, &height) {
-                self.alive.insert(c, Creature::new(&SLIME, p));
-                spawned += 1;
+            // A den has its creature always; elsewhere the spawn rule decides. Either way the
+            // creature needs two free voxels to stand in (not inside a tree or a wall).
+            let site = land
+                .den(c.0, c.1)
+                .or_else(|| spawn_point(seed, c.0, c.1, |x, z| land.height(x, z)));
+            if let Some(p) = site {
+                let (x, y, z) = (
+                    p[0].floor() as i64,
+                    p[1].floor() as i64,
+                    p[2].floor() as i64,
+                );
+                if land.is_air(x, y, z) && land.is_air(x, y + 1, z) {
+                    self.alive.insert(c, Creature::new(&SLIME, p));
+                    spawned += 1;
+                }
             }
         }
         spawned
@@ -230,6 +252,17 @@ mod tests {
         9
     }
 
+    struct TestLand(fn(i64, i64) -> bool);
+
+    impl Land for TestLand {
+        fn in_world(&self, cx: i64, cz: i64) -> bool {
+            (self.0)(cx, cz)
+        }
+        fn height(&self, x: i64, z: i64) -> i64 {
+            flat(x, z)
+        }
+    }
+
     fn everywhere(_x: i64, _z: i64) -> bool {
         true
     }
@@ -286,8 +319,7 @@ mod tests {
                 despawn_radius: 8,
                 max: 5,
             },
-            everywhere,
-            flat,
+            &TestLand(everywhere),
         );
         assert_eq!((n, p.len()), (5, 5), "bounded by max");
         let snapshot = p.clone();
@@ -300,8 +332,7 @@ mod tests {
                 despawn_radius: 8,
                 max: 5,
             },
-            everywhere,
-            flat,
+            &TestLand(everywhere),
         );
         assert_eq!(snapshot, q, "same seed and place, same creatures");
         // Walk far away: the old ones are gone, new ones are near the new centre, count bounded.
@@ -314,8 +345,7 @@ mod tests {
                     despawn_radius: 8,
                     max: 5,
                 },
-                everywhere,
-                flat,
+                &TestLand(everywhere),
             );
             assert!(p.len() <= 5);
         }
@@ -333,8 +363,7 @@ mod tests {
                 despawn_radius: 8,
                 max: 5,
             },
-            everywhere,
-            flat,
+            &TestLand(everywhere),
         );
         assert_eq!(p.len(), back.len());
     }
@@ -350,8 +379,7 @@ mod tests {
                 despawn_radius: 8,
                 max: 100,
             },
-            |x, _| x < 0,
-            flat,
+            &TestLand(|x, _| x < 0),
         );
         assert!(p.creatures().all(|c| c.pos()[0] < 0.0));
         assert!(!p.is_empty());
@@ -368,8 +396,7 @@ mod tests {
                 despawn_radius: 8,
                 max: 100,
             },
-            everywhere,
-            flat,
+            &TestLand(everywhere),
         );
         let before = p.len();
         let target = p.creatures().next().unwrap().pos();
@@ -393,8 +420,7 @@ mod tests {
                 despawn_radius: 8,
                 max: 100,
             },
-            everywhere,
-            flat,
+            &TestLand(everywhere),
         );
         assert_eq!(p.len(), before - 1, "not respawned");
         let _ = PLAYER_MAX_HEALTH;
@@ -413,8 +439,7 @@ mod tests {
                 despawn_radius: 8,
                 max: 100,
             },
-            everywhere,
-            flat,
+            &TestLand(everywhere),
         );
         let far = [10_000.0, 10.0, 10_000.0];
         assert_eq!(

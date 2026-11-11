@@ -48,6 +48,7 @@ Dependencies: CMB-02 needs CMB-01; CMB-04 needs CMB-01 and the collision query (
 
 | Task | Action | Acceptance |
 |---|---|---|
+| WGN2-04 (DONE as terrain-v5 ruins with a den, F-WGN-006) | places of interest | see the registry |
 | WGN2-03 (DONE as terrain-v4, F-WGN-005) | trees and forests | see the registry |
 | WGN2-02 (DONE as terrain-v3, F-WGN-004) | caves and ores | see the registry |
 | WGN2-01 (DONE as terrain-v2, F-WGN-003; later slices are versions 3, 4, 5, never edits of v2) | generator version 2 in the existing `cube-worldgen` registry (never edit v1 in place): climate fields (integer noise), 2-3 biomes with blended borders | pinned hashes; v1 worlds still open and regenerate identically; order and thread independence tests like v1 |

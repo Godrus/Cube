@@ -21,6 +21,8 @@
 //!
 //! Version 4, "terrain-v4" (see [`v4`]): version 3 plus trees.
 //!
+//! Version 5, "terrain-v5" (see [`v5`]): version 4 plus ruins.
+//!
 //! Determinism is argued from integer arithmetic only; cross-device identity is DG-2 and is
 //! **not** claimed.
 
@@ -28,6 +30,7 @@ pub mod v1;
 pub mod v2;
 pub mod v3;
 pub mod v4;
+pub mod v5;
 
 use cube_core::{
     BRICK_VOLUME, BrickCoord, CellChange, CellPayload, Channel, ChannelId, ChannelSet,
@@ -47,6 +50,8 @@ pub mod materials {
     pub const GRASS: u16 = 3;
     /// Sand (version 2).
     pub const SAND: u16 = 4;
+    /// Red brick (ruins, version 5; also the item of the same name).
+    pub const BRICK: u16 = 5;
     /// Snow (version 2).
     pub const SNOW: u16 = 7;
     /// Tree trunk (reserved for a later version).
@@ -114,7 +119,7 @@ pub struct VersionInfo {
 
 /// All released generator versions, ascending.
 pub fn registry() -> &'static [VersionInfo] {
-    const R: [VersionInfo; 4] = [
+    const R: [VersionInfo; 5] = [
         VersionInfo {
             version: GeneratorVersion::new(1),
             algorithm: "terrain-v1",
@@ -133,6 +138,11 @@ pub fn registry() -> &'static [VersionInfo] {
         VersionInfo {
             version: GeneratorVersion::new(4),
             algorithm: "terrain-v4",
+            status: Status::Legacy,
+        },
+        VersionInfo {
+            version: GeneratorVersion::new(5),
+            algorithm: "terrain-v5",
             status: Status::Active,
         },
     ];
@@ -141,7 +151,23 @@ pub fn registry() -> &'static [VersionInfo] {
 
 /// The version new worlds use.
 pub const fn current_version() -> GeneratorVersion {
-    GeneratorVersion::new(4)
+    GeneratorVersion::new(5)
+}
+
+/// The ruin of the 40 x 40 column region `(rx, rz)` in the world of `version` (only version 5
+/// has places of interest).
+pub fn ruin_of_region(
+    seed: WorldSeed,
+    version: GeneratorVersion,
+    rx: i64,
+    rz: i64,
+) -> Result<Option<v5::Ruin>, GenError> {
+    check(version)?;
+    Ok(if version.raw() >= 5 {
+        v5::ruin_of_region(seed.raw(), rx, rz)
+    } else {
+        None
+    })
 }
 
 /// Ground height of the column `(x, z)` in the world of `version`.
@@ -283,7 +309,8 @@ pub fn voxel_at(
         1 => v1::material(seed, x, y, z),
         2 => v2::material(seed, x, y, z),
         3 => v3::material(seed, x, y, z),
-        _ => v4::material(seed, x, y, z),
+        4 => v4::material(seed, x, y, z),
+        _ => v5::material(seed, x, y, z),
     })
 }
 
@@ -305,7 +332,8 @@ pub fn generate_brick(
         1 => v1::brick(seed, origin.x, origin.y, origin.z),
         2 => v2::brick(seed, origin.x, origin.y, origin.z),
         3 => v3::brick(seed, origin.x, origin.y, origin.z),
-        _ => v4::brick(seed, origin.x, origin.y, origin.z),
+        4 => v4::brick(seed, origin.x, origin.y, origin.z),
+        _ => v5::brick(seed, origin.x, origin.y, origin.z),
     };
     Ok(GeneratedBrick {
         coord: brick,

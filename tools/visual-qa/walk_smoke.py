@@ -462,5 +462,46 @@ def main_trees():
     return 0 if not failed else 1
 
 
+def ruins_scenario():
+    """Seed 7, generator version 5: a ruin with its centre at (-95, -29) and floor -10 (pinned by worldgen_v5.rs), with a
+    creature den in the middle. The camera is put south of its door and then inside by the QA-only teleport."""
+    steps = [W(20), {"op": "mode", "walk": False},
+             {"op": "teleport", "x": -94.5, "y": -6.5, "z": -17.5, "yaw": 0.0, "pitch": -0.2}, {"op": "mode", "walk": True}, W(90), {"op": "probe", "name": "door_seen"}, {"op": "shot", "name": "ruin_door"},
+             W(60), {"op": "probe", "name": "den_awake"}, {"op": "mode", "walk": False},
+             {"op": "teleport", "x": -93.5, "y": -7.4, "z": -27.5, "yaw": 1.107, "pitch": -0.1}, W(200), {"op": "probe", "name": "inside"}, {"op": "shot", "name": "ruin_inside"}]
+    return {"world_seed": 7, "hud": True, "creatures": True, "phases": [{"name": "p1", "create": True, "steps": steps}]}
+
+
+def main_ruins():
+    out = tempfile.mkdtemp(prefix="cube-ruins-")
+    t0 = time.time()
+    tel = godot_runner.run_scenario(ruins_scenario(), out, timeout=300)
+    if "events" not in tel["p1"]:
+        print("FAIL godot:", tel["p1"].get("error", tel["p1"]))
+        return 1
+    p = probes(tel, "p1")
+    checks = []
+
+    def check(name, ok, detail):
+        checks.append((name, ok, detail))
+        print(("ok   " if ok else "FAIL ") + name + ": " + detail)
+
+    d, w, i = p["door_seen"], p["den_awake"], p["inside"]
+    near = lambda e: [c for c in e["creatures"] if abs(c["pos"][0] + 94.5) < 12 and abs(c["pos"][2] + 29) < 12]
+    check("a creature lives in the ruin (its den), seen from the door", len(near(d)) >= 1, "%d creatures near the ruin at first sight" % len(near(d)))
+    check("the den creature notices the visitor (it leaves IDLE)", any(c["state"] in (1, 2) for c in near(w)), "states %s" % [c["state"] for c in near(w)])
+    check("the camera is inside the walls", i["camera_position"][0] > -100 and i["camera_position"][0] < -90 and i["camera_position"][2] > -34 and i["camera_position"][2] < -24, str([round(v) for v in i["camera_position"]]))
+    check("the crosshair is on the stone altar or a brick wall of the ruin", i["target_material"] in (1, 5), "target material %s" % i["target_material"])
+    means = {}
+    for name in ("ruin_door", "ruin_inside"):
+        f = os.path.join(out, "p1", name + ".png")
+        check("picture " + name, os.path.exists(f) and os.path.getsize(f) > 10000, f)
+        means[name] = mean_rgb(f) if os.path.exists(f) else [0, 0, 0]
+        print("     mean colour %-12s %s" % (name, [round(v) for v in means[name]]))
+    failed = [x for x, ok, _ in checks if not ok]
+    print("ruins smoke: %s (%.0f s, %s)" % ("PASS" if not failed else "FAIL " + ", ".join(failed), time.time() - t0, out))
+    return 0 if not failed else 1
+
+
 if __name__ == "__main__":
-    sys.exit(main_trees() if "--trees" in sys.argv else main_caves() if "--caves" in sys.argv else main_world() if "--world" in sys.argv else main_combat() if "--combat" in sys.argv else main_play() if "--play" in sys.argv else main_journey() if "--journey" in sys.argv else main())
+    sys.exit(main_ruins() if "--ruins" in sys.argv else main_trees() if "--trees" in sys.argv else main_caves() if "--caves" in sys.argv else main_world() if "--world" in sys.argv else main_combat() if "--combat" in sys.argv else main_play() if "--play" in sys.argv else main_journey() if "--journey" in sys.argv else main())
