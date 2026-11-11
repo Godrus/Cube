@@ -202,6 +202,17 @@ impl PortSession {
                     text = format!("{name} defeated: +{} {item}", drop.count);
                 }
             }
+            // Experience belongs to the same file write as the kill and the loot.
+            let gain = self.game.progress.gain(strike.def.xp);
+            if gain.added > 0 {
+                text.push_str(&format!(", +{} XP", gain.added));
+            }
+            if gain.to > gain.from {
+                self.game
+                    .health
+                    .refill_to(crate::progression::max_health_for(gain.to));
+                text.push_str(&format!(". Level {}!", gain.to));
+            }
             if self.try_save_game().is_err() {
                 text.push_str(" (could not save)");
             }
@@ -502,6 +513,10 @@ impl SessionPort for PortSession {
             },
             health: self.game.health.cur(),
             max_health: self.game.health.max(),
+            level: self.game.progress.level(),
+            xp: self.game.progress.xp(),
+            xp_level_start: crate::progression::xp_for_level(self.game.progress.level()),
+            xp_next: self.game.progress.next_level_xp().unwrap_or(0),
         }
     }
 

@@ -59,6 +59,8 @@ var creature_nodes := []
 var creature_prev := []
 var health_bar: ProgressBar
 var health_label: Label
+var xp_bar: ProgressBar
+var xp_label: Label
 var hurt_overlay: ColorRect
 var prev_health := -1
 var hud: Label
@@ -213,6 +215,19 @@ func _build_player_and_hud() -> void:
 	health_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
 	health_label.add_theme_constant_override("outline_size", 4)
 	layer.add_child(health_label)
+	xp_bar = ProgressBar.new()
+	xp_bar.position = Vector2(10, 78)
+	xp_bar.custom_minimum_size = Vector2(200, 8)
+	xp_bar.size = Vector2(200, 8)
+	xp_bar.show_percentage = false
+	xp_bar.visible = false
+	layer.add_child(xp_bar)
+	xp_label = Label.new()
+	xp_label.position = Vector2(214, 70)
+	xp_label.add_theme_color_override("font_color", Color(0.7, 0.85, 1))
+	xp_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+	xp_label.add_theme_constant_override("outline_size", 4)
+	layer.add_child(xp_label)
 	hurt_overlay = ColorRect.new()
 	hurt_overlay.color = Color(1, 0, 0, 0)
 	hurt_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -337,6 +352,17 @@ func _update_creatures_and_health(g: Dictionary) -> void:
 		hurt_overlay.color = Color(1, 0, 0, 0.35)
 	hurt_overlay.color.a = max(0.0, hurt_overlay.color.a - 1.5 * get_process_delta_time())
 	prev_health = hp
+	# Level and experience also come from Rust; drawing only.
+	var lvl: int = int(g.get("level", 0))
+	xp_bar.visible = lvl > 0
+	if lvl > 0:
+		var start: int = int(g["xp_level_start"])
+		var nxt: int = int(g["xp_next"])
+		xp_bar.max_value = max(nxt - start, 1) if nxt > 0 else 1
+		xp_bar.value = (int(g["xp"]) - start) if nxt > 0 else 1
+		xp_label.text = "Lv %d  XP %d/%d" % [lvl, int(g["xp"]), nxt] if nxt > 0 else "Lv %d (max)" % lvl
+	else:
+		xp_label.text = ""
 	if not creatures_on:
 		return
 	var list: Array = world.creatures()

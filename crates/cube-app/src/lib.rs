@@ -16,6 +16,7 @@ pub mod creature;
 pub mod game;
 pub mod loot;
 pub mod port;
+pub mod progression;
 pub mod spawn;
 
 use std::sync::{Arc, Mutex, PoisonError};

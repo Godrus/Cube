@@ -30,6 +30,8 @@ pub struct CreatureDef {
     pub weapon: WeaponDef,
     /// What it drops when killed.
     pub loot: LootTable,
+    /// Experience the player gets for the kill.
+    pub xp: u32,
 }
 
 /// The first hostile creature of the prototype.
@@ -44,6 +46,7 @@ pub const SLIME: CreatureDef = CreatureDef {
         cooldown_ticks: 60,
     },
     loot: SLIME_LOOT,
+    xp: 4,
 };
 
 /// What the creature is doing.

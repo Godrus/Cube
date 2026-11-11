@@ -281,6 +281,10 @@ impl CubeWorld {
             .to_variant(),
         );
         d.set("max_health", i64::from(g.max_health));
+        d.set("level", i64::from(g.level));
+        d.set("xp", i64::from(g.xp));
+        d.set("xp_level_start", i64::from(g.xp_level_start));
+        d.set("xp_next", i64::from(g.xp_next));
         d
     }
 

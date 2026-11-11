@@ -311,3 +311,38 @@ fn swinging_again_and_again_never_duplicates_a_kill_or_its_loot() {
     assert_eq!(p.game().killed.len(), killed.len());
     let _ = std::fs::remove_dir_all(d);
 }
+
+#[test]
+fn a_kill_gives_experience_that_is_saved_with_it_and_never_given_twice() {
+    let (mut p, d, _) = start("xp", true);
+    p.enable_creatures();
+    assert_eq!(p.game().progress.xp(), 0);
+    let mut kills = 0;
+    for _ in 0..2000 {
+        run(&mut p, 1);
+        if let Ok(st) = p.attack()
+            && st.hit.killed
+        {
+            kills += 1;
+            break;
+        }
+    }
+    assert_eq!(kills, 1);
+    let xp = cube_app::creature::SLIME.xp;
+    assert_eq!(p.game().progress.xp(), xp);
+    assert!(p.game_view().message.contains("XP"));
+    let v = p.game_view();
+    assert_eq!((v.level, v.xp), (1, xp));
+    assert_eq!(v.xp_next, cube_app::progression::xp_for_level(2));
+    // Swinging at the corpse or at nothing gives nothing more.
+    for _ in 0..200 {
+        run(&mut p, 1);
+        let _ = p.attack();
+    }
+    let got = p.game().progress.xp();
+    assert_eq!(got % xp, 0);
+    drop(p); // a crash: no shutdown save
+    let saved = cube_app::port::load_game(&d).expect("written at the kill");
+    assert_eq!(saved.progress.xp(), got, "kill, loot and XP in one write");
+    let _ = std::fs::remove_dir_all(d);
+}

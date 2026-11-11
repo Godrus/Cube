@@ -386,6 +386,8 @@ pub struct GameState {
     /// Columns whose creature the player killed (it does not come back, and its loot was given
     /// in the same file write, so a kill and its loot are saved together or not at all).
     pub killed: std::collections::BTreeSet<(i64, i64)>,
+    /// Experience (the level is derived from it). Files without an `xp` line load with none.
+    pub progress: crate::progression::Progress,
 }
 
 impl Default for GameState {
@@ -397,6 +399,7 @@ impl Default for GameState {
             pending: None,
             health: crate::combat::Health::full(crate::combat::PLAYER_MAX_HEALTH),
             killed: std::collections::BTreeSet::new(),
+            progress: crate::progression::Progress::new(),
         }
     }
 }
@@ -542,6 +545,13 @@ impl GameState {
             o.placed
         );
         s += &format!("health {} {}\n", self.health.cur(), self.health.max());
+        if self.progress.xp() > 0 {
+            s += &format!(
+                "xp {}
+",
+                self.progress.xp()
+            );
+        }
         for (cx, cz) in &self.killed {
             s += &format!("kill {cx} {cz}\n");
         }
@@ -567,6 +577,7 @@ impl GameState {
         }
         let mut st = GameState::default();
         let (mut mode, mut objective, mut health_seen) = (false, false, false);
+        let mut xp_seen = false;
         for l in lines {
             let mut it = l.split_whitespace();
             match it.next()? {
@@ -619,6 +630,17 @@ impl GameState {
                     if it.next().is_some() || !st.killed.insert((cx, cz)) {
                         return None;
                     }
+                }
+                "xp" => {
+                    if xp_seen {
+                        return None;
+                    }
+                    let xp: u32 = it.next()?.parse().ok()?;
+                    if it.next().is_some() {
+                        return None;
+                    }
+                    st.progress = crate::progression::Progress::from_xp(xp)?;
+                    xp_seen = true;
                 }
                 "health" => {
                     if health_seen {
@@ -995,5 +1017,44 @@ objective shelter-1 8 12 3 4
             GameState::decode(&text.replace("slot 0 1 64", "slot 0 77 64")).is_none(),
             "unknown item"
         );
+    }
+
+    #[test]
+    fn experience_is_saved_old_files_load_with_none_and_bad_values_are_refused() {
+        let mut g = GameState::default();
+        g.progress.gain(37);
+        let text = g.encode();
+        assert!(text.contains("xp 37"));
+        let back = GameState::decode(&text).unwrap();
+        assert_eq!(back.progress.xp(), 37);
+        assert_eq!(back.progress.level(), 3);
+        let old = text
+            .lines()
+            .filter(|l| !l.starts_with("xp"))
+            .collect::<Vec<_>>();
+        assert_eq!(
+            GameState::decode(
+                &(old.join(
+                    "
+"
+                ) + "
+")
+            )
+            .unwrap()
+            .progress
+            .xp(),
+            0
+        );
+        assert!(
+            GameState::decode(&format!(
+                "{text}xp 5
+"
+            ))
+            .is_none(),
+            "twice"
+        );
+        assert!(GameState::decode(&text.replace("xp 37", "xp 99999")).is_none());
+        assert!(GameState::decode(&text.replace("xp 37", "xp x")).is_none());
+        assert!(GameState::decode(&text.replace("xp 37", "xp 3 4")).is_none());
     }
 }

@@ -27,6 +27,12 @@ pub struct Damaged {
 }
 
 impl Health {
+    /// Sets the maximum to `max` (at least 1) and fills health to it (a level-up reward).
+    pub fn refill_to(&mut self, max: u32) {
+        self.max = max.max(1);
+        self.cur = self.max;
+    }
+
     /// Full health of `max` (a `max` of 0 becomes 1: nothing lives with no health).
     pub fn full(max: u32) -> Self {
         let max = max.max(1);

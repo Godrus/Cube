@@ -118,6 +118,14 @@ pub struct GameView {
     pub health: u32,
     /// Player maximum health.
     pub max_health: u32,
+    /// Character level (0: no progression shown).
+    pub level: u32,
+    /// Total experience.
+    pub xp: u32,
+    /// Total experience at which the current level started.
+    pub xp_level_start: u32,
+    /// Total experience of the next level (0 at the maximum level).
+    pub xp_next: u32,
 }
 
 /// A creature as the player sees it (data only; the engine draws it).
