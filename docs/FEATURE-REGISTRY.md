@@ -4,7 +4,7 @@
 
 Three separate dimensions: **Decision** (IDEA, PROPOSED, APPROVED, DEFERRED, REJECTED), **Implementation** (NOT_STARTED, IN_PROGRESS, IMPLEMENTED, TESTED, INTEGRATED) and **Player availability** (NOT_AVAILABLE, INTERNAL_ONLY, DEMO_AVAILABLE, PLAYER_AVAILABLE). *Blocked* is a flag with blocker ids, not a status. Integrated code is not a player feature. Ids are stable and never reused.
 
-**71 features.** Integrated: 51. Player available: 0. Approved: 60. Proposed: 11. Blocked: 27.
+**72 features.** Integrated: 51. Player available: 0. Approved: 61. Proposed: 11. Blocked: 27.
 
 ## Geometry Core
 
@@ -19,6 +19,7 @@ Three separate dimensions: **Decision** (IDEA, PROPOSED, APPROVED, DEFERRED, REJ
 | F-CORE-007 | **World identity values**: WorldSeed and GeneratorVersion newtypes with fixed-width byte forms. Acceptance: Exact comparison; stable byte form. | APPROVED | INTEGRATED | INTERNAL_ONLY | P1 |  | PS-2; G2 | CORE-16 (dev b50bdd0) | - | `f994c83` |
 | F-CORE-008 | **Material palette (content ids to runtime indices)**: Namespaced content ids, runtime indices with air = 0, collision diagnostics, strict and recovery-mode resolution of saved tables. Provisional (C-10). Acceptance: Unknown content is an error or a visible placeholder, never another material. | APPROVED | INTEGRATED | INTERNAL_ONLY | P1 | F-CORE-002 | PS-5; RG-1 | CORE-12 (dev 718e29b, CI 42642936047); DEC-090 | - | `f994c83` |
 | F-CORE-009 | **Mesh-page layers (page store in Core)**: A mesh layer holds mesh pages in the same keyed, revisioned and bounded store as other cells; the commit gate accepts only pages in mesh layers and only channels elsewhere; export/import and the content hash include pages; Processing snapshots accept mesh layers. Acceptance: Payload mismatch both ways is a typed error; view round trip keeps pages; additive public API only (PageStore::new, cells). Page bytes are opaque to Core. | APPROVED | INTEGRATED | INTERNAL_ONLY | P0 | F-CORE-002; F-CORE-004 | PS-5 | dev 01519c6, CI 42726480760 | - | `01519c6` |
+| F-CORE-010 | **Adaptive material and channel width**: Runtime material index is 32 bits; brick channels store values in the narrowest of 8, 16 or 32 bits and widen or narrow on demand; the palette holds up to u32::MAX materials; persistence keeps the 16-bit encodings byte for byte and adds wide encodings only for values above 0xFFFF; mesh pages, LOD cells and edit-parameter wire formats stay 16-bit and report a controlled error for wider values until MAT-02. Acceptance: Values up to 255 cost one byte per cell; values above 65535 round trip through storage, content hash and persistence; narrow content hashes and files are unchanged; no silent truncation anywhere. | APPROVED | IMPLEMENTED | INTERNAL_ONLY | P1 | F-CORE-002; F-CORE-008 | PS-5; RG-1 | MAT-01 (ce514aa): crates/cube-core/src/cell/channel.rs tests, tests/cells.rs, tests/views.rs wide hash test, crates/cube-persistence/src/codec.rs wide round trip; owner decision 2026-11-12 (DEC-093) | - | `ce514aa` |
 
 ## Processing
 
