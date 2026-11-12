@@ -119,8 +119,12 @@ pub(crate) fn gather(snapshot: &Snapshot, centre: BrickCoord) -> Result<Field, S
                     ];
                     if g.iter().all(|v| (-1..=16).contains(v)) {
                         let i = at(g[0], g[1], g[2]);
-                        f.d[i] = dens.map_or(OUTSIDE, |c| c.get(l) as i16);
-                        f.m[i] = mat.map_or(0, |c| c.get(l));
+                        f.d[i] = dens.map_or(OUTSIDE, |c| (c.get(l) as u16) as i16);
+                        // Mesh pages carry 16-bit materials (wire format, MAT-02 widens it): a wider
+                        // material is a controlled failure, never a silent truncation.
+                        f.m[i] = u16::try_from(mat.map_or(0, |c| c.get(l))).map_err(|_| {
+                            "material index above 65535: mesh format is 16-bit (MAT-02)".to_owned()
+                        })?;
                     }
                 }
             }

@@ -42,7 +42,7 @@ pub enum PaletteError {
         /// The index it already has.
         existing: MaterialIndex,
     },
-    /// All 65535 usable indices are taken.
+    /// All usable indices are taken (`u32::MAX` unless the palette was made with a limit).
     Full,
     /// A saved table names content this palette does not have (strict resolution); lists all.
     UnknownContent(Vec<ContentId>),
@@ -122,13 +122,24 @@ pub struct MaterialPalette {
     /// `entries[i]` is the content of index `i + 1`.
     entries: Vec<ContentId>,
     placeholder: Vec<bool>,
-    index: HashMap<ContentId, u16>,
+    index: HashMap<ContentId, u32>,
+    /// Largest usable index; `None` means the full `u32` range (the default).
+    limit: Option<u32>,
 }
 
 impl MaterialPalette {
     /// An empty palette (only air).
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// An empty palette that holds at most `max_materials` materials; registering one more is
+    /// [`PaletteError::Full`]. The default palette holds up to `u32::MAX`.
+    pub fn with_limit(max_materials: u32) -> Self {
+        Self {
+            limit: Some(max_materials),
+            ..Self::default()
+        }
     }
 
     /// Number of registered materials (air not counted).
@@ -155,7 +166,11 @@ impl MaterialPalette {
             });
         }
         let next = self.entries.len() + 1;
-        let raw = u16::try_from(next).map_err(|_| PaletteError::Full)?;
+        let max = self.limit.unwrap_or(u32::MAX);
+        let raw = u32::try_from(next)
+            .ok()
+            .filter(|r| *r <= max)
+            .ok_or(PaletteError::Full)?;
         self.index.insert(id.clone(), raw);
         self.entries.push(id);
         self.placeholder.push(placeholder);
@@ -169,14 +184,14 @@ impl MaterialPalette {
 
     /// The content of a runtime index; `None` for air (`0`) and for unassigned indices.
     pub fn content_of(&self, m: MaterialIndex) -> Option<&ContentId> {
-        usize::from(m.raw())
+        (m.raw() as usize)
             .checked_sub(1)
             .and_then(|i| self.entries.get(i))
     }
 
     /// `true` if the index was registered as a recovery placeholder.
     pub fn is_placeholder(&self, m: MaterialIndex) -> bool {
-        usize::from(m.raw())
+        (m.raw() as usize)
             .checked_sub(1)
             .and_then(|i| self.placeholder.get(i))
             .copied()
@@ -266,7 +281,7 @@ impl Mapping {
     pub fn translate(&self, saved: MaterialIndex) -> Option<MaterialIndex> {
         match saved.raw() {
             0 => Some(MaterialIndex::from_raw(0)),
-            n => self.map.get(usize::from(n) - 1).copied(),
+            n => self.map.get(n as usize - 1).copied(),
         }
     }
 
@@ -275,7 +290,7 @@ impl Mapping {
         self.map
             .iter()
             .enumerate()
-            .all(|(i, m)| usize::from(m.raw()) == i + 1)
+            .all(|(i, m)| m.raw() as usize == i + 1)
     }
 }
 
@@ -340,14 +355,27 @@ mod tests {
     }
 
     #[test]
-    fn the_palette_fills_up_at_65535_and_never_wraps() {
+    fn the_palette_grows_past_the_old_16_bit_limit() {
+        // MAT-01: indices are 32 bits wide; 65535 is no longer the end.
         let mut p = MaterialPalette::new();
-        for i in 0..65535u32 {
+        for i in 0..70_000u32 {
+            p.register(id(&format!("t:m{i}"))).unwrap();
+        }
+        assert_eq!(p.len(), 70_000);
+        assert_eq!(p.index_of(&id("t:m65534")).map(|m| m.raw()), Some(65_535));
+        assert_eq!(p.index_of(&id("t:m65535")).map(|m| m.raw()), Some(65_536));
+        assert_eq!(p.index_of(&id("t:m69999")).map(|m| m.raw()), Some(70_000));
+    }
+
+    #[test]
+    fn a_limited_palette_fills_up_and_never_wraps() {
+        let mut p = MaterialPalette::with_limit(300);
+        for i in 0..300u32 {
             p.register(id(&format!("t:m{i}"))).unwrap();
         }
         assert_eq!(p.register(id("t:one-too-many")), Err(PaletteError::Full));
-        assert_eq!(p.len(), 65535);
-        assert_eq!(p.index_of(&id("t:m65534")).map(|m| m.raw()), Some(65535));
+        assert_eq!(p.len(), 300);
+        assert_eq!(p.index_of(&id("t:m299")).map(|m| m.raw()), Some(300));
     }
 
     #[test]

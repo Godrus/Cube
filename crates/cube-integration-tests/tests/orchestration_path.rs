@@ -730,7 +730,7 @@ fn model_based_random_sessions_keep_the_world_equal_to_the_committed_model() {
             for x in 0..4 {
                 assert_eq!(
                     f.material(bc(x, 0, 0)),
-                    model.get(&x).map(|v| v.0),
+                    model.get(&x).map(|v| u32::from(v.0)),
                     "brick {x}"
                 );
             }

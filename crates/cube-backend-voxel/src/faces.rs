@@ -119,12 +119,16 @@ impl<'a> Sampler<'a> {
             .cell(b)
             .map_err(|e| format!("snapshot read: {e}"))?;
         match state {
-            CellState::Present(pl) => Ok(match &**pl {
+            CellState::Present(pl) => match &**pl {
                 CellPayload::Channels(set) => {
-                    set.channel(ChannelId::Material).map_or(0, |c| c.get(l))
+                    // Mesh pages carry 16-bit materials (wire format, MAT-02 widens it): a wider
+                    // material is a controlled failure, never a silent truncation.
+                    u16::try_from(set.channel(ChannelId::Material).map_or(0, |c| c.get(l))).map_err(
+                        |_| "material index above 65535: mesh format is 16-bit (MAT-02)".to_owned(),
+                    )
                 }
-                CellPayload::MeshPage(_) => 0,
-            }),
+                CellPayload::MeshPage(_) => Ok(0),
+            },
             CellState::KnownEmpty => Ok(0),
             CellState::NotLoaded | CellState::OutsideBounds => {
                 if b != centre {

@@ -98,6 +98,9 @@ impl Fnv {
     fn u16(&mut self, v: u16) {
         self.bytes(&v.to_le_bytes());
     }
+    fn u32(&mut self, v: u32) {
+        self.bytes(&v.to_le_bytes());
+    }
 }
 
 fn kind_code(k: LayerKind) -> u8 {
@@ -123,11 +126,19 @@ fn hash_payload(h: &mut Fnv, p: &CellPayload) {
             h.u64(set.len() as u64);
             for (id, ch) in set.iter() {
                 let (t, n) = channel_tag(id);
-                h.u8(t);
+                // Encoding-independent: always the 4096 values. A channel whose values all fit
+                // 16 bits hashes exactly as before MAT-01 (u16 little endian, tag unchanged), so
+                // existing content hashes and pinned goldens stay valid. A channel with a value
+                // above 0xFFFF hashes its values as u32 under the tag with the high bit set.
+                let wide = ch.value_bits() > 16;
+                h.u8(if wide { t | 0x80 } else { t });
                 h.u8(n);
-                // Encoding-independent: always the 4096 values.
                 for p in LocalPos::all() {
-                    h.u16(ch.get(p));
+                    if wide {
+                        h.u32(ch.get(p));
+                    } else {
+                        h.u16(ch.get(p) as u16);
+                    }
                 }
             }
         }

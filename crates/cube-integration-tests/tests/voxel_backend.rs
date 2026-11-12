@@ -59,9 +59,10 @@ fn voxel_at(f: &Fixture, layer: u64, level: i8, p: [i64; 3]) -> Option<u16> {
     let state = f.reader.snapshot();
     match state.cell(LayerId::new(layer), level, b)?.ok()? {
         CellState::Present(pl) => match &*pl {
-            CellPayload::Channels(set) => {
-                Some(set.channel(ChannelId::Material).map_or(0, |c| c.get(l)))
-            }
+            CellPayload::Channels(set) => Some(
+                set.channel(ChannelId::Material)
+                    .map_or(0, |c| c.get(l) as u16),
+            ),
             _ => None,
         },
         CellState::KnownEmpty => Some(0),

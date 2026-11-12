@@ -36,19 +36,21 @@ bounds.rs: pub fn transform(&self, t: &GeometryTransform) -> Result<Self, CoreEr
 bounds.rs: pub fn brick_span(&self) -> Option<(BrickCoord, BrickCoord)> {
 cell/channel.rs: pub enum ChannelId {
 cell/channel.rs: pub struct Channel {
-cell/channel.rs: pub const fn constant(value: u16) -> Self {
-cell/channel.rs: pub fn get(&self, p: LocalPos) -> u16 {
-cell/channel.rs: pub fn set(&mut self, p: LocalPos, value: u16) {
+cell/channel.rs: pub const fn constant(value: u32) -> Self {
+cell/channel.rs: pub fn get(&self, p: LocalPos) -> u32 {
+cell/channel.rs: pub fn set(&mut self, p: LocalPos, value: u32) {
 cell/channel.rs: pub fn compact(&mut self) {
-cell/channel.rs: pub fn uniform(&self) -> Option<u16> {
+cell/channel.rs: pub fn uniform(&self) -> Option<u32> {
 cell/channel.rs: pub fn is_dense(&self) -> bool {
+cell/channel.rs: pub fn storage_bits(&self) -> u32 {
+cell/channel.rs: pub fn value_bits(&self) -> u32 {
 cell/channel.rs: pub struct ChannelSet {
 cell/channel.rs: pub fn new() -> Self {
 cell/channel.rs: pub fn with(mut self, id: ChannelId, channel: Channel) -> Self {
 cell/channel.rs: pub fn uniform_material(m: MaterialIndex) -> Self {
 cell/channel.rs: pub fn channel(&self, id: ChannelId) -> Option<&Channel> {
 cell/channel.rs: pub fn channel_mut(&mut self, id: ChannelId) -> Option<&mut Channel> {
-cell/channel.rs: pub fn get(&self, id: ChannelId, p: LocalPos) -> Option<u16> {
+cell/channel.rs: pub fn get(&self, id: ChannelId, p: LocalPos) -> Option<u32> {
 cell/channel.rs: pub fn material(&self, p: LocalPos) -> Option<MaterialIndex> {
 cell/channel.rs: pub fn density(&self, p: LocalPos) -> Option<i16> {
 cell/channel.rs: pub fn iter(&self) -> impl Iterator<Item = (ChannelId, &Channel)> {
@@ -230,10 +232,10 @@ lib.rs: pub use revision::{
 lib.rs: pub use transform::{GeometryTransform, Rotation};
 lib.rs: pub use view::{AssetView, CellView, ContentHash, LayerView};
 lib.rs: pub use world_ids::{GeneratorVersion, WorldSeed};
-material.rs: pub struct MaterialIndex(u16);
-material.rs: pub const WIDTH_BITS: u32 = 16;
-material.rs: pub const fn from_raw(raw: u16) -> Self {
-material.rs: pub const fn raw(self) -> u16 {
+material.rs: pub struct MaterialIndex(u32);
+material.rs: pub const WIDTH_BITS: u32 = 32;
+material.rs: pub const fn from_raw(raw: u32) -> Self {
+material.rs: pub const fn raw(self) -> u32 {
 operation.rs: pub struct OperationId {
 operation.rs: pub const SCHEMA_VERSION: u8 = 1;
 operation.rs: pub const fn new(scope: u64, sequence: u64) -> Self {
@@ -251,6 +253,7 @@ palette.rs: pub fn as_str(&self) -> &str {
 palette.rs: pub fn namespace(&self) -> &str {
 palette.rs: pub struct MaterialPalette {
 palette.rs: pub fn new() -> Self {
+palette.rs: pub fn with_limit(max_materials: u32) -> Self {
 palette.rs: pub fn len(&self) -> usize {
 palette.rs: pub fn is_empty(&self) -> bool {
 palette.rs: pub fn register(&mut self, id: ContentId) -> Result<MaterialIndex, PaletteError> {

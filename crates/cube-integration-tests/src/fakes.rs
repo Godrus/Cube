@@ -156,7 +156,7 @@ impl GeometryBackend for SimpleBackend {
             CellChange::KnownEmpty
         } else {
             CellChange::Put(CellPayload::Channels(ChannelSet::uniform_material(
-                MaterialIndex::from_raw(material_of(&o.parameters)),
+                MaterialIndex::from_raw(u32::from(material_of(&o.parameters))),
             )))
         };
         Ok(o.layers
@@ -237,7 +237,7 @@ pub fn cell_write(layer: u64, b: BrickCoord, material: u16) -> WriteSet {
             brick: b,
             expected: ExpectedRevision::Absent,
             change: CellChange::Put(CellPayload::Channels(ChannelSet::uniform_material(
-                MaterialIndex::from_raw(material),
+                MaterialIndex::from_raw(u32::from(material)),
             ))),
         }],
     }
@@ -555,12 +555,12 @@ impl Fixture {
 
     /// Material of the first channel at local (0,0,0) of a brick of the unbounded voxel layer;
     /// `None` if the brick is not present.
-    pub fn material(&self, b: BrickCoord) -> Option<u16> {
+    pub fn material(&self, b: BrickCoord) -> Option<u32> {
         self.material_in(L_VOXEL, b)
     }
 
     /// Same for any layer.
-    pub fn material_in(&self, layer: u64, b: BrickCoord) -> Option<u16> {
+    pub fn material_in(&self, layer: u64, b: BrickCoord) -> Option<u32> {
         let state = self.reader.snapshot();
         match state.cell(LayerId::new(layer), 0, b)?.ok()? {
             cube_core::CellState::Present(p) => match &*p {

@@ -2124,3 +2124,78 @@ owner: Project Owner
 affected_documents: [[docs/production/module-boundaries.md](../production/module-boundaries.md), [docs/production/ps-0-exit-checklist.md](../production/ps-0-exit-checklist.md), xtask/src/archcheck.rs]
 history:
   - 2026-11-10 entry created
+
+## DEC-093  Material index width: 32-bit runtime index, adaptive 8/16/32-bit storage (MAT-01)
+id: DEC-093
+aliases: [MAT-01, chat decision 2026-11-02 14:39 'Material ID Storage v1.0']
+category: ARCHITECTURE
+level: TECHNICAL
+status: CONFIRMED
+statement: >
+  The runtime material index is 32 bits wide. Brick channel storage is adaptive: a dense channel is stored in the narrowest of 8, 16 or 32 bits that fits its values, widens when a larger value is written and narrows in compaction. The palette holds up to u32::MAX materials. Persistence keeps the existing 16-bit channel encodings byte for byte and uses new encodings (constant u32, dense u32) only for channels with a value above 0xFFFF. The content hash of channels whose values fit 16 bits is unchanged; wider channels hash as u32 under a marked tag. Mesh pages, LOD cells and the material parameter of edit operations stay 16-bit and return a controlled error for wider values until MAT-02 widens them.
+not_decided:
+  - width of the material parameter in edit-operation wire formats (MAT-02)
+  - mesh page and LOD cell formats (MAT-02)
+  - whether the generator versions may emit wide materials (their hashes are pinned)
+decided_by: OWNER
+decided_on: 2026-11-12
+decided_on_basis: the owner's answer in chat, 2026-11-12, to the question how to record the material id width (make it adaptive now)
+recorded_on: 2026-11-12 (this registry)
+confirmed_on: 2026-11-12
+confirmation_evidence: E-CHAT (explicit owner choice in chat; permitted source under DEC-002)
+source: OWNER-CHAT-2026-11-12; ChatGPT account export, 2026-11-02 14:39 message 99 (the original decision)
+source_availability: UNAVAILABLE in repository (session transcript only)
+owner: Project Owner
+supersedes: [DEC-066 (width part only)]
+refines: [DEC-066]
+affected_documents: [[docs/api-contracts/README.md](../api-contracts/README.md), [docs/FEATURE-REGISTRY.md](../FEATURE-REGISTRY.md)]
+history:
+  - 2026-11-12 entry created; DEC-066 stays valid for the opaque index and the channel model, its initial width u16 is superseded by this entry
+
+## DEC-094  Compression of brick channels stays open until PS-10
+id: DEC-094
+aliases: [chat decision 2026-11-02 11:58 'Compression: hybrid']
+category: ARCHITECTURE
+level: TECHNICAL
+status: DEFERRED
+statement: >
+  Direction recorded by the owner on 2026-11-02: hybrid compression (specialized encoding plus a fast general compressor such as LZ4 or Zstandard). On 2026-11-12 the owner decided that the item stays open until the codec stage (PS-10); no codec is chosen now. This matches the architecture update document, which lists compression as an open item.
+not_decided:
+  - codec choice and parameters
+  - which channels are compressed
+trigger: PS-10 (codec) or a measured memory or disk problem
+decided_by: OWNER
+decided_on: 2026-11-12
+decided_on_basis: the owner's answer in chat, 2026-11-12
+recorded_on: 2026-11-12 (this registry)
+confirmed_on: 2026-11-12
+confirmation_evidence: E-CHAT
+source: OWNER-CHAT-2026-11-12; ChatGPT account export, 2026-11-02 11:58 message 25
+source_availability: UNAVAILABLE in repository (session transcript only)
+owner: Project Owner
+history:
+  - 2026-11-12 entry created
+
+## DEC-095  Brick boundary handling is decided after the M1-A3 measurement
+id: DEC-095
+aliases: [chat decision 2026-11-02 11:58 'Boundaries: computed']
+category: ARCHITECTURE
+level: TECHNICAL
+status: DEFERRED
+statement: >
+  On 2026-11-02 the owner chose computed neighbour data at brick boundaries, against the assistant recommendation of temporary halo cells; the repository never recorded this. On 2026-11-12 the owner decided to settle the choice after the generation and meshing cost measurement (M1-A3). Until then processing uses the missing-neighbour state and fetches neighbour data on demand.
+not_decided:
+  - computed neighbours versus temporary halo cells
+trigger: M1-A3 measurement results
+decided_by: OWNER
+decided_on: 2026-11-12
+decided_on_basis: the owner's answer in chat, 2026-11-12
+recorded_on: 2026-11-12 (this registry)
+confirmed_on: 2026-11-12
+confirmation_evidence: E-CHAT
+source: OWNER-CHAT-2026-11-12; ChatGPT account export, 2026-11-02 11:58 message 25
+source_availability: UNAVAILABLE in repository (session transcript only)
+owner: Project Owner
+history:
+  - 2026-11-12 entry created
+

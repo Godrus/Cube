@@ -243,13 +243,15 @@ impl GeneratedBrick {
         match self.content {
             BrickContent::Empty => CellChange::KnownEmpty,
             BrickContent::Uniform(m) => CellChange::Put(CellPayload::Channels(
-                ChannelSet::new().with(ChannelId::Material, Channel::constant(m)),
+                ChannelSet::new().with(ChannelId::Material, Channel::constant(u32::from(m))),
             )),
             BrickContent::Dense(d) => {
-                let mut ch = Channel::constant(d[0]);
+                // Generator versions produce 16-bit material values (their hashes are pinned);
+                // the channel stores them in the narrowest width that fits (MAT-01).
+                let mut ch = Channel::constant(u32::from(d[0]));
                 for (l, v) in LocalPos::all().zip(d.iter()) {
                     if *v != d[0] {
-                        ch.set(l, *v);
+                        ch.set(l, u32::from(*v));
                     }
                 }
                 ch.compact();

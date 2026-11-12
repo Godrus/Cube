@@ -74,7 +74,9 @@ pub fn world() -> World {
 }
 
 fn material(m: u16) -> CellPayload {
-    CellPayload::Channels(ChannelSet::uniform_material(MaterialIndex::from_raw(m)))
+    CellPayload::Channels(ChannelSet::uniform_material(MaterialIndex::from_raw(
+        u32::from(m),
+    )))
 }
 
 impl World {
@@ -133,8 +135,11 @@ impl World {
 
     /// Writes a brick whose material channel is dense (one voxel differs): about 8 KiB pinned.
     pub fn put_dense(&self, layer: u64, b: BrickCoord, m: u16) -> CommitOutcome {
-        let mut ch = Channel::constant(m);
-        ch.set(LocalPos::new(1, 2, 3).unwrap(), m.wrapping_add(1));
+        let mut ch = Channel::constant(u32::from(m));
+        ch.set(
+            LocalPos::new(1, 2, 3).unwrap(),
+            u32::from(m.wrapping_add(1)),
+        );
         let set = ChannelSet::new().with(ChannelId::Material, ch);
         self.write(layer, b, CellChange::Put(CellPayload::Channels(set)))
     }

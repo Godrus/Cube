@@ -505,7 +505,7 @@ fn every_crash_point_keeps_every_acknowledged_change_and_replay_restores_it() {
             return Err(format!("step {step}: replay failures {:?}", report.failed));
         }
         for i in acked.borrow().iter() {
-            if g.material_in(L_VOXEL, bc(*i as i64, 0, 0)) != Some(*i as u16) {
+            if g.material_in(L_VOXEL, bc(*i as i64, 0, 0)) != Some(*i as u32) {
                 return Err(format!("step {step}: acknowledged operation {i} was lost"));
             }
         }

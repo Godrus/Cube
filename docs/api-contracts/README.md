@@ -18,7 +18,7 @@
 | C-19 Result/Error | stable codes, severity, category, module; one negative test per code | `OperationId` in the error context (attached by the Editing layer) |
 | C-07 BrickKey (PC-1) | `CellKey(layer, level: i8, brick [i64; 3])`, total order | none known |
 | C-08 BrickStorage (PC-1) | sparse store, five distinct cell states, bounds, copy-on-write payloads, export/import views | `AcquirePin`, per-brick export (views are provided instead) |
-| C-09 GeometryChannel (PC-1) | Material, Density, Attribute channels as raw `u16` with Constant/Dense encodings | attribute registry, density quantisation scale |
+| C-09 GeometryChannel (PC-1) | Material, Density, Attribute channels as raw `u32` values (runtime) stored in the narrowest of 8, 16 or 32 bits, with Constant/Dense encodings (DEC-093) | attribute registry, density quantisation scale |
 
 **Authority:** Architecture Update v1.0 (AU-1.0) > Geometry Editing Specification > Agent Development Specification > these contracts (Agent Spec §2).
 **Rule:** contracts are conceptual. They contain **no final language-specific signatures** (language and engine are open).

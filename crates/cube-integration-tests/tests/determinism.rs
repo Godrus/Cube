@@ -306,7 +306,7 @@ fn voxel_in(f: &Fixture, p: [i64; 3]) -> Option<u16> {
     let st = f.reader.snapshot();
     match st.cell(LayerId::new(L_VOXEL), 0, b)?.ok()? {
         cube_core::CellState::Present(pl) => match &*pl {
-            cube_core::CellPayload::Channels(set) => set.material(l).map(|m| m.raw()),
+            cube_core::CellPayload::Channels(set) => set.material(l).map(|m| m.raw() as u16),
             _ => None,
         },
         cube_core::CellState::KnownEmpty => Some(0),

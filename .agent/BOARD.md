@@ -6,7 +6,7 @@
 
 | ID | Задача | Agent | Ветка |
 |---|---|---|---|
-| (нет) | | | |
+| MAT-01 | Адаптивная ширина Material ID (u8/u16/u32 в хранилище канала, u32 в API, палитра до u32), решение владельца 2026-11-12 (DEC-093); код и тесты готовы на ветке, ждёт слияния в dev | claude-2 | `prod/material-width` |
 
 ## Дальше (по приоритету)
 
@@ -15,7 +15,8 @@
 | QA-01 | Посмотреть глазами то, что видели только тесты: полоса XP, клавиши R и G, броня, спуск в камеру руин (генератор v6); прогнать `walk_smoke.py --play --combat` после F-GPL-008; разобрать странную камеру (feet y -36 на старте); сыграть цикл боя человеком и поправить, что неудобно; закрыть критерии первой играбельной версии, которых нет: FPS-14 (посторонний тестер, 20+ минут), FPS-16 (замеры кадра, правки, сохранения, памяти), FPS-17 (что мешает мобильной сборке), см. [`docs/roadmap/PRODUCT-ROADMAP.md`](../docs/roadmap/PRODUCT-ROADMAP.md) | todo | [`docs/archive/handoff/NEXT-EXECUTION.md`](../docs/archive/handoff/NEXT-EXECUTION.md) |
 | GP-01 | Предметы на земле и контейнеры добычи (заменяют правило «потеряно при переполнении»), затем сундук/алтарь в руинах | todo | [`NEXT-EXECUTION.md`](../docs/archive/handoff/NEXT-EXECUTION.md), F-GPL-006 |
 | M1-A1 | Выгрузка изменённых блоков: спайк варианта 2 или 3 в тесте, сначала воспроизвести провал «просто выгрузить» | todo | WORK-PACKAGES, раздел M1-A1 |
-| M1-A3 | Замер стоимости генерации на главном потоке (таблица кадров, debug и release) | todo | WORK-PACKAGES |
+| M1-A3 | Замер стоимости генерации на главном потоке (таблица кадров, debug и release); результат решает границы Brick: вычисляемые соседи или временные Halo (DEC-095) | todo | WORK-PACKAGES, DEC-095 |
+| MAT-02 | Расширить ширину материала в проводных форматах: параметр материала операций правки (voxel, sdf, mesh), страницы мешей, ячейки LOD; сейчас значения выше 65535 дают контролируемую ошибку (DEC-093) | todo | DEC-093, MAT-01 |
 | M1-A4 | `CharacterRecord` отдельно от мира (AI-15) | todo | WORK-PACKAGES |
 | M1-A5 | Полная матрица сбоев хранилища: обрезанный хвост журнала, повреждённые файлы, несовпадение версий, заполненный диск, ошибки прав, одновременные писатели, повторные сбои, миграция | todo | [`docs/api-contracts/PROVISIONAL_CONTRACT_REVIEW.md`](../docs/api-contracts/PROVISIONAL_CONTRACT_REVIEW.md), прежний уровень «M3 и позже» |
 | PRES-01 | Сохранность git (ждёт согласия владельца на push): `spike/p-world` существует только локально (27 коммитов); локальная `dev` на 22 коммита впереди `origin/dev`; локальные ветки `prod/android-build`, `prod/android-spike`, `prod/chamber-guard`, `prod/dungeon-v6`, `prod/ruin-cache`, `prod/touch-controls`, `prod/weapons-craft`, `prod/xp-levels` не на сервере; пометить тегами `archive/<имя>` вершины веток, на которые ссылаются документы (`docs/architecture-roadmap-v1`, `spike/*`) | todo | [`docs/archive/owner-decision-m2t-optimization/DOCUMENTATION_INTEGRATION_PLAN.md`](../docs/archive/owner-decision-m2t-optimization/DOCUMENTATION_INTEGRATION_PLAN.md), замечание I-5 |

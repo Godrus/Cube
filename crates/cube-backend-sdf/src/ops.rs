@@ -150,7 +150,7 @@ impl Default for SdfBackend {
 
 struct Buf {
     dens: Vec<i16>,
-    mat: Vec<u16>,
+    mat: Vec<u32>,
     others: Vec<(ChannelId, Channel)>,
     changed: bool,
 }
@@ -166,10 +166,10 @@ fn load(
         CellState::Present(p) => match &*p {
             CellPayload::Channels(set) => {
                 let mut dens = vec![OUTSIDE; BRICK_VOLUME];
-                let mut mat = vec![0u16; BRICK_VOLUME];
+                let mut mat = vec![0u32; BRICK_VOLUME];
                 if let Some(c) = set.channel(ChannelId::Density) {
                     for l in LocalPos::all() {
-                        dens[idx(l)] = c.get(l) as i16;
+                        dens[idx(l)] = (c.get(l) as u16) as i16;
                     }
                 }
                 if let Some(c) = set.channel(ChannelId::Material) {
@@ -203,7 +203,7 @@ fn load(
     }
 }
 
-fn channel_of(values: &[u16]) -> Channel {
+fn channel_of(values: &[u32]) -> Channel {
     let first = values[0];
     let mut ch = Channel::constant(first);
     for (l, v) in LocalPos::all().zip(values) {
@@ -226,7 +226,7 @@ fn finish(bufs: BTreeMap<BrickCoord, Buf>, level: i8) -> Vec<CellWrite> {
         let change = if all_outside && no_material && b.others.is_empty() {
             CellChange::KnownEmpty
         } else {
-            let raw: Vec<u16> = b.dens.iter().map(|d| *d as u16).collect();
+            let raw: Vec<u32> = b.dens.iter().map(|d| u32::from(*d as u16)).collect();
             let mut set = ChannelSet::new().with(ChannelId::Density, channel_of(&raw));
             if !no_material {
                 set = set.with(ChannelId::Material, channel_of(&b.mat));
@@ -328,8 +328,8 @@ impl GeometryBackend for SdfBackend {
                                         buf.dens[i] = s;
                                         buf.changed = true;
                                     }
-                                    if s < 0 && material != 0 && buf.mat[i] != material {
-                                        buf.mat[i] = material;
+                                    if s < 0 && material != 0 && buf.mat[i] != u32::from(material) {
+                                        buf.mat[i] = u32::from(material);
                                         buf.changed = true;
                                     }
                                 }
@@ -346,8 +346,8 @@ impl GeometryBackend for SdfBackend {
                                     }
                                 }
                                 SdfOp::SetMaterial { material } => {
-                                    if old < 0 && buf.mat[i] != material {
-                                        buf.mat[i] = material;
+                                    if old < 0 && buf.mat[i] != u32::from(material) {
+                                        buf.mat[i] = u32::from(material);
                                         buf.changed = true;
                                     }
                                 }

@@ -103,7 +103,13 @@ impl Provider for LodProvider {
                     if let Some(ch) = set.channel(ChannelId::Material) {
                         for l in LocalPos::all() {
                             mat[usize::from(l.x())
-                                + 16 * (usize::from(l.y()) + 16 * usize::from(l.z()))] = ch.get(l);
+                                + 16 * (usize::from(l.y()) + 16 * usize::from(l.z()))] =
+                                u16::try_from(ch.get(l)).map_err(|_| {
+                                    ProviderFailure::Failed(
+                                        "material index above 65535: LOD cells are 16-bit (MAT-02)"
+                                            .to_owned(),
+                                    )
+                                })?;
                         }
                     }
                     coarsen(&mat)

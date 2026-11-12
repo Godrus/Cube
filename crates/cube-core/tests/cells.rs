@@ -12,19 +12,19 @@ fn lp(r: &mut DetRng) -> LocalPos {
 }
 
 #[test]
-fn channel_behaves_like_a_hash_map_with_a_default() {
+fn channel_behaves_like_a_hash_map_with_a_default_across_all_widths() {
     for_each_seed(21, 300, |seed| {
         let mut r = DetRng::new(seed);
-        let default = r.below(65536) as u16;
+        let default = r.below(70_000) as u32;
         let mut ch = Channel::constant(default);
-        let mut model: HashMap<(u8, u8, u8), u16> = HashMap::new();
+        let mut model: HashMap<(u8, u8, u8), u32> = HashMap::new();
         for _ in 0..r.below(200) {
             let p = lp(&mut r);
             // Often write the default again: such writes must keep the channel observably equal.
             let v = if r.below(3) == 0 {
                 default
             } else {
-                r.below(65536) as u16
+                r.below(70_000) as u32
             };
             ch.set(p, v);
             model.insert((p.x(), p.y(), p.z()), v);
@@ -37,10 +37,10 @@ fn channel_behaves_like_a_hash_map_with_a_default() {
             assert_eq!(ch.get(p), expected);
         }
         // compact() never changes the observable values, and uniform() agrees with the values.
-        let before: Vec<u16> = LocalPos::all().map(|p| ch.get(p)).collect();
+        let before: Vec<u32> = LocalPos::all().map(|p| ch.get(p)).collect();
         let mut compacted = ch.clone();
         compacted.compact();
-        let after: Vec<u16> = LocalPos::all().map(|p| compacted.get(p)).collect();
+        let after: Vec<u32> = LocalPos::all().map(|p| compacted.get(p)).collect();
         assert_eq!(before, after);
         assert_eq!(compacted, ch);
         let all_same = before.iter().all(|v| *v == before[0]);

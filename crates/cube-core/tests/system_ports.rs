@@ -33,7 +33,7 @@ fn host() -> AssetHost {
 }
 fn mat(m: u16) -> CellChange {
     CellChange::Put(CellPayload::Channels(ChannelSet::uniform_material(
-        MaterialIndex::from_raw(m),
+        MaterialIndex::from_raw(u32::from(m)),
     )))
 }
 fn b(x: i64) -> BrickCoord {

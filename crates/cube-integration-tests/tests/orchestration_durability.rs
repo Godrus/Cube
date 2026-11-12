@@ -214,5 +214,5 @@ fn concurrent_transactions_never_lose_an_update_and_notifications_follow_commit_
     // The contested brick holds the value of the LAST committed transaction: no lost update.
     let last = seen.last().unwrap();
     let writer_thread = (last.sequence() / 1000) as u16;
-    assert_eq!(f.material(bc(0, 0, 0)), Some(writer_thread));
+    assert_eq!(f.material(bc(0, 0, 0)), Some(u32::from(writer_thread)));
 }

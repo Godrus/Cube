@@ -320,15 +320,30 @@ fn write_payload(w: &mut W, p: &Option<CellPayload>) {
                 let (t, n) = channel_tag(id);
                 w.u8(t);
                 w.u8(n);
+                // MAT-01: values that fit 16 bits keep the original encodings (1 constant, 0 dense),
+                // so existing files stay byte for byte valid. Wider values use the new
+                // encodings 3 (constant u32) and 2 (dense u32); an older reader rejects them
+                // as an unknown channel encoding, never misreads them.
+                let wide = ch.value_bits() > 16;
                 match ch.uniform() {
+                    Some(u) if wide => {
+                        w.u8(3);
+                        w.u32(u);
+                    }
                     Some(u) => {
                         w.u8(1);
-                        w.u16(u);
+                        w.u16(u as u16);
+                    }
+                    None if wide => {
+                        w.u8(2);
+                        for p in LocalPos::all() {
+                            w.u32(ch.get(p));
+                        }
                     }
                     None => {
                         w.u8(0);
                         for p in LocalPos::all() {
-                            w.u16(ch.get(p));
+                            w.u16(ch.get(p) as u16);
                         }
                     }
                 }
@@ -461,10 +476,26 @@ fn read_channel(r: &mut R<'_>) -> Result<(ChannelId, Channel), DecodeError> {
         _ => return Err(DecodeError::Invalid("channel id")),
     };
     let ch = match r.u8()? {
-        1 => Channel::constant(r.u16()?),
+        1 => Channel::constant(u32::from(r.u16()?)),
         0 => {
             let raw = r.take(2 * cube_core::BRICK_VOLUME)?;
-            let val = |i: usize| u16::from_le_bytes([raw[2 * i], raw[2 * i + 1]]);
+            let val = |i: usize| u32::from(u16::from_le_bytes([raw[2 * i], raw[2 * i + 1]]));
+            let mut ch = Channel::constant(val(0));
+            for (i, p) in LocalPos::all().enumerate() {
+                if val(i) != val(0) {
+                    ch.set(p, val(i));
+                }
+            }
+            ch.compact();
+            ch
+        }
+        // MAT-01: wide encodings (values above 0xFFFF).
+        3 => Channel::constant(r.u32()?),
+        2 => {
+            let raw = r.take(4 * cube_core::BRICK_VOLUME)?;
+            let val = |i: usize| {
+                u32::from_le_bytes([raw[4 * i], raw[4 * i + 1], raw[4 * i + 2], raw[4 * i + 3]])
+            };
             let mut ch = Channel::constant(val(0));
             for (i, p) in LocalPos::all().enumerate() {
                 if val(i) != val(0) {
@@ -897,6 +928,59 @@ mod tests {
         let e = entry();
         let b = encode_journal_entry(&e);
         assert_eq!(decode_journal_entry(&b, &Limits::default()), Ok(e));
+    }
+
+    /// `view()` with the first cell's material channel replaced.
+    fn view_with_material(mat: Channel) -> AssetView {
+        let mut v = view();
+        let set = ChannelSet::new()
+            .with(ChannelId::Material, mat)
+            .with(ChannelId::Density, Channel::constant(65000));
+        v.layers[0].cells[0].payload = Some(CellPayload::Channels(set));
+        v
+    }
+
+    #[test]
+    fn wide_material_values_round_trip_and_narrow_values_keep_the_old_encoding() {
+        // MAT-01: values above 0xFFFF use the new encodings 3 (constant) and 2 (dense).
+        let wide_const = view_with_material(Channel::constant(70_000));
+        let mut dense = Channel::constant(3);
+        dense.set(LocalPos::new(1, 2, 3).unwrap(), 4_000_000_000);
+        dense.set(LocalPos::new(0, 0, 1).unwrap(), 300);
+        let wide_dense = view_with_material(dense);
+        for v in [wide_const, wide_dense] {
+            let bytes = encode_asset(&v);
+            assert_eq!(decode_asset(&bytes, &Limits::default()), Ok(v));
+        }
+        // A channel that fits 16 bits is stored exactly as before MAT-01: the encoding does not
+        // depend on the in-memory width, so a dense channel of small values has the same bytes
+        // whether it was built narrow or widened and compacted.
+        let mut narrow = Channel::constant(3);
+        narrow.set(LocalPos::new(1, 2, 3).unwrap(), 9);
+        let mut widened = Channel::constant(3);
+        widened.set(LocalPos::new(1, 2, 3).unwrap(), 70_000);
+        widened.set(LocalPos::new(1, 2, 3).unwrap(), 9);
+        assert_ne!(narrow.storage_bits(), widened.storage_bits());
+        assert_eq!(
+            encode_asset(&view_with_material(narrow)),
+            encode_asset(&view_with_material(widened)),
+            "equal values encode equally whatever the storage width"
+        );
+        // 65_535 still uses the old 16-bit constant encoding (tag 1, two bytes), 65_536 the new one.
+        let small = encode_asset(&view_with_material(Channel::constant(65_535)));
+        let large = encode_asset(&view_with_material(Channel::constant(65_536)));
+        assert_eq!(large.len(), small.len() + 2);
+    }
+
+    #[test]
+    fn an_unknown_channel_encoding_is_a_controlled_error() {
+        // What an older reader sees of a future encoding: an error, never a misread. Tags 0..=3
+        // are known; 7 is not.
+        let mut r = R(&[1, 0, 7]);
+        assert_eq!(
+            read_channel(&mut r),
+            Err(DecodeError::Invalid("channel encoding"))
+        );
     }
 
     #[test]

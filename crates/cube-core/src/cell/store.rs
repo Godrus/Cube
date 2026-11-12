@@ -244,7 +244,9 @@ mod tests {
         BrickCoord::new(x, y, z)
     }
     fn payload(m: u16) -> CellPayload {
-        CellPayload::Channels(ChannelSet::uniform_material(MaterialIndex::from_raw(m)))
+        CellPayload::Channels(ChannelSet::uniform_material(MaterialIndex::from_raw(
+            u32::from(m),
+        )))
     }
 
     #[test]

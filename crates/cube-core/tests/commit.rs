@@ -45,7 +45,9 @@ fn host() -> AssetHost {
 }
 
 fn mat(m: u16) -> CellPayload {
-    CellPayload::Channels(ChannelSet::uniform_material(MaterialIndex::from_raw(m)))
+    CellPayload::Channels(ChannelSet::uniform_material(MaterialIndex::from_raw(
+        u32::from(m),
+    )))
 }
 fn b(x: i64, y: i64, z: i64) -> BrickCoord {
     BrickCoord::new(x, y, z)

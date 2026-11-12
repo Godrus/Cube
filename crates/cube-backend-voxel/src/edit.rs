@@ -40,7 +40,7 @@ fn invalid(why: &'static str) -> EditingError {
 }
 
 struct Buf {
-    mat: Vec<u16>,
+    mat: Vec<u32>,
     known: bool,
     others: Vec<(ChannelId, Channel)>,
     written: Vec<u64>,
@@ -79,7 +79,7 @@ impl<'a> Editor<'a> {
         let buf = match state {
             CellState::Present(p) => match &*p {
                 CellPayload::Channels(set) => {
-                    let mut mat = vec![0u16; BRICK_VOLUME];
+                    let mut mat = vec![0u32; BRICK_VOLUME];
                     if let Some(ch) = set.channel(ChannelId::Material) {
                         for l in LocalPos::all() {
                             mat[idx(l)] = ch.get(l);
@@ -104,7 +104,7 @@ impl<'a> Editor<'a> {
     }
 
     /// The material of a voxel. An unloaded brick has no known content: reading it is an error.
-    pub(crate) fn get(&mut self, p: VoxelPos) -> Result<u16, EditingError> {
+    pub(crate) fn get(&mut self, p: VoxelPos) -> Result<u32, EditingError> {
         let (b, l) = p.split();
         self.load(b)?;
         let buf = &self.bufs[&b];
@@ -114,7 +114,7 @@ impl<'a> Editor<'a> {
         Ok(buf.mat[idx(l)])
     }
 
-    pub(crate) fn set(&mut self, p: VoxelPos, m: u16) -> Result<(), EditingError> {
+    pub(crate) fn set(&mut self, p: VoxelPos, m: u32) -> Result<(), EditingError> {
         let (b, l) = p.split();
         self.load(b)?;
         let buf = self.bufs.get_mut(&b).expect("loaded");
@@ -135,7 +135,7 @@ impl<'a> Editor<'a> {
         min: VoxelPos,
         max: VoxelPos,
         needs_current: bool,
-        f: &dyn Fn(u16) -> Option<u16>,
+        f: &dyn Fn(u32) -> Option<u32>,
     ) -> Result<(), EditingError> {
         let region =
             cube_core::Region::new(self.level, min, max).map_err(|_| invalid("invalid box"))?;
@@ -221,7 +221,7 @@ impl<'a> Editor<'a> {
 }
 
 impl Buf {
-    fn new(mat: Vec<u16>, known: bool, others: Vec<(ChannelId, Channel)>) -> Self {
+    fn new(mat: Vec<u32>, known: bool, others: Vec<(ChannelId, Channel)>) -> Self {
         Self {
             mat,
             known,

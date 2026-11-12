@@ -98,7 +98,8 @@ fn cell_at(f: &Fixture, p: [i64; 3]) -> Option<(i16, u16)> {
             CellPayload::Channels(set) => Some((
                 set.channel(ChannelId::Density)
                     .map_or(i16::MAX, |c| c.get(l) as i16),
-                set.channel(ChannelId::Material).map_or(0, |c| c.get(l)),
+                set.channel(ChannelId::Material)
+                    .map_or(0, |c| c.get(l) as u16),
             )),
             _ => None,
         },

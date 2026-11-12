@@ -31,7 +31,7 @@ fn host() -> AssetHost {
 }
 fn mat(m: u16) -> CellChange {
     CellChange::Put(CellPayload::Channels(ChannelSet::uniform_material(
-        MaterialIndex::from_raw(m),
+        MaterialIndex::from_raw(u32::from(m)),
     )))
 }
 fn put(
@@ -157,6 +157,46 @@ fn hash_ignores_revision_history_and_channel_encoding() {
     };
     assert!(dense.is_dense());
     assert_eq!(hash_of(dense), hash_of(Channel::constant(7)));
+}
+
+#[test]
+fn wide_material_values_hash_apart_and_narrow_hashes_do_not_depend_on_storage_width() {
+    // MAT-01: a channel with a value above 0xFFFF hashes its values as u32 under a marked tag, so
+    // it can never collide with the truncated narrow channel; narrow channels hash exactly as
+    // before, whatever width they are stored in.
+    let hash_of = |ch: Channel| {
+        let h = host();
+        let r = h.reader();
+        let u = h.into_handles().user;
+        let set = ChannelSet::new().with(ChannelId::Material, ch);
+        u.commit(
+            op(1),
+            &put(
+                1,
+                0,
+                0,
+                ExpectedRevision::Absent,
+                CellChange::Put(CellPayload::Channels(set)),
+            ),
+        )
+        .unwrap();
+        r.snapshot().export_view().content_hash()
+    };
+    let wide = Channel::constant(70_000);
+    let truncated = Channel::constant(70_000 & 0xFFFF);
+    assert_ne!(hash_of(wide), hash_of(truncated), "no truncation collision");
+    assert_ne!(
+        hash_of(Channel::constant(65_535)),
+        hash_of(Channel::constant(65_536))
+    );
+    // Equal narrow values stored in different widths hash equally.
+    let mut stored_wide = Channel::constant(1);
+    stored_wide.set(LocalPos::new(2, 2, 2).unwrap(), 70_000);
+    stored_wide.set(LocalPos::new(2, 2, 2).unwrap(), 2);
+    let mut stored_narrow = Channel::constant(1);
+    stored_narrow.set(LocalPos::new(2, 2, 2).unwrap(), 2);
+    assert_ne!(stored_wide.storage_bits(), stored_narrow.storage_bits());
+    assert_eq!(hash_of(stored_wide), hash_of(stored_narrow));
 }
 
 #[test]

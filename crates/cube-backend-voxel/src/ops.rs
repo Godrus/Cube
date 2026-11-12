@@ -190,15 +190,19 @@ impl GeometryBackend for VoxelBackend {
                     material,
                     only_where,
                 } => match only_where {
-                    None => ed.apply_box(min, max, false, &|_| Some(material))?,
-                    Some(w) => ed.apply_box(min, max, true, &|c| (c == w).then_some(material))?,
+                    None => ed.apply_box(min, max, false, &|_| Some(u32::from(material)))?,
+                    Some(w) => ed.apply_box(min, max, true, &|c| {
+                        (c == u32::from(w)).then_some(u32::from(material))
+                    })?,
                 },
                 VoxelOp::Add { material } => {
-                    ed.apply_box(min, max, true, &|c| (c == 0).then_some(material))?;
+                    ed.apply_box(min, max, true, &|c| (c == 0).then_some(u32::from(material)))?;
                 }
                 VoxelOp::Remove { only_where } => match only_where {
                     None => ed.apply_box(min, max, false, &|_| Some(0))?,
-                    Some(w) => ed.apply_box(min, max, true, &|c| (c == w).then_some(0))?,
+                    Some(w) => {
+                        ed.apply_box(min, max, true, &|c| (c == u32::from(w)).then_some(0))?
+                    }
                 },
                 VoxelOp::Transform {
                     dest,
