@@ -8,7 +8,7 @@
 |---|---|---|---|---|
 | **M1-A2** | Inventory and world reconciliation | `game.state` and the journal were two stores | write-ahead intent in `game.state`; at open settle against the journal; Rust tests crash between each write pair (`crates/cube-app/tests/reconcile.rs`) | **TESTED** on branch `prod/m1-reconcile` (integrated, see [`.agent/LOG.md`](../../.agent/LOG.md) and git) |
 | **M1-A1** | Unload edited bricks and bring them back | `evict_far` never unloads bricks in `Streamed.edited` (pinned) | build over many bricks, walk away, resident memory bounded, come back and restart: identical content; edit journal and snapshots intact | NOT_STARTED, design below |
-| **M1-A3** | Measure generation cost on the main thread | `ensure_loaded` generates up to 48 bricks per frame in the frame call | a measured frame-time table (debug and release) under heavier worlds; only if it exceeds a budget, move generation to a worker with version checks, determinism and budgets | NOT_STARTED |
+| **M1-A3** | Measure generation cost on the main thread | `ensure_loaded` generates up to 48 bricks per frame in the frame call | a measured frame-time table (debug and release) under heavier worlds; only if it exceeds a budget, move generation to a worker with version checks, determinism and budgets | MEASURED 2026-11-12: the budget is exceeded, see the M1-A3 measurement below; follow-ups M1-A3b, M1-A3c |
 | **M1-A4** | Character data ready for a server | player and game state are client files | an engine-neutral `CharacterRecord` with a stable text/binary form separate from the world (AI-15) | NOT_STARTED |
 
 ### M1-A1 design notes (so nobody rediscovers the trap)
@@ -20,6 +20,35 @@ Why edited bricks are pinned: the journal records `expected` revisions of the ce
 3. **Fold edits into a snapshot** (compaction exists and is crash-tested) and reload bricks from that snapshot by key. Needs per-brick loads from the snapshot (the store loads whole worlds today).
 
 Recommended first step: a short spike on option 2 or 3 in a test only (no API change) to see if replay-from-seed-plus-journal equals the world after eviction cycles, with the failing case (option "just evict") reproduced first as a test. Do not change the replay semantics (`replay_confirmed`) or the journal format without the persistence owner path; both are experimental until GOV-10.
+
+### M1-A3 measurement (2026-11-12, claude-2)
+
+Method: `cargo run -p cube-app --example gen_cost [--release] [-- quick]` drives `LocalHost::ensure_loaded` the way a walking player does in `Session::frame`: seed 7, the centre moves one brick per step for 40 steps (a new border every frame, the worst case), at most 48 bricks per call (`StreamBudget::default`), call time = streaming cost of that frame. Load radius = view radius + 1 (margin). The machine is one Windows desktop; mobile ARM will be slower, not faster. Working budget for streaming (an engineering value, not an owner decision): at most **4 ms** of a 16.7 ms frame at 60 FPS.
+
+Release, per call (ms) and per brick (microseconds):
+
+| gen | view radius | region bricks | first region ms | call ms mean | call ms p95 | call ms max | us per brick |
+|---|---|---|---|---|---|---|---|
+| v1 | 1 | 125 | 3.4 | 1.84 | 3.30 | 4.15 | 60 |
+| v1 | 3 | 729 | 26.7 | 4.01 | 7.26 | 8.95 | 101 |
+| v1 | 8 | 6859 | 760.6 | 22.04 | 35.50 | 40.39 | 484 |
+| v6 (default) | 1 | 125 | 33.5 | 9.37 | 11.77 | 22.36 | 324 |
+| v6 (default) | 2 | 343 | 110.7 | 10.05 | 21.36 | 26.60 | 356 |
+| v6 (default) | 3 | 729 | 228.7 | 15.07 | 22.95 | 24.61 | 371 |
+| v6 (default) | 5 | 2197 | 591.9 | 18.76 | 28.97 | 31.78 | 436 |
+| v6 (default) | 8 | 6859 | 1948.1 | 29.25 | 46.83 | 55.43 | 644 |
+
+Versions v3 to v6 cost the same within 3 percent (v3 added caves and ores; v4 to v6 add content that is cheap to generate). Debug, view radii 1, 2, 3: v1 434 to 687 us per brick, call mean 13 to 27 ms; v6 about 3.3 to 3.5 ms per brick, call mean 94 to 143 ms, first region 0.3 to 2.3 s. Debug is for development only.
+
+Findings:
+
+1. **The budget is exceeded.** The default generator (v6) costs about 0.32 to 0.37 ms per brick in release; a full call of 48 bricks is 9 to 15 ms at the device-class radii 1 to 3 (p95 up to 23 ms, max up to 27 ms), that is 2 to 6 times the 4 ms working budget and more than a whole 16.7 ms frame at radius 3. Radii 5 and 8 are worse (per-call scan of the whole cube adds to it: 436 and 644 us per brick).
+2. **The hitch is real but only at borders.** The worst case moves a brick every frame, which no walking speed does (a sprint is about one brick per second). In practice each border crossing generates a slab of 25 to 81 bricks (radius 1 to 3), that is two frames of 9 to 15 ms about every second or two of walking: a visible hitch, not a steady load.
+3. **The first region blocks.** Radius 3: 229 ms (v6); radius 8: 1.9 s. Acceptable behind a loading screen on desktop, to be re-measured on a phone (AND-01).
+4. **Per brick, v6 is 3.5 times v1.** The cost is generation plus materialisation into Core through the system-commit port; the split between the two was not measured.
+5. This measurement covers generation only. The question of DEC-095 (computed neighbours or halo cells) concerns meshing and is not answered by it: see M1-A3b.
+
+Decision per the work package: the budget is exceeded, so generation must not stay unbounded on the main thread. Cheapest first (M1-A3c): a time-sliced per-frame budget (stop when about 4 ms are spent, a few bricks per call, the rest next frame); a worker thread (with version checks, determinism and budgets) only if time slicing still shows pop-in in a playtest (QA-01).
 
 ## Epic E-CMB: basic combat (M2)
 
