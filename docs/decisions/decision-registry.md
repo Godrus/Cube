@@ -2199,3 +2199,97 @@ owner: Project Owner
 history:
   - 2026-11-12 entry created
 
+
+## DEC-096  Foundation decisions of the 2026-11-02 afternoon confirmed (group A)
+id: DEC-096
+aliases: [AU-1.0 sections 3, 4.2, 21; ledger #72, #74, #78, #26, #21, #85, #24]
+category: ARCHITECTURE
+level: TECHNICAL
+status: CONFIRMED
+statement: >
+  The owner confirms, as written in the architecture update document, seven decisions already working in code: one-directional dependencies between layers (enforced by archcheck), Brick dimension 16^3, integer plus float coordinate precision, adaptive Dense/Sparse/Constant channel storage, materials through a palette (global library, asset palette, layer mapping), attribute channels, and the typed attribute registry direction. These were taken on 2026-11-02 mostly by accepting the assistant's recommendation; the owner reviewed them on 2026-11-12 and keeps them.
+not_decided:
+  - Brick 16^3 stays unproven by a device benchmark (PC-1, RG-1)
+  - exact field layouts and the attribute registry details
+decided_by: OWNER
+decided_on: 2026-11-12
+decided_on_basis: the owner's answer in chat, 2026-11-12 (decision review after the export audit)
+recorded_on: 2026-11-12 (this registry)
+confirmed_on: 2026-11-12
+confirmation_evidence: E-CHAT (explicit owner choice in chat; permitted source under DEC-002)
+source: OWNER-CHAT-2026-11-12; ChatGPT account export, 2026-11-02 14:06-15:19 (original choices, see decision ledger)
+source_availability: UNAVAILABLE in repository (session transcript only)
+owner: Project Owner
+history:
+  - 2026-11-12 entry created
+
+## DEC-097  SDF and mesh backends kept as they are, not developed before the first playable version
+id: DEC-097
+aliases: [AU-1.0 section 21 (Surface Nets for SDF); ledger #35; BOARD tension H-5]
+category: ARCHITECTURE
+level: TECHNICAL
+status: CONFIRMED
+statement: >
+  The SDF backend with Surface Nets and the mesh backend stay in the product as tested engine code and are not extended, not shown to the player and not part of any plan until the first playable version is done. This follows the visual direction of 2026-11-11 (stylised cubic world). Sculpt and boolean tools (F-TLS-001, F-TLS-002) stay NOT_STARTED.
+not_decided:
+  - whether SDF or mesh become player tools (milestone M5 or later)
+  - removing the code (not decided; it stays)
+refines: [DEC-013]
+decided_by: OWNER
+decided_on: 2026-11-12
+decided_on_basis: the owner's answer in chat, 2026-11-12 (decision review after the export audit)
+recorded_on: 2026-11-12 (this registry)
+confirmed_on: 2026-11-12
+confirmation_evidence: E-CHAT (explicit owner choice in chat; permitted source under DEC-002)
+source: OWNER-CHAT-2026-11-12; ChatGPT account export, 2026-11-02 14:06-15:19 (original choices, see decision ledger)
+source_availability: UNAVAILABLE in repository (session transcript only)
+owner: Project Owner
+history:
+  - 2026-11-12 entry created
+
+## DEC-098  Composite geometry and local resolution refinement frozen until M5
+id: DEC-098
+aliases: [AU-1.0 sections 5, 6, 21; ledger #87, #58]
+category: ARCHITECTURE
+level: TECHNICAL
+status: DEFERRED
+statement: >
+  Composite geometry (hierarchy plus assembly graph) and local resolution refinement (micro-voxel detail inside a block) stay as architecture direction only. No work now. F-CMP-001 and F-RES-002 stay NOT_STARTED.
+not_decided:
+  - the shape of the assembly graph and of refinement regions
+  - priority inside M5
+trigger: the first playable version is done and milestone M5 starts, or an explicit owner request
+decided_by: OWNER
+decided_on: 2026-11-12
+decided_on_basis: the owner's answer in chat, 2026-11-12 (decision review after the export audit)
+recorded_on: 2026-11-12 (this registry)
+confirmed_on: 2026-11-12
+confirmation_evidence: E-CHAT (explicit owner choice in chat; permitted source under DEC-002)
+source: OWNER-CHAT-2026-11-12; ChatGPT account export, 2026-11-02 14:06-15:19 (original choices, see decision ledger)
+source_availability: UNAVAILABLE in repository (session transcript only)
+owner: Project Owner
+history:
+  - 2026-11-12 entry created
+
+## DEC-099  History and persistence hybrids confirmed; undo and redo when needed
+id: DEC-099
+aliases: [AU-1.0 sections 7, 21; ledger #61, #63]
+category: ARCHITECTURE
+level: TECHNICAL
+status: CONFIRMED
+statement: >
+  The owner confirms the history architecture (commands plus deltas plus snapshots) and the persistence architecture (manifest plus chunked storage plus deltas plus snapshots). The journal, manifest and verified snapshot store already work. Undo and redo (F-HST-001) are built when player building or editing needs them, not before.
+not_decided:
+  - the final save format (F-PER-006 stays proposed)
+  - when undo and redo start
+decided_by: OWNER
+decided_on: 2026-11-12
+decided_on_basis: the owner's answer in chat, 2026-11-12 (decision review after the export audit)
+recorded_on: 2026-11-12 (this registry)
+confirmed_on: 2026-11-12
+confirmation_evidence: E-CHAT (explicit owner choice in chat; permitted source under DEC-002)
+source: OWNER-CHAT-2026-11-12; ChatGPT account export, 2026-11-02 14:06-15:19 (original choices, see decision ledger)
+source_availability: UNAVAILABLE in repository (session transcript only)
+owner: Project Owner
+history:
+  - 2026-11-12 entry created
