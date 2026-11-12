@@ -2293,3 +2293,71 @@ source_availability: UNAVAILABLE in repository (session transcript only)
 owner: Project Owner
 history:
   - 2026-11-12 entry created
+
+## DEC-100  Editing model: destructive now, non-destructive and bake deferred to M5
+id: DEC-100
+aliases: [AU-1.0 section 21 (Hybrid Editing); ledger #56]
+category: ARCHITECTURE
+level: TECHNICAL
+status: DEFERRED
+statement: >
+  Direct (destructive) editing through the Editing API stays the only editing model. The non-destructive modifier chain and the bake step stay architecture direction and are frozen until milestone M5.
+not_decided:
+  - modifier chain design
+  - bake rules
+trigger: milestone M5 starts, or an explicit owner request
+decided_by: OWNER
+decided_on: 2026-11-12
+decided_on_basis: the owner's answer in chat, 2026-11-12 (decision review after the export audit)
+recorded_on: 2026-11-12 (this registry)
+confirmed_on: 2026-11-12
+confirmation_evidence: E-CHAT (explicit owner choice in chat; permitted source under DEC-002)
+source: OWNER-CHAT-2026-11-12; ChatGPT account export, 2026-11-02 (original choices, see decision ledger)
+source_availability: UNAVAILABLE in repository (session transcript only)
+owner: Project Owner
+history:
+  - 2026-11-12 entry created
+
+## DEC-101  Priority job scheduling and strict public Geometry API confirmed
+id: DEC-101
+aliases: [AU-1.0 sections 12, 13; ledger #32, #46]
+category: ARCHITECTURE
+level: TECHNICAL
+status: CONFIRMED
+statement: >
+  The owner confirms the priority scheduler for background geometry jobs and the strict public Geometry API with controlled access for trusted backends. Both are implemented and everything above them is built on them.
+not_decided:
+  - numeric scheduling budgets (set on target devices)
+decided_by: OWNER
+decided_on: 2026-11-12
+decided_on_basis: the owner's answer in chat, 2026-11-12 (decision review after the export audit)
+recorded_on: 2026-11-12 (this registry)
+confirmed_on: 2026-11-12
+confirmation_evidence: E-CHAT (explicit owner choice in chat; permitted source under DEC-002)
+source: OWNER-CHAT-2026-11-12; ChatGPT account export, 2026-11-02 (original choices, see decision ledger)
+source_availability: UNAVAILABLE in repository (session transcript only)
+owner: Project Owner
+history:
+  - 2026-11-12 entry created
+
+## DEC-102  Error architecture and layered test architecture confirmed
+id: DEC-102
+aliases: [AU-1.0 sections 14, 21; ledger #47, #67]
+category: ARCHITECTURE
+level: TECHNICAL
+status: CONFIRMED
+statement: >
+  The owner confirms typed errors with stable codes and no exceptions for expected cases, and the layered test architecture (contract, property, golden, loom and integration tests). Both are in place; the test process stays as it is.
+not_decided:
+  - none beyond the existing open items of the architecture update document
+decided_by: OWNER
+decided_on: 2026-11-12
+decided_on_basis: the owner's answer in chat, 2026-11-12 (decision review after the export audit)
+recorded_on: 2026-11-12 (this registry)
+confirmed_on: 2026-11-12
+confirmation_evidence: E-CHAT (explicit owner choice in chat; permitted source under DEC-002)
+source: OWNER-CHAT-2026-11-12; ChatGPT account export, 2026-11-02 (original choices, see decision ledger)
+source_availability: UNAVAILABLE in repository (session transcript only)
+owner: Project Owner
+history:
+  - 2026-11-12 entry created
