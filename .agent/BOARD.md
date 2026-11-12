@@ -19,7 +19,7 @@
 | MAT-02 | Расширить ширину материала в проводных форматах: параметр материала операций правки (voxel, sdf, mesh), страницы мешей, ячейки LOD; сейчас значения выше 65535 дают контролируемую ошибку (DEC-093) | todo | DEC-093, MAT-01 |
 | M1-A4 | `CharacterRecord` отдельно от мира (AI-15) | todo | WORK-PACKAGES |
 | M1-A5 | Полная матрица сбоев хранилища: обрезанный хвост журнала, повреждённые файлы, несовпадение версий, заполненный диск, ошибки прав, одновременные писатели, повторные сбои, миграция | todo | [`docs/api-contracts/PROVISIONAL_CONTRACT_REVIEW.md`](../docs/api-contracts/PROVISIONAL_CONTRACT_REVIEW.md), прежний уровень «M3 и позже» |
-| PRES-01 | Сохранность git (ждёт согласия владельца на push): `spike/p-world` существует только локально (27 коммитов); локальная `dev` на 22 коммита впереди `origin/dev`; локальные ветки `prod/android-build`, `prod/android-spike`, `prod/chamber-guard`, `prod/dungeon-v6`, `prod/ruin-cache`, `prod/touch-controls`, `prod/weapons-craft`, `prod/xp-levels` не на сервере; пометить тегами `archive/<имя>` вершины веток, на которые ссылаются документы (`docs/architecture-roadmap-v1`, `spike/*`) | todo | [`docs/archive/owner-decision-m2t-optimization/DOCUMENTATION_INTEGRATION_PLAN.md`](../docs/archive/owner-decision-m2t-optimization/DOCUMENTATION_INTEGRATION_PLAN.md), замечание I-5 |
+| PRES-01 | Сохранность git (ждёт согласия владельца на push): `spike/p-world` существует только локально (27 коммитов); локальная `dev` впереди `origin/dev` (проверять `git rev-list --left-right --count origin/dev...dev`); локальные ветки `prod/android-build`, `prod/android-spike`, `prod/chamber-guard`, `prod/dungeon-v6`, `prod/ruin-cache`, `prod/touch-controls`, `prod/weapons-craft`, `prod/xp-levels` не на сервере; пометить тегами `archive/<имя>` вершины веток, на которые ссылаются документы (`docs/architecture-roadmap-v1`, `spike/*`) | todo | [`docs/archive/owner-decision-m2t-optimization/DOCUMENTATION_INTEGRATION_PLAN.md`](../docs/archive/owner-decision-m2t-optimization/DOCUMENTATION_INTEGRATION_PLAN.md), замечание I-5 |
 | DOC-05 | Расширить `cargo xtask docscheck`: все id решений (DEC, AOD, OAM) в документах существуют в реестре; контракт со зрелостью Frozen обязан быть Owner-Approved; запись CONFIRMED содержит доказательство; запрет повторного использования id | todo | [`docs/archive/audit/Independent-Production-Audit.md`](../docs/archive/audit/Independent-Production-Audit.md) D-04, [`docs/archive/owner-decision-m2t-optimization/OWNER_CONFIRMATION_PROTOCOL.md`](../docs/archive/owner-decision-m2t-optimization/OWNER_CONFIRMATION_PROTOCOL.md) раздел 6 |
 | PROV-01 | Проверить условия истечения временных контрактов TC-01..TC-11 (например TC-08 истекает при приёмке M2, TC-05 при втором провайдере или проверке на устройстве, TC-09 при игровых правилах M3 или мультиплеере) и вынести результат владельцу | todo | [`docs/api-contracts/M2_MINIMUM_CONTRACTS.md`](../docs/api-contracts/M2_MINIMUM_CONTRACTS.md) |
 
@@ -56,13 +56,17 @@
 | ID | Что | Коммит |
 |---|---|---|
 | MAT-01 | Адаптивная ширина Material ID (u32 в API, 8/16/32 бит в хранилище, старые файлы и хэши узких каналов не меняются), DEC-093..095 | `ce514aa` |
+| DOC-03..06 | Дочитан весь архив и перенесено важное (контракты TC, критерии FPS, срез, путь к мультиплееру, реестры), документы связаны ссылками, `docscheck` следит за графом | `27c41ee` и предыдущие коммиты с DOC- в сообщении |
+| DEC-REVIEW-1/2 | Обзор решений владельца от 2026-11-02, DEC-096..102 | `ad6fc6c`, `478738e` |
 | DOC-02 | Архив `docs/archive/`, перенос данных в BOARD и `NEW-CHAT-START`, `cargo xtask docscheck` в CI | коммит с DOC-02 в сообщении |
 | DOC-01 | Схема документации для агентов, `cargo xtask say/chat` | `c4744ed` |
 | F-GPL-008 | Бонус атаки по уровню (+1 за 4 уровня), железная броня (второй рецепт) | `3c8f1f5` |
 | CLI-TOUCH | Сенсорное управление для телефонов | `28330ad` |
 | AND-EMU | Запуск в эмуляторе Android (x86_64, Vulkan mobile) | `d9cacbb` |
 
-Работы без плана (телеметрия и краш-отчёты, юридическое и магазины, локализация, античит, онлайн-сервисы) описаны в конце [`docs/roadmap/PRODUCT-ROADMAP.md`](../docs/roadmap/PRODUCT-ROADMAP.md): нужны владелец и план до Closed Alpha. ## Упрощения прототипа (каждое с условием замены)
+Работы без плана (телеметрия и краш-отчёты, юридическое и магазины, локализация, античит, онлайн-сервисы) описаны в конце [`docs/roadmap/PRODUCT-ROADMAP.md`](../docs/roadmap/PRODUCT-ROADMAP.md): нужны владелец и план до Closed Alpha.
+
+## Упрощения прототипа (каждое с условием замены)
 
 | Что упрощено | Нельзя ломать | Заменить когда |
 |---|---|---|
