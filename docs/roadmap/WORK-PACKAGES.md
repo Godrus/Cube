@@ -61,6 +61,23 @@ Decision per the work package: the budget is exceeded, so generation must not st
 
 Frames over the frame budget fell from 36 to 9 of 1800 and the worst frame from 38 to 22 ms; the mean is the same and p95 rises because the same work is spread over more frames. The 9 remaining slow frames are not generation (one chunk is about 3 ms): the next suspects are the client's derived geometry after a region move and `evict_far`; profile them in M1-A3d before any worker thread. Residency is trimmed only when the region moves, so a device that cannot keep up lets the resident set grow until it catches up (pre-existing, now reachable): watch `resident` in QA-01. Tests that simulate fast flight with long simulated frames turn slicing off (`load_time_us: 0`).
 
+### M1-A3b result (2026-11-13, claude-2)
+
+`cargo run -p cube-app --example mesh_cost --release` meshes every present brick of a generated region (generator v6, seed 7, view radius 3: 240 present bricks of 343) two ways and checks that both give the same faces: the current faces provider, which reads the neighbours voxel by voxel through the snapshot (computed on demand), and a temporary halo (one pass over the 27 bricks copies the 18x18x18 voxels around the brick into an array, then the faces come from the array). Release, median of five passes, microseconds per brick:
+
+| step | us per brick |
+|---|---|
+| snapshot capture (same for both) | 5.0 |
+| on demand: provider compute | 296.8 |
+| halo: copy 18^3 voxels | 8.8 |
+| halo: faces from the array | 9.2 |
+| halo total | 17.9 |
+| on demand / halo | 16.5x |
+
+About 240 faces per brick. The on-demand cost is 5832 snapshot lookups per brick (72 us for the lookups alone) plus six neighbour lookups per solid voxel; the halo reads each neighbour brick once. The halo here is temporary (a local array that lives for one compute), not stored ghost cells: it needs no format change and no extra memory beyond 11.4 KiB per compute.
+
+What this means for DEC-095 (the owner chose computed neighbours on 2026-11-02, against the assistant's recommendation of temporary halo cells, and deferred the final choice to this measurement): the measured gap is 16 times, and it comes from the per-voxel reads, so the current provider is the slow path. If neighbours stay computed on demand, the cheap way to do it is a halo. Waiting for the owner: keep the current provider, or switch the faces provider (and later the greedy and SDF meshers) to the temporary halo (task M1-A3e). Meshing is not yet shown to be the cause of the remaining slow frames: see M1-A3d.
+
 ## Epic E-CMB: basic combat (M2)
 
 Goal: one scripted loop. See an enemy, it chases and attacks, the player attacks it, Rust computes damage, it dies, loot enters the inventory, the state is saved, the loop repeats. Out of scope: classes, skills, balance, networking (shape only), art.

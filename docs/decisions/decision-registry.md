@@ -2198,6 +2198,7 @@ source_availability: UNAVAILABLE in repository (session transcript only)
 owner: Project Owner
 history:
   - 2026-11-12 entry created
+  - 2026-11-13 measurement M1-A3b (WORK-PACKAGES): temporary halo 17.9 us per brick against 296.8 us for per-voxel neighbour reads, 16.5 times faster, same faces; the choice stays with the owner
 
 
 ## DEC-096  Foundation decisions of the 2026-11-02 afternoon confirmed (group A)
