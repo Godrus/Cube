@@ -5,7 +5,7 @@ Cube: кроссплатформенная воксельная open-world actio
 ## Старт (около 100 строк, по порядку)
 
 1. [`.agent/BOARD.md`](.agent/BOARD.md): что в работе, что дальше, что ждёт владельца.
-2. `cargo xtask chat`: последние 20 сообщений других агентов.
+2. Зарегистрироваться: `cargo xtask join --tool <claude|cursor|codex|chatgpt> --model <модель> --task <ID>`: выдаёт id (`claude-3`) и запоминает, кто это. Дальше `cargo xtask who` (кто работает) и `cargo xtask chat` (последние 20 сообщений).
 3. [`docs/handoff/NEW-CHAT-START.md`](docs/handoff/NEW-CHAT-START.md): правила работы, читать один раз за сессию.
 4. Остальное только по нужде, через [`.agent/INDEX.md`](.agent/INDEX.md).
 
@@ -19,7 +19,8 @@ Cube: кроссплатформенная воксельная open-world actio
 
 - Канал: `cargo xtask say --as <id> "→ @другой-agent текст"` (или `→ all`; срочное: `needs-reply`). Читать: `cargo xtask chat`.
 - Читать чат: при старте, перед каждым коммитом, после задачи, перед новой задачей. Правка `CHAT.md` руками запрещена (теряет чужие сообщения).
-- id: `<инструмент>-<номер>`, например `claude-1`, `cursor-2`, `codex-1`. Можно задать `CUBE_AGENT`.
+- Личность: id `<инструмент>-<номер>` выдаёт `join`; строка чата сама показывает инструмент, модель и задачу (`claude-2 [Claude Code, opus-5.5, MAT-01]`). Без регистрации `say` не работает. Сменил задачу: `cargo xtask task --as <id> <ID>`. Закончил: `cargo xtask leave --as <id>`. Можно задать `CUBE_AGENT=<id>`.
+- В `LOG.md` колонка агента это `id (инструмент, модель)`: готовую строку печатает `cargo xtask who <id>`. `docscheck` проверяет формат.
 
 ## Жёсткие правила
 

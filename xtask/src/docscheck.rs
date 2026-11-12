@@ -157,6 +157,31 @@ fn plain_code_spans(line: &str) -> Vec<String> {
     backticked(&without_links(line))
 }
 
+/// True for `claude-2 (Claude Code, opus)`: an id `<tool>-<number>` followed by a descriptor.
+fn log_agent_ok(field: &str) -> bool {
+    let Some((id, rest)) = field.split_once(" (") else {
+        return false;
+    };
+    let Some(desc) = rest.strip_suffix(')') else {
+        return false;
+    };
+    let numbered = id.rsplit_once('-').is_some_and(|(tool, n)| {
+        !tool.is_empty() && !n.is_empty() && n.chars().all(|c| c.is_ascii_digit())
+    });
+    numbered && !desc.trim().is_empty()
+}
+
+/// Lines of the work log whose agent column is not `id (tool, model)`.
+fn bad_log_agents(log: &str) -> Vec<String> {
+    log.lines()
+        .filter(|l| l.starts_with("20"))
+        .filter_map(|l| {
+            let agent = l.split(" | ").nth(1).unwrap_or("");
+            (!log_agent_ok(agent)).then(|| format!(".agent/LOG.md: agent column must look like `claude-2 (Claude Code, opus-5.5)`, got '{agent}'; the exact text is printed by `cargo xtask who <id>`"))
+        })
+        .collect()
+}
+
 /// Runs the check; an empty list means everything is in order.
 pub fn run(root: &Path) -> Result<Vec<String>, String> {
     let index_path = root.join(".agent/INDEX.md");
@@ -249,6 +274,9 @@ pub fn run(root: &Path) -> Result<Vec<String>, String> {
             bad.push(format!("{rel} has {n} lines, the limit is {max}"));
         }
     }
+    if let Ok(log) = std::fs::read_to_string(root.join(".agent/LOG.md")) {
+        bad.extend(bad_log_agents(&log));
+    }
     Ok(bad)
 }
 
@@ -299,6 +327,20 @@ mod tests {
         );
         assert_eq!(resolves_to("a.md", "docs/a.md", &tracked), None);
         assert_eq!(resolves_to("x.rs", "docs/a.md", &tracked), None);
+    }
+
+    #[test]
+    fn log_agent_column_names_the_tool() {
+        assert!(log_agent_ok("claude-2 (Claude Code, opus)"));
+        assert!(log_agent_ok("cursor-1 (Cursor)"));
+        assert!(!log_agent_ok("claude-2"));
+        assert!(!log_agent_ok("claude (Claude Code)"));
+        assert!(!log_agent_ok("claude-2 ()"));
+        assert_eq!(
+            bad_log_agents("2026-11-12 | claude-2 | X | c | text").len(),
+            1
+        );
+        assert!(bad_log_agents("2026-11-12 | claude-2 (Claude Code) | X | c | text").is_empty());
     }
 
     #[test]

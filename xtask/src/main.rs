@@ -79,13 +79,16 @@ fn main() -> ExitCode {
                 ExitCode::from(2)
             }
         },
-        Some(cmd @ ("say" | "chat")) => {
+        Some(cmd @ ("say" | "chat" | "join" | "leave" | "task" | "who")) => {
             let rest: Vec<String> = args.collect();
             let root = workspace_root();
-            let res = if cmd == "say" {
-                chat::say(&root, &rest)
-            } else {
-                chat::chat(&root, &rest)
+            let res = match cmd {
+                "say" => chat::say(&root, rest),
+                "join" => chat::join(&root, rest),
+                "leave" => chat::leave(&root, rest),
+                "task" => chat::task(&root, rest),
+                "who" => chat::who(&root, &rest),
+                _ => chat::chat(&root, &rest),
             };
             match res {
                 Ok(text) => {
@@ -100,7 +103,7 @@ fn main() -> ExitCode {
         }
         _ => {
             eprintln!(
-                "usage: cargo xtask archcheck | features [--check|--write] | docscheck | say [--as <id>] <text> | chat [N]"
+                "usage: cargo xtask archcheck | features [--check|--write] | docscheck | join --tool <t> [--model <m>] [--task <ID>] | who [<id>] | task --as <id> <ID> | say [--as <id>] <text> | chat [N] | leave --as <id>"
             );
             ExitCode::from(2)
         }

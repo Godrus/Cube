@@ -10,7 +10,7 @@
 | [`.agent/BOARD.md`](BOARD.md) | задачи: в работе, дальше, заблокировано, сделано |
 | [`.agent/LOG.md`](LOG.md) | краткая история работ (старое уходит в `.agent/archive/`) |
 | `.agent/INDEX.md` | этот список |
-| `.agent/live/CHAT.md` | канал агентов, не в git, только через `cargo xtask say` и `chat` |
+| `.agent/live/CHAT.md`, `.agent/live/ROSTER.md` | канал и список агентов (кто, какой инструмент и модель, какая задача), не в git, только через `cargo xtask say`, `chat`, `join`, `who` |
 | [`docs/handoff/NEW-CHAT-START.md`](../docs/handoff/NEW-CHAT-START.md) | правила работы: автономия, статусы, готовность функции, реестр функций, git и CI |
 | [`docs/roadmap/PRODUCT-ROADMAP.md`](../docs/roadmap/PRODUCT-ROADMAP.md), [`docs/roadmap/WORK-PACKAGES.md`](../docs/roadmap/WORK-PACKAGES.md) | вехи M0..M12 и разбивка задач |
 | `docs/features.json` (источник), [`docs/FEATURE-REGISTRY.md`](../docs/FEATURE-REGISTRY.md) (генерируется), [`docs/FUNCTIONAL-ROADMAP.md`](../docs/FUNCTIONAL-ROADMAP.md) | реестр функций |
