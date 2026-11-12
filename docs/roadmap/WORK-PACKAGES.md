@@ -50,6 +50,17 @@ Findings:
 
 Decision per the work package: the budget is exceeded, so generation must not stay unbounded on the main thread. Cheapest first (M1-A3c): a time-sliced per-frame budget (stop when about 4 ms are spent, a few bricks per call, the rest next frame); a worker thread (with version checks, determinism and budgets) only if time slicing still shows pop-in in a playtest (QA-01).
 
+### M1-A3c result (2026-11-12, claude-2)
+
+`Session::frame` now generates in chunks of `StreamBudget::load_chunk` (8) and stops after the first chunk that ends past `StreamBudget::load_time_us` (4000), within the old cap `load_per_frame` (48); the first region of a world is still generated in full, `load_time_us: 0` turns it off. Generation stays deterministic: only how many frames a load takes changes. Measured with the same example (release, desktop view radius 3, generator v6, flying east at 12 voxels per second, 1800 frames of 1/60 s, `Session::frame` wall time, includes client geometry):
+
+| budget | frame ms mean | p95 | max | frames over 16.7 ms | bricks loaded |
+|---|---|---|---|---|---|
+| time-sliced 4 ms (default) | 1.65 | 6.66 | 21.89 | 9 | 2511 |
+| unsliced, 48 bricks (before) | 1.64 | 1.32 | 38.25 | 36 | 2511 |
+
+Frames over the frame budget fell from 36 to 9 of 1800 and the worst frame from 38 to 22 ms; the mean is the same and p95 rises because the same work is spread over more frames. The 9 remaining slow frames are not generation (one chunk is about 3 ms): the next suspects are the client's derived geometry after a region move and `evict_far`; profile them in M1-A3d before any worker thread. Residency is trimmed only when the region moves, so a device that cannot keep up lets the resident set grow until it catches up (pre-existing, now reachable): watch `resident` in QA-01. Tests that simulate fast flight with long simulated frames turn slicing off (`load_time_us: 0`).
+
 ## Epic E-CMB: basic combat (M2)
 
 Goal: one scripted loop. See an enemy, it chases and attacks, the player attacks it, Rust computes damage, it dies, loot enters the inventory, the state is saved, the loop repeats. Out of scope: classes, skills, balance, networking (shape only), art.

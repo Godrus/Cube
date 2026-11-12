@@ -20,6 +20,7 @@ pub mod progression;
 pub mod spawn;
 
 use std::sync::{Arc, Mutex, PoisonError};
+use std::time::{Duration, Instant};
 
 use cube_client::{
     Camera, ClientWorld, EditIntent, EditPort, FaceIndex, Intent, MeshBuffers, UpdateReport,
@@ -60,6 +61,15 @@ const EYE: f64 = cube_client::EYE_HEIGHT;
 pub struct StreamBudget {
     /// Bricks the host may generate in one frame (generation is cheap but not free).
     pub load_per_frame: usize,
+    /// Time the host may spend generating in one frame, in microseconds (M1-A3c). Bricks are
+    /// generated in chunks of [`StreamBudget::load_chunk`] and the frame stops generating after
+    /// the first chunk that ends past this time, however many bricks `load_per_frame` still
+    /// allows; the rest comes next frame. `0` turns time slicing off (only `load_per_frame`).
+    /// The first region of a world is always generated in full.
+    pub load_time_us: u64,
+    /// Bricks generated per step while time slicing (at least one step always runs, so a frame
+    /// always makes progress).
+    pub load_chunk: usize,
     /// Bricks beyond the view region that are kept generated (so faces see real neighbours).
     pub load_margin: i64,
     /// Extra distance beyond the loaded surroundings before a brick is unloaded (hysteresis:
@@ -74,6 +84,9 @@ impl Default for StreamBudget {
     fn default() -> Self {
         Self {
             load_per_frame: 48,
+            // 4 ms of a 16.7 ms frame (M1-A3 measurement: about 0.35 ms per brick in release).
+            load_time_us: 4_000,
+            load_chunk: 8,
             load_margin: 1,
             evict_hysteresis: 2,
             max_resident: 1500,
@@ -498,6 +511,33 @@ impl Session {
         BrickCoord::new(b.x.clamp(-l, l), b.y, b.z.clamp(-l, l))
     }
 
+    /// `LocalHost::ensure_loaded` under the frame's budgets: at most `budget` bricks, and with time
+    /// slicing on, chunks of `load_chunk` until a chunk ends past `load_time_us`. Returns how many
+    /// bricks of the cube are still missing. The result of the world is the same whatever the
+    /// slicing (generation is deterministic); only how many frames it takes changes.
+    fn load_sliced(
+        &self,
+        centre: BrickCoord,
+        radius: i64,
+        budget: usize,
+        bud: &StreamBudget,
+    ) -> Result<usize, HostError> {
+        if budget == usize::MAX || bud.load_time_us == 0 || bud.load_chunk == 0 {
+            return self.host.ensure_loaded(centre, radius, budget);
+        }
+        let started = Instant::now();
+        let limit = Duration::from_micros(bud.load_time_us);
+        let mut left = budget;
+        loop {
+            let step = left.min(bud.load_chunk);
+            let missing = self.host.ensure_loaded(centre, radius, step)?;
+            left -= step;
+            if missing == 0 || left == 0 || started.elapsed() >= limit {
+                return Ok(missing);
+            }
+        }
+    }
+
     /// One frame: applies the timed intents to the camera, moves the active region with it,
     /// lets the client compute derived geometry within its budget and returns what to show.
     pub fn frame(&self, intents: &[(Intent, f32)]) -> Result<Frame, HostError> {
@@ -524,7 +564,7 @@ impl Session {
                 } else {
                     bud.load_per_frame
                 };
-                let missing = self.host.ensure_loaded(want, r + bud.load_margin, budget)?;
+                let missing = self.load_sliced(want, r + bud.load_margin, budget, &bud)?;
                 if missing == 0 {
                     self.client
                         .set_interest(want, self.profile.radius)

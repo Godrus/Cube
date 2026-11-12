@@ -42,6 +42,77 @@ fn percentile(sorted: &[f64], p: f64) -> f64 {
     sorted[i]
 }
 
+/// `Session::frame` cost while flying east at 12 voxels per second, 60 simulated frames per
+/// second, desktop view radius, with the default time-sliced budget and with slicing off.
+fn session_frames() {
+    use cube_app::{Session, StreamBudget};
+    use cube_client::{DeviceClass, Intent, ViewProfile};
+    use std::sync::Arc;
+
+    println!();
+    println!(
+        "Session::frame while flying east (desktop radius, generator v6, 1800 frames of 1/60 s)"
+    );
+    println!();
+    println!(
+        "| budget | frame ms mean | frame ms p95 | frame ms max | frames over 16.7 ms | bricks loaded |"
+    );
+    println!("|---|---|---|---|---|---|");
+    for (label, time_us) in [
+        ("time-sliced 4 ms (default)", 4_000u64),
+        ("unsliced, 48 bricks", 0),
+    ] {
+        let rec = WorldRecord {
+            world_id: 1,
+            seed: WorldSeed::new(SEED),
+            generator_version: GeneratorVersion::new(6),
+            structure_version: cube_persistence::STRUCTURE_VERSION,
+        };
+        let d = dir(&format!("session-{time_us}"));
+        let host =
+            Arc::new(LocalHost::create(&d, rec, StaticArea::around_origin(&rec, 1)).unwrap());
+        let top = (host.area().centre.y * 16 + 8) as f64;
+        let s = Session::new(
+            host.clone(),
+            ViewProfile::of(DeviceClass::Desktop),
+            [0.5, top + 12.0, 0.5],
+        )
+        .unwrap();
+        s.set_budget(StreamBudget {
+            load_time_us: time_us,
+            ..StreamBudget::default()
+        });
+        s.frame(&[]).unwrap(); // the first region is generated in full
+        let east = [(
+            Intent::Move {
+                forward: 0,
+                right: 1,
+                up: 0,
+            },
+            1.0 / 60.0,
+        )];
+        let mut times: Vec<f64> = Vec::new();
+        for _ in 0..1800 {
+            let t = Instant::now();
+            s.frame(&east).unwrap();
+            times.push(t.elapsed().as_secs_f64() * 1000.0);
+        }
+        let mut sorted = times.clone();
+        sorted.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        let mean = times.iter().sum::<f64>() / times.len() as f64;
+        let over = times.iter().filter(|t| **t > 16.7).count();
+        println!(
+            "| {label} | {mean:.2} | {:.2} | {:.2} | {over} | {} |",
+            percentile(&sorted, 0.95),
+            sorted.last().copied().unwrap_or(0.0),
+            host.stream_stats().loads
+        );
+        drop(s);
+        drop(host);
+        let _ = std::fs::remove_dir_all(&d);
+    }
+}
+
 fn main() {
     let profile = if cfg!(debug_assertions) {
         "debug"
@@ -126,4 +197,5 @@ fn main() {
             let _ = std::fs::remove_dir_all(&d);
         }
     }
+    session_frames();
 }

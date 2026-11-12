@@ -250,8 +250,11 @@ fn a_session_walking_far_keeps_residency_and_the_derived_cache_bounded() {
         [0.5, top + 12.0, 0.5],
     )
     .unwrap();
+    // The frames here simulate 0.5 s each but run in milliseconds of real time, far faster than
+    // any player: time slicing is off so the test measures residency, not generation speed.
     s.set_budget(StreamBudget {
         max_resident: 900,
+        load_time_us: 0,
         ..StreamBudget::default()
     });
     let mut peak = 0u64;
@@ -284,4 +287,62 @@ fn a_session_walking_far_keeps_residency_and_the_derived_cache_bounded() {
         "the derived cache stays bounded: {peak_cache}"
     );
     let _ = std::fs::remove_dir_all(&d);
+}
+
+#[test]
+fn time_sliced_loading_makes_one_chunk_per_frame_and_still_loads_everything() {
+    // M1-A3c: with a time limit of one microsecond every frame ends its generation after the
+    // first chunk (two bricks), however many bricks the frame budget would still allow.
+    let d = dir("slice");
+    let rec = record();
+    let host = Arc::new(LocalHost::create(&d, rec, StaticArea::around_origin(&rec, 2)).unwrap());
+    let top = (host.area().centre.y * 16 + 8) as f64;
+    let s = Session::new(
+        host.clone(),
+        ViewProfile::of(DeviceClass::Desktop),
+        [0.5, top + 12.0, 0.5],
+    )
+    .unwrap();
+    s.set_budget(StreamBudget {
+        load_time_us: 1,
+        load_chunk: 2,
+        ..StreamBudget::default()
+    });
+    // The first region is always generated in full, so start from a settled world.
+    s.frame(&[]).unwrap();
+    let mut max_per_frame = 0u64;
+    let frame = |intents: &[(Intent, f32)]| {
+        let before = host.stream_stats().loads;
+        s.frame(intents).unwrap();
+        host.stream_stats().loads - before
+    };
+    // Fly east: far more bricks are needed than two per frame.
+    let east = [(
+        Intent::Move {
+            forward: 0,
+            right: 1,
+            up: 0,
+        },
+        0.5,
+    )];
+    for _ in 0..60 {
+        max_per_frame = max_per_frame.max(frame(&east));
+    }
+    assert!(
+        max_per_frame <= 2,
+        "one chunk per frame, got {max_per_frame} bricks in a frame"
+    );
+    // Standing still, the backlog drains one chunk per frame until nothing is missing.
+    let (mut quiet, mut frames) = (0, 0);
+    while quiet < 3 && frames < 3000 {
+        let made = frame(&[]);
+        max_per_frame = max_per_frame.max(made);
+        quiet = if made == 0 { quiet + 1 } else { 0 };
+        frames += 1;
+    }
+    assert!(quiet >= 3, "the backlog drained within {frames} frames");
+    assert!(
+        max_per_frame <= 2,
+        "never more than a chunk: {max_per_frame}"
+    );
 }
