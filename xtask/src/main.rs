@@ -5,6 +5,7 @@ mod archcheck;
 mod chat;
 mod docscheck;
 mod features;
+mod registry_check;
 
 use std::path::PathBuf;
 use std::process::ExitCode;

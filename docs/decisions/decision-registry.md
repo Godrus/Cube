@@ -2034,7 +2034,8 @@ history:
 
 ## DEC-089  O-1: technical owners of derived providers
 id: DEC-089
-aliases: [O-1, GOV-03 (deferral of DEC-072 resolved for derived providers)]
+aliases: [O-1, GOV-03 (deferral resolved for derived providers)]
+refines: [DEC-072]
 category: PROCESS
 level: TECHNICAL
 status: CONFIRMED
@@ -2362,3 +2363,74 @@ source_availability: UNAVAILABLE in repository (session transcript only)
 owner: Project Owner
 history:
   - 2026-11-12 entry created
+
+## DEC-103  OAM-04: renderer default after a device benchmark
+id: DEC-103
+aliases: [OAM-04]
+category: ARCHITECTURE
+level: TECHNICAL
+status: PROPOSED
+statement: >
+  Open. `faces` is the reference and the default, `greedy` stays experimental (DEC-013, AOD-10). The default can change only after a comparison on a physical device.
+not_decided:
+  - which mesher is the default on mobile
+  - the benchmark criteria
+decided_by: PENDING
+decided_on: UNKNOWN
+decided_on_basis: not decided; open item of the owner approval matrix
+recorded_on: 2026-11-13 (this registry)
+confirmed_on:
+confirmation_evidence: NONE (open item, nothing confirmed)
+source: [docs/decisions/owner-approval-matrix-v1.md](owner-approval-matrix-v1.md)
+source_availability: IN_REPOSITORY
+owner: Project Owner
+history:
+  - 2026-11-13 entry created so that the id exists in the registry (DOC-05); the item is open
+
+
+## DEC-104  OAM-05: network layer, transport spike required
+id: DEC-104
+aliases: [OAM-05]
+category: ARCHITECTURE
+level: TECHNICAL
+status: PROPOSED
+statement: >
+  Open. No transport is chosen (TCP, QUIC/UDP, an existing library, a control/data split are all undecided). The next step is a spike with approved criteria and a networking owner.
+not_decided:
+  - the transport
+  - the spike criteria and the owner
+decided_by: PENDING
+decided_on: UNKNOWN
+decided_on_basis: not decided; open item of the owner approval matrix
+recorded_on: 2026-11-13 (this registry)
+confirmed_on:
+confirmation_evidence: NONE (open item, nothing confirmed)
+source: [docs/decisions/owner-approval-matrix-v1.md](owner-approval-matrix-v1.md)
+source_availability: IN_REPOSITORY
+owner: Project Owner
+history:
+  - 2026-11-13 entry created so that the id exists in the registry (DOC-05); the item is open
+
+
+## DEC-105  OAM-06: mobile target criteria
+id: DEC-105
+aliases: [OAM-06]
+category: ARCHITECTURE
+level: TECHNICAL
+status: PROPOSED
+statement: >
+  Open, proposed. The criteria table for mobile targets (devices, memory, frame time, thermal) is not adopted; devices and macOS/Xcode are needed.
+not_decided:
+  - the criteria table
+  - the reference devices
+decided_by: PENDING
+decided_on: UNKNOWN
+decided_on_basis: not decided; open item of the owner approval matrix
+recorded_on: 2026-11-13 (this registry)
+confirmed_on:
+confirmation_evidence: NONE (open item, nothing confirmed)
+source: [docs/decisions/owner-approval-matrix-v1.md](owner-approval-matrix-v1.md)
+source_availability: IN_REPOSITORY
+owner: Project Owner
+history:
+  - 2026-11-13 entry created so that the id exists in the registry (DOC-05); the item is open

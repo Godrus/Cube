@@ -9,7 +9,7 @@
 //! `/` covers a whole folder, `prefix/**` covers everything under `prefix/`, anything else
 //! covers exactly that file.
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Component, Path, PathBuf};
 use std::process::Command;
 
@@ -182,6 +182,46 @@ fn bad_log_agents(log: &str) -> Vec<String> {
         .collect()
 }
 
+/// Decision registry checks (DOC-05): ids named in documents exist, CONFIRMED entries carry
+/// evidence, ids are not reused, a Frozen contract cites a CONFIRMED decision. The archive is
+/// history and is not held to the registry.
+fn registry_problems(root: &Path, files: &[String]) -> Vec<String> {
+    use crate::registry_check::{
+        check_entries, frozen_without_approval, known_ids, parse_registry, unknown_ids,
+    };
+    let Ok(reg) = std::fs::read_to_string(root.join("docs/decisions/decision-registry.md")) else {
+        return vec!["docs/decisions/decision-registry.md is missing".to_string()];
+    };
+    let entries = parse_registry(&reg);
+    let mut bad = check_entries(&entries);
+    let known = known_ids(&entries);
+    let status_of: BTreeMap<String, String> = entries
+        .iter()
+        .map(|e| (e.id.clone(), e.status.clone()))
+        .collect();
+    for f in files {
+        if f.starts_with("docs/archive/") {
+            continue;
+        }
+        let Ok(text) = std::fs::read_to_string(root.join(f)) else {
+            continue;
+        };
+        for id in unknown_ids(&text, &known) {
+            bad.push(format!(
+                "unknown decision id in {f}: {id} (not an id or alias in docs/decisions/decision-registry.md)"
+            ));
+        }
+        if f.starts_with("docs/api-contracts/") {
+            for row in frozen_without_approval(&text, &status_of) {
+                bad.push(format!(
+                    "Frozen contract without a CONFIRMED decision in {f}: {row}"
+                ));
+            }
+        }
+    }
+    bad
+}
+
 /// Runs the check; an empty list means everything is in order.
 pub fn run(root: &Path) -> Result<Vec<String>, String> {
     let index_path = root.join(".agent/INDEX.md");
@@ -264,6 +304,8 @@ pub fn run(root: &Path) -> Result<Vec<String>, String> {
             ));
         }
     }
+
+    bad.extend(registry_problems(root, &files));
 
     for (rel, max) in [
         ("AGENTS.md", MAX_AGENTS_LINES),
