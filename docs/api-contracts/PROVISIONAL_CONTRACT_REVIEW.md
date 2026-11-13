@@ -40,3 +40,34 @@
 ## 5. Guard against silent permanence
 
 Each registered TC carries: id, expiry trigger, owner entry, migration note, affected tasks; a CI check (once CI exists) fails when an expiry condition is met and the entry is still open; tests that depend on a Provisional contract are tagged `provisional`; no TC becomes Frozen without revalidation and the owner (plan 3.1). None of this is implemented.
+
+## 6. Expiry check of 2026-11-13 (PROV-01, claude-2)
+
+Each temporary contract's expiry trigger (section 2 and the registry, DEC-078 for TC-01) against the state of the repository on 2026-11-13. "Met" means the condition written for the contract has happened; it does not approve or reject anything: the contract stays in force until the owner decides. Evidence: [`docs/roadmap/PRODUCT-ROADMAP.md`](../roadmap/PRODUCT-ROADMAP.md) milestone statuses, [`docs/features.json`](../features.json), git history.
+
+| TC | Trigger | State on 2026-11-13 | Verdict |
+|---|---|---|---|
+| TC-01 Processing subset | the earlier of GOV-07 approval of PR-01..PR-08 and the start of M3 content work (DEC-078) | M3 content work began on 2026-11-11 (terrain-v2, `6b2e089`); PR-01..PR-08 are not approved | **Met** |
+| TC-02 Voxel baseline (PC-1) | RG-1 or the first format approval (GOV-10) | RG-1 not passed; final save format F-PER-006 is NOT_STARTED | Not met |
+| TC-03 Coordinate system v0 | RG-1 | as TC-02 | Not met |
+| TC-04 World and chunk addressing v0 | M3 content scope, or any generator version bump | five generator versions since 2026-11-11 (v2 to v6, hashes pinned); the world edge is finite (`WORLD_LIMIT_BRICKS`, a recorded simplification) | **Met** |
+| TC-05 Rendering interface v0 | the first additional provider, or MAC-1 | greedy provider (`ef0297d`, 2026-11-09), SDF and mesh providers exist; MAC-1 not run | **Met** |
+| TC-06 Collision and queries | the Physics/Query contract is written | not written | Not met |
+| TC-07 WorldGen interface v0 | GOV-21 | WGEN-02..04 stay gated by GOV-21 and GOV-11 (DEC-091); generator versions v2 to v6 shipped inside the TC-07 interface | Not met, but watch: versions ship without the gate |
+| TC-08 Persistence v0 (snapshot-only) | acceptance of M2, or the first format approval | M2 is IMPLEMENTED and DEMO_AVAILABLE; the journal, the manifest and the verified snapshot store are integrated (F-PER-003, F-PER-007, F-PER-008), so the snapshot-only description is outdated; F-PER-006 is NOT_STARTED | **Met** |
+| TC-09 Player/world interaction v0 | M3 gameplay scope or M4 | M4 is IN_PROGRESS (XP, levels, weapon, armour, recipes) | **Met** |
+| TC-10 Threading | MAC-1 thread measurements | no device measurements | Not met |
+| TC-11 World Operations interface v0 | NET-02 or M4 | NET-02 not started; M4 is IN_PROGRESS | **Met** |
+
+Six of eleven are met: TC-01, TC-04, TC-05, TC-08, TC-09, TC-11. The guard of section 5 (a CI check that fails when an expiry is met and the entry is open) is still not implemented, which is how six expiries passed unnoticed in four days.
+
+What the owner decides for each met contract (none is decided by this check):
+
+1. **TC-01:** approve PR-01..PR-08 (GOV-07), or extend TC-01 explicitly with a new trigger. The Geometry Processing Specification does not exist as a document (the chat of 2026-11-02 holds only decisions), so approval would be of the implemented subset.
+2. **TC-04:** fix the vertical extent N and the horizontal chunk edge (ODM-11), or extend.
+3. **TC-05:** write the provider contract (O-1 is decided for derived providers by DEC-089), or extend.
+4. **TC-08:** replace by the journal and manifest contracts as implemented, or extend; the final format stays a separate owner decision (F-PER-006).
+5. **TC-09, TC-11:** replace by gameplay contracts (the rules module of ODM-05 is open) and by the world-operations contract as implemented, or extend.
+
+Next step for an agent once the owner has answered: record each answer in the decision registry and update this table. Not done here: no registry entry is created for an expiry, because the choice between approve, replace and extend is the owner's.
+
