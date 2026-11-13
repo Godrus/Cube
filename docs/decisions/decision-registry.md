@@ -2182,17 +2182,16 @@ id: DEC-095
 aliases: [chat decision 2026-11-02 11:58 'Boundaries: computed']
 category: ARCHITECTURE
 level: TECHNICAL
-status: DEFERRED
+status: CONFIRMED
 statement: >
-  On 2026-11-02 the owner chose computed neighbour data at brick boundaries, against the assistant recommendation of temporary halo cells; the repository never recorded this. On 2026-11-12 the owner decided to settle the choice after the generation and meshing cost measurement (M1-A3). Until then processing uses the missing-neighbour state and fetches neighbour data on demand.
+  Settled on 2026-11-13: after the M1-A3b measurement (temporary halo 16.5 times faster than per-voxel neighbour reads, identical faces) the owner chose the temporary halo array for processing that needs neighbour data; the brick storage itself stays without halo cells. Earlier text: On 2026-11-02 the owner chose computed neighbour data at brick boundaries, against the assistant recommendation of temporary halo cells; the repository never recorded this. On 2026-11-12 the owner decided to settle the choice after the generation and meshing cost measurement (M1-A3). Until then processing uses the missing-neighbour state and fetches neighbour data on demand.
 not_decided:
-  - computed neighbours versus temporary halo cells
-trigger: M1-A3 measurement results
+  - halo for SDF and greedy providers beyond the faces provider is decided per provider when it is implemented
 decided_by: OWNER
-decided_on: 2026-11-12
-decided_on_basis: the owner's answer in chat, 2026-11-12
+decided_on: 2026-11-13
+decided_on_basis: the owner's answer in chat, 2026-11-13, after the measurement
 recorded_on: 2026-11-12 (this registry)
-confirmed_on: 2026-11-12
+confirmed_on: 2026-11-13
 confirmation_evidence: E-CHAT
 source: OWNER-CHAT-2026-11-12; ChatGPT account export, 2026-11-02 11:58 message 25
 source_availability: UNAVAILABLE in repository (session transcript only)
@@ -2200,7 +2199,7 @@ owner: Project Owner
 history:
   - 2026-11-12 entry created
   - 2026-11-13 measurement M1-A3b (WORK-PACKAGES): temporary halo 17.9 us per brick against 296.8 us for per-voxel neighbour reads, 16.5 times faster, same faces; the choice stays with the owner
-
+  - 2026-11-13 the owner chose the temporary halo; status DEFERRED -> CONFIRMED
 
 ## DEC-096  Foundation decisions of the 2026-11-02 afternoon confirmed (group A)
 id: DEC-096
@@ -2434,3 +2433,51 @@ source_availability: IN_REPOSITORY
 owner: Project Owner
 history:
   - 2026-11-13 entry created so that the id exists in the registry (DOC-05); the item is open
+
+
+## DEC-106  Per-brick store of edited bricks (M1-A1b), experimental until GOV-10
+id: DEC-106
+aliases: []
+category: ARCHITECTURE
+level: TECHNICAL
+status: CONFIRMED
+statement: >
+  The owner approves a per-brick store for unloaded edited bricks: one file per brick holding the content, the revision after its reload and a checksum, written atomically; a restart restores the stored brick, brings its revision up with the same unload and reload steps and then runs the unchanged replay. The format is experimental and may change before GOV-10; it is not the final save format.
+not_decided:
+  - the final save format (GOV-10)
+  - per-brick files versus folding into the snapshot for the final format
+decided_by: OWNER
+decided_on: 2026-11-13
+decided_on_basis: the owner's answer in chat, 2026-11-13 (approve the experimental store)
+recorded_on: 2026-11-13 (this registry)
+confirmed_on: 2026-11-13
+confirmation_evidence: E-CHAT
+source: OWNER-CHAT-2026-11-13
+source_availability: UNAVAILABLE in repository (session transcript only)
+owner: Project Owner
+history:
+  - 2026-11-13 entry created after the M1-A1 spike (WORK-PACKAGES, M1-A1 spike result)
+
+
+## DEC-107  Prototype game rules confirmed as prototype values
+id: DEC-107
+aliases: []
+category: ARCHITECTURE
+level: TECHNICAL
+status: CONFIRMED
+statement: >
+  The owner confirms the prototype rules as they are: mining gives one item, placing uses one, 27 inventory slots (hotbar 9), stack 64, objective shelter. They stay prototype values (data, changeable); balance, classes (ODM-05) and server-side inventory validation are not decided by this entry.
+not_decided:
+  - balance and classes (ODM-05)
+  - server validation of the inventory before multiplayer
+decided_by: OWNER
+decided_on: 2026-11-13
+decided_on_basis: the owner's answer in chat, 2026-11-13
+recorded_on: 2026-11-13 (this registry)
+confirmed_on: 2026-11-13
+confirmation_evidence: E-CHAT
+source: OWNER-CHAT-2026-11-13
+source_availability: UNAVAILABLE in repository (session transcript only)
+owner: Project Owner
+history:
+  - 2026-11-13 entry created
