@@ -1,4 +1,4 @@
-//! M1-A3b: cost of meshing a brick with neighbour data read on demand (the current provider)
+//! M1-A3b: cost of meshing a brick; since DEC-095 the provider itself uses the halo (before: neighbour data read on demand)
 //! against a temporary halo (copy the 18x18x18 voxels around the brick into one array, then
 //! mesh from the array). Decides DEC-095 (brick boundary handling) with numbers.
 //!
@@ -250,11 +250,16 @@ fn main() {
     println!("| per brick, microseconds (median of 5 passes) | value |");
     println!("|---|---|");
     println!("| snapshot capture (same for both) | {cap:.1} |");
-    println!("| on demand: provider compute (neighbours read per voxel) | {dem:.1} |");
+    println!(
+        "| faces provider compute (halo since DEC-095; was per-voxel reads, 296.8 before) | {dem:.1} |"
+    );
     println!("| halo: copy 18^3 voxels from the 27 bricks | {hcp:.1} |");
     println!("| halo: faces from the array | {hms:.1} |");
     println!("| halo total (copy + faces) | {:.1} |", hcp + hms);
-    println!("| on demand / halo | {:.1}x |", dem / (hcp + hms));
+    println!(
+        "| provider / stand-alone halo loop | {:.1}x |",
+        dem / (hcp + hms)
+    );
     println!(
         "| reference: 5832 voxel samples through the snapshot | {sample_all_us:.1} (checksum {s}) |"
     );
