@@ -2,7 +2,7 @@
 
 Одна строка на завершённую задачу, новые сверху. Формат: `дата | id (инструмент, модель) | ID | коммит | что сделано; чем проверено`; колонку агента печатает `cargo xtask who <id>` (id выдаёт `cargo xtask join`). Без кода и диффов (они в git). Хранить 30 строк, остальное переносить в `.agent/archive/ГГГГ-ММ.md`. История до 2026-11-11: `git log` и [`docs/archive/handoff/NEXT-EXECUTION.md`](../docs/archive/handoff/NEXT-EXECUTION.md).
 
-2026-11-13 | claude-2 (Claude Code, sonnet-5.5) | PROV-01 | `HASHPLACE` | раздел 6 в PROVISIONAL_CONTRACT_REVIEW, строка в BOARD для владельца; проверено: docscheck, сверка с PRODUCT-ROADMAP, features.json, git
+2026-11-13 | claude-2 (Claude Code, sonnet-5.5) | PROV-01 | `36730a9` | раздел 6 в PROVISIONAL_CONTRACT_REVIEW, строка в BOARD для владельца; проверено: docscheck, сверка с PRODUCT-ROADMAP, features.json, git
 2026-11-13 | claude-2 (Claude Code, sonnet-5.5) | DOC-05 | `a731f02` | xtask/src/registry_check.rs и проверки в docscheck; проверка нашла ошибку DEC-089 (алиас DEC-072) и три id без записи (OAM-04..06); проверено: тесты xtask, docscheck на репозитории
 2026-11-12 | claude-1 (Claude Code, sonnet-5.5) | IDENT-01 | коммит с IDENT-01 в сообщении | личность агентов: `cargo xtask join/who/task/leave`, `say` только для зарегистрированных, колонка агента в логе `id (инструмент, модель)` проверяется `docscheck`; 32 теста xtask
 2026-11-13 | claude-2 (Claude Code, sonnet-5.5) | M1-A3d | `a18a9dc` | SystemCommit::evict_many (одна копия хранилища на весь список), evict_far использует его; тест evict_many_*, снимок API обновлён; проверено: замер Session в release 0 кадров дольше 16,7 мс
