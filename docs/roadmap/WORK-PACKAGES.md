@@ -21,6 +21,16 @@ Why edited bricks are pinned: the journal records `expected` revisions of the ce
 
 Recommended first step: a short spike on option 2 or 3 in a test only (no API change) to see if replay-from-seed-plus-journal equals the world after eviction cycles, with the failing case (option "just evict") reproduced first as a test. Do not change the replay semantics (`replay_confirmed`) or the journal format without the persistence owner path; both are experimental until GOV-10.
 
+### M1-A1 spike result (2026-11-13, claude-2)
+
+Test only, no API or journal change: `crates/cube-integration-tests/tests/persistence_eviction_spike.rs` (3 tests).
+
+- **Failure reproduced.** Edit, unload, reload from the generator base (revision 1 -> 2 -> 3), second edit. A restart (base plus `replay_confirmed`) replays only the first edit; the second expected revision 3 and the brick is at 2, so it is reported as superseded and the world differs from the world before the restart. "Just unload" loses edits.
+- **Option 2 works with the existing replay.** On unload the brick's content and the revision after its reload are kept outside the asset. A restart restores the stored content, raises the revision to the stored one with the same unload and reload steps that `bring_to_revision` uses for unedited bricks, then runs the unchanged `replay_confirmed`: the edit before the cycle is reported as already applied, the one after is replayed, content hash and revision equal the world before the restart. Three edits with two cycles behave the same. So no change of `replay_confirmed` or of the journal format is needed for the revision problem.
+- **Open points (not decided here):** (1) replay cannot tell "already contained in the stored brick" from a corrupted store; a checksum and a revision stored per brick file are required. (2) The per-brick store is a new persisted format: owner path (GOV-10, persistence owner). (3) Crash between writing the brick file and the snapshot/journal mark needs its own failure-matrix cases (see M1-A5). (4) `materialise` is still one store copy per brick; batch loads (M1-A3f) change the revision count, so the revision catch-up must be designed with it.
+
+Next step (M1-A1b, waits for the owner path): the per-brick store format and its crash cases, then unpinning `Streamed.edited`.
+
 ### M1-A3 measurement (2026-11-12, claude-2)
 
 Method: `cargo run -p cube-app --example gen_cost [--release] [-- quick]` drives `LocalHost::ensure_loaded` the way a walking player does in `Session::frame`: seed 7, the centre moves one brick per step for 40 steps (a new border every frame, the worst case), at most 48 bricks per call (`StreamBudget::default`), call time = streaming cost of that frame. Load radius = view radius + 1 (margin). The machine is one Windows desktop; mobile ARM will be slower, not faster. Working budget for streaming (an engineering value, not an owner decision): at most **4 ms** of a 16.7 ms frame at 60 FPS.
