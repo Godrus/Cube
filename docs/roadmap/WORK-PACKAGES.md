@@ -7,7 +7,7 @@
 | Task | Action | Start state | Acceptance | Status |
 |---|---|---|---|---|
 | **M1-A2** | Inventory and world reconciliation | `game.state` and the journal were two stores | write-ahead intent in `game.state`; at open settle against the journal; Rust tests crash between each write pair (`crates/cube-app/tests/reconcile.rs`) | **TESTED** on branch `prod/m1-reconcile` (integrated, see [`.agent/LOG.md`](../../.agent/LOG.md) and git) |
-| **M1-A1** | Unload edited bricks and bring them back | `evict_far` never unloads bricks in `Streamed.edited` (pinned) | build over many bricks, walk away, resident memory bounded, come back and restart: identical content; edit journal and snapshots intact | NOT_STARTED, design below |
+| **M1-A1** | Unload edited bricks and bring them back | `evict_far` never unloads bricks in `Streamed.edited` (pinned) | build over many bricks, walk away, resident memory bounded, come back and restart: identical content; edit journal and snapshots intact | DONE (spike, then M1-A1b: see M1-A1 spike result and M1-A1b result) |
 | **M1-A3** | Measure generation cost on the main thread | `ensure_loaded` generates up to 48 bricks per frame in the frame call | a measured frame-time table (debug and release) under heavier worlds; only if it exceeds a budget, move generation to a worker with version checks, determinism and budgets | MEASURED 2026-11-12: the budget is exceeded, see the M1-A3 measurement below; follow-ups M1-A3b, M1-A3c |
 | **M1-A4** | Character data ready for a server | player and game state are client files | an engine-neutral `CharacterRecord` with a stable text/binary form separate from the world (AI-15) | NOT_STARTED |
 
@@ -30,6 +30,19 @@ Test only, no API or journal change: `crates/cube-integration-tests/tests/persis
 - **Open points (not decided here):** (1) replay cannot tell "already contained in the stored brick" from a corrupted store; a checksum and a revision stored per brick file are required. (2) The per-brick store is a new persisted format: owner path (GOV-10, persistence owner). (3) Crash between writing the brick file and the snapshot/journal mark needs its own failure-matrix cases (see M1-A5). (4) `materialise` is still one store copy per brick; batch loads (M1-A3f) change the revision count, so the revision catch-up must be designed with it.
 
 Next step (M1-A1b, waits for the owner path): the per-brick store format and its crash cases, then unpinning `Streamed.edited`.
+
+### M1-A1b result (2026-11-13, claude-2)
+
+Done on the owner's approval of DEC-106 (experimental format until GOV-10). Option 2 of the notes, as the spike showed:
+- `cube-persistence/src/brick_store.rs` (+ `encode_stored_brick` / `decode_stored_brick` in the codec): `brick-<x>_<y>_<z>.cbk`, one framed CRC-32 record (brick, revision after the next reload, content), written with the snapshot protocol (temporary file, fsync, rename, directory fsync). Snapshot garbage collection does not own these files.
+- `LocalHost` (`cube-server`): `evict_far` no longer pins edited bricks. An edited victim is written to its file first; if the write fails it stays resident and the first error is returned. `ensure_loaded` reads an edited, unloaded brick from its file and checks that the reload gives the revision the file promised; a missing or damaged file is an error and the base is never generated in its place. `open` collects the bricks of the journal, restores those that have a file (content, then the same unload and reload steps up to the stored revision), and runs the unchanged `replay_confirmed`. `submit_edit` holds the streaming lock across the commit so that an unload cannot read a brick between a commit and its mark.
+- Tests: 2 in the persistence crate (round trip incl. wide materials and known-empty; damaged, truncated, trailing, foreign file) and 4 through the real host in `cube-app/tests/streaming.rs` (edited far brick unloads and returns with one more revision; three edits with two unload cycles survive a restart with the same world hash and revision; damaged file refuses the open; missing file stops the reload; unwritable file keeps the brick resident). `cargo test --workspace` passes.
+
+Open: (1) the journal does not record unloads, so a file deleted from outside while its brick was edited and unloaded cannot be told from a never-unloaded brick at open (the replay may then apply or drop edits by revision); a per-world manifest of stored bricks would close it with the final format (GOV-10). (2) Edited far bricks now cost one file write per unload and one read per return; the frame cost was not measured. (3) `materialise` still copies the layer store per brick (M1-A3f).
+
+### M1-A3e result (2026-11-13, claude-2)
+
+DEC-095 settled by the owner: the temporary halo. `FacesProvider` now copies the material of the 18^3 voxels around the brick once from the 27 bricks into one array and decides faces from it (`faces.rs`, `Halo`); the brick storage is unchanged. Semantics are kept exactly: an unloaded or outside neighbour counts as air and sets `unloaded_neighbours` only when a face decision reads it, a failed neighbour is a failure only when read, a material above 65535 is the same controlled failure when read. The existing provider, greedy, render-regression and integration tests pass unchanged. Measured with `mesh_cost` (release, same region): the provider went from 296.8 us to about 90 us per brick (3.3x); the stand-alone halo loop of the measurement is 18.7 us, so the remaining cost is the face list. Greedy and SDF providers read through the faces output or their own sampling and are decided per provider when they are touched.
 
 ### M1-A3 measurement (2026-11-12, claude-2)
 

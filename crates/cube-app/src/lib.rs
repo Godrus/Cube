@@ -76,8 +76,8 @@ pub struct StreamBudget {
     /// Extra distance beyond the loaded surroundings before a brick is unloaded (hysteresis:
     /// walking back and forth over a border must not load and unload the same bricks).
     pub evict_hysteresis: i64,
-    /// Upper bound on resident bricks; the farthest unedited bricks beyond the loaded
-    /// surroundings are unloaded first. Edited bricks are never unloaded, so edits can exceed it.
+    /// Upper bound on resident bricks; the farthest bricks beyond the loaded
+    /// surroundings are unloaded first (an edited brick is written to its file before it goes).
     pub max_resident: usize,
 }
 
@@ -571,7 +571,7 @@ impl Session {
                         .set_interest(want, self.profile.radius)
                         .map_err(|e| HostError::Setup(format!("{e:?}")))?;
                     *c = Some(want);
-                    // Unload what the player left far behind (never edited bricks).
+                    // Unload what the player left far behind (edited bricks go to their files first).
                     self.host.evict_far(
                         want,
                         r + bud.load_margin + bud.evict_hysteresis,

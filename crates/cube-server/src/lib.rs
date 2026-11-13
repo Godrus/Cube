@@ -8,8 +8,10 @@
 //! * the **untouched base** is never saved: it is regenerated from the record's seed and
 //!   generator version by the system-commit port, which never overwrites a loaded cell. A
 //!   **static initial area** is loaded when the world opens, and [`LocalHost::ensure_loaded`]
-//!   streams more bricks in around the player (never unloading any: a brick's revision must be
-//!   the same after a restart, or the journal's expectations would not hold);
+//!   streams more bricks in around the player; [`LocalHost::evict_far`] unloads far ones. A brick
+//!   the player edited is written to its own checksummed file before it is unloaded and read back
+//!   when it is needed again (M1-A1b, DEC-106): a brick's revision must be the same after a
+//!   restart, or the journal's expectations would not hold, and the file keeps it;
 //! * every **user edit** is a journalled operation (acknowledged = fsynced); opening a world
 //!   regenerates the area, replays the confirmed edits and rebuilds the retry table;
 //! * viewers (the client) read through [`LocalHost::reader`] and [`LocalHost::executor`], hear
@@ -19,15 +21,16 @@
 //! Operation ids use one scope and strictly increasing sequences that continue after a restart
 //! (requirement RS-1), so old retries are always answered or refused, never applied twice.
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex, PoisonError};
 
 use cube_backend_voxel::{FacesProvider, VoxelBackend, add, remove};
 use std::collections::{HashMap, HashSet};
 
 use cube_core::{
-    AssetHost, AssetId, BrickCoord, DirtyRegion, GeometryAsset, GeometryTransform, Layer,
-    LayerData, LayerId, LayerKind, OperationId, Region, SharedAsset, SystemCommit, VoxelPos,
+    AssetHost, AssetId, BrickCoord, CellChange, CellState, DirtyRegion, GeometryAsset,
+    GeometryTransform, Layer, LayerData, LayerId, LayerKind, OperationId, Region, SharedAsset,
+    SystemCommit, VoxelPos,
 };
 use cube_editing_api::{
     ActorId, AuthorizationContext, Capability, EditMode, EditingOperation, EditingResult,
@@ -38,8 +41,8 @@ use cube_orchestration::{
     BackendRegistry, CapabilityAuthorizer, CommitPath, Config, DirtySink, OrchestrationService,
 };
 use cube_persistence::{
-    DirStorage, Limits, WorldRecord, create_world_with_record, open_world_with_record,
-    replay_confirmed,
+    DirStorage, Limits, StoredBrick, WorldRecord, create_world_with_record, load_brick,
+    open_world_with_record, replay_confirmed, save_brick,
 };
 use cube_processing::{Executor, ExecutorConfig, ManualClock, ProviderRegistry};
 use cube_worldgen::{GenError, generate_brick, registry};
@@ -166,6 +169,8 @@ pub struct LocalHost {
     executor: Arc<Executor>,
     fanout: Arc<Fanout>,
     next_seq: Mutex<u64>,
+    /// The world directory: unloaded edited bricks live here, one file each.
+    dir: PathBuf,
     system: SystemCommit,
     streamed: Mutex<Streamed>,
     /// Sequences of player operations whose last journal record was `Confirmed` when the world
@@ -180,7 +185,8 @@ pub struct LocalHost {
 /// system operation number.
 struct Streamed {
     loaded: HashSet<BrickCoord>,
-    /// Bricks with user edits: they are never unloaded (their content is not regenerable).
+    /// Bricks with user edits: their content is not regenerable, so an unload writes it to the
+    /// brick store first and a load reads it from there.
     edited: HashSet<BrickCoord>,
     next_op: u64,
     loads: u64,
@@ -192,7 +198,7 @@ struct Streamed {
 pub struct StreamStats {
     /// Bricks resident in Core now.
     pub resident: usize,
-    /// Of those, bricks with user edits (pinned).
+    /// Bricks with user edits (resident or kept in the brick store).
     pub edited: usize,
     /// Bricks generated or reloaded since the host opened.
     pub loads: u64,
@@ -301,7 +307,34 @@ impl LocalHost {
             evictions: 0,
         };
         if snapshot.is_none() {
-            let bricks = area.bricks();
+            // The bricks the journal edited, in order of first mention, and the files of those
+            // that an earlier session unloaded (a damaged file is an error, never a regenerated
+            // base).
+            let mut journal_bricks: Vec<BrickCoord> = Vec::new();
+            for e in entries.iter().filter(|e| !e.payload.is_empty()) {
+                let Ok(batch) = cube_persistence::decode_batch(&e.payload, &limits) else {
+                    continue;
+                };
+                for set in &batch.sets {
+                    for w in &set.writes {
+                        if !journal_bricks.contains(&w.brick) {
+                            journal_bricks.push(w.brick);
+                        }
+                    }
+                }
+            }
+            let dir_store = DirStorage::open(dir).map_err(persistence)?;
+            let mut stored: HashMap<BrickCoord, StoredBrick> = HashMap::new();
+            for b in &journal_bricks {
+                if let Some(f) = load_brick(&dir_store, *b, &limits).map_err(persistence)? {
+                    stored.insert(*b, f);
+                }
+            }
+            let bricks: Vec<BrickCoord> = area
+                .bricks()
+                .into_iter()
+                .filter(|b| !stored.contains_key(b))
+                .collect();
             materialise(&handles.system, &record, &bricks, &mut streamed)?;
             // Bricks that earlier sessions edited may lie outside the initial area: their base must
             // exist before their edits are replayed.
@@ -309,6 +342,9 @@ impl LocalHost {
             // journal; every load raises its revision by one, and an edit records the revision it
             // expected. So the base is brought to the first recorded expectation of each cell
             // (by the same unload and load steps, never by resetting a counter) before replay.
+            // A brick that was unloaded with its content in a file starts from that content
+            // instead, at the revision the file recorded; the edits already in it are reported as
+            // applied by the unchanged replay.
             let mut first_seen: HashSet<BrickCoord> = HashSet::new();
             for e in entries.iter().filter(|e| !e.payload.is_empty()) {
                 let Ok(batch) = cube_persistence::decode_batch(&e.payload, &limits) else {
@@ -318,6 +354,16 @@ impl LocalHost {
                     for w in &set.writes {
                         streamed.edited.insert(w.brick);
                         if !first_seen.insert(w.brick) {
+                            continue;
+                        }
+                        if let Some(f) = stored.get(&w.brick) {
+                            restore_to_revision(
+                                &handles.system,
+                                &reader,
+                                w.brick,
+                                f,
+                                &mut streamed,
+                            )?;
                             continue;
                         }
                         materialise(&handles.system, &record, &[w.brick], &mut streamed)?;
@@ -381,6 +427,7 @@ impl LocalHost {
             executor,
             fanout,
             next_seq: Mutex::new(next_seq),
+            dir: dir.to_path_buf(),
             system: handles.system,
             streamed: Mutex::new(streamed),
             confirmed_at_open,
@@ -444,8 +491,34 @@ impl LocalHost {
         let now: Vec<BrickCoord> = wanted.into_iter().take(budget).collect();
         let done = now.len();
         let mut st = lock(&self.streamed);
-        materialise(&self.system, &self.record, &now, &mut st)?;
+        for b in &now {
+            if st.edited.contains(b) && !st.loaded.contains(b) {
+                self.reload_stored(*b, &mut st)?;
+            } else {
+                materialise(&self.system, &self.record, &[*b], &mut st)?;
+            }
+        }
         Ok(missing - done)
+    }
+
+    /// Loads an unloaded edited brick back from its file. A missing or damaged file is an error:
+    /// the base must never be regenerated in its place.
+    fn reload_stored(&self, b: BrickCoord, st: &mut Streamed) -> Result<(), HostError> {
+        let store = DirStorage::open(&self.dir).map_err(persistence)?;
+        let Some(f) = load_brick(&store, b, &Limits::default()).map_err(persistence)? else {
+            return Err(HostError::Persistence(format!(
+                "the file of the edited brick {b:?} is missing"
+            )));
+        };
+        load_content(&self.system, b, &f.change, st)?;
+        let have = revision_of(&self.reader, b);
+        if have != f.revision_after_reload {
+            return Err(HostError::Setup(format!(
+                "brick {b:?} reloaded at revision {have}, its file says {}",
+                f.revision_after_reload
+            )));
+        }
+        Ok(())
     }
 
     /// Number of bricks resident in Core now (diagnostics).
@@ -464,12 +537,14 @@ impl LocalHost {
         }
     }
 
-    /// Unloads bricks the player is far from. A resident brick is a candidate when it has no user
-    /// edit and is further than `evict_radius` bricks from `centre`; if more than `max_resident`
-    /// bricks are resident, the farthest candidates beyond `protect_radius` go too. Bricks with
-    /// user edits and bricks within `protect_radius` are never unloaded. The derived data of
-    /// unloaded bricks is dropped from the Processing cache. Returns how many bricks were
-    /// unloaded. Unloaded base bricks are regenerated, identical, when the player comes back.
+    /// Unloads bricks the player is far from. A resident brick is a candidate when it is further
+    /// than `evict_radius` bricks from `centre`; if more than `max_resident` bricks are resident,
+    /// the farthest candidates beyond `protect_radius` go too. Bricks within `protect_radius` are
+    /// never unloaded. The derived data of unloaded bricks is dropped from the Processing cache.
+    /// Returns how many bricks were unloaded. Unloaded base bricks are regenerated, identical,
+    /// when the player comes back. A brick with user edits is first written to its file (content
+    /// and revision, atomically); if that write fails the brick stays resident and the first
+    /// such error is returned after the others were unloaded.
     pub fn evict_far(
         &self,
         centre: BrickCoord,
@@ -487,7 +562,7 @@ impl LocalHost {
         let mut victims: Vec<BrickCoord> = st
             .loaded
             .iter()
-            .filter(|b| !st.edited.contains(b) && dist(b) > evict_radius)
+            .filter(|b| dist(b) > evict_radius)
             .copied()
             .collect();
         let over = st.loaded.len().saturating_sub(victims.len()) > max_resident;
@@ -495,15 +570,26 @@ impl LocalHost {
             let mut more: Vec<BrickCoord> = st
                 .loaded
                 .iter()
-                .filter(|b| {
-                    !st.edited.contains(b) && dist(b) > protect_radius && dist(b) <= evict_radius
-                })
+                .filter(|b| dist(b) > protect_radius && dist(b) <= evict_radius)
                 .copied()
                 .collect();
             more.sort_by_key(|b| (std::cmp::Reverse(dist(b)), b.x, b.y, b.z));
             let excess = st.loaded.len() - victims.len() - max_resident;
             victims.extend(more.into_iter().take(excess));
         }
+        // Edited bricks keep their content in a file first; one that cannot be written stays.
+        let mut first_error: Option<HostError> = None;
+        let mut kept = Vec::with_capacity(victims.len());
+        for b in victims {
+            if st.edited.contains(&b)
+                && let Err(e) = self.store_brick(b)
+            {
+                first_error.get_or_insert(e);
+                continue;
+            }
+            kept.push(b);
+        }
+        let victims = kept;
         // One step for the whole list: the layer store is copied once, not once per brick.
         self.system
             .evict_many(LayerId::new(VOXEL_LAYER), 0, &victims)
@@ -521,7 +607,36 @@ impl LocalHost {
         }
         drop(st);
         self.executor.forget(&targets);
-        Ok(victims.len())
+        match first_error {
+            Some(e) => Err(e),
+            None => Ok(victims.len()),
+        }
+    }
+
+    /// Writes the current content and the revision after the next reload of a resident edited
+    /// brick to its file.
+    fn store_brick(&self, b: BrickCoord) -> Result<(), HostError> {
+        let snap = self.reader.snapshot();
+        let change = match snap.cell(LayerId::new(VOXEL_LAYER), 0, b) {
+            Some(Ok(CellState::Present(p))) => CellChange::Put((*p).clone()),
+            Some(Ok(CellState::KnownEmpty)) => CellChange::KnownEmpty,
+            other => {
+                return Err(HostError::Persistence(format!(
+                    "edited brick {b:?} cannot be stored, its state is {other:?}"
+                )));
+            }
+        };
+        let revision_after_reload = revision_of(&self.reader, b) + 1;
+        let mut store = DirStorage::open(&self.dir).map_err(persistence)?;
+        save_brick(
+            &mut store,
+            b,
+            &StoredBrick {
+                revision_after_reload,
+                change,
+            },
+        )
+        .map_err(persistence)
     }
 
     /// Height of the ground at column `(x, z)` in this world (voxels), for placing a camera.
@@ -708,6 +823,9 @@ impl LocalHost {
                 regions: vec![],
             },
         };
+        // The streaming lock is held across the commit: an unload of this brick cannot read its
+        // content between the commit and the mark that it is edited.
+        let mut streaming = lock(&self.streamed);
         let h = self
             .svc
             .begin(ctx, TransactionSpec::new(AssetId::new(ASSET)))
@@ -719,12 +837,63 @@ impl LocalHost {
         }
         match self.svc.commit(&h) {
             EditingResult::Success(_) => {
-                lock(&self.streamed).edited.insert(brick); // pinned from now on
+                streaming.edited.insert(brick); // its content now lives in the brick store too
                 Ok(())
             }
             other => Err(edit_err(&other)),
         }
     }
+}
+
+fn revision_of(reader: &SharedAsset, b: BrickCoord) -> u64 {
+    reader
+        .snapshot()
+        .cell_token(LayerId::new(VOXEL_LAYER), 0, b)
+        .map_or(0, |t| t.value().raw())
+}
+
+/// Loads a brick from stored content (one revision, like every load).
+fn load_content(
+    system: &SystemCommit,
+    b: BrickCoord,
+    change: &CellChange,
+    streamed: &mut Streamed,
+) -> Result<(), HostError> {
+    let op = OperationId::new(0, streamed.next_op);
+    streamed.next_op += 1;
+    streamed.loads += 1;
+    system
+        .materialise(op, LayerId::new(VOXEL_LAYER), 0, b, change.clone())
+        .map_err(setup)?;
+    streamed.loaded.insert(b);
+    Ok(())
+}
+
+/// Restores a brick from its file at open: the stored content, brought to the stored revision by
+/// unloading and loading that same content again (each load is one revision).
+fn restore_to_revision(
+    system: &SystemCommit,
+    reader: &SharedAsset,
+    b: BrickCoord,
+    f: &StoredBrick,
+    streamed: &mut Streamed,
+) -> Result<(), HostError> {
+    load_content(system, b, &f.change, streamed)?;
+    while revision_of(reader, b) < f.revision_after_reload {
+        system
+            .evict(LayerId::new(VOXEL_LAYER), 0, b)
+            .map_err(setup)?;
+        streamed.loaded.remove(&b);
+        load_content(system, b, &f.change, streamed)?;
+    }
+    if revision_of(reader, b) != f.revision_after_reload {
+        return Err(HostError::Setup(format!(
+            "brick {b:?} restored at revision {} but its file says {}",
+            revision_of(reader, b),
+            f.revision_after_reload
+        )));
+    }
+    Ok(())
 }
 
 fn materialise(

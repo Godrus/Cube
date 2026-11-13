@@ -4,6 +4,7 @@
 //! **Nothing here is an approved format (GOV-10 open) or a durability claim for any real
 //! platform.** Core does not depend on this crate; it only exports plain views.
 
+pub mod brick_store;
 pub mod codec;
 pub mod compact;
 pub mod journal;
@@ -13,6 +14,7 @@ pub mod snapshot;
 pub mod store;
 pub mod world_record;
 
+pub use brick_store::{BrickStoreError, StoredBrick, brick_file, load_brick, save_brick};
 pub use codec::{
     BatchCodec, DecodeError, Limits, SCHEMA, decode_asset, decode_batch, decode_journal_entry,
     encode_asset, encode_batch, encode_journal_entry,

@@ -31,6 +31,7 @@ const KIND_JOURNAL: u8 = 2;
 const KIND_BATCH: u8 = 3;
 const KIND_MANIFEST: u8 = 4;
 const KIND_WORLD_RECORD: u8 = 5;
+const KIND_BRICK: u8 = 6;
 const HEADER: usize = 4 + 2 + 1 + 4;
 
 /// Bounds applied to untrusted input.
@@ -455,6 +456,48 @@ pub fn decode_batch(bytes: &[u8], limits: &Limits) -> Result<CommitBatch, Decode
     }
     r.done()?;
     Ok(CommitBatch { sets })
+}
+
+/// Encodes the file of one unloaded edited brick (M1-A1b): the brick, the revision it has after
+/// the reload that follows the unload, and its content.
+pub fn encode_stored_brick(
+    brick: BrickCoord,
+    revision_after_reload: u64,
+    change: &CellChange,
+) -> Vec<u8> {
+    let mut w = W(Vec::new());
+    w.i64(brick.x);
+    w.i64(brick.y);
+    w.i64(brick.z);
+    w.u64(revision_after_reload);
+    match change {
+        CellChange::KnownEmpty => w.u8(0),
+        CellChange::Put(p) => {
+            w.u8(1);
+            write_payload(&mut w, &Some(p.clone()));
+        }
+    }
+    frame(KIND_BRICK, w.0)
+}
+
+/// Decodes the output of `encode_stored_brick`.
+pub fn decode_stored_brick(
+    bytes: &[u8],
+    limits: &Limits,
+) -> Result<(BrickCoord, u64, CellChange), DecodeError> {
+    let body = unframe(bytes, KIND_BRICK, limits)?;
+    let mut r = R(&body);
+    let brick = BrickCoord::new(r.i64()?, r.i64()?, r.i64()?);
+    let revision = r.u64()?;
+    let change = match r.u8()? {
+        0 => CellChange::KnownEmpty,
+        1 => {
+            CellChange::Put(read_payload(&mut r)?.ok_or(DecodeError::Invalid("empty put payload"))?)
+        }
+        _ => return Err(DecodeError::Invalid("change tag")),
+    };
+    r.done()?;
+    Ok((brick, revision, change))
 }
 
 /// Encoder handed to Orchestration so that its `Intent` records carry the batch.

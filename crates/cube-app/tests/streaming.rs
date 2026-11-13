@@ -127,35 +127,158 @@ fn an_edit_after_unload_and_reload_survives_a_restart_with_the_right_revision() 
     let _ = std::fs::remove_dir_all(&d);
 }
 
+/// Removes one voxel of the far brick (a user edit) and returns its voxel position.
+fn edit_far(host: &LocalHost, below_surface: i64) {
+    let h = host.surface_height(160, 0);
+    host.submit_edit(EditRequest::Remove {
+        voxel: [160, h - below_surface, 0],
+    })
+    .unwrap();
+}
+
+fn load_all(host: &LocalHost, f: BrickCoord) {
+    host.ensure_loaded(origin(host), 1, usize::MAX).unwrap();
+    host.ensure_loaded(f, 1, usize::MAX).unwrap();
+}
+
+fn brick_is_resident(host: &LocalHost, b: BrickCoord) -> bool {
+    matches!(
+        host.reader()
+            .snapshot()
+            .cell(LayerId::new(VOXEL_LAYER), 0, b),
+        Some(Ok(cube_core::CellState::Present(_)))
+    )
+}
+
 #[test]
-fn edited_bricks_are_never_unloaded() {
+fn an_edited_brick_is_unloaded_to_its_file_and_comes_back_with_its_edit() {
     let d = dir("c");
     let rec = record();
     let host = LocalHost::create(&d, rec, StaticArea::around_origin(&rec, 1)).unwrap();
     let f = far(&host);
-    host.ensure_loaded(f, 1, usize::MAX).unwrap();
-    let h = host.surface_height(160, 0);
-    host.submit_edit(EditRequest::Remove {
-        voxel: [160, h - 1, 0],
-    })
-    .unwrap();
+    load_all(&host, f);
+    edit_far(&host, 1);
     let hash_with_edit = host.content_hash();
+    let rev_before = revision(&host, f).unwrap();
     host.evict_far(origin(&host), 0, 0, 0).unwrap(); // the most aggressive setting
     assert!(host.stream_stats().edited >= 1);
     assert!(
-        host.reader()
-            .snapshot()
-            .cell_token(LayerId::new(VOXEL_LAYER), 0, f)
-            .is_some(),
-        "the edited brick is still there"
+        !brick_is_resident(&host, f),
+        "the edited brick was unloaded"
     );
-    // The edit is in the resident world: nothing about it was lost by the unloading around it.
-    assert_ne!(
+    assert!(
+        d.join(cube_persistence::brick_file(f)).exists(),
+        "and its content is in its own file"
+    );
+    load_all(&host, f);
+    assert_eq!(
         host.content_hash(),
         hash_with_edit,
-        "other bricks went, the edited one stayed"
+        "the edit came back from the file, not from the generator"
     );
-    host.ensure_loaded(f, 1, usize::MAX).unwrap();
+    assert_eq!(
+        revision(&host, f),
+        Some(rev_before + 1),
+        "a reload is one revision"
+    );
+    let _ = std::fs::remove_dir_all(&d);
+}
+
+#[test]
+fn an_unloaded_edited_brick_survives_a_restart_with_the_world_and_revision_it_had() {
+    let d = dir("c2");
+    let rec = record();
+    let area = StaticArea::around_origin(&rec, 1);
+    let host = LocalHost::create(&d, rec, area).unwrap();
+    let f = far(&host);
+    load_all(&host, f);
+    // Three edits with two unload and reload cycles between them, then a last unload.
+    edit_far(&host, 1);
+    host.evict_far(origin(&host), 0, 0, 0).unwrap();
+    load_all(&host, f);
+    edit_far(&host, 2);
+    host.evict_far(origin(&host), 0, 0, 0).unwrap();
+    load_all(&host, f);
+    edit_far(&host, 3);
+    let hash = host.content_hash();
+    let rev = revision(&host, f).unwrap();
+    host.evict_far(origin(&host), 0, 0, 0).unwrap();
+    assert!(!brick_is_resident(&host, f));
+    drop(host); // no clean shutdown
+
+    let host = LocalHost::open(&d, area).unwrap();
+    assert_eq!(
+        revision(&host, f),
+        Some(rev + 1),
+        "the brick is back at the revision its last unload promised"
+    );
+    load_all(&host, f);
+    assert_eq!(host.content_hash(), hash, "all three edits are there");
+    // It keeps working after the restart.
+    edit_far(&host, 4);
+    let hash2 = host.content_hash();
+    host.evict_far(origin(&host), 0, 0, 0).unwrap();
+    drop(host);
+    let host = LocalHost::open(&d, area).unwrap();
+    load_all(&host, f);
+    assert_eq!(host.content_hash(), hash2);
+    let _ = std::fs::remove_dir_all(&d);
+}
+
+#[test]
+fn a_damaged_or_missing_brick_file_is_an_error_never_a_regenerated_base() {
+    let rec = record();
+    let area = StaticArea::around_origin(&rec, 1);
+    // A world that left an edited brick in its file.
+    let make = |tag: &str| {
+        let d = dir(tag);
+        let host = LocalHost::create(&d, rec, area).unwrap();
+        let f = far(&host);
+        load_all(&host, f);
+        edit_far(&host, 1);
+        host.evict_far(origin(&host), 0, 0, 0).unwrap();
+        (d, f)
+    };
+
+    // Damaged: the next open refuses the world.
+    let (d, f) = make("c3");
+    let file = d.join(cube_persistence::brick_file(f));
+    let mut bytes = std::fs::read(&file).unwrap();
+    let n = bytes.len() / 2;
+    bytes[n] ^= 0xFF;
+    std::fs::write(&file, bytes).unwrap();
+    assert!(LocalHost::open(&d, area).is_err());
+    let _ = std::fs::remove_dir_all(&d);
+
+    // Missing while the host runs: loading the brick fails and does not generate it.
+    let d = dir("c4b");
+    let host = LocalHost::create(&d, rec, area).unwrap();
+    let f = far(&host);
+    load_all(&host, f);
+    edit_far(&host, 1);
+    host.evict_far(origin(&host), 0, 0, 0).unwrap();
+    std::fs::remove_file(d.join(cube_persistence::brick_file(f))).unwrap();
+    assert!(host.ensure_loaded(f, 1, usize::MAX).is_err());
+    assert!(
+        !brick_is_resident(&host, f),
+        "no base was generated in its place"
+    );
+    let _ = std::fs::remove_dir_all(&d);
+}
+
+#[test]
+fn a_brick_whose_file_cannot_be_written_stays_resident() {
+    let d = dir("c5");
+    let rec = record();
+    let host = LocalHost::create(&d, rec, StaticArea::around_origin(&rec, 1)).unwrap();
+    let f = far(&host);
+    load_all(&host, f);
+    edit_far(&host, 1);
+    // A directory with the brick file's name: the atomic rename over it fails.
+    std::fs::create_dir_all(d.join(cube_persistence::brick_file(f))).unwrap();
+    let r = host.evict_far(origin(&host), 0, 0, 0);
+    assert!(r.is_err(), "the failure is reported");
+    assert!(brick_is_resident(&host, f), "and nothing was lost");
     let _ = std::fs::remove_dir_all(&d);
 }
 
