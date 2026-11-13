@@ -504,6 +504,52 @@ impl SharedAsset {
         Ok(true)
     }
 
+    /// Drops several loaded cells of one layer and level in one step: the layer's store is copied
+    /// once for the whole list instead of once per cell (M1-A3d: evicting a slab of 81 bricks one
+    /// by one copied the store 81 times). Same rules as [`SharedAsset::evict`]: no revision,
+    /// token or log entry changes, cells that are not loaded are skipped. Returns how many cells
+    /// were unloaded.
+    pub(crate) fn evict_many(
+        &self,
+        layer: LayerId,
+        level: i8,
+        bricks: &[BrickCoord],
+    ) -> Result<usize, CommitError> {
+        let _gate = self
+            .inner
+            .gate
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner);
+        let current = self.snapshot();
+        let mut store: Option<CellStore> = None;
+        let mut seen: BTreeSet<BrickCoord> = BTreeSet::new();
+        let mut unloaded = 0;
+        for &brick in bricks {
+            if !seen.insert(brick) {
+                continue;
+            }
+            let state = current
+                .cell(layer, level, brick)
+                .ok_or_else(|| missing_store_error(&current, layer))??;
+            if !state.is_loaded() {
+                continue;
+            }
+            store
+                .get_or_insert_with(|| current.store(layer).cloned().unwrap_or_default())
+                .remove(level, brick);
+            unloaded += 1;
+        }
+        if let Some(store) = store {
+            let next = current.with_store(layer, store)?;
+            *self
+                .inner
+                .state
+                .write()
+                .unwrap_or_else(PoisonError::into_inner) = Arc::new(next);
+        }
+        Ok(unloaded)
+    }
+
     fn commit_locked(
         &self,
         actor: ActorKind,

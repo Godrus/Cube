@@ -488,11 +488,12 @@ impl LocalHost {
             let excess = st.loaded.len() - victims.len() - max_resident;
             victims.extend(more.into_iter().take(excess));
         }
+        // One step for the whole list: the layer store is copied once, not once per brick.
+        self.system
+            .evict_many(LayerId::new(VOXEL_LAYER), 0, &victims)
+            .map_err(setup)?;
         let mut targets = Vec::with_capacity(victims.len());
         for b in &victims {
-            self.system
-                .evict(LayerId::new(VOXEL_LAYER), 0, *b)
-                .map_err(setup)?;
             st.loaded.remove(b);
             st.evictions += 1;
             if let Ok(key) = cube_core::CellKey::new(LayerId::new(VOXEL_LAYER), 0, *b) {

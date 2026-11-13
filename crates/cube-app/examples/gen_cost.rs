@@ -42,6 +42,9 @@ fn percentile(sorted: &[f64], p: f64) -> f64 {
     sorted[i]
 }
 
+/// (frame index, ms, loads delta, evictions delta, derived cache delta, active delta)
+type SlowFrame = (usize, f64, u64, u64, i64, i64);
+
 /// `Session::frame` cost while flying east at 12 voxels per second, 60 simulated frames per
 /// second, desktop view radius, with the default time-sliced budget and with slicing off.
 fn session_frames() {
@@ -92,10 +95,44 @@ fn session_frames() {
             1.0 / 60.0,
         )];
         let mut times: Vec<f64> = Vec::new();
-        for _ in 0..1800 {
+        // (frame index, ms, loads delta, evictions delta, derived cache delta, active delta)
+        let mut slow: Vec<SlowFrame> = Vec::new();
+        for i in 0..1800 {
+            let before = s.stats();
             let t = Instant::now();
             s.frame(&east).unwrap();
-            times.push(t.elapsed().as_secs_f64() * 1000.0);
+            let ms = t.elapsed().as_secs_f64() * 1000.0;
+            times.push(ms);
+            let after = s.stats();
+            if ms > 16.7 {
+                slow.push((
+                    i,
+                    ms,
+                    after.loads - before.loads,
+                    after.evictions - before.evictions,
+                    after.derived_cached as i64 - before.derived_cached as i64,
+                    after.active as i64 - before.active as i64,
+                ));
+            }
+        }
+        if !slow.is_empty() {
+            println!();
+            println!(
+                "slow frames of `{label}`: frame, ms, bricks loaded, bricks evicted, derived cache delta, active delta"
+            );
+            for (i, ms, l, e, d, a) in &slow {
+                println!("  {i:5} {ms:6.1} {l:4} {e:4} {d:5} {a:5}");
+            }
+            let with = |f: &dyn Fn(&SlowFrame) -> bool| slow.iter().filter(|x| f(x)).count();
+            println!(
+                "  of {} slow frames: {} loaded bricks, {} evicted bricks, {} changed the derived cache by 20 or more, {} changed the active set",
+                slow.len(),
+                with(&|x| x.2 > 0),
+                with(&|x| x.3 > 0),
+                with(&|x| x.4.abs() >= 20),
+                with(&|x| x.5 != 0)
+            );
+            println!();
         }
         let mut sorted = times.clone();
         sorted.sort_by(|a, b| a.partial_cmp(b).unwrap());

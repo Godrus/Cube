@@ -17,6 +17,7 @@ boundary.rs: pub fn commit(&self, operation: OperationId, batch: &CommitBatch) -
 boundary.rs: pub fn reader(&self) -> SharedAsset {
 boundary.rs: pub fn materialise(
 boundary.rs: pub fn evict(&self, layer: LayerId, level: i8, brick: BrickCoord) -> Result<bool, CommitError> {
+boundary.rs: pub fn evict_many(
 boundary.rs: pub fn restore(
 bounds.rs: pub enum GeometryBounds {
 bounds.rs: pub const fn from_region(region: Region) -> Self {

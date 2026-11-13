@@ -134,6 +134,18 @@ impl SystemCommit {
     pub fn evict(&self, layer: LayerId, level: i8, brick: BrickCoord) -> Result<bool, CommitError> {
         self.shared.evict(layer, level, brick)
     }
+
+    /// Unloads several loaded cells of one layer and level in one step (the layer store is copied
+    /// once, not once per cell); same rules as [`SystemCommit::evict`]. Returns how many cells
+    /// were unloaded; cells that were not loaded are skipped.
+    pub fn evict_many(
+        &self,
+        layer: LayerId,
+        level: i8,
+        bricks: &[BrickCoord],
+    ) -> Result<usize, CommitError> {
+        self.shared.evict_many(layer, level, bricks)
+    }
 }
 
 impl RecoveryCommit {

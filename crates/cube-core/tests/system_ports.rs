@@ -211,3 +211,70 @@ fn recovery_restore_commits_with_the_recovery_actor() {
     );
     assert_eq!(r.commit_log().1[0].actor, ActorKind::Recovery);
 }
+
+#[test]
+fn evict_many_unloads_in_one_step_skips_the_unloaded_and_touches_no_revision() {
+    // M1-A3d: evicting a slab one brick at a time copied the layer store once per brick.
+    let h = host();
+    let r = h.reader();
+    let sys = h.into_handles().system;
+    for x in 0..5 {
+        sys.materialise(
+            op(x as u64 + 1),
+            LayerId::new(L),
+            0,
+            b(x),
+            mat(x as u16 + 1),
+        )
+        .unwrap();
+    }
+    let before = r.snapshot();
+    let token = before.asset_token().value();
+    let cell_rev = before.cell_token(LayerId::new(L), 0, b(2)).unwrap().value();
+    // Two loaded, one repeated, one never loaded: three distinct cells are unloaded... two are.
+    let n = sys
+        .evict_many(LayerId::new(L), 0, &[b(1), b(3), b(3), b(40)])
+        .unwrap();
+    assert_eq!(n, 2, "only the loaded, distinct cells count");
+    let after = r.snapshot();
+    assert!(
+        !after
+            .cell(LayerId::new(L), 0, b(1))
+            .unwrap()
+            .unwrap()
+            .is_loaded()
+    );
+    assert!(
+        !after
+            .cell(LayerId::new(L), 0, b(3))
+            .unwrap()
+            .unwrap()
+            .is_loaded()
+    );
+    for x in [0, 2, 4] {
+        assert!(
+            after
+                .cell(LayerId::new(L), 0, b(x))
+                .unwrap()
+                .unwrap()
+                .is_loaded(),
+            "brick {x} stays"
+        );
+    }
+    assert_eq!(after.asset_token().value(), token, "no asset token moves");
+    assert_eq!(
+        after.cell_token(LayerId::new(L), 0, b(2)).unwrap().value(),
+        cell_rev
+    );
+    // The snapshot taken before is unchanged, as for a single evict.
+    assert!(
+        before
+            .cell(LayerId::new(L), 0, b(1))
+            .unwrap()
+            .unwrap()
+            .is_loaded()
+    );
+    // An empty list and a list of unloaded cells do nothing.
+    assert_eq!(sys.evict_many(LayerId::new(L), 0, &[]), Ok(0));
+    assert_eq!(sys.evict_many(LayerId::new(L), 0, &[b(1), b(3)]), Ok(0));
+}

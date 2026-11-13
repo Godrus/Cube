@@ -78,6 +78,14 @@ About 240 faces per brick. The on-demand cost is 5832 snapshot lookups per brick
 
 What this means for DEC-095 (the owner chose computed neighbours on 2026-11-02, against the assistant's recommendation of temporary halo cells, and deferred the final choice to this measurement): the measured gap is 16 times, and it comes from the per-voxel reads, so the current provider is the slow path. If neighbours stay computed on demand, the cheap way to do it is a halo. Waiting for the owner: keep the current provider, or switch the faces provider (and later the greedy and SDF meshers) to the temporary halo (task M1-A3e). Meshing is not yet shown to be the cause of the remaining slow frames: see M1-A3d.
 
+### M1-A3d result (2026-11-13, claude-2)
+
+The `gen_cost` example now lists the slow frames of the Session run with what happened in each (bricks loaded, bricks evicted, change of the derived cache and of the active set). After M1-A3c all 7 remaining slow frames (18 to 22 ms) were frames that evicted 81 bricks (a slab behind the player) and loaded one: not generation, not meshing, not the client region. Cause: `SharedAsset::evict` copies the layer's whole cell store for every evicted brick (`current.store(layer).cloned()`), so evicting 81 bricks copied a store of up to 1500 bricks 81 times. Fix: `SystemCommit::evict_many` (one copy for the whole list, no revision, token or log change, unloaded cells skipped, duplicates counted once) used by `LocalHost::evict_far`. Result in release (desktop radius 3, v6, flying east, 1800 frames): frames over 16.7 ms 7 -> 0, worst frame 22.1 -> 16.3 ms, mean unchanged (1.6 ms). The unsliced run (the old budget) still shows 37 slow frames, so M1-A3c is still needed.
+
+Same pattern, not fixed (changes revision semantics, needs its own task, M1-A3f): `materialise` also copies the store once per brick (each load is one commit); the per-brick cost in the M1-A3 table grows with the resident set (v1: 60 us at 125 bricks, 484 us at 6859), which is that copy. A batch load would be one commit for many bricks, and the asset token, operation ids and journal replay (`bring_to_revision`) all count commits, so it must be designed together with M1-A1.
+
+Decision per the work package: no worker thread is needed for generation at the device-class radii; revisit after M1-A3f and a measurement on a phone (AND-01).
+
 ## Epic E-CMB: basic combat (M2)
 
 Goal: one scripted loop. See an enemy, it chases and attacks, the player attacks it, Rust computes damage, it dies, loot enters the inventory, the state is saved, the loop repeats. Out of scope: classes, skills, balance, networking (shape only), art.
