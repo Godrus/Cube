@@ -2,7 +2,7 @@
 
 Одна строка на завершённую задачу, новые сверху. Формат: `дата | id (инструмент, модель) | ID | коммит | что сделано; чем проверено`; колонку агента печатает `cargo xtask who <id>` (id выдаёт `cargo xtask join`). Без кода и диффов (они в git). Хранить 30 строк, остальное переносить в `.agent/archive/ГГГГ-ММ.md`. История до 2026-11-11: `git log` и [`docs/archive/handoff/NEXT-EXECUTION.md`](../docs/archive/handoff/NEXT-EXECUTION.md).
 
-2026-11-13 | claude-2 (Claude Code, sonnet-5.5) | M1-A1 | `HASHPLACE` | спайк выгрузки правленых блоков (тест persistence_eviction_spike, 3 теста): провал воспроизведён, вариант 2 работает без смены replay и журнала; открыто: формат хранилища, сбои записи, пакетная загрузка; fmt, clippy, archcheck, docscheck, features
+2026-11-13 | claude-2 (Claude Code, sonnet-5.5) | M1-A1 | `31fc80d` | спайк выгрузки правленых блоков (тест persistence_eviction_spike, 3 теста): провал воспроизведён, вариант 2 работает без смены replay и журнала; открыто: формат хранилища, сбои записи, пакетная загрузка; fmt, clippy, archcheck, docscheck, features
 2026-11-13 | claude-2 (Claude Code, sonnet-5.5) | M1-A4 | `aeb2e2f` | cube-app/src/character.rs, PortSession::character(); проверено: 3 теста записи, clippy, archcheck
 2026-11-13 | claude-2 (Claude Code, sonnet-5.5) | GP-01 | `5286401` | GameState.ground, drop_to_ground/pickup_near, порт, адаптер и main.gd; проверено: 83 набора тестов, clippy, archcheck, docscheck, реальный Godot walk_smoke --play --combat PASS 2 из 2
 2026-11-13 | claude-2 (Claude Code, sonnet-5.5) | M1-A5 | `d2984ce` | матрица в WORK-PACKAGES, WorldLock в cube-persistence и LocalHost, тесты persistence_failure_matrix и world_lock; проверено: 83 набора тестов, clippy, fmt
