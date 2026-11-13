@@ -25,7 +25,9 @@ pub use journal::{FileJournal, JournalOpenError, OpenReport};
 pub use manifest::{ManifestError, collect_garbage, load_manifest, publish_manifest};
 pub use recovery::{ReplayReport, Resolution, reconcile, replay_confirmed};
 pub use snapshot::{SnapshotError, load_snapshot, snapshot_file, write_snapshot};
-pub use store::{DirStorage, LoadError, Storage, StoreError, load_asset, save_asset, save_atomic};
+pub use store::{
+    DirStorage, LoadError, Storage, StoreError, WorldLock, load_asset, save_asset, save_atomic,
+};
 pub use world_record::{
     RECORD_FILE, RecordError, create_world_with_record, load_world_record, open_world_with_record,
 };

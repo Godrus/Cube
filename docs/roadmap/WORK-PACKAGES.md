@@ -86,6 +86,27 @@ Same pattern, not fixed (changes revision semantics, needs its own task, M1-A3f)
 
 Decision per the work package: no worker thread is needed for generation at the device-class radii; revisit after M1-A3f and a measurement on a phone (AND-01).
 
+### M1-A5 failure matrix (2026-11-13, claude-2)
+
+Storage failures against the stores of a world, and the test that covers each cell. Model results (the crash-point filesystem of `cube-testkit`) are not claims about a physical drive or a phone (DG-2). New in M1-A5 are marked NEW.
+
+| Failure | Journal | Snapshot and world files | Tests |
+|---|---|---|---|
+| Torn tail (a crash inside a write) | repaired on open, acknowledged records stay; a damaged last acknowledged record is not mistaken for a torn tail | truncation and extension of any length detected | `a_torn_tail_is_repaired_and_damage_in_the_middle_is_refused`, `a_damaged_last_acknowledged_record_is_never_mistaken_for_a_torn_tail`, `every_truncation_and_extension_is_detected` |
+| Corrupt bytes | damage in the middle refused, not hidden; any single flipped byte detected | detected, files named precisely | `damage_in_the_middle_lost_marks_and_a_foreign_schema_are_refused_not_hidden`, `every_single_byte_corruption_is_detected`, `missing_corrupt_and_foreign_files_are_reported_precisely_and_leftovers_are_harmless`, `hostile_counts_with_a_valid_checksum_do_not_allocate_or_panic` |
+| Version mismatch | foreign schema refused | unknown schema, kind or limits refused before the body; wrong generator, structure or content version refused, never adapted | `headers_schema_kind_and_limits_are_checked_before_the_body`, `records_with_the_wrong_generator_structure_or_content_are_refused_never_adapted` |
+| Failure at any step of a write or sync | the journal is poisoned, nothing is acknowledged afterwards, restart repairs to a consistent prefix | the previous snapshot is kept | `a_failed_write_or_fsync_poisons_the_journal_and_nothing_is_acknowledged`, `an_injected_failure_at_any_step_fails_the_save_and_keeps_the_previous_snapshot` |
+| Crash at every point | no acknowledged record is lost | one whole generation survives, also through compaction | `every_crash_point_keeps_every_acknowledged_change_and_replay_restores_it`, `every_crash_point_leaves_either_a_complete_old_or_a_complete_new_snapshot`, `every_crash_point_of_a_compaction_leaves_one_whole_generation_and_loses_no_acknowledged_record` |
+| Killed process | repairable file, no acknowledged record lost | n/a | `a_killed_process_loses_no_acknowledged_record_and_leaves_a_repairable_file` |
+| Disk full (a write that fails half way) | NEW: half a record on disk, journal poisoned, restart cuts the tail, sequence continues without a gap | covered by failure at any step | NEW `a_write_that_fails_half_way_leaves_a_torn_tail_and_the_acknowledged_records_stay` |
+| Unreadable file (permission, device) | NEW: an error, never an empty journal; a failed open changes nothing | NEW: `Store` error, not `Missing` | NEW `an_unreadable_file_is_an_error_never_an_empty_or_missing_one` |
+| Read-only file (permission) | NEW: reading works, append is a controlled error and poisons the journal, content intact after the permission returns | n/a | NEW `a_read_only_journal_file_on_a_real_directory_is_a_controlled_error` |
+| Repeated failures | the retry table and the floors survive restarts | NEW: three rounds with every step of a save failing in turn: the file is always a whole snapshot (old, or the offered one when only the directory sync failed), no leftovers but temporary files | NEW `repeated_failed_saves_never_touch_the_last_good_snapshot`, `a_small_retry_table_evicts_safely_and_the_floors_survive_a_restart_that_is_smaller_still` |
+| Concurrent writers | NEW: a world is open for writing in one host at a time (`WorldLock`, an OS file lock on `.world.lock`, released at drop or process death, so a crash leaves no stale lock); a second `LocalHost::open` fails at once | same lock | NEW `store::lock_tests` in `cube-persistence`, NEW `cube-app/tests/world_lock.rs` |
+| Migration | no migration exists: old or foreign versions are refused with a typed error and never adapted | same | the version tests above; the final format (F-PER-006) and a migration path are an owner decision, task M1-A5b |
+
+Found by the matrix: nothing in the journal, snapshot or manifest code was wrong; the missing cell was the writer lock (two hosts could append to one journal and break the gapless sequence). The leftover `.world.lock` file in a world directory is harmless and is not removed.
+
 ## Epic E-CMB: basic combat (M2)
 
 Goal: one scripted loop. See an enemy, it chases and attacks, the player attacks it, Rust computes damage, it dies, loot enters the inventory, the state is saved, the loop repeats. Out of scope: classes, skills, balance, networking (shape only), art.

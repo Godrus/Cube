@@ -19,7 +19,6 @@
 | M1-A3f | Пакетная загрузка блоков: `materialise` копирует хранилище слоя на каждый блок (стоимость растёт с числом блоков в памяти); один коммит на много блоков меняет счёт ревизий, номера операций и повтор журнала, проектировать вместе с M1-A1 | todo | WORK-PACKAGES, раздел M1-A3d result |
 | MAT-02 | Расширить ширину материала в проводных форматах: параметр материала операций правки (voxel, sdf, mesh), страницы мешей, ячейки LOD; сейчас значения выше 65535 дают контролируемую ошибку (DEC-093) | todo | DEC-093, MAT-01 |
 | M1-A4 | `CharacterRecord` отдельно от мира (AI-15) | todo | WORK-PACKAGES |
-| M1-A5 | Полная матрица сбоев хранилища: обрезанный хвост журнала, повреждённые файлы, несовпадение версий, заполненный диск, ошибки прав, одновременные писатели, повторные сбои, миграция | todo | [`docs/api-contracts/PROVISIONAL_CONTRACT_REVIEW.md`](../docs/api-contracts/PROVISIONAL_CONTRACT_REVIEW.md), прежний уровень «M3 и позже» |
 | PRES-01 | Сохранность git (ждёт согласия владельца на push): `spike/p-world` существует только локально (27 коммитов); локальная `dev` впереди `origin/dev` (проверять `git rev-list --left-right --count origin/dev...dev`); локальные ветки `prod/android-build`, `prod/android-spike`, `prod/chamber-guard`, `prod/dungeon-v6`, `prod/ruin-cache`, `prod/touch-controls`, `prod/weapons-craft`, `prod/xp-levels` не на сервере; пометить тегами `archive/<имя>` вершины веток, на которые ссылаются документы (`docs/architecture-roadmap-v1`, `spike/*`) | todo | [`docs/archive/owner-decision-m2t-optimization/DOCUMENTATION_INTEGRATION_PLAN.md`](../docs/archive/owner-decision-m2t-optimization/DOCUMENTATION_INTEGRATION_PLAN.md), замечание I-5 |
 
 Таблицы ADG в [`docs/production/module-boundaries.md`](../docs/production/module-boundaries.md) названы генерируемыми, но генератора в репозитории нет: источником считать сам markdown и править его вручную. Не написана таблица обязательных предшественников ворот по стадиям (какие ворота должны предшествовать каким: например G5 после G4 или параллельно), её должен составить интегратор и подтвердить владелец.
@@ -49,12 +48,14 @@
 - Модуль правил игры или отдельный игровой crate вместо `cube-app` (ODM-05, изменение ADG).
 - Напряжения между решениями, которые владелец не снимал: общий прогресс доверенных серверов и серверная авторитетность (H-4); объём SDF и мешей против столпа Universal Geometry (H-5, снято DEC-097: SDF и меши остаются без развития); смысл «бесконечной прогрессии» (H-7). Подробности: [`docs/archive/governance/historical-decisions-reconciliation.md`](../docs/archive/governance/historical-decisions-reconciliation.md), раздел 6.
 - Истёкшие временные контракты TC-01, TC-04, TC-05, TC-08, TC-09, TC-11: утвердить, заменить или продлить каждый ([`docs/api-contracts/PROVISIONAL_CONTRACT_REVIEW.md`](../docs/api-contracts/PROVISIONAL_CONTRACT_REVIEW.md), раздел 6).
+- Финальный формат сохранения и миграция версий (F-PER-006, M1-A5b): матрица сбоев закрыта, миграции нет, пока формат экспериментальный.
 - Собственная лицензия проекта (DEC-070, отложено): файла лицензии в репозитории нет.
 
 ## Недавно сделано (последние 10)
 
 | ID | Что | Коммит |
 |---|---|---|
+| M1-A5 | матрица сбоев хранилища в WORK-PACKAGES, 4 новых теста, блокировка писателя WorldLock (один хост на мир, замок ОС снимается при падении процесса) | `HASHPLACE` |
 | PROV-01 | проверка условий истечения TC-01..TC-11: выполнены шесть (TC-01, TC-04, TC-05, TC-08, TC-09, TC-11); результат владельцу в разделе 6 PROVISIONAL_CONTRACT_REVIEW | `36730a9` |
 | DOC-05 | docscheck проверяет реестр решений: id DEC/AOD/OAM в документах существуют (id или алиас), CONFIRMED с доказательством, id не переиспользуются, Frozen-контракт ссылается на CONFIRMED; DEC-103..105 для открытых OAM-04..06 | `a731f02` |
 | M1-A3d | Медленные кадры после M1-A3c: причина `evict` копировал хранилище на каждый блок; `evict_many` в Core: кадров дольше 16,7 мс 7 -> 0, худший 22 -> 16 мс | `a18a9dc` |

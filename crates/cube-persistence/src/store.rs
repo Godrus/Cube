@@ -133,6 +133,46 @@ pub fn load_asset(s: &dyn Storage, name: &str, limits: &Limits) -> Result<AssetV
     decode_asset(&bytes, limits).map_err(LoadError::Corrupt)
 }
 
+/// Name of the writer lock file inside a world directory.
+pub const LOCK_FILE: &str = ".world.lock";
+
+/// The exclusive right to write a world directory (M1-A5, concurrent writers).
+///
+/// Two processes (or two hosts in one process) that append to the same journal would interleave
+/// records and break the gapless sequence, so a world is opened by one writer at a time. The lock
+/// is an advisory OS file lock on [`LOCK_FILE`]: it is released when the value is dropped and by
+/// the operating system when the process dies, so a crash never leaves a stale lock behind (the
+/// leftover file itself is harmless and is not removed). Readers that do not write do not need
+/// it.
+#[derive(Debug)]
+pub struct WorldLock {
+    _file: std::fs::File,
+}
+
+impl WorldLock {
+    /// Takes the lock of the world directory `root` (created if needed). Fails at once, without
+    /// waiting, when another writer holds it.
+    pub fn acquire(root: impl AsRef<std::path::Path>) -> Result<Self, StoreError> {
+        let root = root.as_ref();
+        std::fs::create_dir_all(root).map_err(io_err)?;
+        let file = std::fs::OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .truncate(false)
+            .open(root.join(LOCK_FILE))
+            .map_err(io_err)?;
+        match file.try_lock() {
+            Ok(()) => Ok(Self { _file: file }),
+            Err(std::fs::TryLockError::WouldBlock) => Err(StoreError::Io(
+                "the world is already open for writing (another host holds the writer lock)"
+                    .to_owned(),
+            )),
+            Err(std::fs::TryLockError::Error(e)) => Err(io_err(e)),
+        }
+    }
+}
+
 /// A real directory.
 #[derive(Debug, Clone)]
 pub struct DirStorage {
@@ -223,5 +263,53 @@ impl Storage for DirStorage {
             Err(e) if e.kind() == io::ErrorKind::NotFound => Ok(None),
             Err(e) => Err(io_err(e)),
         }
+    }
+}
+
+#[cfg(test)]
+mod lock_tests {
+    use super::*;
+
+    fn dir(tag: &str) -> PathBuf {
+        let d = std::env::temp_dir().join(format!("cube-lock-{}-{tag}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&d);
+        d
+    }
+
+    #[test]
+    fn a_second_writer_is_refused_until_the_first_lets_go() {
+        let d = dir("two");
+        let first = WorldLock::acquire(&d).unwrap();
+        let second = WorldLock::acquire(&d);
+        assert!(
+            matches!(&second, Err(StoreError::Io(m)) if m.contains("already open")),
+            "{second:?}"
+        );
+        drop(first);
+        let again = WorldLock::acquire(&d);
+        assert!(
+            again.is_ok(),
+            "the lock is free after the writer is gone: {again:?}"
+        );
+        let _ = std::fs::remove_dir_all(&d);
+    }
+
+    #[test]
+    fn a_leftover_lock_file_is_not_a_stale_lock() {
+        // A crash leaves the file behind but the OS drops the lock with the process.
+        let d = dir("stale");
+        std::fs::create_dir_all(&d).unwrap();
+        std::fs::write(d.join(LOCK_FILE), b"left by a dead writer").unwrap();
+        assert!(WorldLock::acquire(&d).is_ok());
+        let _ = std::fs::remove_dir_all(&d);
+    }
+
+    #[test]
+    fn different_worlds_do_not_block_each_other() {
+        let (a, b) = (dir("a"), dir("b"));
+        let _la = WorldLock::acquire(&a).unwrap();
+        assert!(WorldLock::acquire(&b).is_ok());
+        let _ = std::fs::remove_dir_all(&a);
+        let _ = std::fs::remove_dir_all(&b);
     }
 }

@@ -172,6 +172,8 @@ pub struct LocalHost {
     /// was opened (used to reconcile state that lives outside the journal, see
     /// [`LocalHost::edit_confirmed_at_open`]).
     confirmed_at_open: HashSet<u64>,
+    /// The writer lock of the world directory, held until the host is dropped (M1-A5).
+    _lock: cube_persistence::WorldLock,
 }
 
 /// Bricks resident in Core (generated or edited), the bricks the player has edited, and the next
@@ -217,15 +219,28 @@ fn runnable(v: cube_core::GeneratorVersion) -> bool {
 impl LocalHost {
     /// Creates a new world in `dir` (which must not hold one) and opens it.
     pub fn create(dir: &Path, record: WorldRecord, area: StaticArea) -> Result<Self, HostError> {
+        let lock = cube_persistence::WorldLock::acquire(dir).map_err(persistence)?;
         let mut st = DirStorage::open(dir).map_err(persistence)?;
         create_world_with_record(&mut st, &record, &Limits::default()).map_err(persistence)?;
-        Self::open(dir, area)
+        Self::open_locked(dir, area, lock)
     }
 
     /// Opens the world in `dir`: reads the record, regenerates the base area, replays the
     /// confirmed edits and rebuilds the retry table. The generator version of the record is
     /// never substituted.
+    ///
+    /// The world is opened for writing by one host at a time: a second `open` of a directory that
+    /// another host (in this or another process) holds fails at once with a persistence error.
     pub fn open(dir: &Path, area: StaticArea) -> Result<Self, HostError> {
+        let lock = cube_persistence::WorldLock::acquire(dir).map_err(persistence)?;
+        Self::open_locked(dir, area, lock)
+    }
+
+    fn open_locked(
+        dir: &Path,
+        area: StaticArea,
+        lock: cube_persistence::WorldLock,
+    ) -> Result<Self, HostError> {
         let limits = Limits::default();
         let (record, world) = open_world_with_record(
             DirStorage::open(dir).map_err(persistence)?,
@@ -369,6 +384,7 @@ impl LocalHost {
             system: handles.system,
             streamed: Mutex::new(streamed),
             confirmed_at_open,
+            _lock: lock,
         })
     }
 
