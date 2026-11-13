@@ -437,6 +437,15 @@ impl PortSession {
         self.message_left = 4.0;
     }
 
+    /// The character as one record (pose and game state), the engine-neutral form a server would
+    /// store (M1-A4). The two client files stay the on-disk form until the save format is decided.
+    pub fn character(&self) -> crate::character::CharacterRecord {
+        crate::character::CharacterRecord {
+            pose: self.session.player_state(),
+            game: self.game.clone(),
+        }
+    }
+
     fn save(&self) {
         // A failed save must not stop the game; the world itself is saved by the host.
         let _ = save_player(&self.dir, &self.session.player_state());
