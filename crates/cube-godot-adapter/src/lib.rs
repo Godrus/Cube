@@ -365,6 +365,30 @@ impl CubeWorld {
         out
     }
 
+    /// The item stacks lying in the world (loot that did not fit in the inventory): an array of
+    /// dictionaries with `item` (the item id), `count` and `pos` (`Vector3`, centre of the
+    /// voxel). Drawing data only; the player picks them up by walking close.
+    #[func]
+    fn ground_items(&self) -> Array<VarDictionary> {
+        let mut out = Array::new();
+        for g in self
+            .session
+            .as_ref()
+            .map(|s| s.ground_items())
+            .unwrap_or_default()
+        {
+            let mut d = VarDictionary::new();
+            d.set("item", i64::from(g.item));
+            d.set("count", i64::from(g.count));
+            d.set(
+                "pos",
+                Vector3::new(g.pos[0] as f32, g.pos[1] as f32, g.pos[2] as f32),
+            );
+            out.push(&d);
+        }
+        out
+    }
+
     /// Selects a hotbar slot.
     #[func]
     fn select_slot(&mut self, slot: i32) {

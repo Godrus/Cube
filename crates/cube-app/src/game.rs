@@ -493,6 +493,27 @@ pub struct GameState {
     pub progress: crate::progression::Progress,
     /// Altars (ruin centre columns) whose cache the player took; it is never refilled.
     pub looted: std::collections::BTreeSet<(i64, i64)>,
+    /// Item stacks lying in the world: loot that did not fit in the inventory (GP-01). Saved with
+    /// the rest of the state; the player picks them up by walking close (`pickup_near`).
+    pub ground: Vec<GroundStack>,
+}
+
+/// Most stacks that may lie on the ground at once. A drop beyond it is refused and the caller
+/// says the items are lost (a last resort: the limit is far above what loot produces).
+pub const MAX_GROUND_STACKS: usize = 64;
+
+/// How close the player's feet must be to the centre of a ground stack to pick it up, in voxels.
+pub const PICKUP_REACH: f64 = 2.2;
+
+/// A stack of items lying on the ground in one voxel.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct GroundStack {
+    /// What it is.
+    pub item: ItemId,
+    /// How many (1..=the item's max stack).
+    pub count: u32,
+    /// The voxel it lies in.
+    pub at: [i64; 3],
 }
 
 impl Default for GameState {
@@ -506,6 +527,7 @@ impl Default for GameState {
             killed: std::collections::BTreeSet::new(),
             progress: crate::progression::Progress::new(),
             looted: std::collections::BTreeSet::new(),
+            ground: Vec::new(),
         }
     }
 }
@@ -598,6 +620,64 @@ impl GameState {
         self.inventory.add(item, count)
     }
 
+    /// Puts `count` items on the ground at voxel `at` (loot that did not fit, GP-01). Items join
+    /// an existing stack of the same kind in that voxel up to the item's maximum stack, the rest
+    /// forms new stacks. Returns how many items could not be placed because the ground is full
+    /// ([`MAX_GROUND_STACKS`]); the caller reports them as lost.
+    pub fn drop_to_ground(&mut self, item: ItemId, count: u32, at: [i64; 3]) -> u32 {
+        let Some(def) = definition(item) else {
+            return count;
+        };
+        let mut left = count;
+        for g in self
+            .ground
+            .iter_mut()
+            .filter(|g| g.item == item && g.at == at && g.count < def.max_stack)
+        {
+            let room = def.max_stack - g.count;
+            let n = room.min(left);
+            g.count += n;
+            left -= n;
+        }
+        while left > 0 && self.ground.len() < MAX_GROUND_STACKS {
+            let n = left.min(def.max_stack);
+            self.ground.push(GroundStack { item, count: n, at });
+            left -= n;
+        }
+        left
+    }
+
+    /// Picks up the ground stacks within [`PICKUP_REACH`] of `feet` as far as the inventory has
+    /// room (survival only: creative creates and consumes nothing). A stack that does not fit
+    /// completely stays with what is left. Returns `(item, taken)` for each stack that gave
+    /// something, in ground order.
+    pub fn pickup_near(&mut self, feet: [f64; 3]) -> Vec<(ItemId, u32)> {
+        if self.mode == Mode::Creative {
+            return Vec::new();
+        }
+        let near = |at: &[i64; 3]| {
+            let d = [
+                at[0] as f64 + 0.5 - feet[0],
+                at[1] as f64 + 0.5 - feet[1],
+                at[2] as f64 + 0.5 - feet[2],
+            ];
+            d[0] * d[0] + d[1] * d[1] + d[2] * d[2] <= PICKUP_REACH * PICKUP_REACH
+        };
+        let mut taken = Vec::new();
+        for g in &mut self.ground {
+            if !near(&g.at) {
+                continue;
+            }
+            let left = self.inventory.add(g.item, g.count);
+            if left < g.count {
+                taken.push((g.item, g.count - left));
+                g.count = left;
+            }
+        }
+        self.ground.retain(|g| g.count > 0);
+        taken
+    }
+
     /// Records that a block of `material` is about to be mined under operation `seq`. Save the
     /// state before the world is changed.
     pub fn begin_mined(&mut self, seq: u64, material: u16) {
@@ -688,6 +768,12 @@ impl GameState {
         for (x, z) in &self.looted {
             s += &format!("cache {x} {z}\n");
         }
+        for g in &self.ground {
+            s += &format!(
+                "ground {} {} {} {} {}\n",
+                g.item.0, g.count, g.at[0], g.at[1], g.at[2]
+            );
+        }
         match self.pending {
             Some(PendingEdit {
                 seq,
@@ -770,6 +856,23 @@ impl GameState {
                     if it.next().is_some() || !st.looted.insert((x, z)) {
                         return None;
                     }
+                }
+                "ground" => {
+                    let item = ItemId(it.next()?.parse().ok()?);
+                    let count: u32 = it.next()?.parse().ok()?;
+                    let mut at = [0i64; 3];
+                    for v in &mut at {
+                        *v = it.next()?.parse().ok()?;
+                    }
+                    let def = definition(item)?;
+                    if it.next().is_some()
+                        || count == 0
+                        || count > def.max_stack
+                        || st.ground.len() >= MAX_GROUND_STACKS
+                    {
+                        return None;
+                    }
+                    st.ground.push(GroundStack { item, count, at });
                 }
                 "xp" => {
                     if xp_seen {
@@ -1320,5 +1423,90 @@ objective shelter-1 8 12 3 4
             definition(IRON_SWORD_ITEM).is_some_and(|d| d.max_stack == 1 && d.places.is_none())
         );
         let _ = sword;
+    }
+
+    #[test]
+    fn ground_stacks_merge_split_at_the_stack_limit_and_the_ground_has_a_limit() {
+        let mut g = GameState::default();
+        let at = [3, 4, 5];
+        assert_eq!(g.drop_to_ground(ItemId(6), 5, at), 0);
+        assert_eq!(g.drop_to_ground(ItemId(6), 7, at), 0);
+        assert_eq!(g.ground.len(), 1, "same item in the same voxel merges");
+        assert_eq!(g.ground[0].count, 12);
+        // Beyond the stack maximum a second stack starts; another voxel is another stack.
+        let max = definition(ItemId(6)).unwrap().max_stack;
+        assert_eq!(g.drop_to_ground(ItemId(6), max, at), 0);
+        assert_eq!(g.ground.len(), 2);
+        assert_eq!(g.ground.iter().map(|s| s.count).sum::<u32>(), 12 + max);
+        assert_eq!(g.drop_to_ground(ItemId(6), 1, [0, 0, 0]), 0);
+        assert_eq!(g.ground.len(), 3);
+        // An unknown item is refused whole; a full ground reports what did not fit.
+        assert_eq!(g.drop_to_ground(ItemId(9999), 3, at), 3);
+        let mut full = GameState::default();
+        for i in 0..MAX_GROUND_STACKS as i64 {
+            assert_eq!(full.drop_to_ground(ItemId(6), 1, [i, 0, 0]), 0);
+        }
+        assert_eq!(full.drop_to_ground(ItemId(6), 4, [999, 0, 0]), 4);
+    }
+
+    #[test]
+    fn pickup_takes_what_fits_leaves_the_rest_and_ignores_far_stacks_and_creative() {
+        let mut g = GameState::default();
+        g.drop_to_ground(ItemId(6), 10, [0, 0, 0]);
+        g.drop_to_ground(ItemId(6), 10, [50, 0, 0]);
+        // Far away: nothing. Next to the first stack: it is taken, the far one stays.
+        assert!(g.pickup_near([20.0, 0.5, 0.5]).is_empty());
+        assert_eq!(g.pickup_near([1.0, 0.0, 0.5]), vec![(ItemId(6), 10)]);
+        assert_eq!(g.inventory.count_of(ItemId(6)), 10);
+        assert_eq!(g.ground.len(), 1);
+        // A full inventory takes only what fits and the remainder stays on the ground.
+        let mut full = GameState::default();
+        full.inventory.add(ItemId(5), 27 * MAX_STACK);
+        full.drop_to_ground(ItemId(6), 4, [0, 0, 0]);
+        assert!(full.pickup_near([0.5, 0.5, 0.5]).is_empty());
+        assert_eq!(full.ground[0].count, 4, "nothing lost, nothing taken");
+        // Room for part of it: a partly full stack of item 6 beside a free slot is not needed;
+        // free one slot-worth and the whole stack goes.
+        full.inventory.remove(ItemId(5), MAX_STACK);
+        assert_eq!(full.pickup_near([0.5, 0.5, 0.5]), vec![(ItemId(6), 4)]);
+        assert!(full.ground.is_empty());
+        // Creative takes nothing.
+        let mut c = GameState {
+            mode: Mode::Creative,
+            ..GameState::default()
+        };
+        c.drop_to_ground(ItemId(6), 2, [0, 0, 0]);
+        assert!(c.pickup_near([0.5, 0.5, 0.5]).is_empty());
+        assert_eq!(c.ground.len(), 1);
+    }
+
+    #[test]
+    fn the_ground_is_saved_and_old_or_damaged_files_behave() {
+        let mut g = GameState::default();
+        g.drop_to_ground(ItemId(6), 5, [-3, 20, 7]);
+        g.drop_to_ground(ItemId(5), 2, [1, 2, 3]);
+        let text = g.encode();
+        assert!(text.contains("ground 6 5 -3 20 7"), "{text}");
+        assert_eq!(GameState::decode(&text), Some(g));
+        // A file from before GP-01 has no ground lines and loads with an empty ground.
+        let old = GameState::default().encode();
+        assert!(!old.contains("ground"));
+        assert!(GameState::decode(&old).unwrap().ground.is_empty());
+        // Damage is refused: unknown item, zero count, a count above the stack, a missing field.
+        let base = GameState::default().encode();
+        for bad in [
+            "ground 9999 1 0 0 0",
+            "ground 6 0 0 0 0",
+            "ground 6 99999 0 0 0",
+            "ground 6 1 0 0",
+            "ground 6 1 0 0 0 extra",
+            "ground x 1 0 0 0",
+        ] {
+            let t = format!(
+                "{base}{bad}
+"
+            );
+            assert!(GameState::decode(&t).is_none(), "{bad}");
+        }
     }
 }

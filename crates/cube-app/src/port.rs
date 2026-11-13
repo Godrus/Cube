@@ -202,7 +202,13 @@ impl PortSession {
                 let left = self.game.grant_loot(drop.item, drop.count);
                 let item = crate::game::definition(drop.item).map_or("item", |d| d.name);
                 if left > 0 {
-                    text = format!("{name} defeated. Inventory full: {left} {item} lost");
+                    // The leftover lies where the creature fell, at the player's feet.
+                    let lost = self.drop_leftover(drop.item, left, feet);
+                    text = if lost == 0 {
+                        format!("{name} defeated. Inventory full: {left} {item} on the ground")
+                    } else {
+                        format!("{name} defeated. Inventory and ground full: {lost} {item} lost")
+                    };
                 } else {
                     text = format!("{name} defeated: +{} {item}", drop.count);
                 }
@@ -245,7 +251,7 @@ impl PortSession {
         let seed = self.session.world_seed();
         let key = crate::loot::cache_key(seed, site.0, site.1);
         let mut text = String::from(if deep { "Deep cache:" } else { "Altar cache:" });
-        let mut lost = 0;
+        let (mut lost, mut on_ground) = (0, 0);
         // The deep cache (under the ruin) holds three rolls instead of two.
         let keys: &[u64] = if deep {
             &[key, key ^ 0xA5A5, key ^ 0x5A5A]
@@ -254,13 +260,23 @@ impl PortSession {
         };
         for &k in keys {
             if let Some(d) = crate::loot::RUIN_LOOT.roll(k) {
-                lost += self.game.grant_loot(d.item, d.count);
+                let left = self.game.grant_loot(d.item, d.count);
+                if left > 0 {
+                    let gone = self.drop_leftover(d.item, left, feet);
+                    lost += gone;
+                    on_ground += left - gone;
+                }
                 let name = crate::game::definition(d.item).map_or("item", |i| i.name);
                 text.push_str(&format!(" +{} {name}", d.count));
             }
         }
+        if on_ground > 0 {
+            text.push_str(&format!(" ({on_ground} did not fit and lie on the ground)"));
+        }
         if lost > 0 {
-            text.push_str(&format!(" ({lost} did not fit and are lost)"));
+            text.push_str(&format!(
+                " ({lost} did not fit and are lost: the ground is full)"
+            ));
         }
         self.game.looted.insert(site);
         let gain = self.game.progress.gain(if deep {
@@ -372,6 +388,41 @@ impl PortSession {
         &self.game
     }
 
+    /// Puts loot that did not fit in the inventory on the ground at the player's feet. Returns
+    /// how many items were lost because the ground is full.
+    fn drop_leftover(&mut self, item: crate::game::ItemId, count: u32, feet: [f64; 3]) -> u32 {
+        let at = [
+            feet[0].floor() as i64,
+            feet[1].floor() as i64,
+            feet[2].floor() as i64,
+        ];
+        self.game.drop_to_ground(item, count, at)
+    }
+
+    /// Picks up the stacks near the player's feet (survival, as far as there is room) and says so.
+    fn pick_up_ground_items(&mut self) {
+        let Some(feet) = self.session.player_feet() else {
+            return;
+        };
+        if self.game.ground.is_empty() {
+            return;
+        }
+        let taken = self.game.pickup_near(feet);
+        if taken.is_empty() {
+            return;
+        }
+        let parts: Vec<String> = taken
+            .iter()
+            .map(|(item, n)| {
+                let name = crate::game::definition(*item).map_or("item", |d| d.name);
+                format!("+{n} {name}")
+            })
+            .collect();
+        self.say(format!("Picked up {}", parts.join(", ")));
+        // The pickup changed the inventory and the ground in one step: save them together.
+        self.save_game();
+    }
+
     fn save_game(&self) {
         let _ = save_game(&self.dir, &self.game);
     }
@@ -428,6 +479,7 @@ impl SessionPort for PortSession {
             self.attack_timer.tick();
         }
         self.run_creatures(c.dt);
+        self.pick_up_ground_items();
         Ok(FrameOut {
             upsert: f.upsert,
             remove: f.remove,
@@ -652,6 +704,22 @@ impl SessionPort for PortSession {
             .host()
             .biome_name(p[0].floor() as i64, p[2].floor() as i64)
             .to_owned()
+    }
+
+    fn ground_items(&self) -> Vec<cube_client::GroundItemView> {
+        self.game
+            .ground
+            .iter()
+            .map(|g| cube_client::GroundItemView {
+                item: g.item.0,
+                count: g.count,
+                pos: [
+                    g.at[0] as f64 + 0.5,
+                    g.at[1] as f64 + 0.5,
+                    g.at[2] as f64 + 0.5,
+                ],
+            })
+            .collect()
     }
 
     fn creatures(&self) -> Vec<cube_client::CreatureView> {

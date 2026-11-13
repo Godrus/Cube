@@ -128,6 +128,17 @@ pub struct GameView {
     pub xp_next: u32,
 }
 
+/// A stack of items lying in the world as the player sees it (data only; the engine draws it).
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub struct GroundItemView {
+    /// The item id (see the game's item table).
+    pub item: u16,
+    /// How many items lie there.
+    pub count: u32,
+    /// Centre of the voxel it lies in.
+    pub pos: [f64; 3],
+}
+
 /// A creature as the player sees it (data only; the engine draws it).
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub struct CreatureView {
@@ -221,6 +232,10 @@ pub trait SessionPort: Send {
     }
     /// The creatures near the player.
     fn creatures(&self) -> Vec<CreatureView> {
+        Vec::new()
+    }
+    /// Item stacks lying in the world (loot that did not fit in the inventory).
+    fn ground_items(&self) -> Vec<GroundItemView> {
         Vec::new()
     }
     /// Selects a hotbar slot.

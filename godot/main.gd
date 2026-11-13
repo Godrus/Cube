@@ -56,6 +56,7 @@ var third_person := false
 var player_body: MeshInstance3D
 var creatures_on := false
 var creature_nodes := []
+var ground_nodes := []
 var creature_prev := []
 var health_bar: ProgressBar
 var health_label: Label
@@ -504,10 +505,42 @@ func _update_creatures_and_health(g: Dictionary) -> void:
 		(node.get_child(0) as Label3D).text = "%d/%d" % [int(c["health"]), int(c["max_health"])]
 
 
+func _update_ground_items() -> void:
+	# Drawing only: the item stacks lying in the world come from Rust (loot that did not fit).
+	var list: Array = world.ground_items()
+	while ground_nodes.size() < list.size():
+		var n := MeshInstance3D.new()
+		var b := BoxMesh.new()
+		b.size = Vector3(0.4, 0.4, 0.4)
+		n.mesh = b
+		n.material_override = StandardMaterial3D.new()
+		var tag := Label3D.new()
+		tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+		tag.position = Vector3(0, 0.5, 0)
+		tag.pixel_size = 0.01
+		tag.no_depth_test = true
+		n.add_child(tag)
+		add_child(n)
+		ground_nodes.append(n)
+	var t := Time.get_ticks_msec() / 1000.0
+	for i in range(ground_nodes.size()):
+		var node: MeshInstance3D = ground_nodes[i]
+		if i >= list.size():
+			node.visible = false
+			continue
+		var g: Dictionary = list[i]
+		node.visible = true
+		node.position = (g["pos"] as Vector3) + Vector3(0, -0.25 + 0.08 * sin(t * 2.0 + i), 0)
+		node.rotation = Vector3(0, t * 1.5 + i, 0)
+		(node.material_override as StandardMaterial3D).albedo_color = Color.from_hsv(fmod(float(g["item"]) * 0.17, 1.0), 0.65, 0.95)
+		(node.get_child(0) as Label3D).text = ("x%d" % int(g["count"])) if int(g["count"]) > 1 else ""
+
+
 func _update_player_and_hud() -> void:
 	if player_body == null:
 		return
 	_update_creatures_and_health(world.game_view())
+	_update_ground_items()
 	var feet: Vector3 = world.player_feet()
 	player_body.visible = third_person and world.is_walking()
 	player_body.position = feet + Vector3(0, 0.9, 0)

@@ -16,6 +16,18 @@ fn start(tag: &str, offset: f64) -> (PortSession, PathBuf, (i64, i64)) {
 
 /// `at` is an offset from the ruin centre column and `dy` the feet above the floor (1 = on it).
 fn start_at(tag: &str, version: u32, at: [f64; 3], dy: i64) -> (PortSession, PathBuf, (i64, i64)) {
+    start_with(tag, version, at, dy, None)
+}
+
+/// Like `start_at`, with a given game state (loaded as if from a save) and a kept directory when
+/// `keep` names one: used to stop and start again in the same world.
+fn start_with(
+    tag: &str,
+    version: u32,
+    at: [f64; 3],
+    dy: i64,
+    game: Option<cube_app::game::GameState>,
+) -> (PortSession, PathBuf, (i64, i64)) {
     let d = std::env::temp_dir().join(format!("cube-ruin-{}-{tag}", std::process::id()));
     let _ = std::fs::remove_dir_all(&d);
     let rec = WorldRecord {
@@ -47,7 +59,11 @@ fn start_at(tag: &str, version: u32, at: [f64; 3], dy: i64) -> (PortSession, Pat
         walking: true,
         third_person: false,
     });
-    (PortSession::new(session, d.clone()), d, (ruin.0, ruin.1))
+    let port = match game {
+        Some(g) => PortSession::with_game(session, d.clone(), g),
+        None => PortSession::new(session, d.clone()),
+    };
+    (port, d, (ruin.0, ruin.1))
 }
 
 #[test]
@@ -112,4 +128,44 @@ fn the_deep_cache_under_the_ruin_is_bigger_taken_once_and_only_in_version_six() 
     let (mut p5, d5, _) = start_at("deep5", 5, [0.0, 0.0, 3.0], -6);
     assert_eq!(p5.interact(), "");
     let _ = std::fs::remove_dir_all(d5);
+}
+
+#[test]
+fn what_does_not_fit_lies_on_the_ground_is_saved_and_is_picked_up_when_there_is_room() {
+    use cube_app::game::{GameState, ItemId, MAX_STACK};
+    use cube_client::{Controls, SessionPort};
+    // A full inventory at the altar: the cache goes to the ground, not into the void.
+    let mut full = GameState::default();
+    full.inventory.add(ItemId(5), 27 * MAX_STACK);
+    let (mut p, d, _) = start_with("ground", 5, [1.0, 0.0, 0.0], 1, Some(full));
+    let t = p.interact();
+    assert!(t.contains("lie on the ground"), "{t}");
+    assert!(!t.contains("are lost"), "{t}");
+    let on_ground: u32 = p.game().ground.iter().map(|g| g.count).sum();
+    assert!(on_ground >= 4, "two rolls of at least two: {on_ground}");
+    assert_eq!(
+        p.ground_items().iter().map(|g| g.count).sum::<u32>(),
+        on_ground,
+        "the view shows the same stacks"
+    );
+    // The stacks are written with the cache: a crash right now keeps them.
+    drop(p);
+    let saved = cube_app::port::load_game(&d).expect("written when it happened");
+    assert_eq!(saved.ground.iter().map(|g| g.count).sum::<u32>(), on_ground);
+    // Start again with a free inventory at the same place: one frame and the stacks are taken.
+    let mut roomy = saved;
+    roomy.inventory = cube_app::game::Inventory::new();
+    let (mut p, d2, _) = start_with("ground2", 5, [1.0, 0.0, 0.0], 1, Some(roomy));
+    p.frame(&Controls {
+        dt: 1.0 / 60.0,
+        ..Controls::default()
+    })
+    .unwrap();
+    assert!(p.game().ground.is_empty(), "picked up");
+    let items: u32 = (1..=12u16)
+        .map(|i| p.game().inventory.count_of(ItemId(i)))
+        .sum();
+    assert_eq!(items, on_ground);
+    let _ = std::fs::remove_dir_all(d);
+    let _ = std::fs::remove_dir_all(d2);
 }
