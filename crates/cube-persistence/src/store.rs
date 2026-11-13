@@ -271,7 +271,11 @@ mod lock_tests {
     use super::*;
 
     fn dir(tag: &str) -> PathBuf {
-        let d = std::env::temp_dir().join(format!("cube-lock-{}-{tag}", std::process::id()));
+        // No process id here: archcheck forbids `std::process` in production crates (AOD-12).
+        let nanos = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map_or(0, |d| d.as_nanos());
+        let d = std::env::temp_dir().join(format!("cube-lock-{nanos}-{tag}"));
         let _ = std::fs::remove_dir_all(&d);
         d
     }
